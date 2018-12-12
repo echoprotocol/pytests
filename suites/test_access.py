@@ -17,10 +17,11 @@ class TestEcho:
         self.database = json.load(open(os.path.join(RESOURCES_DIR, "echo_apis.json")))["DATABASE"]
 
     @lcc.test("Get response from method")
-    def test_get_response(self, connection, login):
+    def test_get_response(self, connection, login, generate_number_between):
         # Authorization status check and request data from the database
         lcc.set_step("Requesting Access to an API")
         if login:
+            self.database["id"] = generate_number_between
             connection.send(json.dumps(self.database))
         else:
             lcc.log_error("Login failed")
@@ -33,7 +34,7 @@ class TestEcho:
         lcc.set_step("Check API response")
         check_that_in(
             db,
-            "id", is_integer(),
+            "id", is_(generate_number_between),
             "jsonrpc", is_("2.0"),
             "result", is_integer()
         )

@@ -23,10 +23,11 @@ def connection():
     return ws
 
 
-@lcc.fixture(scope="suite")
-def login(connection):
+@lcc.fixture()
+def login(connection, generate_number_between):
     # Login to Echo
     lcc.set_step("Login to the Full Node")
+    login_echo["id"] = generate_number_between
     connection.send(json.dumps(login_echo))
 
     # Receive authorization response
@@ -37,7 +38,7 @@ def login(connection):
     lcc.set_step("Check API response")
     check_that_in(
         data,
-        "id", is_integer(),
+        "id", is_(generate_number_between),
         "jsonrpc", is_("2.0"),
         "result", is_bool()
     )

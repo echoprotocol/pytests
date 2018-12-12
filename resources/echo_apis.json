@@ -1,6 +1,6 @@
 {
   "LOGIN": {
-    "id": 3,
+    "id": "",
     "method": "call",
     "params":[1, "login", ["", ""]]
   },
