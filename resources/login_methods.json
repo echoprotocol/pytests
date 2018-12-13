@@ -1,0 +1,14 @@
+{
+  "LOGIN_EMPTY_PARAMS": {
+    "id": "",
+    "method": "call",
+    "params": [
+      1,
+      "login",
+      [
+        "",
+        ""
+      ]
+    ]
+  }
+}

@@ -2,12 +2,24 @@
   "GET_BLOCK": {
     "id": "",
     "method": "call",
-    "params":[2, "get_block", ["451113"]]
+    "params": [
+      2,
+      "get_block",
+      [
+        "451113"
+      ]
+    ]
   },
-
   "GET_TRANSACTIONS": {
     "id": "",
     "method": "call",
-    "params":[2, "get_transaction", ["451113", "0"]]
+    "params": [
+      2,
+      "get_transaction",
+      [
+        "451113",
+        "0"
+      ]
+    ]
   }
 }

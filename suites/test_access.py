@@ -18,6 +18,7 @@ SUITE = {
 
 
 @lcc.suite("Simple test")
+@lcc.disabled()  # todo убрать когда закончу
 class TestEcho:
     def __init__(self):
         self.ws = create_connection(echo_dev)

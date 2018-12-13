@@ -2,12 +2,22 @@
   "LOGIN": {
     "id": "07",
     "method": "call",
-    "params":[1, "login", ["", ""]]
+    "params": [
+      1,
+      "login",
+      [
+        "",
+        ""
+      ]
+    ]
   },
-
   "DATABASE": {
     "id": "",
     "method": "call",
-    "params": [1, "database", []]
+    "params": [
+      1,
+      "database",
+      []
+    ]
   }
 }
