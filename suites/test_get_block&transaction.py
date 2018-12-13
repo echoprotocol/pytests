@@ -2,9 +2,10 @@ import json
 import os
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_, is_integer
+from lemoncheesecake.matching import check_that_in, is_, is_integer, is_str
 from websocket import create_connection
 
+call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}  # id, method_name, data
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 echo_dev = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 login_echo = json.load(open(os.path.join(RESOURCES_DIR, "echo_apis.json")))["LOGIN"]
@@ -18,10 +19,35 @@ SUITE = {
 
 
 @lcc.suite("Simple test")
-@lcc.disabled()  # todo убрать когда закончу
 class TestEcho:
     def __init__(self):
         self.ws = create_connection(echo_dev)
+        self.api_id = 0
+
+    def call_method(self, method, call_back=None):
+        # Method returns the api method call
+        self.api_id += 1
+        if call_back is None:
+            call_format["id"] = self.api_id
+            for i in range(3):
+                call_format["params"][i] = method[i]
+            return call_format
+        else:
+            call_format["id"] = self.api_id
+            call_format["params"][0] = call_back
+            for i in range(1, 3):
+                call_format["params"][i] = method[i]
+            return call_format
+
+    def check_resp_format(self, response):
+        # Method check the validity of the response from the server
+        check_that_in(
+            response,
+            "id", is_integer(),
+            "id", is_(self.api_id),
+            "jsonrpc", is_str(),
+            "jsonrpc", is_("2.0")
+        )
 
     def setup_suite(self):
         # Check status of connection
@@ -33,11 +59,11 @@ class TestEcho:
 
         # Login to Echo
         lcc.set_step("Login to the Full Node")
-        self.ws.send(json.dumps(login_echo))
+        self.ws.send(json.dumps(self.call_method(login_echo)))
 
         # Receive authorization response
-        data = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(data, indent=4)))
+        resp = json.loads(self.ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 
     def teardown_suite(self):
         # Close connection to WebSocket
@@ -46,63 +72,47 @@ class TestEcho:
         lcc.log_info("Connection closed ")
 
     @lcc.test("Get response from database api")
-    def test_get_response(self, generate_number_between):
+    def test_get_response(self):
         # Authorization status check and request data from the database
         lcc.set_step("Requesting Access to an API")
-        database["id"] = generate_number_between
-        self.ws.send(json.dumps(database))
+        self.ws.send(json.dumps(self.call_method(database)))
 
         # Receive identifier
-        db = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(db, indent=4)))
+        resp = json.loads(self.ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 
         # Check the validity of the response from the server
         lcc.set_step("Check API response")
-        check_that_in(
-            db,
-            "id", is_(generate_number_between),
-            "jsonrpc", is_("2.0"),
-            "result", is_integer()
-        )
+        self.check_resp_format(resp)
 
     @lcc.test("Get block")
-    def test_get_block(self, generate_number_between):
+    def test_get_block(self):
         # Get block
         lcc.set_step("Retrieve a full, signed block.")
-        get_block["id"] = generate_number_between
-        self.ws.send(json.dumps(get_block))
-        block_info = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(block_info, indent=4)))
+        self.ws.send(json.dumps(self.call_method(get_block)))
+        resp = json.loads(self.ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 
         # Check data in response
         lcc.set_step("Check API response")
+        self.check_resp_format(resp)
         check_that_in(
-            block_info,
-            "id", is_(generate_number_between),
-            "jsonrpc", is_("2.0"),
-        )
-        check_that_in(
-            block_info["result"],
+            resp["result"],
             "previous", is_("0006e2288488b9fbcdb23f576a34b22869eae3e2")
         )
 
     @lcc.test("Get transaction")
-    def test_get_transaction(self, generate_number_between):
+    def test_get_transaction(self):
         # Get transaction
         lcc.set_step("Retrieve transaction.")
-        get_transaction["id"] = generate_number_between
-        self.ws.send(json.dumps(get_transaction))
-        transaction_info = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(transaction_info, indent=4)))
+        self.ws.send(json.dumps(self.call_method(get_transaction)))
+        resp = json.loads(self.ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 
         # Check data response
         lcc.set_step("Check API response")
+        self.check_resp_format(resp)
         check_that_in(
-            transaction_info,
-            "id", is_(generate_number_between),
-            "jsonrpc", is_("2.0"),
-        )
-        check_that_in(
-            transaction_info["result"],
+            resp["result"],
             "ref_block_num", is_integer()
         )

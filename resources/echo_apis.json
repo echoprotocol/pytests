@@ -1,23 +1,4 @@
 {
-  "LOGIN": {
-    "id": "07",
-    "method": "call",
-    "params": [
-      1,
-      "login",
-      [
-        "",
-        ""
-      ]
-    ]
-  },
-  "DATABASE": {
-    "id": "",
-    "method": "call",
-    "params": [
-      1,
-      "database",
-      []
-    ]
-  }
+  "LOGIN": [1, "login", ["", ""]],
+  "DATABASE": [1, "database", []]
 }
