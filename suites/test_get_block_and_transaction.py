@@ -40,6 +40,16 @@ class TestEcho:
                 call_format["params"][i] = method[i]
             return call_format
 
+    def send_request(self, request, call_back=None):
+        if call_back is None:
+            self.ws.send(json.dumps(self.call_method(request)))
+        else:
+            self.ws.send(json.dumps(self.call_method(request, call_back)))
+
+    # def get_response(self):
+    #     resp = json.loads(self.ws.recv())
+    #     lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+
     def check_resp_format(self, response):
         # Method check the validity of the response from the server
         check_that_in(
@@ -68,7 +78,7 @@ class TestEcho:
 
         # Login to Echo
         lcc.set_step("Login to the Full Node")
-        self.ws.send(json.dumps(self.call_method(login_echo)))
+        self.send_request(login_echo)
 
         # Receive authorization response
         resp = json.loads(self.ws.recv())
@@ -84,7 +94,7 @@ class TestEcho:
     def test_get_response(self):
         # Authorization status check and request data from the database
         lcc.set_step("Requesting Access to an API")
-        self.ws.send(json.dumps(self.call_method(database)))
+        self.send_request(database)
 
         # Receive identifier
         resp = json.loads(self.ws.recv())
@@ -99,7 +109,7 @@ class TestEcho:
     def test_get_block(self):
         # Get block
         lcc.set_step("Retrieve a full, signed block.")
-        self.ws.send(json.dumps(self.call_method(get_block, self.db_identifier)))
+        self.send_request(get_block, self.db_identifier)
         resp = json.loads(self.ws.recv())
         lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 
