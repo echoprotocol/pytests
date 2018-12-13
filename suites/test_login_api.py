@@ -5,7 +5,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, is_, is_bool, is_integer, is_str
 from websocket import create_connection
 
-call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}  # id, method_name, data
+call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 echo_dev = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 login_empty_params = json.load(open(os.path.join(RESOURCES_DIR, "login_methods.json")))["LOGIN_EMPTY_PARAMS"]

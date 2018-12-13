@@ -5,7 +5,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, is_, is_integer, is_str
 from websocket import create_connection
 
-call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}  # id, method_name, data
+call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 echo_dev = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 login_echo = json.load(open(os.path.join(RESOURCES_DIR, "echo_apis.json")))["LOGIN"]
@@ -23,6 +23,7 @@ class TestEcho:
     def __init__(self):
         self.ws = create_connection(echo_dev)
         self.api_id = 0
+        self.db_identifier = None
 
     def call_method(self, method, call_back=None):
         # Method returns the api method call
@@ -48,6 +49,14 @@ class TestEcho:
             "jsonrpc", is_str(),
             "jsonrpc", is_("2.0")
         )
+
+    def check_and_get_identifier(self, response):
+        # Method check the validity of the result
+        check_that_in(
+            response,
+            "result", is_integer(),
+        )
+        self.db_identifier = response["result"]
 
     def setup_suite(self):
         # Check status of connection
@@ -84,12 +93,13 @@ class TestEcho:
         # Check the validity of the response from the server
         lcc.set_step("Check API response")
         self.check_resp_format(resp)
+        self.check_and_get_identifier(resp)
 
     @lcc.test("Get block")
     def test_get_block(self):
         # Get block
         lcc.set_step("Retrieve a full, signed block.")
-        self.ws.send(json.dumps(self.call_method(get_block)))
+        self.ws.send(json.dumps(self.call_method(get_block, self.db_identifier)))
         resp = json.loads(self.ws.recv())
         lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 
@@ -105,7 +115,7 @@ class TestEcho:
     def test_get_transaction(self):
         # Get transaction
         lcc.set_step("Retrieve transaction.")
-        self.ws.send(json.dumps(self.call_method(get_transaction)))
+        self.ws.send(json.dumps(self.call_method(get_transaction, self.db_identifier)))
         resp = json.loads(self.ws.recv())
         lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
 

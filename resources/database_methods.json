@@ -1,4 +1,4 @@
 {
-  "GET_BLOCK": [2, "get_block", ["451113"]],
-  "GET_TRANSACTIONS": [2, "get_transaction", ["451113", "0"]]
+  "GET_BLOCK": ["", "get_block", ["451113"]],
+  "GET_TRANSACTIONS": ["", "get_transaction", ["451113", "0"]]
 }
