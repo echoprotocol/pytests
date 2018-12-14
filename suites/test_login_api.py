@@ -1,11 +1,11 @@
 import json
 import os
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_, is_bool, is_integer, is_str
 from websocket import create_connection
 
-call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that_in, is_bool, is_integer, is_str, is_
+
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 echo_dev = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 login_empty_params = json.load(open(os.path.join(RESOURCES_DIR, "login_methods.json")))["LOGIN_EMPTY_PARAMS"]
@@ -16,27 +16,27 @@ SUITE = {
 }
 
 
-@lcc.suite("Test login method")
-class TestLoginMethod:
+class BaseTest(object):
     def __init__(self):
         self.ws = create_connection(echo_dev)
         self.resp = None
         self.api_id = 0
+        self.call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 
     def call_method(self, method, call_back=None):
         # Method returns the api method call
         self.api_id += 1
         if call_back is None:
-            call_format["id"] = self.api_id
+            self.call_format["id"] = self.api_id
             for i in range(3):
-                call_format["params"][i] = method[i]
-            return call_format
+                self.call_format["params"][i] = method[i]
+            return self.call_format
         else:
-            call_format["id"] = self.api_id
-            call_format["params"][0] = call_back
+            self.call_format["id"] = self.api_id
+            self.call_format["params"][0] = call_back
             for i in range(1, 3):
-                call_format["params"][i] = method[i]
-            return call_format
+                self.call_format["params"][i] = method[i]
+            return self.call_format
 
     def send_request(self, request, call_back=None):
         # Send request to server
@@ -87,6 +87,12 @@ class TestLoginMethod:
         lcc.set_step("Close connection")
         self.ws.close()
         lcc.log_info("Connection closed")
+
+
+@lcc.suite("Test login method")
+class TestLoginMethod(BaseTest):
+    def __init__(self):
+        super().__init__()
 
     @lcc.test("Login with empty parameters")
     def test_login_with_empty_params(self):
