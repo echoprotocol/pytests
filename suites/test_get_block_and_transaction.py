@@ -18,28 +18,28 @@ SUITE = {
 }
 
 
-@lcc.suite("Simple test")
-class TestEcho:
+class BaseTest(object):
     def __init__(self):
         self.ws = create_connection(echo_dev)
         self.resp = None
         self.api_id = 0
         self.db_identifier = None
+        self.call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 
     def call_method(self, method, call_back=None):
-        # Returns the api method call
+        # Method returns the api method call
         self.api_id += 1
         if call_back is None:
-            call_format["id"] = self.api_id
+            self.call_format["id"] = self.api_id
             for i in range(3):
-                call_format["params"][i] = method[i]
-            return call_format
+                self.call_format["params"][i] = method[i]
+            return self.call_format
         else:
-            call_format["id"] = self.api_id
-            call_format["params"][0] = call_back
+            self.call_format["id"] = self.api_id
+            self.call_format["params"][0] = call_back
             for i in range(1, 3):
-                call_format["params"][i] = method[i]
-            return call_format
+                self.call_format["params"][i] = method[i]
+            return self.call_format
 
     def send_request(self, request, call_back=None):
         # Send request to server
@@ -57,7 +57,7 @@ class TestEcho:
         return self.resp
 
     def check_resp_format(self, response):
-        # Check the validity of the response from the server
+        # Method check the validity of the response from the server
         check_that_in(
             response,
             "id", is_integer(),
@@ -74,6 +74,17 @@ class TestEcho:
         )
         self.db_identifier = response["result"]
 
+    @staticmethod
+    def login_status(response):
+        # Method check authorization status
+        if "result" in response:
+            if response["result"]:
+                lcc.log_info("Login successful")
+            else:
+                lcc.log_info("Login failed")
+        else:
+            lcc.log_error("Login failed")
+
     def setup_suite(self):
         # Check status of connection
         if self.ws is not None:
@@ -82,18 +93,17 @@ class TestEcho:
         else:
             lcc.log_error("Connection not established")
 
-        # Login to Echo
-        lcc.set_step("Login to the Full Node")
-        self.send_request(login_echo)
-
-        # Receive authorization response
-        self.get_response()
-
     def teardown_suite(self):
         # Close connection to WebSocket
         lcc.set_step("Close connection")
         self.ws.close()
-        lcc.log_info("Connection closed ")
+        lcc.log_info("Connection closed")
+
+
+@lcc.suite("Simple test")
+class TestEcho(BaseTest):
+    def __init__(self):
+        super().__init__()
 
     @lcc.test("Connection to database api")
     def test_connection_to_db_api(self):
