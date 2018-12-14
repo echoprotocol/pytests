@@ -22,11 +22,12 @@ SUITE = {
 class TestEcho:
     def __init__(self):
         self.ws = create_connection(echo_dev)
+        self.resp = None
         self.api_id = 0
         self.db_identifier = None
 
     def call_method(self, method, call_back=None):
-        # Method returns the api method call
+        # Returns the api method call
         self.api_id += 1
         if call_back is None:
             call_format["id"] = self.api_id
@@ -41,17 +42,22 @@ class TestEcho:
             return call_format
 
     def send_request(self, request, call_back=None):
+        # Send request to server
         if call_back is None:
             self.ws.send(json.dumps(self.call_method(request)))
+            return self.ws
         else:
             self.ws.send(json.dumps(self.call_method(request, call_back)))
+            return self.ws
 
-    # def get_response(self):
-    #     resp = json.loads(self.ws.recv())
-    #     lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+    def get_response(self):
+        # Receive answer from server
+        self.resp = json.loads(self.ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(self.resp, indent=4)))
+        return self.resp
 
     def check_resp_format(self, response):
-        # Method check the validity of the response from the server
+        # Check the validity of the response from the server
         check_that_in(
             response,
             "id", is_integer(),
@@ -61,7 +67,7 @@ class TestEcho:
         )
 
     def check_and_get_identifier(self, response):
-        # Method check the validity of the result
+        # Check the validity of the result
         check_that_in(
             response,
             "result", is_integer(),
@@ -81,8 +87,7 @@ class TestEcho:
         self.send_request(login_echo)
 
         # Receive authorization response
-        resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+        self.get_response()
 
     def teardown_suite(self):
         # Close connection to WebSocket
@@ -90,15 +95,14 @@ class TestEcho:
         self.ws.close()
         lcc.log_info("Connection closed ")
 
-    @lcc.test("Get response from database api")
-    def test_get_response(self):
+    @lcc.test("Connection to database api")
+    def test_connection_to_db_api(self):
         # Authorization status check and request data from the database
         lcc.set_step("Requesting Access to an API")
         self.send_request(database)
 
         # Receive identifier
-        resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+        resp = self.get_response()
 
         # Check the validity of the response from the server
         lcc.set_step("Check API response")
@@ -110,8 +114,7 @@ class TestEcho:
         # Get block
         lcc.set_step("Retrieve a full, signed block.")
         self.send_request(get_block, self.db_identifier)
-        resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+        resp = self.get_response()
 
         # Check data in response
         lcc.set_step("Check API response")
@@ -126,8 +129,7 @@ class TestEcho:
         # Get transaction
         lcc.set_step("Retrieve transaction.")
         self.ws.send(json.dumps(self.call_method(get_transaction, self.db_identifier)))
-        resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+        resp = self.get_response()
 
         # Check data response
         lcc.set_step("Check API response")

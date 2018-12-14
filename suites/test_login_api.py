@@ -20,6 +20,7 @@ SUITE = {
 class TestLoginMethod:
     def __init__(self):
         self.ws = create_connection(echo_dev)
+        self.resp = None
         self.api_id = 0
 
     def call_method(self, method, call_back=None):
@@ -36,6 +37,21 @@ class TestLoginMethod:
             for i in range(1, 3):
                 call_format["params"][i] = method[i]
             return call_format
+
+    def send_request(self, request, call_back=None):
+        # Send request to server
+        if call_back is None:
+            self.ws.send(json.dumps(self.call_method(request)))
+            return self.ws
+        else:
+            self.ws.send(json.dumps(self.call_method(request, call_back)))
+            return self.ws
+
+    def get_response(self):
+        # Receive answer from server
+        self.resp = json.loads(self.ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(self.resp, indent=4)))
+        return self.resp
 
     def check_resp_format(self, response):
         # Method check the validity of the response from the server
@@ -75,12 +91,10 @@ class TestLoginMethod:
     @lcc.test("Login with empty parameters")
     def test_login_with_empty_params(self):
         # Login to Echo
-        lcc.set_step("Login to the Full Node with empty params")
-        self.ws.send(json.dumps(self.call_method(login_empty_params)))
+        self.send_request(login_empty_params)
 
         # Receive authorization response
-        resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+        resp = self.get_response()
 
         # Check response
         lcc.set_step("Check response with empty data")
@@ -98,11 +112,10 @@ class TestLoginMethod:
     def test_login_with_valid_params(self):
         # Login to Echo
         lcc.set_step("Login to the Full Node with valid params")
-        self.ws.send(json.dumps(self.call_method(login_valid_params)))
+        self.send_request(login_valid_params)
 
         # Receive authorization response
-        resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(resp, indent=4)))
+        resp = self.get_response()
 
         # Check response
         lcc.set_step("Check response with empty data")
