@@ -8,7 +8,6 @@ SUITE = {
 
 
 @lcc.suite("Test login method")
-@lcc.disabled()
 class TestLoginMethod(BaseTest):
     def __init__(self):
         super().__init__()
