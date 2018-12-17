@@ -21,8 +21,13 @@ class BaseTest(object):
         self.call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 
     @staticmethod
-    def get_data(file_name, variable_name):
-        return json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
+    def get_data(file_name, variable_name, params=None):
+        if params is None:
+            return json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
+        else:
+            data = json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
+            data.insert(2, ["{}".format(params)])
+            return data
 
     def call_method(self, method, call_back=None):
         # Method returns the api method call
