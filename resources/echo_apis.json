@@ -1,4 +1,5 @@
 {
   "LOGIN": [1, "login", ["", ""]],
+  "ASSET": [1, "asset", []],
   "DATABASE": [1, "database", []]
 }
