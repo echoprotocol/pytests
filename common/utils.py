@@ -22,11 +22,12 @@ class BaseTest(object):
 
     @staticmethod
     def get_data(file_name, variable_name, params=None):
+        # Params must be list
         if params is None:
             return json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
         else:
             data = json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
-            data.insert(2, ["{}".format(params)])
+            data.insert(2, params)
             return data
 
     def call_method(self, method, call_back=None):
