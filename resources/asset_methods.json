@@ -1,4 +1,5 @@
 {
   "GET_ALL_ASSET_HOLDERS": ["", "get_all_asset_holders", []],
-  "GET_ASSET_HOLDERS_COUNT": ["", "get_asset_holders_count", []]
+  "GET_ASSET_HOLDERS_COUNT": ["", "get_asset_holders_count", []],
+  "GET_ASSET_HOLDERS":["", "get_asset_holders", []]
 }

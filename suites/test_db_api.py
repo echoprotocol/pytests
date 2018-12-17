@@ -41,7 +41,7 @@ class TestEcho(BaseTest):
         self.check_resp_format(resp)
         check_that_in(
             resp["result"],
-            "previous", is_("00069f2542119b939bafe6f55bcb75c2fbe44b15")
+            "previous", is_("00101555174911684721792bfe0f5eda8058ef3a")
         )
 
     @lcc.test("Get transaction")
