@@ -15,7 +15,9 @@ class BaseTest(object):
         self.ws = create_connection(echo_dev)
         self.resp = None
         self.api_id = 0
-        self.db_identifier = None
+        self.identifier = None
+        self.echo_api = "echo_apis.json"
+        self.login = "LOGIN"
         self.call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 
     @staticmethod
@@ -68,7 +70,7 @@ class BaseTest(object):
             response,
             "result", is_integer(),
         )
-        self.db_identifier = response["result"]
+        self.identifier = response["result"]
 
     @staticmethod
     def login_status(response):
@@ -80,6 +82,12 @@ class BaseTest(object):
                 lcc.log_info("Login failed")
         else:
             lcc.log_error("Login failed")
+
+    def login_echo(self):
+        lcc.set_step("Login to Echo")
+        self.send_request(self.get_data(self.echo_api, self.login))
+        resp = self.get_response()
+        self.login_status(resp)
 
     def setup_suite(self):
         # Check status of connection

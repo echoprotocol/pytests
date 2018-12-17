@@ -9,6 +9,7 @@ SUITE = {
 
 
 @lcc.suite("Simple test")
+@lcc.disabled()
 class TestEcho(BaseTest):
     def __init__(self):
         super().__init__()
@@ -18,8 +19,17 @@ class TestEcho(BaseTest):
         self.get_block = "GET_BLOCK"
         self.get_transaction = "GET_TRANSACTIONS"
 
+    def get_db_identifier(self):
+        lcc.set_step("Get database identifier")
+        self.send_request(self.get_data(self.echo_api, self.database_api))
+        resp = self.get_response()
+        self.check_and_get_identifier(resp)
+
     @lcc.test("Connection to database api")
     def test_connection_to_db_api(self):
+        # Login
+        self.login_echo()
+
         # Authorization status check and request data from the database
         lcc.set_step("Requesting Access to an API")
         self.send_request(self.get_data(self.echo_api, self.database_api))
@@ -34,9 +44,15 @@ class TestEcho(BaseTest):
 
     @lcc.test("Get block")
     def test_get_block(self):
+        # Login
+        self.login_echo()
+
+        # Get identifier
+        self.get_db_identifier()
+
         # Get block
         lcc.set_step("Retrieve a full, signed block.")
-        self.send_request(self.get_data(self.db_data, self.get_block), self.db_identifier)
+        self.send_request(self.get_data(self.db_data, self.get_block), self.identifier)
         resp = self.get_response()
 
         # Check data in response
@@ -49,9 +65,15 @@ class TestEcho(BaseTest):
 
     @lcc.test("Get transaction")
     def test_get_transaction(self):
+        # Login
+        self.login_echo()
+
+        # Get identifier
+        self.get_db_identifier()
+
         # Get transaction
         lcc.set_step("Retrieve transaction.")
-        self.send_request(self.get_data(self.db_data, self.get_transaction), self.db_identifier)
+        self.send_request(self.get_data(self.db_data, self.get_transaction), self.identifier)
         resp = self.get_response()
 
         # Check data response
