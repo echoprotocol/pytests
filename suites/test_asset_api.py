@@ -95,8 +95,7 @@ class TestAssetMethod(BaseTest):
         lcc.set_step("Get asset_id and count of holders")
         params = [resp["result"][0]["asset_id"], 0, 100]
         holders_count = resp["result"][0]["count"]
-        self.send_request(self.get_data(self.asset_data, self.get_asset_holders, params),
-                          self.identifier)
+        self.send_request(self.get_data(self.asset_data, self.get_asset_holders, params), self.identifier)
         resp = self.get_response()
         self.check_resp_format(resp)
 
