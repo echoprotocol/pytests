@@ -4,46 +4,51 @@ import os
 from websocket import create_connection
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_integer, is_str, is_
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
-echo_dev = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
+ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
+METHOD = json.load(open(os.path.join(RESOURCES_DIR, "echo_methods.json")))
+EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
+CALL_FORMAT = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 
 
 class BaseTest(object):
+    login = "login"
+
     def __init__(self):
-        self.ws = create_connection(echo_dev)
+        self.ws = create_connection(ECHO_DEV)
         self.resp = None
         self.api_id = 0
         self.identifier = None
-        self.echo_api = "echo_apis.json"
-        self.login = "LOGIN"
-        self.call_format = {"id": 0, "method": "call", "params": [{}, {}, {}]}
 
     @staticmethod
-    def get_data(file_name, variable_name, params=None):
+    def get_request(variable_name, params=None):
         # Params must be list
         if params is None:
-            return json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
+            return METHOD[variable_name]
         else:
-            data = json.load(open(os.path.join(RESOURCES_DIR, file_name)))[variable_name]
+            data = METHOD[variable_name]
             data.insert(2, params)
             return data
 
+    @staticmethod
+    def get_expected(variable_name):
+        return EXPECTED[variable_name]
+
     def call_method(self, method, call_back=None):
-        # Method returns the api method call
+        # Returns the api method call
         self.api_id += 1
         if call_back is None:
-            self.call_format["id"] = self.api_id
+            CALL_FORMAT["id"] = self.api_id
             for i in range(3):
-                self.call_format["params"][i] = method[i]
-            return self.call_format
+                CALL_FORMAT["params"][i] = method[i]
+            return CALL_FORMAT
         else:
-            self.call_format["id"] = self.api_id
-            self.call_format["params"][0] = call_back
+            CALL_FORMAT["id"] = self.api_id
+            CALL_FORMAT["params"][0] = call_back
             for i in range(1, 3):
-                self.call_format["params"][i] = method[i]
-            return self.call_format
+                CALL_FORMAT["params"][i] = method[i]
+            return CALL_FORMAT
 
     def send_request(self, request, call_back=None):
         # Send request to server
@@ -60,27 +65,13 @@ class BaseTest(object):
         lcc.log_info("Received: \n{}".format(json.dumps(self.resp, indent=4)))
         return self.resp
 
-    def check_resp_format(self, response):
-        # Method check the validity of the response from the server
-        check_that_in(
-            response,
-            "id", is_integer(),
-            "id", is_(self.api_id),
-            "jsonrpc", is_str(),
-            "jsonrpc", is_("2.0")
-        )
-
-    def check_and_get_identifier(self, response):
-        # Check the validity of the result
-        check_that_in(
-            response,
-            "result", is_integer(),
-        )
-        self.identifier = response["result"]
+    def get_identifier(self, resp):
+        # Get identifier of api
+        self.identifier = resp["result"]
 
     @staticmethod
     def login_status(response):
-        # Method check authorization status
+        # Check authorization status
         if "result" in response:
             if response["result"]:
                 lcc.log_info("Login successful")
@@ -90,16 +81,19 @@ class BaseTest(object):
             lcc.log_error("Login failed")
 
     def login_echo(self):
+        # Login to Echo
         lcc.set_step("Login to Echo")
-        self.send_request(self.get_data(self.echo_api, self.login))
+        self.send_request(self.get_request(self.login))
         resp = self.get_response()
         self.login_status(resp)
 
     def setup_suite(self):
         # Check status of connection
+        lcc.set_step("Open connection")
         if self.ws is not None:
-            lcc.log_url(echo_dev)
+            lcc.log_url(ECHO_DEV)
             lcc.log_info("Connection successfully created")
+            self.login_echo()
         else:
             lcc.log_error("Connection not established")
 
