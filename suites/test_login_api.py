@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_bool
+from lemoncheesecake.matching import check_that_in, is_bool, equal_to
 from common.utils import BaseTest
 
 SUITE = {
@@ -9,8 +9,8 @@ SUITE = {
 
 @lcc.suite("Test login method")
 class TestLoginMethod(BaseTest):
-    login_empty_params = "LOGIN_EMPTY_PARAMS"
-    login_valid_params = "LOGIN_VALID_PARAMS"
+    login = "login"
+    login_valid_params = "login_valid_params"
     database_api = "database"
     asset_api = "asset"
     history_api = "history"
@@ -21,7 +21,7 @@ class TestLoginMethod(BaseTest):
     @lcc.test("Login with empty parameters")
     def test_login_with_empty_params(self):
         # Login to Echo
-        self.send_request(self.get_expected(self.login_empty_params))
+        self.send_request(self.get_request(self.login))
 
         # Receive authorization response
         resp = self.get_response()
@@ -40,13 +40,18 @@ class TestLoginMethod(BaseTest):
     def test_login_with_valid_params(self):
         # Login to Echo
         lcc.set_step("Login to the Full Node with valid params")
-        self.send_request(self.get_expected(self.login_valid_params))
+        self.send_request(self.get_request(self.login, self.get_expected(self.login_valid_params)))
 
         # Receive authorization response
         resp = self.get_response()
 
         # Check response
-        lcc.set_step("Check response with empty data")
+        lcc.set_step("Check response with valid data")
+        check_that_in(
+            resp,
+            "result", is_bool()
+        )
+
         # Check authorization status
         lcc.set_step("Check that login successful")
         self.login_status(resp)
@@ -62,7 +67,7 @@ class TestLoginMethod(BaseTest):
 
         # Check the validity of the response from the server
         lcc.set_step("Check API response")
-        self.get_identifier(resp)
+        check_that_in(resp, "result", equal_to(2))
 
     @lcc.test("Connection to asset api")
     def test_connection_to_asset_api(self):
@@ -75,7 +80,7 @@ class TestLoginMethod(BaseTest):
 
         # Check the validity of the response from the server
         lcc.set_step("Check API response")
-        self.get_identifier(resp)
+        check_that_in(resp, "result", equal_to(3))
 
     @lcc.test("Connection to history api")
     def test_connection_to_history_api(self):
@@ -88,4 +93,4 @@ class TestLoginMethod(BaseTest):
 
         # Check the validity of the response from the server
         lcc.set_step("Check API response")
-        self.get_identifier(resp)
+        check_that_in(resp, "result", equal_to(4))

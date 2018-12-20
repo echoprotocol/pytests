@@ -30,9 +30,6 @@ class TestAssetMethod(BaseTest):
 
     @lcc.test("Get all asset holders")
     def test_get_all_asset_holders(self):
-        # Authorization status check and request data from the database
-        # self.get_identifier_localy()
-
         # Get all asset holders
         lcc.set_step("Requesting Access to an API")
         self.send_request(self.get_request(self.get_all_asset_holders), self.identifier)
@@ -50,9 +47,6 @@ class TestAssetMethod(BaseTest):
 
     @lcc.test("Get all asset holders count")
     def test_get_asset_holders_count(self):
-        # # Authorization status check and request data from the database
-        # self.get_asset_identifier()
-
         # Get all asset holders
         lcc.set_step("Requesting Access to an API")
         self.send_request(self.get_request(self.get_all_asset_holders), self.identifier)
@@ -60,12 +54,12 @@ class TestAssetMethod(BaseTest):
 
         # Check the validity of the response from the server
         lcc.set_step("Get asset_id")
-        asset_id = [resp["result"][0]["asset_id"]]
+        param = [resp["result"][0]["asset_id"]]
         holders_count = resp["result"][0]["count"]
 
         # Check count of holders
         lcc.set_step("Get asset holders count")
-        self.send_request(self.get_request(self.get_all_asset_holders_count, asset_id), self.identifier)
+        self.send_request(self.get_request(self.get_all_asset_holders_count, param), self.identifier)
         resp = self.get_response()
         check_that_in(
             resp,
@@ -74,9 +68,6 @@ class TestAssetMethod(BaseTest):
 
     @lcc.test("Get asset holders")
     def test_get_asset_holders(self):
-        # # Authorization status check and request data from the database
-        # self.get_asset_identifier()
-
         # Get all asset holders
         lcc.set_step("Requesting Access to an API")
         self.send_request(self.get_request(self.get_all_asset_holders), self.identifier)
@@ -94,5 +85,5 @@ class TestAssetMethod(BaseTest):
         for i in range(holders_count):
             check_that_in(
                 resp["result"][i],
-                "name", is_((self.get_expected(self.get_name_holders))[i])  # self.get_test_data,
+                "name", is_((self.get_expected(self.get_name_holders))[i])
             )

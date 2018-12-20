@@ -49,9 +49,12 @@ class BaseTest(object):
             return call_template
         else:
             call_template["id"] = self.api_id
-            call_template["params"][0] = call_back
-            for i in range(1, 3):
-                call_template["params"][i] = method[i]
+            lcc.log_info("!!! " + str(call_template))
+            call_template["params"].append(call_back)
+            lcc.log_info("!!! " + str(call_template))
+            for i in range(1, len(method)):
+                call_template["params"].append(method[i])
+                lcc.log_info("!!! " + str(call_template))
             return call_template
 
     def send_request(self, request, call_back=None):
