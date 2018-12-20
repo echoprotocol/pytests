@@ -12,7 +12,7 @@ EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
 
 
 class BaseTest(object):
-    login = "login"
+    login_api = "login"
 
     def __init__(self):
         self.ws = create_connection(ECHO_DEV)
@@ -33,10 +33,12 @@ class BaseTest(object):
 
     @staticmethod
     def get_expected(variable_name):
+        # Return data from json file
         return EXPECTED[variable_name]
 
     @staticmethod
     def get_template():
+        # Return call method format
         return {"id": 0, "method": "call", "params": []}
 
     def call_method(self, method, call_back=None):
@@ -70,6 +72,7 @@ class BaseTest(object):
         return self.resp
 
     def get_identifier(self, api):
+        # Initialise identifier for api
         lcc.set_step("Get {} identifier".format(api))
         self.send_request(self.get_request(api))
         resp = self.get_response()
@@ -89,7 +92,7 @@ class BaseTest(object):
     def login_echo(self):
         # Login to Echo
         lcc.set_step("Login to Echo")
-        self.send_request(self.get_request(self.login))
+        self.send_request(self.get_request(self.login_api))
         resp = self.get_response()
         self.login_status(resp)
 
