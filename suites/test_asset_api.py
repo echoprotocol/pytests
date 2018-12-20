@@ -19,14 +19,9 @@ class TestAssetMethod(BaseTest):
     def __init__(self):
         super().__init__()
 
-    def get_identifier_localy(self):
-        lcc.set_step("Get asset identifier")
-        self.send_request(self.get_request(self.asset_api))
-        resp = self.get_response()
-        self.get_identifier(resp)
-
-    def setup_test(self, test_get_all_asset_holders):
-        self.get_identifier_localy()
+    def setup_suite(self):
+        super().setup_suite()
+        self.get_identifier(self.asset_api)
 
     @lcc.test("Get all asset holders")
     def test_get_all_asset_holders(self):

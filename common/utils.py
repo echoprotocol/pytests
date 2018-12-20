@@ -49,12 +49,9 @@ class BaseTest(object):
             return call_template
         else:
             call_template["id"] = self.api_id
-            lcc.log_info("!!! " + str(call_template))
             call_template["params"].append(call_back)
-            lcc.log_info("!!! " + str(call_template))
             for i in range(1, len(method)):
                 call_template["params"].append(method[i])
-                lcc.log_info("!!! " + str(call_template))
             return call_template
 
     def send_request(self, request, call_back=None):
@@ -72,8 +69,10 @@ class BaseTest(object):
         lcc.log_info("Received: \n{}".format(json.dumps(self.resp, indent=4)))
         return self.resp
 
-    def get_identifier(self, resp):
-        # Get identifier of api
+    def get_identifier(self, api):
+        lcc.set_step("Get {} identifier".format(api))
+        self.send_request(self.get_request(api))
+        resp = self.get_response()
         self.identifier = resp["result"]
 
     @staticmethod
