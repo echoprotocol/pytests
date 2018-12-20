@@ -77,6 +77,7 @@ class BaseTest(object):
         self.send_request(self.get_request(api))
         resp = self.get_response()
         self.identifier = resp["result"]
+        return self.identifier
 
     @staticmethod
     def login_status(response):

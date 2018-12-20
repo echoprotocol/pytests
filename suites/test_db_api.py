@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_, is_integer
+from lemoncheesecake.matching import is_, is_integer, check_that
 
 from common.utils import BaseTest
 
@@ -28,11 +28,12 @@ class TestDatabaseMethod(BaseTest):
         self.send_request(self.get_request(self.get_block), self.identifier)
         resp = self.get_response()
 
-        # Check data in response
-        lcc.set_step("Check hash code of previous block")
-        check_that_in(
-            resp["result"],
-            "previous", is_("00101555174911684721792bfe0f5eda8058ef3a")
+        # Check hash code of the previous block
+        lcc.set_step("Check hash code of the previous block")
+        check_that(
+            "'hash code of previous block'",
+            resp["result"]["previous"],
+            is_("00101555174911684721792bfe0f5eda8058ef3a")
         )
 
     @lcc.test("Get transaction")
@@ -42,9 +43,10 @@ class TestDatabaseMethod(BaseTest):
         self.send_request(self.get_request(self.get_transaction), self.identifier)
         resp = self.get_response()
 
-        # Check number of block where this transaction is located
-        lcc.set_step("Check number of block")
-        check_that_in(
-            resp["result"],
-            "ref_block_num", is_integer()
+        # Check number of the block where this transaction is located
+        lcc.set_step("Check number of the block")
+        check_that(
+            "'number of the block'",
+            resp["result"]["ref_block_num"],
+            is_integer(is_(5460))
         )

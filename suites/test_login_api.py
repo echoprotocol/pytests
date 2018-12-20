@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_bool, equal_to
+from lemoncheesecake.matching import is_bool, equal_to, check_that
 from common.utils import BaseTest
 
 SUITE = {
@@ -27,10 +27,8 @@ class TestLoginMethod(BaseTest):
 
         # Check response
         lcc.set_step("Check response with empty data")
-        check_that_in(
-            resp,
-            "result", is_bool()
-        )
+        check_that("'login status'", resp["result"], is_bool())
+
         # Check authorization status
         lcc.set_step("Check that login successful")
         self.login_status(resp)
@@ -46,10 +44,7 @@ class TestLoginMethod(BaseTest):
 
         # Check response
         lcc.set_step("Check response with valid data")
-        check_that_in(
-            resp,
-            "result", is_bool()
-        )
+        check_that("'login status'", resp["result"], is_bool())
 
         # Check authorization status
         lcc.set_step("Check that login successful")
@@ -57,39 +52,30 @@ class TestLoginMethod(BaseTest):
 
     @lcc.test("Connection to database api")
     def test_connection_to_db_api(self):
-        # Authorization status check and request data from the database
-        lcc.set_step("Requesting Access to an API")
-        self.send_request(self.get_request(self.database_api))
+        # Authorization to database api and get identifier
+        lcc.set_step("Requesting Access to an Database API")
+        resp = self.get_identifier(self.database_api)
 
-        # Receive identifier
-        resp = self.get_response()
-
-        # Check the validity of the response from the server
-        lcc.set_step("Check API response")
-        check_that_in(resp, "result", equal_to(2))
+        # Check database api identifier
+        lcc.set_step("Check Database api identifier")
+        check_that("'database api identifier'", resp, equal_to(2))
 
     @lcc.test("Connection to asset api")
     def test_connection_to_asset_api(self):
-        # Authorization status check and request data from the asset api
-        lcc.set_step("Requesting Access to an API")
-        self.send_request(self.get_request(self.asset_api))
+        # Authorization to asset api and get identifier
+        lcc.set_step("Requesting Access to an Asset API")
+        resp = self.get_identifier(self.asset_api)
 
-        # Receive identifier
-        resp = self.get_response()
-
-        # Check the validity of the response from the server
-        lcc.set_step("Check API response")
-        check_that_in(resp, "result", equal_to(3))
+        # Check asset api identifier
+        lcc.set_step("Check Asset api identifier")
+        check_that("'asset api identifier'", resp, equal_to(3))
 
     @lcc.test("Connection to history api")
     def test_connection_to_history_api(self):
-        # Authorization status check and request data from the asset api
-        lcc.set_step("Requesting Access to an API")
-        self.send_request(self.get_request(self.history_api))
+        # Authorization to history api and get identifier
+        lcc.set_step("Requesting Access to an History API")
+        resp = self.get_identifier(self.history_api)
 
-        # Receive identifier
-        resp = self.get_response()
-
-        # Check the validity of the response from the server
-        lcc.set_step("Check API response")
-        check_that_in(resp, "result", equal_to(4))
+        # Check history api identifier
+        lcc.set_step("Check History api identifier")
+        check_that("'history api identifier'", resp, equal_to(4))
