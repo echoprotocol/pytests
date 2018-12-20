@@ -17,17 +17,12 @@ class TestEcho(BaseTest):
     def __init__(self):
         super().__init__()
 
-    def get_db_identifier(self):
-        lcc.set_step("Get database identifier")
-        self.send_request(self.get_request(self.database))
-        resp = self.get_response()
-        self.get_identifier(resp)
+    def setup_suite(self):
+        super().setup_suite()
+        self.get_identifier(self.database)
 
     @lcc.test("Get block")
     def test_get_block(self):
-        # Get identifier
-        self.get_db_identifier()
-
         # Get block
         lcc.set_step("Retrieve a full, signed block.")
         self.send_request(self.get_request(self.get_block), self.identifier)
@@ -42,9 +37,6 @@ class TestEcho(BaseTest):
 
     @lcc.test("Get transaction")
     def test_get_transaction(self):
-        # Get identifier
-        self.get_db_identifier()
-
         # Get transaction
         lcc.set_step("Retrieve transaction.")
         self.send_request(self.get_request(self.get_transaction), self.identifier)
