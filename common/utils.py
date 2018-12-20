@@ -9,7 +9,7 @@ RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 METHOD = json.load(open(os.path.join(RESOURCES_DIR, "echo_methods.json")))
 EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
-CALL_FORMAT = {"id": 0, "method": "call", "params": [{}, {}, {}]}
+CALL_FORMAT = {"id": 0, "method": "call", "params": []}
 
 
 class BaseTest(object):
@@ -22,14 +22,15 @@ class BaseTest(object):
         self.identifier = None
 
     @staticmethod
-    def get_request(variable_name, params=None):
+    def get_request(method_name, params=None):
         # Params must be list
+        request = [1, method_name]
         if params is None:
-            return METHOD[variable_name]
+            request.extend([METHOD[method_name]])
+            return request
         else:
-            data = METHOD[variable_name]
-            data.insert(2, params)
-            return data
+            request.extend([params])
+            return request
 
     @staticmethod
     def get_expected(variable_name):
@@ -40,8 +41,7 @@ class BaseTest(object):
         self.api_id += 1
         if call_back is None:
             CALL_FORMAT["id"] = self.api_id
-            for i in range(3):
-                CALL_FORMAT["params"][i] = method[i]
+            CALL_FORMAT["params"] = method
             return CALL_FORMAT
         else:
             CALL_FORMAT["id"] = self.api_id

@@ -1,15 +1,14 @@
 {
-    "login": [1, "login", ["", ""]],
+    "login": ["", ""],
 
-    "database": [1, "database", []],
-    "get_block": ["", "get_block", ["1054038"]],
-    "get_transaction": ["", "get_transaction", ["1054038", "0"]],
+    "database": [],
+    "get_block": ["1054038"],
+    "get_transaction": ["1054038", "0"],
 
-    "history": [1, "history", []],
+    "history": [],
 
-
-    "asset": [1, "asset", []],
-    "get_all_asset_holders": ["", "get_all_asset_holders", []],
-    "get_asset_holders_count": ["", "get_asset_holders_count", []],
-    "get_asset_holders": ["", "get_asset_holders", []]
+    "asset": [],
+    "get_all_asset_holders": [],
+    "get_asset_holders_count": [],
+    "get_asset_holders": []
 }

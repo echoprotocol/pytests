@@ -8,7 +8,7 @@ SUITE = {
 }
 
 
-@lcc.suite("Test login method")
+@lcc.suite("Test asset method")
 class TestAssetMethod(BaseTest):
     asset_api = "asset"
     get_all_asset_holders = "get_all_asset_holders"
