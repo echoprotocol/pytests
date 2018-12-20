@@ -7,9 +7,8 @@ SUITE = {
 }
 
 
-@lcc.suite("Test login method")
+@lcc.suite("Test login methods")
 class TestLoginMethod(BaseTest):
-    login = "login"
     login_valid_params = "login_valid_params"
     database_api = "database"
     asset_api = "asset"
@@ -21,7 +20,7 @@ class TestLoginMethod(BaseTest):
     @lcc.test("Login with empty parameters")
     def test_login_with_empty_params(self):
         # Login to Echo
-        self.send_request(self.get_request(self.login))
+        self.send_request(self.get_request(self.login_api))
 
         # Receive authorization response
         resp = self.get_response()
@@ -40,7 +39,7 @@ class TestLoginMethod(BaseTest):
     def test_login_with_valid_params(self):
         # Login to Echo
         lcc.set_step("Login to the Full Node with valid params")
-        self.send_request(self.get_request(self.login, self.get_expected(self.login_valid_params)))
+        self.send_request(self.get_request(self.login_api, self.get_expected(self.login_valid_params)))
 
         # Receive authorization response
         resp = self.get_response()
