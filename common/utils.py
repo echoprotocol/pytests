@@ -9,7 +9,6 @@ RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 METHOD = json.load(open(os.path.join(RESOURCES_DIR, "echo_methods.json")))
 EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
-CALL_FORMAT = {"id": 0, "method": "call", "params": []}
 
 
 class BaseTest(object):
@@ -36,19 +35,24 @@ class BaseTest(object):
     def get_expected(variable_name):
         return EXPECTED[variable_name]
 
+    @staticmethod
+    def get_template():
+        return {"id": 0, "method": "call", "params": []}
+
     def call_method(self, method, call_back=None):
         # Returns the api method call
         self.api_id += 1
+        call_template = self.get_template()
         if call_back is None:
-            CALL_FORMAT["id"] = self.api_id
-            CALL_FORMAT["params"] = method
-            return CALL_FORMAT
+            call_template["id"] = self.api_id
+            call_template["params"] = method
+            return call_template
         else:
-            CALL_FORMAT["id"] = self.api_id
-            CALL_FORMAT["params"][0] = call_back
+            call_template["id"] = self.api_id
+            call_template["params"][0] = call_back
             for i in range(1, 3):
-                CALL_FORMAT["params"][i] = method[i]
-            return CALL_FORMAT
+                call_template["params"][i] = method[i]
+            return call_template
 
     def send_request(self, request, call_back=None):
         # Send request to server
