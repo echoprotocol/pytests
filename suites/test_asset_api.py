@@ -10,25 +10,26 @@ SUITE = {
 
 @lcc.suite("Test asset methods")
 class TestAssetMethod(BaseTest):
-    asset_api = "asset"
-    get_all_asset_holders = "get_all_asset_holders"
-    get_all_asset_holders_count = "get_asset_holders_count"
-    get_asset_holders = "get_asset_holders"
-    get_name_holders = "holders"
+    __asset_api = "asset"
+    __get_all_asset_holders = "get_all_asset_holders"
+    __get_all_asset_holders_count = "get_asset_holders_count"
+    __get_asset_holders = "get_asset_holders"
+    __get_name_holders = "holders"
 
     def __init__(self):
         super().__init__()
+        self.__resp = None
         self.resp_all_asset_holders = None
 
     def get_holders(self):
         # Get all asset holders
         lcc.set_step("Get all asset holders")
-        self.send_request(self.get_request(self.get_all_asset_holders), self.identifier)
+        self.send_request(self.get_request(self.__get_all_asset_holders), self._identifier)
         self.resp_all_asset_holders = self.get_response()
 
     def setup_test(self, test):
         # Get asset api identifier
-        self.get_identifier(self.asset_api)
+        self.get_identifier(self.__asset_api)
 
     @lcc.test("Get all asset holders")
     def test_get_all_asset_holders(self):
@@ -60,9 +61,9 @@ class TestAssetMethod(BaseTest):
 
         # Check count of holders
         lcc.set_step("Check count of holders")
-        self.send_request(self.get_request(self.get_all_asset_holders_count, param), self.identifier)
-        resp = self.get_response()
-        check_that("'count of holders'", resp["result"], is_(holders_count))
+        self.send_request(self.get_request(self.__get_all_asset_holders_count, param), self._identifier)
+        self.__resp = self.get_response()
+        check_that("'count of holders'", self.__resp["result"], is_(holders_count))
 
     @lcc.test("Get asset holders")
     def test_get_asset_holders(self):
@@ -78,14 +79,14 @@ class TestAssetMethod(BaseTest):
 
         # Get list of info about all holders
         lcc.set_step("Get list of holders")
-        self.send_request(self.get_request(self.get_asset_holders, params), self.identifier)
-        resp = self.get_response()
+        self.send_request(self.get_request(self.__get_asset_holders, params), self._identifier)
+        self.__resp = self.get_response()
 
         # Check names of holders in list of expected holders
         lcc.set_step("Check names of holders in list of expected holders")
         for i in range(holders_count):
             check_that(
                 "'list of holders'",
-                resp["result"][i],
-                has_entry("name", (self.get_expected(self.get_name_holders))[i])
+                self.__resp["result"][i],
+                has_entry("name", (self.get_expected(self.__get_name_holders))[i])
             )
