@@ -13,16 +13,13 @@ class TestDatabaseMethod(BaseTest):
     database_api = "database"
     get_block = "get_block"
     get_transaction = "get_transaction"
-    broadcast_transaction = "broadcast_transaction"
-    broadcast_params = "broadcast_params"
-    network_broadcast_api = "network_broadcast"
 
     def __init__(self):
         super().__init__()
 
-    # def setup_test(self, test):
-    #     # Get database api identifier
-    #     self.get_identifier(self.database_api)
+    def setup_test(self, test):
+        # Get database api identifier
+        self.get_identifier(self.database_api)
 
     @lcc.test("Get block")
     def test_get_block(self):
@@ -53,16 +50,3 @@ class TestDatabaseMethod(BaseTest):
             resp["result"]["ref_block_num"],
             is_integer(is_(5460))
         )
-
-    @lcc.test("broadcast_transaction")
-    def test_broadcast_transaction(self):
-        """
-        Try to send objects as a parameter
-        """
-        # Get transaction
-        self.get_identifier(self.network_broadcast_api)
-
-        lcc.set_step("Retrieve transaction.")
-        self.send_request(self.get_request(self.broadcast_transaction, self.get_expected(self.broadcast_params)),
-                          self.identifier)
-        self.get_response()

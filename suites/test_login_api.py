@@ -13,6 +13,7 @@ class TestLoginMethod(BaseTest):
     database_api = "database"
     asset_api = "asset"
     history_api = "history"
+    network_broadcast_api = "network_broadcast"
 
     def __init__(self):
         super().__init__()
@@ -79,3 +80,13 @@ class TestLoginMethod(BaseTest):
         # Check history api identifier
         lcc.set_step("Check History api identifier")
         check_that("'history api identifier'", resp, equal_to(4))
+
+    @lcc.test("Connection to network broadcast api")
+    def test_connection_to_network_broadcast_api(self):
+        # Authorization to network broadcast api and get identifier
+        lcc.set_step("Requesting Access to an Network broadcast API")
+        resp = self.get_identifier(self.network_broadcast_api)
+
+        # Check network broadcast api identifier
+        lcc.set_step("Check Network broadcast api identifier")
+        check_that("'network broadcast api identifier'", resp, equal_to(5))
