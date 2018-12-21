@@ -42,5 +42,131 @@
                     "data": [178,254,196,110,31,224,138,167,27,92,1,0,20,0,0,0,0,0,0,0,0,18,28,16,39,0,0,0,0,0,0,0,0,0,0]
                 },
                 "signed": true
-            }]
+            }],
+    "block_info": {
+        "previous": "00101555174911684721792bfe0f5eda8058ef3a",
+        "timestamp": "2018-12-17T12:49:43",
+        "witness": "1.6.0",
+        "account": "1.2.12",
+        "transaction_merkle_root": "dc17a84bf96845518f1c2c14e0e8d9cc1927e1a6",
+        "state_root_hash": "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "result_root_hash": "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "extensions": [],
+        "witness_signature": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "ed_signature": "76faada3bfede4de3c57b99438ed8cf919e8994a54bd72c00c65d29c90fc3b424a3fa0b55f1ef15486302e5b5bfe3c7b0a71f4b25f6c8d39efe3d93772a3620b",
+        "verifications": [],
+        "round": 1054038,
+        "rand": "368056e17827637e2711ac0b0b21a5fc7a9a043e63d4c4be2db9afd2e4c6242b",
+        "cert": {
+            "_rand": "368056e17827637e2711ac0b0b21a5fc7a9a043e63d4c4be2db9afd2e4c6242b",
+            "_block_hash": "00101556f96ccc849be1fd2b2ec74838ded2e08f",
+            "_producer": 12,
+            "_signatures": [
+                {
+                    "_step": 4,
+                    "_value": 0,
+                    "_signer": 11,
+                    "_bba_sign": "02ffb65dd6c108122bc7277bbfe7ac3326e783e0220c5486ed53ea5027dd07c1e28b5f8b41e19f0fed44191e227ee26c12d13216e8b7aa49ddd3f3b43ef0390f"
+                },
+                {
+                    "_step": 4,
+                    "_value": 0,
+                    "_signer": 6,
+                    "_bba_sign": "c82653be761d448be73a3ea38daedf15162ba20c93095d61780f58474d19e92a7aeca3ce818f5ee7ed62c718856e391ef63e975643e18b51cf5c7aad4945ae08"
+                },
+                {
+                    "_step": 4,
+                    "_value": 0,
+                    "_signer": 10,
+                    "_bba_sign": "86ee8c6e0d56a47dee1265bdb3a5d263c19eba13804020a9d82a787da16b3651a0ba6ed2aa9767dc0a573702658343c11ff181208afde5f6693eaece5b980009"
+                },
+                {
+                    "_step": 4,
+                    "_value": 0,
+                    "_signer": 9,
+                    "_bba_sign": "730dfba770e3f72e4cb1091bb6e0535526fc2582f8e7e5f63f8addff87fb4185ca296570c78e62d6c37d00e9522fa30d446a0af5aaa932c52b7f103ac8818c0e"
+                },
+                {
+                    "_step": 4,
+                    "_value": 0,
+                    "_signer": 12,
+                    "_bba_sign": "d72488277c5571c98fa952ffa33b3c98e76f4f2bd4c6d15cfaacf10a49750e213d292de0b90df4a769a79c604c29a687c3acdf9ea7b6feaf938e6cc8f9872e02"
+                },
+                {
+                    "_step": 4,
+                    "_value": 0,
+                    "_signer": 8,
+                    "_bba_sign": "81a64ae9a5b128e30f0269ef64a1732a11348ac3faf96fcf1d4e6646001abeed07b25c599e237d7bc8144b467be8dd62be58e80b9e109d0abce59e0aebf6f608"
+                }
+            ]
+        },
+        "transactions": [
+            {
+                "ref_block_num": 5460,
+                "ref_block_prefix": 1907488684,
+                "expiration": "2018-12-17T12:50:11",
+                "operations": [
+                    [
+                        0,
+                        {
+                            "fee": {
+                                "amount": 20,
+                                "asset_id": "1.3.0"
+                            },
+                            "from": "1.2.12",
+                            "to": "1.2.14",
+                            "amount": {
+                                "amount": 1000000,
+                                "asset_id": "1.3.0"
+                            },
+                            "extensions": []
+                        }
+                    ]
+                ],
+                "extensions": [],
+                "signatures": [
+                    "1f279c366ec11817f1fb13255228d329df9889a3969359ca54c04e8e3faf73a7050f4ac22e1f8f5843099975f897dd11d3a3fb5608169f54db14295055d4cc2366"
+                ],
+                "operation_results": [
+                    [
+                        0,
+                        {}
+                    ]
+                ]
+            }
+        ]
+    },
+    "transaction_info": {
+        "ref_block_num": 5460,
+        "ref_block_prefix": 1907488684,
+        "expiration": "2018-12-17T12:50:11",
+        "operations": [
+            [
+                0,
+                {
+                    "fee": {
+                        "amount": 20,
+                        "asset_id": "1.3.0"
+                    },
+                    "from": "1.2.12",
+                    "to": "1.2.14",
+                    "amount": {
+                        "amount": 1000000,
+                        "asset_id": "1.3.0"
+                    },
+                    "extensions": []
+                }
+            ]
+        ],
+        "extensions": [],
+        "signatures": [
+            "1f279c366ec11817f1fb13255228d329df9889a3969359ca54c04e8e3faf73a7050f4ac22e1f8f5843099975f897dd11d3a3fb5608169f54db14295055d4cc2366"
+        ],
+        "operation_results": [
+            [
+                0,
+                {}
+            ]
+        ]
+    }
 }

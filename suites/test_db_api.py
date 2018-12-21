@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, is_integer, check_that, is_str
+from lemoncheesecake.matching import is_, check_that
 
 from common.utils import BaseTest
 
@@ -11,7 +11,9 @@ SUITE = {
 @lcc.suite("Test database methods")
 class TestDatabaseMethod(BaseTest):
     __get_block = "get_block"
+    __get_block_info = "block_info"
     __get_transaction = "get_transaction"
+    __get_transaction_info = "transaction_info"
 
     def __init__(self):
         super().__init__()
@@ -28,12 +30,12 @@ class TestDatabaseMethod(BaseTest):
         self.send_request(self.get_request(self.__get_block), self._identifier)
         self.__resp = self.get_response()
 
-        # Check hash code of the previous block
-        lcc.set_step("Check hash code of the previous block")
+        # Check all block info
+        lcc.set_step("Check block info")
         check_that(
-            "'hash code of previous block'",
-            self.__resp["result"]["previous"],
-            is_str(is_("00101555174911684721792bfe0f5eda8058ef3a"))
+            "'block info'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_block_info)),
         )
 
     @lcc.test("Get transaction")
@@ -43,10 +45,10 @@ class TestDatabaseMethod(BaseTest):
         self.send_request(self.get_request(self.__get_transaction), self._identifier)
         self.__resp = self.get_response()
 
-        # Check number of the block where this transaction is located
-        lcc.set_step("Check number of the block")
+        # Check all transaction info
+        lcc.set_step("Check transaction info")
         check_that(
-            "'number of the block'",
-            self.__resp["result"]["ref_block_num"],
-            is_integer(is_(5460))
+            "'transaction info'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_transaction_info)),
         )
