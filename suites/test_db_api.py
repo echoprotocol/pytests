@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, is_integer, check_that
+from lemoncheesecake.matching import is_, is_integer, check_that, is_str
 
 from common.utils import BaseTest
 
@@ -33,7 +33,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'hash code of previous block'",
             self.__resp["result"]["previous"],
-            is_("00101555174911684721792bfe0f5eda8058ef3a")
+            is_str(is_("00101555174911684721792bfe0f5eda8058ef3a"))
         )
 
     @lcc.test("Get transaction")
