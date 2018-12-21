@@ -29,7 +29,7 @@ class TestLoginMethod(BaseTest):
 
         # Check authorization status
         lcc.set_step("Check that login successful")
-        self.login_status(self.__resp)
+        self._login_status(self.__resp)
 
     @lcc.test("Login with valid parameters")
     def test_login_with_valid_params(self):
@@ -46,7 +46,7 @@ class TestLoginMethod(BaseTest):
 
         # Check authorization status
         lcc.set_step("Check that login successful")
-        self.login_status(self.__resp)
+        self._login_status(self.__resp)
 
     @lcc.test("Connection to database api")
     def test_connection_to_db_api(self):

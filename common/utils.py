@@ -49,16 +49,22 @@ class BaseTest(object):
         # Returns the api method call
         self.__api_id += 1
         call_template = self.get_template()
-        if call_back is None:
-            call_template["id"] = self.__api_id
-            call_template["params"] = method
-            return call_template
-        else:
-            call_template["id"] = self.__api_id
-            call_template["params"].append(call_back)
-            for i in range(1, len(method)):
-                call_template["params"].append(method[i])
-            return call_template
+        try:
+            if call_back is None:
+                call_template["id"] = self.__api_id
+                call_template["params"] = method
+                return call_template
+            else:
+                call_template["id"] = self.__api_id
+                call_template["params"].append(call_back)
+                for i in range(1, len(method)):
+                    try:
+                        call_template["params"].append(method[i])
+                    except IndexError:
+                        lcc.log_error("This index does not exist!")
+                return call_template
+        except KeyError:
+            lcc.log_error("That key does not exist!")
 
     def send_request(self, request, call_back=None):
         # Send request to server
@@ -84,14 +90,14 @@ class BaseTest(object):
         return self._identifier
 
     @staticmethod
-    def login_status(response):
+    def _login_status(response):
         # Check authorization status
-        if "result" in response:
+        try:
             if response["result"]:
                 lcc.log_info("Login successful")
             else:
                 lcc.log_info("Login failed")
-        else:
+        except KeyError:
             lcc.log_error("Login failed")
 
     def __login_echo(self):
@@ -99,7 +105,7 @@ class BaseTest(object):
         lcc.set_step("Login to Echo")
         self.send_request(self.get_request(self._login_api))
         self.__resp = self.get_response()
-        self.login_status(self.__resp)
+        self._login_status(self.__resp)
 
     def setup_suite(self):
         # Check status of connection
