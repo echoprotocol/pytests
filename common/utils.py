@@ -12,24 +12,28 @@ EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
 
 
 class BaseTest(object):
-    login_api = "login"
+    _login_api = "login"
+    _database_api = "database"
+    _asset_api = "asset"
+    _history_api = "history"
+    _network_broadcast_api = "network_broadcast"
 
     def __init__(self):
-        self.ws = create_connection(ECHO_DEV)
-        self.resp = None
-        self.api_id = 0
-        self.identifier = None
+        self.__ws = create_connection(ECHO_DEV)
+        self.__resp = None
+        self.__request = None
+        self.__api_id = 0
+        self._identifier = None
 
-    @staticmethod
-    def get_request(method_name, params=None):
+    def get_request(self, method_name, params=None):
         # Params must be list
-        request = [1, method_name]
+        self.__request = [1, method_name]
         if params is None:
-            request.extend([METHOD[method_name]])
-            return request
+            self.__request.extend([METHOD[method_name]])
+            return self.__request
         else:
-            request.extend([params])
-            return request
+            self.__request.extend([params])
+            return self.__request
 
     @staticmethod
     def get_expected(variable_name):
@@ -41,16 +45,16 @@ class BaseTest(object):
         # Return call method format
         return {"id": 0, "method": "call", "params": []}
 
-    def call_method(self, method, call_back=None):
+    def __call_method(self, method, call_back=None):
         # Returns the api method call
-        self.api_id += 1
+        self.__api_id += 1
         call_template = self.get_template()
         if call_back is None:
-            call_template["id"] = self.api_id
+            call_template["id"] = self.__api_id
             call_template["params"] = method
             return call_template
         else:
-            call_template["id"] = self.api_id
+            call_template["id"] = self.__api_id
             call_template["params"].append(call_back)
             for i in range(1, len(method)):
                 call_template["params"].append(method[i])
@@ -59,25 +63,25 @@ class BaseTest(object):
     def send_request(self, request, call_back=None):
         # Send request to server
         if call_back is None:
-            self.ws.send(json.dumps(self.call_method(request)))
-            return self.ws
+            self.__ws.send(json.dumps(self.__call_method(request)))
+            return self.__ws
         else:
-            self.ws.send(json.dumps(self.call_method(request, call_back)))
-            return self.ws
+            self.__ws.send(json.dumps(self.__call_method(request, call_back)))
+            return self.__ws
 
     def get_response(self):
         # Receive answer from server
-        self.resp = json.loads(self.ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(self.resp, indent=4)))
-        return self.resp
+        self.__resp = json.loads(self.__ws.recv())
+        lcc.log_info("Received: \n{}".format(json.dumps(self.__resp, indent=4)))
+        return self.__resp
 
     def get_identifier(self, api):
         # Initialise identifier for api
         lcc.set_step("Get {} identifier".format(api))
         self.send_request(self.get_request(api))
-        resp = self.get_response()
-        self.identifier = resp["result"]
-        return self.identifier
+        self.__resp = self.get_response()
+        self._identifier = self.__resp["result"]
+        return self._identifier
 
     @staticmethod
     def login_status(response):
@@ -90,25 +94,25 @@ class BaseTest(object):
         else:
             lcc.log_error("Login failed")
 
-    def login_echo(self):
+    def __login_echo(self):
         # Login to Echo
         lcc.set_step("Login to Echo")
-        self.send_request(self.get_request(self.login_api))
-        resp = self.get_response()
-        self.login_status(resp)
+        self.send_request(self.get_request(self._login_api))
+        self.__resp = self.get_response()
+        self.login_status(self.__resp)
 
     def setup_suite(self):
         # Check status of connection
         lcc.set_step("Open connection")
-        if self.ws is not None:
+        if self.__ws is not None:
             lcc.log_url(ECHO_DEV)
             lcc.log_info("Connection successfully created")
-            self.login_echo()
+            self.__login_echo()
         else:
             lcc.log_error("Connection not established")
 
     def teardown_suite(self):
         # Close connection to WebSocket
         lcc.set_step("Close connection")
-        self.ws.close()
+        self.__ws.close()
         lcc.log_info("Connection closed")
