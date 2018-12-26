@@ -168,5 +168,15 @@
                 {}
             ]
         ]
+    },
+    "get_block_header_info": {
+        "previous": "00101555174911684721792bfe0f5eda8058ef3a",
+        "timestamp": "2018-12-17T12:49:43",
+        "witness": "1.6.0",
+        "account": "1.2.12",
+        "transaction_merkle_root": "dc17a84bf96845518f1c2c14e0e8d9cc1927e1a6",
+        "state_root_hash": "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "result_root_hash": "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "extensions": []
     }
 }

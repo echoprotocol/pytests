@@ -2,6 +2,7 @@
     "login": ["", ""],
     "database": [],
     "get_block": ["1054038"],
+    "get_block_header": ["1054038"],
     "get_transaction": ["1054038", "0"],
 
     "history": [],

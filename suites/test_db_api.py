@@ -11,6 +11,8 @@ SUITE = {
 @lcc.suite("Test database methods")
 class TestDatabaseMethod(BaseTest):
     __get_block = "get_block"
+    __get_block_header = "get_block_header"
+    __get_block_header_info = "get_block_header_info"
     __get_block_info = "block_info"
     __get_transaction = "get_transaction"
     __get_transaction_info = "transaction_info"
@@ -36,6 +38,21 @@ class TestDatabaseMethod(BaseTest):
             "'block info'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_block_info)),
+        )
+
+    @lcc.test("Get block header")
+    def test_get_block_header(self):
+        # Get block header
+        lcc.set_step("Retrieve header of signed block.")
+        self.send_request(self.get_request(self.__get_block_header), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check all block header info
+        lcc.set_step("Check block header info")
+        check_that(
+            "'block header info'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_block_header_info)),
         )
 
     @lcc.test("Get transaction")
