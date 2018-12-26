@@ -627,5 +627,63 @@
         "GRAPHENE_NULL_ACCOUNT": "1.2.3",
         "GRAPHENE_TEMP_ACCOUNT": "1.2.4"
     },
-    "get_chain_id_info": "65e2ef320cd54dede55dd6867bbd20432eb8a7c957877a63130d753a461b8105"
+    "get_chain_id_info": "65e2ef320cd54dede55dd6867bbd20432eb8a7c957877a63130d753a461b8105",
+    "get_key_references_info": [["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14", "1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"]],
+    "get_account_by_name_info": {
+        "id": "1.2.8",
+        "membership_expiration_date": "2106-02-07T06:28:15",
+        "registrar": "1.2.8",
+        "referrer": "1.2.8",
+        "lifetime_referrer": "1.2.8",
+        "network_fee_percentage": 2000,
+        "lifetime_referrer_fee_percentage": 8000,
+        "referrer_rewards_percentage": 0,
+        "name": "init2",
+        "owner": {
+            "weight_threshold": 1,
+            "account_auths": [],
+            "key_auths": [
+                [
+                    "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+                    1
+                ]
+            ],
+            "address_auths": []
+        },
+        "active": {
+            "weight_threshold": 1,
+            "account_auths": [],
+            "key_auths": [
+                [
+                    "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+                    1
+                ]
+            ],
+            "address_auths": []
+        },
+        "ed_key": "8adcafe5f952650ff0f82c1fa215ebb94b103b775eae3a166708d1f772ec696c",
+        "options": {
+            "memo_key": "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+            "voting_account": "1.2.5",
+            "delegating_account": "1.2.5",
+            "num_witness": 0,
+            "num_committee": 0,
+            "votes": [],
+            "extensions": []
+        },
+        "statistics": "2.6.8",
+        "whitelisting_accounts": [],
+        "blacklisting_accounts": [],
+        "whitelisted_accounts": [],
+        "blacklisted_accounts": [],
+        "owner_special_authority": [
+            0,
+            {}
+        ],
+        "active_special_authority": [
+            0,
+            {}
+        ],
+        "top_n_control_flags": 0
+    }
 }

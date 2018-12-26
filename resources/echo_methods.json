@@ -10,6 +10,8 @@
     "get_config": [],
     "get_chain_id": [],
     "get_dynamic_global_properties": [],
+    "get_key_references": [],
+    "get_account_by_name": [],
 
     "history": [],
 

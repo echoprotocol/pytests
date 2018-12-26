@@ -26,6 +26,10 @@ class TestDatabaseMethod(BaseTest):
     __get_chain_id_info = "get_chain_id_info"
     __get_dynamic_global_properties = "get_dynamic_global_properties"
     __get_dynamic_global_properties_info = "get_dynamic_global_properties_info"
+    __get_key_references = "get_key_references"
+    __get_key_references_info = "get_key_references_info"
+    __get_account_by_name = "get_account_by_name"
+    __get_account_by_name_info = "get_account_by_name_info"
 
     def __init__(self):
         super().__init__()
@@ -152,4 +156,36 @@ class TestDatabaseMethod(BaseTest):
         check_that_in(
             self.__resp["result"],
             "id", is_str(is_("2.1.0")),
+        )
+
+    @lcc.test("Get key references")
+    def test_get_key_references(self):
+        # Get key references
+        lcc.set_step("Get key references")
+        param = ["ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"]
+        self.send_request(self.get_request(self.__get_key_references, [param]), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check key references
+        lcc.set_step("Check key references")
+        check_that(
+            "'key references'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_key_references_info)),
+        )
+
+    @lcc.test("Get account by name")
+    def test_get_account_by_name(self):
+        # Get account by name
+        lcc.set_step("Get account by name")
+        param = ["init2"]
+        self.send_request(self.get_request(self.__get_account_by_name, param), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check account by name
+        lcc.set_step("Check account by name")
+        check_that(
+            "'init2'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_by_name_info)),
         )
