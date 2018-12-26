@@ -17,6 +17,7 @@ class BaseTest(object):
     _asset_api = "asset"
     _history_api = "history"
     _network_broadcast_api = "network_broadcast"
+    _crypto_api = "crypto"
 
     def __init__(self):
         self.__ws = create_connection(ECHO_DEV)

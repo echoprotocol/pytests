@@ -13,5 +13,7 @@
     "get_all_asset_holders": [],
     "get_asset_holders_count": [],
     "get_asset_holders": [],
-    "broadcast_transaction": []
+    "broadcast_transaction": [],
+
+    "crypto": []
 }
