@@ -1,8 +1,17 @@
 {
     "login": ["", ""],
+
     "database": [],
     "get_block": ["1054038"],
+    "get_block_header": ["1054038"],
     "get_transaction": ["1054038", "0"],
+    "get_chain_properties": [],
+    "get_global_properties": [],
+    "get_config": [],
+    "get_chain_id": [],
+    "get_dynamic_global_properties": [],
+    "get_key_references": [],
+    "get_account_by_name": [],
 
     "history": [],
 
@@ -12,5 +21,7 @@
     "get_all_asset_holders": [],
     "get_asset_holders_count": [],
     "get_asset_holders": [],
-    "broadcast_transaction": []
+    "broadcast_transaction": [],
+
+    "crypto": []
 }

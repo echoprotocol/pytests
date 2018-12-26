@@ -87,3 +87,13 @@ class TestLoginMethod(BaseTest):
         # Check network broadcast api identifier
         lcc.set_step("Check Network broadcast api identifier")
         check_that("'network broadcast api identifier'", self.__resp, equal_to(5))
+
+    @lcc.test("Connection to crypto api")
+    def test_connection_to_crypto_api(self):
+        # Authorization to crypto api and get identifier
+        lcc.set_step("Requesting Access to an Crypto API")
+        self.__resp = self.get_identifier(self._crypto_api)
+
+        # Check crypto api identifier
+        lcc.set_step("Check Crypto api identifier")
+        check_that("'crypto api identifier'", self.__resp, equal_to(6))
