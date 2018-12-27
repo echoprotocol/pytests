@@ -263,6 +263,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get account references")
+    @lcc.tags("don't work")
     def test_get_account_references(self):
         lcc.set_step("Get account references")
         # todo нет необходимого аккаунта для проверки
@@ -373,6 +374,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get vested balances")
+    @lcc.tags("don't work")
     @lcc.disabled()
     def test_get_vested_balances(self):
         # todo нет нужных balance_ids
