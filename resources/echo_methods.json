@@ -13,6 +13,7 @@
     "get_key_references": [],
     "get_account_by_name": [],
     "get_accounts": [],
+    "get_full_accounts": [],
 
     "history": [],
 

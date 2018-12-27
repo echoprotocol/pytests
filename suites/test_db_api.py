@@ -32,6 +32,8 @@ class TestDatabaseMethod(BaseTest):
     __get_account_by_name_exp = "get_account_by_name_exp"
     __get_accounts = "get_accounts"
     __get_accounts_exp = "get_accounts_exp"
+    __get_full_accounts = "get_full_accounts"
+    __get_full_accounts_exp = "get_full_accounts_exp"
 
     def __init__(self):
         super().__init__()
@@ -180,8 +182,8 @@ class TestDatabaseMethod(BaseTest):
     def test_get_accounts(self):
         # Get accounts
         lcc.set_step("Get accounts")
-        param = ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"]
-        self.send_request(self.get_request(self.__get_accounts, [param]), self._identifier)
+        params = ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"]
+        self.send_request(self.get_request(self.__get_accounts, [params]), self._identifier)
         self.__resp = self.get_response()
 
         # Check key references
@@ -190,6 +192,22 @@ class TestDatabaseMethod(BaseTest):
             "'accounts'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_accounts_exp)),
+        )
+
+    @lcc.test("Get full accounts")
+    def test_get_full_accounts_ids(self):
+        # Get full accounts
+        lcc.set_step("Get full accounts")
+        params = [["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"], False]
+        self.send_request(self.get_request(self.__get_full_accounts, params), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check full accounts
+        lcc.set_step("Check full accounts")
+        check_that(
+            "'full accounts'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_full_accounts_exp)),
         )
 
     @lcc.test("Get account by name")
