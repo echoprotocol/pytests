@@ -47,6 +47,12 @@ class TestDatabaseMethod(BaseTest):
     __get_account_balances_exp = "get_account_balances_exp"
     __get_named_account_balances = "get_named_account_balances"
     __get_vested_balances = "get_vested_balances"
+    __get_assets = "get_assets"
+    __get_assets_exp = "get_assets_exp"
+    __list_assets = "list_assets"
+    __list_assets_exp = "list_assets_exp"
+    __lookup_asset_symbols = "lookup_asset_symbols"
+    __lookup_asset_symbols_exp = "lookup_asset_symbols_exp"
 
     def __init__(self):
         super().__init__()
@@ -379,4 +385,59 @@ class TestDatabaseMethod(BaseTest):
             "'vested balances'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_balances_exp)),
+        )
+
+    @lcc.test("Get assets")
+    def test_get_assets(self):
+        lcc.set_step("Get assets")
+        self.send_request(self.get_request(self.__get_assets), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get assets")
+        check_that(
+            "'assets'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_assets_exp)),
+        )
+
+    @lcc.test("List assets")
+    def test_list_assets(self):
+        lcc.set_step("List assets")
+        # todo чувствителен к регистру
+        self.send_request(self.get_request(self.__list_assets), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check list assets")
+        check_that(
+            "'list assets'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__list_assets_exp)),
+        )
+
+    @lcc.test("Lookup asset symbols")
+    def test_lookup_asset_symbols(self):
+        lcc.set_step("Lookup asset symbols")
+        params = [["ECHO", "ECHOTEST"]]
+        self.send_request(self.get_request(self.__lookup_asset_symbols, params), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check lookup asset symbols")
+        check_that(
+            "'lookup asset symbols'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__lookup_asset_symbols_exp)),
+        )
+
+    @lcc.test("Lookup asset ids")
+    def test_lookup_asset_symbols_ids(self):
+        lcc.set_step("Lookup asset ids")
+        params = [["ECHO", "ECHOTEST"]]
+        self.send_request(self.get_request(self.__lookup_asset_symbols, params), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check lookup asset ids")
+        check_that(
+            "'lookup asset ids'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__lookup_asset_symbols_exp)),
         )
