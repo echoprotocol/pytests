@@ -33,7 +33,10 @@ class TestDatabaseMethod(BaseTest):
     __get_accounts = "get_accounts"
     __get_accounts_exp = "get_accounts_exp"
     __get_full_accounts = "get_full_accounts"
-    __get_full_accounts_exp = "get_full_accounts_exp"
+    __get_full_accounts_ids_exp = "get_full_accounts_ids_exp"
+    __get_full_accounts_names_exp = "get_full_accounts_names_exp"
+    __get_account_references = "get_account_references"
+    __get_account_references_exp = "get_account_references_exp"
 
     def __init__(self):
         super().__init__()
@@ -194,20 +197,36 @@ class TestDatabaseMethod(BaseTest):
             is_(self.get_expected(self.__get_accounts_exp)),
         )
 
-    @lcc.test("Get full accounts")
+    @lcc.test("Get full accounts by ids")
     def test_get_full_accounts_ids(self):
-        # Get full accounts
-        lcc.set_step("Get full accounts")
-        params = [["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"], False]
+        # Get full accounts by ids
+        lcc.set_step("Get full accounts by ids")
+        params = [["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.14"], False]
+        self.send_request(self.get_request(self.__get_full_accounts, params), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check full accounts by ids
+        lcc.set_step("Check full accounts by ids")
+        check_that(
+            "'full accounts by ids'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_full_accounts_ids_exp)),
+        )
+
+    @lcc.test("Get full accounts by names")
+    def test_get_full_accounts_names(self):
+        # Get full accounts by names
+        lcc.set_step("Get full accounts by names")
+        params = [["init0", "init1", "init2", "init3", "init4", "init5", "nathan", "test124"], False]
         self.send_request(self.get_request(self.__get_full_accounts, params), self._identifier)
         self.__resp = self.get_response()
 
         # Check full accounts
-        lcc.set_step("Check full accounts")
+        lcc.set_step("Check full accounts by names")
         check_that(
-            "'full accounts'",
+            "'full accounts by names'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_full_accounts_exp)),
+            is_(self.get_expected(self.__get_full_accounts_names_exp)),
         )
 
     @lcc.test("Get account by name")
@@ -224,4 +243,20 @@ class TestDatabaseMethod(BaseTest):
             "'init2'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_by_name_exp)),
+        )
+
+    @lcc.test("Get account references")
+    def test_get_account_references(self):
+        # Get account references
+        lcc.set_step("Get account references")
+        param = ["1.2.28"]  # todo нет необходимого аккаунта для проверки
+        self.send_request(self.get_request(self.__get_account_references, param), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check account references
+        lcc.set_step("Check account references")
+        check_that(
+            "'1.2.28'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_references_exp)),
         )
