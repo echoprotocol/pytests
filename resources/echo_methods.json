@@ -2,9 +2,9 @@
     "login": ["", ""],
 
     "database": [],
-    "get_block": ["1054038"],
-    "get_block_header": ["1054038"],
-    "get_transaction": ["1054038", "0"],
+    "get_block": [],
+    "get_block_header": [],
+    "get_transaction": [],
     "get_chain_properties": [],
     "get_global_properties": [],
     "get_config": [],
@@ -18,6 +18,7 @@
     "lookup_account_names": [],
     "lookup_accounts": [],
     "get_account_count": [],
+    "get_account_balances": [],
 
     "history": [],
 

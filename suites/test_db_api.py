@@ -42,6 +42,9 @@ class TestDatabaseMethod(BaseTest):
     __lookup_accounts = "lookup_accounts"
     __lookup_accounts_exp = "lookup_accounts_exp"
     __get_account_count = "get_account_count"
+    __get_account_balances = "get_account_balances"
+    __get_account_balances_exp_empty = "get_account_balances_exp_empty"
+    __get_account_balances_exp = "get_account_balances_exp"
 
     def __init__(self):
         super().__init__()
@@ -80,7 +83,8 @@ class TestDatabaseMethod(BaseTest):
     def test_get_block(self):
         # Get block
         lcc.set_step("Retrieve a full, signed block")
-        self.send_request(self.get_request(self.__get_block), self._identifier)
+        param = ["1054038"]
+        self.send_request(self.get_request(self.__get_block, param), self._identifier)
         self.__resp = self.get_response()
 
         # Check all block info
@@ -95,7 +99,8 @@ class TestDatabaseMethod(BaseTest):
     def test_get_block_header(self):
         # Get block header
         lcc.set_step("Retrieve header of signed block.")
-        self.send_request(self.get_request(self.__get_block_header), self._identifier)
+        param = ["1054038"]
+        self.send_request(self.get_request(self.__get_block_header, param), self._identifier)
         self.__resp = self.get_response()
 
         # Check all block header info
@@ -110,7 +115,8 @@ class TestDatabaseMethod(BaseTest):
     def test_get_transaction(self):
         # Get transaction
         lcc.set_step("Retrieve transaction")
-        self.send_request(self.get_request(self.__get_transaction), self._identifier)
+        params = ["1054038", "0"]
+        self.send_request(self.get_request(self.__get_transaction, params), self._identifier)
         self.__resp = self.get_response()
 
         # Check all transaction info
@@ -341,4 +347,36 @@ class TestDatabaseMethod(BaseTest):
             "'account count'",
             self.__resp["result"],
             is_integer(is_(15))
+        )
+
+    @lcc.test("Get account balances, empty param: assets")
+    def test_get_account_balances_empty_assets(self):
+        # Lookup accounts
+        lcc.set_step("Get account balances")
+        param = ["1.2.8", []]
+        self.send_request(self.get_request(self.__get_account_balances, param), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check lookup account names
+        lcc.set_step("Check get account balances")
+        check_that(
+            "'account balances'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_balances_exp_empty)),
+        )
+
+    @lcc.test("Get account balances")
+    def test_get_account_balances(self):
+        # Lookup accounts
+        lcc.set_step("Get account balances")
+        param = ["1.2.8", ["1.3.0", "1.3.1", "1.3.2"]]
+        self.send_request(self.get_request(self.__get_account_balances, param), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check lookup account names
+        lcc.set_step("Check get account balances")
+        check_that(
+            "'account balances'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_balances_exp)),
         )

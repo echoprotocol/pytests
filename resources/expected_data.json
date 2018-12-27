@@ -3087,5 +3087,25 @@
         ["init2", "1.2.8"], ["init3", "1.2.9"],
         ["init4", "1.2.10"], ["init5", "1.2.11"],
         ["nathan", "1.2.12"]
+    ],
+    "get_account_balances_exp_empty": [
+        {
+            "amount": "100000039900000",
+            "asset_id": "1.3.0"
+        }
+    ],
+    "get_account_balances_exp": [
+        {
+            "amount": "100000039900000",
+            "asset_id": "1.3.0"
+        },
+        {
+            "amount": 0,
+            "asset_id": "1.3.1"
+        },
+        {
+            "amount": 0,
+            "asset_id": "1.3.2"
+        }
     ]
 }
