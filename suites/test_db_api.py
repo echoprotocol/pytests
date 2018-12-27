@@ -37,6 +37,8 @@ class TestDatabaseMethod(BaseTest):
     __get_full_accounts_names_exp = "get_full_accounts_names_exp"
     __get_account_references = "get_account_references"
     __get_account_references_exp = "get_account_references_exp"
+    __lookup_account_names = "lookup_account_names"
+    __lookup_account_names_exp = "lookup_account_names_exp"
 
     def __init__(self):
         super().__init__()
@@ -259,4 +261,20 @@ class TestDatabaseMethod(BaseTest):
             "'1.2.28'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_references_exp)),
+        )
+
+    @lcc.test("Lookup account names")
+    def test_lookup_account_names(self):
+        # Lookup account names
+        lcc.set_step("Lookup account names")
+        params = ["init0", "init1", "init2", "init3", "init4", "init5", "nathan", "test124"]
+        self.send_request(self.get_request(self.__lookup_account_names, [params]), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check lookup account names
+        lcc.set_step("Check lookup account names")
+        check_that(
+            "'lookup account names'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__lookup_account_names_exp)),
         )
