@@ -45,6 +45,7 @@ class TestDatabaseMethod(BaseTest):
     __get_account_balances = "get_account_balances"
     __get_account_balances_exp_empty = "get_account_balances_exp_empty"
     __get_account_balances_exp = "get_account_balances_exp"
+    __get_named_account_balances = "get_named_account_balances"
 
     def __init__(self):
         super().__init__()
@@ -81,13 +82,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get block")
     def test_get_block(self):
-        # Get block
         lcc.set_step("Retrieve a full, signed block")
         param = ["1054038"]
         self.send_request(self.get_request(self.__get_block, param), self._identifier)
         self.__resp = self.get_response()
 
-        # Check all block info
         lcc.set_step("Check block info")
         check_that(
             "'block info'",
@@ -97,13 +96,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get block header")
     def test_get_block_header(self):
-        # Get block header
         lcc.set_step("Retrieve header of signed block.")
         param = ["1054038"]
         self.send_request(self.get_request(self.__get_block_header, param), self._identifier)
         self.__resp = self.get_response()
 
-        # Check all block header info
         lcc.set_step("Check block header info")
         check_that(
             "'block header info'",
@@ -113,13 +110,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get transaction")
     def test_get_transaction(self):
-        # Get transaction
         lcc.set_step("Retrieve transaction")
         params = ["1054038", "0"]
         self.send_request(self.get_request(self.__get_transaction, params), self._identifier)
         self.__resp = self.get_response()
 
-        # Check all transaction info
         lcc.set_step("Check transaction info")
         check_that(
             "'transaction info'",
@@ -134,12 +129,10 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get chain properties")
     def test_get_chain_properties(self):
-        # Get chain properties
         lcc.set_step("Get chain properties")
         self.send_request(self.get_request(self.__get_chain_properties), self._identifier)
         self.__resp = self.get_response()
 
-        # Check chain properties info
         lcc.set_step("Check chain properties info")
         check_that(
             "'chain properties'",
@@ -149,12 +142,10 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get global properties")
     def test_get_global_properties(self):
-        # Get global properties
         lcc.set_step("Get global properties")
         self.send_request(self.get_request(self.__get_global_properties), self._identifier)
         self.__resp = self.get_response()
 
-        # Check global properties info
         lcc.set_step("Check global properties info")
         check_that(
             "'global properties'",
@@ -164,12 +155,10 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get config")
     def test_get_config(self):
-        # Get config
         lcc.set_step("Get config")
         self.send_request(self.get_request(self.__get_config), self._identifier)
         self.__resp = self.get_response()
 
-        # Check config info
         lcc.set_step("Check config info")
         check_that(
             "'config'",
@@ -179,12 +168,10 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get chain id")
     def test_get_chain_id(self):
-        # Get chain id
         lcc.set_step("Get chain id")
         self.send_request(self.get_request(self.__get_chain_id), self._identifier)
         self.__resp = self.get_response()
 
-        # Check chain id info
         lcc.set_step("Check chain id info")
         check_that(
             "'chain id'",
@@ -194,12 +181,10 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get dynamic global properties")
     def test_get_dynamic_global_properties(self):
-        # Get dynamic global properties
         lcc.set_step("Get dynamic global properties")
         self.send_request(self.get_request(self.__get_dynamic_global_properties), self._identifier)
         self.__resp = self.get_response()
 
-        # Check dynamic global properties info
         lcc.set_step("Check dynamic global properties info")
         check_that_in(
             self.__resp["result"],
@@ -208,13 +193,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get key references")
     def test_get_key_references(self):
-        # Get key references
         lcc.set_step("Get key references")
         param = ["ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"]
         self.send_request(self.get_request(self.__get_key_references, [param]), self._identifier)
         self.__resp = self.get_response()
 
-        # Check key references
         lcc.set_step("Check key references")
         check_that(
             "'key references'",
@@ -224,13 +207,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get accounts")
     def test_get_accounts(self):
-        # Get accounts
         lcc.set_step("Get accounts")
         params = ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"]
         self.send_request(self.get_request(self.__get_accounts, [params]), self._identifier)
         self.__resp = self.get_response()
 
-        # Check key references
         lcc.set_step("Check accounts")
         check_that(
             "'accounts'",
@@ -240,13 +221,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get full accounts by ids")
     def test_get_full_accounts_ids(self):
-        # Get full accounts by ids
         lcc.set_step("Get full accounts by ids")
         params = [["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.14"], False]
         self.send_request(self.get_request(self.__get_full_accounts, params), self._identifier)
         self.__resp = self.get_response()
 
-        # Check full accounts by ids
         lcc.set_step("Check full accounts by ids")
         check_that(
             "'full accounts by ids'",
@@ -256,13 +235,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get full accounts by names")
     def test_get_full_accounts_names(self):
-        # Get full accounts by names
         lcc.set_step("Get full accounts by names")
         params = [["init0", "init1", "init2", "init3", "init4", "init5", "nathan", "test124"], False]
         self.send_request(self.get_request(self.__get_full_accounts, params), self._identifier)
         self.__resp = self.get_response()
 
-        # Check full accounts
         lcc.set_step("Check full accounts by names")
         check_that(
             "'full accounts by names'",
@@ -272,13 +249,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get account by name")
     def test_get_account_by_name(self):
-        # Get account by name
         lcc.set_step("Get account by name")
         param = ["init2"]
         self.send_request(self.get_request(self.__get_account_by_name, param), self._identifier)
         self.__resp = self.get_response()
 
-        # Check account by name
         lcc.set_step("Check account by name")
         check_that(
             "'init2'",
@@ -288,13 +263,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get account references")
     def test_get_account_references(self):
-        # Get account references
         lcc.set_step("Get account references")
         param = ["1.2.28"]  # todo нет необходимого аккаунта для проверки
         self.send_request(self.get_request(self.__get_account_references, param), self._identifier)
         self.__resp = self.get_response()
 
-        # Check account references
         lcc.set_step("Check account references")
         check_that(
             "'1.2.28'",
@@ -304,13 +277,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Lookup account names")
     def test_lookup_account_names(self):
-        # Lookup account names
         lcc.set_step("Lookup account names")
         params = ["init0", "init1", "init2", "init3", "init4", "init5", "nathan", "test124"]
         self.send_request(self.get_request(self.__lookup_account_names, [params]), self._identifier)
         self.__resp = self.get_response()
 
-        # Check lookup account names
         lcc.set_step("Check lookup account names")
         check_that(
             "'lookup account names'",
@@ -320,13 +291,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Lookup accounts")
     def test_lookup_accounts(self):
-        # Lookup accounts
         lcc.set_step("Lookup accounts")
         params = ["in", 7]  # todo непонятно как работает limit
         self.send_request(self.get_request(self.__lookup_accounts, params), self._identifier)
         self.__resp = self.get_response()
 
-        # Check lookup account names
         lcc.set_step("Check lookup accounts")
         check_that(
             "'lookup accounts'",
@@ -336,12 +305,10 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get account count")
     def test_get_account_count(self):
-        # Lookup accounts
         lcc.set_step("Get account count")
         self.send_request(self.get_request(self.__get_account_count), self._identifier)
         self.__resp = self.get_response()
 
-        # Check lookup account names
         lcc.set_step("Check get account count")
         check_that(
             "'account count'",
@@ -351,13 +318,11 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get account balances, empty param: assets")
     def test_get_account_balances_empty_assets(self):
-        # Lookup accounts
         lcc.set_step("Get account balances")
         param = ["1.2.8", []]
         self.send_request(self.get_request(self.__get_account_balances, param), self._identifier)
         self.__resp = self.get_response()
 
-        # Check lookup account names
         lcc.set_step("Check get account balances")
         check_that(
             "'account balances'",
@@ -367,16 +332,42 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get account balances")
     def test_get_account_balances(self):
-        # Lookup accounts
         lcc.set_step("Get account balances")
         param = ["1.2.8", ["1.3.0", "1.3.1", "1.3.2"]]
         self.send_request(self.get_request(self.__get_account_balances, param), self._identifier)
         self.__resp = self.get_response()
 
-        # Check lookup account names
         lcc.set_step("Check get account balances")
         check_that(
             "'account balances'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_balances_exp)),
+        )
+
+    @lcc.test("Get named account balances, empty param: assets")
+    def test_get_named_account_balances_empty_assets(self):
+        lcc.set_step("Get named account balances")
+        param = ["init2", []]
+        self.send_request(self.get_request(self.__get_named_account_balances, param), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get named account balances")
+        check_that(
+            "'account balances'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_balances_exp_empty)),
+        )
+
+    @lcc.test("Get named account balances")
+    def test_get_named_account_balances(self):
+        lcc.set_step("Get named account balances")
+        param = ["init2", ["1.3.0", "1.3.1", "1.3.2"]]
+        self.send_request(self.get_request(self.__get_named_account_balances, param), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get named account balances")
+        check_that(
+            "'named account balances'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_balances_exp)),
         )

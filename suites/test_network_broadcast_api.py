@@ -26,7 +26,6 @@ class TestNetworkBroadcastMethod(BaseTest):
         """
         Try to send objects as a parameter
         """
-        # Send object as a parameter
         lcc.set_step("Retrieve broadcast_transaction.")
         self.send_request(self.get_request(self.broadcast_transaction, self.get_expected(self.broadcast_params)),
                           self._identifier)

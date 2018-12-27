@@ -19,6 +19,7 @@
     "lookup_accounts": [],
     "get_account_count": [],
     "get_account_balances": [],
+    "get_named_account_balances": [],
 
     "history": [],
 
