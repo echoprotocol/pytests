@@ -16,6 +16,7 @@
     "get_full_accounts": [],
     "get_account_references": [],
     "lookup_account_names": [],
+    "lookup_accounts": [],
 
     "history": [],
 

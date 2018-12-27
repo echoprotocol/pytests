@@ -3081,5 +3081,11 @@
             ],
             "top_n_control_flags": 0
         }
+    ],
+    "lookup_accounts_exp": [
+        ["init0", "1.2.6"], ["init1", "1.2.7"],
+        ["init2", "1.2.8"], ["init3", "1.2.9"],
+        ["init4", "1.2.10"], ["init5", "1.2.11"],
+        ["nathan", "1.2.12"]
     ]
 }

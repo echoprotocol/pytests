@@ -39,6 +39,8 @@ class TestDatabaseMethod(BaseTest):
     __get_account_references_exp = "get_account_references_exp"
     __lookup_account_names = "lookup_account_names"
     __lookup_account_names_exp = "lookup_account_names_exp"
+    __lookup_accounts = "lookup_accounts"
+    __lookup_accounts_exp = "lookup_accounts_exp"
 
     def __init__(self):
         super().__init__()
@@ -47,6 +49,31 @@ class TestDatabaseMethod(BaseTest):
     def setup_test(self, test):
         # Get database api identifier
         self.get_identifier(self._database_api)
+
+    @lcc.test("Get objects")
+    @lcc.hidden()
+    def test_get_objects(self, array_ids):
+        pass
+
+    @lcc.test("Set subscribe callback")
+    @lcc.hidden()
+    def test_set_subscribe_callback(self, callback, notify_remove_create):
+        pass
+
+    @lcc.test("Set pending transaction callback")
+    @lcc.hidden()
+    def test_set_pending_transaction_callback(self, callback):
+        pass
+
+    @lcc.test("Set block applied callback")
+    @lcc.hidden()
+    def test_set_block_applied_callback(self, callback):
+        pass
+
+    @lcc.test("Cancel all subscriptions")
+    @lcc.hidden()
+    def test_cancel_all_subscriptions(self):
+        pass
 
     @lcc.test("Get block")
     def test_get_block(self):
@@ -92,6 +119,11 @@ class TestDatabaseMethod(BaseTest):
             self.__resp["result"],
             is_(self.get_expected(self.__get_transaction_exp)),
         )
+
+    @lcc.test("Get recent transaction by id")
+    @lcc.hidden()
+    def test_get_recent_transaction_by_id(self, id):
+        pass
 
     @lcc.test("Get chain properties")
     def test_get_chain_properties(self):
@@ -277,4 +309,20 @@ class TestDatabaseMethod(BaseTest):
             "'lookup account names'",
             self.__resp["result"],
             is_(self.get_expected(self.__lookup_account_names_exp)),
+        )
+
+    @lcc.test("Lookup accounts")
+    def test_lookup_accounts(self):
+        # Lookup accounts
+        lcc.set_step("Lookup accounts")
+        params = ["in", 7]  # todo непонятно как работает limit
+        self.send_request(self.get_request(self.__lookup_accounts, params), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check lookup account names
+        lcc.set_step("Check lookup accounts")
+        check_that(
+            "'lookup accounts'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__lookup_accounts_exp)),
         )
