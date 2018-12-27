@@ -46,6 +46,7 @@ class TestDatabaseMethod(BaseTest):
     __get_account_balances_exp_empty = "get_account_balances_exp_empty"
     __get_account_balances_exp = "get_account_balances_exp"
     __get_named_account_balances = "get_named_account_balances"
+    __get_vested_balances = "get_vested_balances"
 
     def __init__(self):
         super().__init__()
@@ -346,7 +347,7 @@ class TestDatabaseMethod(BaseTest):
 
         lcc.set_step("Check get named account balances")
         check_that(
-            "'account balances'",
+            "'named account balances'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_balances_exp_empty)),
         )
@@ -361,6 +362,21 @@ class TestDatabaseMethod(BaseTest):
         lcc.set_step("Check get named account balances")
         check_that(
             "'named account balances'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_account_balances_exp)),
+        )
+
+    @lcc.test("Get vested balances")
+    @lcc.disabled()
+    def test_get_vested_balances(self):
+        # todo нет нужных balance_ids
+        lcc.set_step("Get vested balances")
+        self.send_request(self.get_request(self.__get_vested_balances), self._identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get vested balances")
+        check_that(
+            "'vested balances'",
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_balances_exp)),
         )
