@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, check_that, check_that_in, is_str
+from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer
 
 from common.utils import BaseTest
 
@@ -41,6 +41,7 @@ class TestDatabaseMethod(BaseTest):
     __lookup_account_names_exp = "lookup_account_names_exp"
     __lookup_accounts = "lookup_accounts"
     __lookup_accounts_exp = "lookup_accounts_exp"
+    __get_account_count = "get_account_count"
 
     def __init__(self):
         super().__init__()
@@ -325,4 +326,19 @@ class TestDatabaseMethod(BaseTest):
             "'lookup accounts'",
             self.__resp["result"],
             is_(self.get_expected(self.__lookup_accounts_exp)),
+        )
+
+    @lcc.test("Get account count")
+    def test_get_account_count(self):
+        # Lookup accounts
+        lcc.set_step("Get account count")
+        self.send_request(self.get_request(self.__get_account_count), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check lookup account names
+        lcc.set_step("Check get account count")
+        check_that(
+            "'account count'",
+            self.__resp["result"],
+            is_integer(is_(15))
         )
