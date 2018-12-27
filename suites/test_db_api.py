@@ -12,24 +12,26 @@ SUITE = {
 class TestDatabaseMethod(BaseTest):
     __get_block = "get_block"
     __get_block_header = "get_block_header"
-    __get_block_header_info = "get_block_header_info"
-    __get_block_info = "block_info"
+    __get_block_header_exp = "get_block_header_exp"
+    __get_block_exp = "block_exp"
     __get_transaction = "get_transaction"
-    __get_transaction_info = "transaction_info"
+    __get_transaction_exp = "transaction_exp"
     __get_chain_properties = "get_chain_properties"
-    __get_chain_properties_info = "get_chain_properties_info"
+    __get_chain_properties_exp = "get_chain_properties_exp"
     __get_global_properties = "get_global_properties"
-    __get_global_properties_info = "get_global_properties_info"
+    __get_global_properties_exp = "get_global_properties_exp"
     __get_config = "get_config"
-    __get_config_info = "get_config_info"
+    __get_config_exp = "get_config_exp"
     __get_chain_id = "get_chain_id"
-    __get_chain_id_info = "get_chain_id_info"
+    __get_chain_id_exp = "get_chain_id_exp"
     __get_dynamic_global_properties = "get_dynamic_global_properties"
-    __get_dynamic_global_properties_info = "get_dynamic_global_properties_info"
+    __get_dynamic_global_properties_exp = "get_dynamic_global_properties_exp"
     __get_key_references = "get_key_references"
-    __get_key_references_info = "get_key_references_info"
+    __get_key_references_exp = "get_key_references_exp"
     __get_account_by_name = "get_account_by_name"
-    __get_account_by_name_info = "get_account_by_name_info"
+    __get_account_by_name_exp = "get_account_by_name_exp"
+    __get_accounts = "get_accounts"
+    __get_accounts_exp = "get_accounts_exp"
 
     def __init__(self):
         super().__init__()
@@ -51,7 +53,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'block info'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_block_info)),
+            is_(self.get_expected(self.__get_block_exp)),
         )
 
     @lcc.test("Get block header")
@@ -66,7 +68,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'block header info'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_block_header_info)),
+            is_(self.get_expected(self.__get_block_header_exp)),
         )
 
     @lcc.test("Get transaction")
@@ -81,7 +83,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'transaction info'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_transaction_info)),
+            is_(self.get_expected(self.__get_transaction_exp)),
         )
 
     @lcc.test("Get chain properties")
@@ -96,7 +98,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'chain properties'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_chain_properties_info)),
+            is_(self.get_expected(self.__get_chain_properties_exp)),
         )
 
     @lcc.test("Get global properties")
@@ -111,7 +113,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'global properties'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_global_properties_info)),
+            is_(self.get_expected(self.__get_global_properties_exp)),
         )
 
     @lcc.test("Get config")
@@ -126,7 +128,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'config'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_config_info)),
+            is_(self.get_expected(self.__get_config_exp)),
         )
 
     @lcc.test("Get chain id")
@@ -141,7 +143,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'chain id'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_chain_id_info)),
+            is_(self.get_expected(self.__get_chain_id_exp)),
         )
 
     @lcc.test("Get dynamic global properties")
@@ -171,7 +173,23 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'key references'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_key_references_info)),
+            is_(self.get_expected(self.__get_key_references_exp)),
+        )
+
+    @lcc.test("Get accounts")
+    def test_get_accounts(self):
+        # Get accounts
+        lcc.set_step("Get accounts")
+        param = ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11", "1.2.12", "1.2.13", "1.2.14"]
+        self.send_request(self.get_request(self.__get_accounts, [param]), self._identifier)
+        self.__resp = self.get_response()
+
+        # Check key references
+        lcc.set_step("Check accounts")
+        check_that(
+            "'accounts'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_accounts_exp)),
         )
 
     @lcc.test("Get account by name")
@@ -187,5 +205,5 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'init2'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_by_name_info)),
+            is_(self.get_expected(self.__get_account_by_name_exp)),
         )

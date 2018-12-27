@@ -12,6 +12,7 @@
     "get_dynamic_global_properties": [],
     "get_key_references": [],
     "get_account_by_name": [],
+    "get_accounts": [],
 
     "history": [],
 
