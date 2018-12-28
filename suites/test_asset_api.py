@@ -10,7 +10,6 @@ SUITE = {
 
 @lcc.suite("Test asset methods")
 class TestAssetMethod(BaseTest):
-    __asset_api = "asset"
     __get_all_asset_holders = "get_all_asset_holders"
     __get_all_asset_holders_count = "get_asset_holders_count"
     __get_asset_holders = "get_asset_holders"
@@ -19,16 +18,13 @@ class TestAssetMethod(BaseTest):
     def __init__(self):
         super().__init__()
         self.__resp = None
+        self.__identifier = self.get_identifier(self._asset_api)
         self.resp_all_asset_holders = None
 
     def get_holders(self):
         lcc.set_step("Get all asset holders")
-        self.send_request(self.get_request(self.__get_all_asset_holders), self._identifier)
+        self.send_request(self.get_request(self.__get_all_asset_holders), self.__identifier)
         self.resp_all_asset_holders = self.get_response()
-
-    def setup_test(self, test):
-        # Get asset api identifier
-        self.get_identifier(self.__asset_api)
 
     @lcc.test("Get all asset holders")
     def test_get_all_asset_holders(self):
@@ -53,7 +49,7 @@ class TestAssetMethod(BaseTest):
         lcc.log_info("Asset id = {}, holders count = {}".format(param, holders_count))
 
         lcc.set_step("Check count of holders")
-        self.send_request(self.get_request(self.__get_all_asset_holders_count, param), self._identifier)
+        self.send_request(self.get_request(self.__get_all_asset_holders_count, param), self.__identifier)
         self.__resp = self.get_response()
         check_that("'count of holders'", self.__resp["result"], is_integer(is_(holders_count)))
 
@@ -68,7 +64,7 @@ class TestAssetMethod(BaseTest):
         lcc.log_info("Params = {}, holders count = {}".format(params, holders_count))
 
         lcc.set_step("Get list of holders")
-        self.send_request(self.get_request(self.__get_asset_holders, params), self._identifier)
+        self.send_request(self.get_request(self.__get_asset_holders, params), self.__identifier)
         self.__resp = self.get_response()
 
         lcc.set_step("Check names of holders in list of expected holders")

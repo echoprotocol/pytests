@@ -24,7 +24,6 @@ class BaseTest(object):
         self.__resp = None
         self.__request = None
         self.__api_id = 0
-        self._identifier = None
 
     def get_request(self, method_name, params=None):
         # Params must be list
@@ -84,11 +83,13 @@ class BaseTest(object):
 
     def get_identifier(self, api):
         # Initialise identifier for api
-        lcc.set_step("Get {} identifier".format(api))
-        self.send_request(self.get_request(api))
-        self.__resp = self.get_response()
-        self._identifier = self.__resp["result"]
-        return self._identifier
+        call_template = self.get_template()
+        call_template["params"] = [1, api, []]
+        self.__ws.send(json.dumps(call_template))
+        self.__resp = json.loads(self.__ws.recv())
+        identifier = self.__resp["result"]
+        print("777")
+        return identifier
 
     @staticmethod
     def _login_status(response):

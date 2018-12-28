@@ -18,10 +18,7 @@ class TestNetworkBroadcastMethod(BaseTest):
     def __init__(self):
         super().__init__()
         self.__resp = None
-
-    def setup_test(self, test):
-        # Get network_broadcast api identifier
-        self.get_identifier(self._network_broadcast_api)
+        self.__identifier = self.get_identifier(self._network_broadcast_api)
 
     @lcc.test("Broadcast block")
     @lcc.tags("don't work")
@@ -29,7 +26,7 @@ class TestNetworkBroadcastMethod(BaseTest):
         lcc.set_step("Retrieve broadcast block")
         self.send_request(self.get_request(self.__broadcast_block,
                                            [self.get_expected(self.__get_block_exp)]),
-                          self._identifier)
+                          self.__identifier)
         self.__resp = self.get_response()
 
         lcc.set_step("Response")
@@ -46,7 +43,7 @@ class TestNetworkBroadcastMethod(BaseTest):
         lcc.set_step("Retrieve broadcast transaction")
         self.send_request(self.get_request(self.__broadcast_transaction,
                                            [self.get_expected(self.__get_transaction_exp)]),
-                          self._identifier)
+                          self.__identifier)
         self.__resp = self.get_response()
 
         lcc.set_step("Response")
