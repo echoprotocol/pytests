@@ -41,7 +41,7 @@ class TestLoginMethod(BaseTest):
 
     @lcc.test("Connection to database api")
     def test_connection_to_db_api(self):
-        lcc.set_step("Requesting Access to an Database API")
+        lcc.set_step("Requesting Access to a Database API")
         self.__resp = self.get_identifier(self._database_api)
 
         lcc.set_step("Check Database api identifier")
@@ -57,7 +57,7 @@ class TestLoginMethod(BaseTest):
 
     @lcc.test("Connection to history api")
     def test_connection_to_history_api(self):
-        lcc.set_step("Requesting Access to an History API")
+        lcc.set_step("Requesting Access to a History API")
         self.__resp = self.get_identifier(self._history_api)
 
         lcc.set_step("Check History api identifier")
@@ -65,7 +65,7 @@ class TestLoginMethod(BaseTest):
 
     @lcc.test("Connection to network broadcast api")
     def test_connection_to_network_broadcast_api(self):
-        lcc.set_step("Requesting Access to an Network broadcast API")
+        lcc.set_step("Requesting Access to a Network broadcast API")
         self.__resp = self.get_identifier(self._network_broadcast_api)
 
         lcc.set_step("Check Network broadcast api identifier")
@@ -73,8 +73,16 @@ class TestLoginMethod(BaseTest):
 
     @lcc.test("Connection to crypto api")
     def test_connection_to_crypto_api(self):
-        lcc.set_step("Requesting Access to an Crypto API")
+        lcc.set_step("Requesting Access to a Crypto API")
         self.__resp = self.get_identifier(self._crypto_api)
 
         lcc.set_step("Check Crypto api identifier")
         check_that("'crypto api identifier'", self.__resp, equal_to(6))
+
+    @lcc.test("Connection to registration api")
+    def test_connection_to_registration_api(self):
+        lcc.set_step("Requesting Access to a Registration API")
+        self.__resp = self.get_identifier(self._registration_api)
+
+        lcc.set_step("Check Registration api identifier")
+        check_that("'registration api identifier'", self.__resp, equal_to(7))

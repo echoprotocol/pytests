@@ -18,6 +18,7 @@ class BaseTest(object):
     _history_api = "history"
     _network_broadcast_api = "network_broadcast"
     _crypto_api = "crypto"
+    _registration_api = "registration"
 
     def __init__(self):
         self.__ws = create_connection(ECHO_DEV)
@@ -88,7 +89,6 @@ class BaseTest(object):
         self.__ws.send(json.dumps(call_template))
         self.__resp = json.loads(self.__ws.recv())
         identifier = self.__resp["result"]
-        print("777")
         return identifier
 
     @staticmethod

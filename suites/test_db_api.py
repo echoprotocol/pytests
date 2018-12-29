@@ -53,7 +53,13 @@ class TestDatabaseMethod(BaseTest):
     __list_assets_exp = "list_assets_exp"
     __lookup_asset_symbols = "lookup_asset_symbols"
     __lookup_asset_symbols_exp = "lookup_asset_symbols_exp"
-    __get_order_book = "get_order_book"
+    __get_call_orders = "get_call_orders"
+    __get_call_orders_exp = "get_call_orders_exp"
+    __get_settle_orders = "get_settle_orders"
+    __get_settle_orders_exp = "get_settle_orders_exp"
+    __get_margin_positions = "get_margin_positions"
+    __get_margin_positions_exp = "get_margin_positions_exp"
+    __get_witnesses = "get_witnesses"
 
     def __init__(self):
         super().__init__()
@@ -440,4 +446,102 @@ class TestDatabaseMethod(BaseTest):
             "'lookup asset ids'",
             self.__resp["result"],
             is_(self.get_expected(self.__lookup_asset_symbols_exp)),
+        )
+
+    @lcc.test("Get order book")
+    @lcc.hidden()
+    def test_get_order_book(self, base, quote, depth=50):
+        pass
+
+    @lcc.test("Get limit orders")
+    @lcc.hidden()
+    def test_get_limit_orders(self, a, b, limit):
+        pass
+
+    @lcc.test("Get call orders")
+    @lcc.tags("don't work")
+    @lcc.disabled()
+    def test_get_call_orders(self):
+        lcc.set_step("Get call orders")
+        self.send_request(self.get_request(self.__get_call_orders), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get call orders")
+        check_that(
+            "'call orders'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_call_orders_exp)),
+        )
+
+    @lcc.test("Get settle orders")
+    def test_get_settle_orders(self):
+        lcc.set_step("Get settle orders")
+        self.send_request(self.get_request(self.__get_settle_orders), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get settle orders")
+        check_that(
+            "'settle orders'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_settle_orders_exp)),
+        )
+
+    @lcc.test("Get margin positions")
+    def test_get_margin_positions(self):
+        lcc.set_step("Get margin positions")
+        self.send_request(self.get_request(self.__get_margin_positions), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get margin positions")
+        check_that(
+            "'margin positions'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_margin_positions_exp)),
+        )
+
+    @lcc.test("Subscribe to market")
+    @lcc.hidden()
+    def test_subscribe_to_market(self, callback, a, b):
+        pass
+
+    @lcc.test("Unsubscribe to market")
+    @lcc.hidden()
+    def test_unsubscribe_from_market(self, a, b):
+        pass
+
+    @lcc.test("Get ticker")
+    @lcc.hidden()
+    def test_get_ticker(self, base, quote):
+        pass
+
+    @lcc.test("Get 24 volume")
+    @lcc.hidden()
+    def test_get_24_volume(self, base, quote):
+        pass
+
+    @lcc.test("Get trade history")
+    @lcc.hidden()
+    def test_get_trade_history(self, base, quote, start, stop, limit=100):
+        pass
+
+    @lcc.test("Get witnesses")
+    def test_get_witnesses(self):
+        lcc.set_step("Get witnesses")
+        self.send_request(self.get_request(self.__get_witnesses), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get witnesses")
+        check_that_in(
+            self.__resp["result"][0],
+            "id", is_("1.6.0"),
+            "witness_account", is_("1.2.0"),
+            "last_aslot", is_integer(),
+            "signing_key", is_("ECHO1111111111111111111111111111111114T1Anm"),
+            "pay_vb", is_("1.13.0"),
+            "vote_id", is_("1:0"),
+            "total_votes", is_(0),
+            "url", is_(""),
+            "total_missed", is_(0),
+            "last_confirmed_block_num", is_integer(),
+            "ed_signing_key", is_("0000000000000000000000000000000000000000000000000000000000000000")
         )
