@@ -60,6 +60,8 @@ class TestDatabaseMethod(BaseTest):
     __get_margin_positions = "get_margin_positions"
     __get_margin_positions_exp = "get_margin_positions_exp"
     __get_witnesses = "get_witnesses"
+    __get_witness_by_account = "get_witness_by_account"
+    __get_witness_count = "get_witness_count"
 
     def __init__(self):
         super().__init__()
@@ -544,4 +546,43 @@ class TestDatabaseMethod(BaseTest):
             "total_missed", is_(0),
             "last_confirmed_block_num", is_integer(),
             "ed_signing_key", is_("0000000000000000000000000000000000000000000000000000000000000000")
+        )
+
+    @lcc.test("Get witness by account")
+    def test_get_witness_by_account(self):
+        lcc.set_step("Get witness by account")
+        self.send_request(self.get_request(self.__get_witness_by_account), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check witness by account")
+        check_that_in(
+            self.__resp["result"],
+            "id", is_("1.6.0"),
+            "witness_account", is_("1.2.0"),
+            "last_aslot", is_integer(),
+            "signing_key", is_("ECHO1111111111111111111111111111111114T1Anm"),
+            "pay_vb", is_("1.13.0"),
+            "vote_id", is_("1:0"),
+            "total_votes", is_(0),
+            "url", is_(""),
+            "total_missed", is_(0),
+            "last_confirmed_block_num", is_integer(),
+            "ed_signing_key", is_("0000000000000000000000000000000000000000000000000000000000000000")
+        )
+
+    @lcc.test("Lookup witness accounts")
+    def test_lookup_witness_accounts(self, lower_bound_name, limit):
+        pass
+
+    @lcc.test("Get witness count")
+    def test_get_witness_count(self):
+        lcc.set_step("Get witness count")
+        self.send_request(self.get_request(self.__get_witness_count), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get witness count")
+        check_that(
+            "'witness count'",
+            self.__resp["result"],
+            is_integer(is_(1))
         )
