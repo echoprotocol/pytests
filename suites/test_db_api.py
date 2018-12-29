@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer
+from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer, equal_to
 
 from common.utils import BaseTest
 
@@ -568,6 +568,22 @@ class TestDatabaseMethod(BaseTest):
             "total_missed", is_(0),
             "last_confirmed_block_num", is_integer(),
             "ed_signing_key", is_("0000000000000000000000000000000000000000000000000000000000000000")
+        )
+
+    @lcc.test("Check return result methods 'get_witnesses' and 'get_witness_by_account'")
+    def test_return_result(self):
+        lcc.set_step("Get witnesses use 'get_witnesses'")
+        self.send_request(self.get_request(self.__get_witnesses), self.__identifier)
+        resp1 = self.get_response()
+
+        lcc.set_step("Get witnesses use 'get_witness_by_account'")
+        self.send_request(self.get_request(self.__get_witness_by_account), self.__identifier)
+        resp2 = self.get_response()
+
+        lcc.set_step("Check return result methods 'get_witnesses' and 'get_witness_by_account'")
+        check_that(
+            "test",
+            resp1["result"][0], equal_to(resp2["result"])
         )
 
     @lcc.test("Lookup witness accounts")
