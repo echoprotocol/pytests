@@ -13,7 +13,7 @@ class TestAssetMethod(BaseTest):
     __get_all_asset_holders = "get_all_asset_holders"
     __get_all_asset_holders_count = "get_asset_holders_count"
     __get_asset_holders = "get_asset_holders"
-    __get_holder_exp = "get_holder_exp"
+    __get_holders = "get_holders"
 
     def __init__(self):
         super().__init__()
@@ -75,6 +75,6 @@ class TestAssetMethod(BaseTest):
                     "'holder №{}'".format(i + 1),
                     self.__resp["result"][i],
                     has_entry(
-                        expected_keys[j], ((self.get_expected(self.__get_holder_exp))[i])[j],
+                        expected_keys[j], ((self.get_expected(self.__get_holders))[i])[j],
                     ),
                 )

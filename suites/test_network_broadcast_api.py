@@ -11,9 +11,9 @@ SUITE = {
 @lcc.suite("Test network broadcast methods")
 class TestNetworkBroadcastMethod(BaseTest):
     __broadcast_block = "broadcast_block"
-    __get_block_exp = "block_exp"
+    __get_block = "get_block"
     __broadcast_transaction = "broadcast_transaction"
-    __get_transaction_exp = "transaction_exp"
+    __get_transaction = "get_transaction"
 
     def __init__(self):
         super().__init__()
@@ -25,7 +25,7 @@ class TestNetworkBroadcastMethod(BaseTest):
     def test_broadcast_block(self):
         lcc.set_step("Retrieve broadcast block")
         self.send_request(self.get_request(self.__broadcast_block,
-                                           [self.get_expected(self.__get_block_exp)]),
+                                           [self.get_expected(self.__get_block)]),
                           self.__identifier)
         self.__resp = self.get_response()
 
@@ -42,7 +42,7 @@ class TestNetworkBroadcastMethod(BaseTest):
     def test_broadcast_transaction(self):
         lcc.set_step("Retrieve broadcast transaction")
         self.send_request(self.get_request(self.__broadcast_transaction,
-                                           [self.get_expected(self.__get_transaction_exp)]),
+                                           [self.get_expected(self.__get_transaction)]),
                           self.__identifier)
         self.__resp = self.get_response()
 

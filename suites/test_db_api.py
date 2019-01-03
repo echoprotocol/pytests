@@ -12,68 +12,48 @@ SUITE = {
 class TestDatabaseMethod(BaseTest):
     __get_block = "get_block"
     __get_block_header = "get_block_header"
-    __get_block_header_exp = "get_block_header_exp"
-    __get_block_exp = "block_exp"
     __get_transaction = "get_transaction"
-    __get_transaction_exp = "transaction_exp"
     __get_chain_properties = "get_chain_properties"
-    __get_chain_properties_exp = "get_chain_properties_exp"
     __get_global_properties = "get_global_properties"
-    __get_global_properties_exp = "get_global_properties_exp"
     __get_config = "get_config"
-    __get_config_exp = "get_config_exp"
     __get_chain_id = "get_chain_id"
-    __get_chain_id_exp = "get_chain_id_exp"
     __get_dynamic_global_properties = "get_dynamic_global_properties"
-    __get_dynamic_global_properties_exp = "get_dynamic_global_properties_exp"
     __get_key_references = "get_key_references"
-    __get_key_references_exp = "get_key_references_exp"
     __get_account_by_name = "get_account_by_name"
-    __get_account_by_name_exp = "get_account_by_name_exp"
     __get_accounts = "get_accounts"
-    __get_accounts_exp = "get_accounts_exp"
     __get_full_accounts = "get_full_accounts"
-    __get_full_accounts_ids_exp = "get_full_accounts_ids_exp"
-    __get_full_accounts_names_exp = "get_full_accounts_names_exp"
+    __get_full_accounts_ids_exp = "get_full_accounts_ids"
+    __get_full_accounts_names_exp = "get_full_accounts_names"
     __get_account_references = "get_account_references"
-    __get_account_references_exp = "get_account_references_exp"
     __lookup_account_names = "lookup_account_names"
-    __lookup_account_names_exp = "lookup_account_names_exp"
     __lookup_accounts = "lookup_accounts"
-    __lookup_accounts_exp = "lookup_accounts_exp"
     __get_account_count = "get_account_count"
     __get_account_balances = "get_account_balances"
-    __get_account_balances_exp_empty = "get_account_balances_exp_empty"
-    __get_account_balances_exp = "get_account_balances_exp"
+    __get_account_balances_empty_exp = "get_account_balances_empty"
     __get_named_account_balances = "get_named_account_balances"
     __get_vested_balances = "get_vested_balances"
     __get_assets = "get_assets"
-    __get_assets_exp = "get_assets_exp"
     __list_assets = "list_assets"
-    __list_assets_exp = "list_assets_exp"
     __lookup_asset_symbols = "lookup_asset_symbols"
-    __lookup_asset_symbols_exp = "lookup_asset_symbols_exp"
     __get_call_orders = "get_call_orders"
-    __get_call_orders_exp = "get_call_orders_exp"
     __get_settle_orders = "get_settle_orders"
-    __get_settle_orders_exp = "get_settle_orders_exp"
     __get_margin_positions = "get_margin_positions"
-    __get_margin_positions_exp = "get_margin_positions_exp"
     __get_witnesses = "get_witnesses"
     __get_witness_by_account = "get_witness_by_account"
     __get_witness_count = "get_witness_count"
+    __get_committee_members = "get_committee_members"
+    __get_committee_member_by_account = "get_committee_member_by_account"
+    __get_workers_by_account = "get_workers_by_account"
+    __lookup_vote_ids = "lookup_vote_ids"
+    __get_transaction_hex = "get_transaction_hex"
+    __get_potential_signatures = "get_potential_signatures"
+    __get_potential_address_signatures = "get_potential_address_signatures"
     __get_all_contracts = "get_all_contracts"
-    __get_all_contracts_exp = "get_all_contracts_exp"
     __get_contract_logs = "get_contract_logs"
-    __get_contract_logs_exp = "get_contract_logs_exp"
     __get_contract_result = "get_contract_result"
-    __get_contract_result_exp = "get_contract_result_exp"
     __get_contract = "get_contract"
-    __get_contract_exp = "get_contract_exp"
     __get_contracts = "get_contracts"
-    __get_contracts_exp = "get_contracts_exp"
     __get_contract_balances = "get_contract_balances"
-    __get_contract_balances_exp = "get_contract_balances_exp"
 
     def __init__(self):
         super().__init__()
@@ -115,7 +95,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'block info'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_block_exp)),
+            is_(self.get_expected(self.__get_block)),
         )
 
     @lcc.test("Get block header")
@@ -128,7 +108,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'block header info'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_block_header_exp)),
+            is_(self.get_expected(self.__get_block_header)),
         )
 
     @lcc.test("Get transaction")
@@ -141,7 +121,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'transaction info'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_transaction_exp)),
+            is_(self.get_expected(self.__get_transaction)),
         )
 
     @lcc.test("Get recent transaction by id")
@@ -159,7 +139,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'chain properties'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_chain_properties_exp)),
+            is_(self.get_expected(self.__get_chain_properties)),
         )
 
     @lcc.test("Get global properties")
@@ -172,7 +152,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'global properties'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_global_properties_exp)),
+            is_(self.get_expected(self.__get_global_properties)),
         )
 
     @lcc.test("Get config")
@@ -185,7 +165,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'config'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_config_exp)),
+            is_(self.get_expected(self.__get_config)),
         )
 
     @lcc.test("Get chain id")
@@ -198,7 +178,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'chain id'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_chain_id_exp)),
+            is_(self.get_expected(self.__get_chain_id)),
         )
 
     @lcc.test("Get dynamic global properties")
@@ -223,7 +203,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'key references'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_key_references_exp)),
+            is_(self.get_expected(self.__get_key_references)),
         )
 
     @lcc.test("Get accounts")
@@ -236,7 +216,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'accounts'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_accounts_exp)),
+            is_(self.get_expected(self.__get_accounts)),
         )
 
     @lcc.test("Get full accounts by ids")
@@ -277,7 +257,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'init2'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_by_name_exp)),
+            is_(self.get_expected(self.__get_account_by_name)),
         )
 
     @lcc.test("Get account references")
@@ -292,7 +272,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'1.2.28'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_references_exp)),
+            is_(self.get_expected(self.__get_account_references)),
         )
 
     @lcc.test("Lookup account names")
@@ -305,7 +285,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'lookup account names'",
             self.__resp["result"],
-            is_(self.get_expected(self.__lookup_account_names_exp)),
+            is_(self.get_expected(self.__lookup_account_names)),
         )
 
     @lcc.test("Lookup accounts")
@@ -319,7 +299,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'lookup accounts'",
             self.__resp["result"],
-            is_(self.get_expected(self.__lookup_accounts_exp)),
+            is_(self.get_expected(self.__lookup_accounts)),
         )
 
     @lcc.test("Get account count")
@@ -346,7 +326,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'account balances'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_balances_exp_empty)),
+            is_(self.get_expected(self.__get_account_balances_empty_exp)),
         )
 
     @lcc.test("Get account balances")
@@ -360,7 +340,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'account balances'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_balances_exp)),
+            is_(self.get_expected(self.__get_account_balances)),
         )
 
     @lcc.test("Get named account balances, empty param: assets")
@@ -374,7 +354,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'named account balances'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_balances_exp_empty)),
+            is_(self.get_expected(self.__get_account_balances_empty_exp)),
         )
 
     @lcc.test("Get named account balances")
@@ -388,7 +368,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'named account balances'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_balances_exp)),
+            is_(self.get_expected(self.__get_account_balances)),
         )
 
     @lcc.test("Get vested balances")
@@ -404,7 +384,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'vested balances'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_balances_exp)),
+            is_(self.get_expected(self.__get_account_balances)),
         )
 
     @lcc.test("Get assets")
@@ -417,7 +397,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'assets'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_assets_exp)),
+            is_(self.get_expected(self.__get_assets)),
         )
 
     @lcc.test("List assets")
@@ -431,7 +411,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'list assets'",
             self.__resp["result"],
-            is_(self.get_expected(self.__list_assets_exp)),
+            is_(self.get_expected(self.__list_assets)),
         )
 
     @lcc.test("Lookup asset symbols")
@@ -445,7 +425,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'lookup asset symbols'",
             self.__resp["result"],
-            is_(self.get_expected(self.__lookup_asset_symbols_exp)),
+            is_(self.get_expected(self.__lookup_asset_symbols)),
         )
 
     @lcc.test("Lookup asset ids")
@@ -459,7 +439,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'lookup asset ids'",
             self.__resp["result"],
-            is_(self.get_expected(self.__lookup_asset_symbols_exp)),
+            is_(self.get_expected(self.__lookup_asset_symbols)),
         )
 
     @lcc.test("Get order book")
@@ -484,7 +464,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'call orders'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_call_orders_exp)),
+            is_(self.get_expected(self.__get_call_orders)),
         )
 
     @lcc.test("Get settle orders")
@@ -497,7 +477,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'settle orders'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_settle_orders_exp)),
+            is_(self.get_expected(self.__get_settle_orders)),
         )
 
     @lcc.test("Get margin positions")
@@ -510,7 +490,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'margin positions'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_margin_positions_exp)),
+            is_(self.get_expected(self.__get_margin_positions)),
         )
 
     @lcc.test("Subscribe to market")
@@ -617,14 +597,30 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get committee members")
-    @lcc.hidden()
-    def test_get_committee_members(self, committee_member_ids):
-        pass
+    def test_get_committee_members(self):
+        lcc.set_step("Get committee members")
+        self.send_request(self.get_request(self.__get_committee_members), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get committee members")
+        check_that(
+            "'committee members'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_committee_members)),
+        )
 
     @lcc.test("Get committee members by account")
-    @lcc.hidden()
-    def test_get_committee_member_by_account(self, account):
-        pass
+    def test_get_committee_member_by_account(self):
+        lcc.set_step("Get committee members by account")
+        self.send_request(self.get_request(self.__get_committee_member_by_account), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get committee members by account")
+        check_that(
+            "'committee members by account'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_committee_member_by_account)),
+        )
 
     @lcc.test("Lookup committee member by accounts")
     @lcc.hidden()
@@ -632,19 +628,45 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get workers by account")
-    @lcc.hidden()
-    def test_get_workers_by_account(self, account_id):
-        pass
+    @lcc.tags("empty data receive")
+    def test_get_workers_by_account(self):
+        lcc.set_step("Get workers by account")
+        self.send_request(self.get_request(self.__get_workers_by_account), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get workers by account")
+        check_that(
+            "'workers by account'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_workers_by_account)),
+        )
 
     @lcc.test("Lookup vote ids")
-    @lcc.hidden()
-    def test_lookup_vote_ids(self, votes):
-        pass
+    def test_lookup_vote_ids(self):
+        lcc.set_step("Lookup vote ids")
+        self.send_request(self.get_request(self.__lookup_vote_ids), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check lookup vote ids")
+        check_that(
+            "'lookup vote ids'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__lookup_vote_ids)),
+        )
 
     @lcc.test("Get transaction hex")
-    @lcc.hidden()
-    def test_get_transaction_hex(self, trx):
-        pass
+    def test_get_transaction_hex(self):
+        lcc.set_step("Get transaction hex")
+        self.send_request(self.get_request(self.__get_transaction_hex, [self.get_expected(self.__get_transaction)]),
+                          self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get transaction hex")
+        check_that(
+            "'transaction hex'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_transaction_hex)),
+        )
 
     @lcc.test("Get required signatures")
     @lcc.hidden()
@@ -652,14 +674,35 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get potential signatures")
-    @lcc.hidden()
-    def test_get_potential_signatures(self, trx):
-        pass
+    def test_get_potential_signatures(self):
+        lcc.set_step("Get potential signatures")
+        self.send_request(self.get_request(self.__get_potential_signatures,
+                                           [self.get_expected(self.__get_transaction)]),
+                          self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get potential signatures")
+        check_that(
+            "'potential signatures'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_potential_signatures)),
+        )
 
     @lcc.test("Get potential address signatures")
-    @lcc.hidden()
-    def test_get_potential_address_signatures(self, trx):
-        pass
+    @lcc.tags("empty data receive")
+    def test_get_potential_address_signatures(self):
+        lcc.set_step("Get potential address signatures")
+        self.send_request(self.get_request(self.__get_potential_address_signatures,
+                                           [self.get_expected(self.__get_transaction)]),
+                          self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get potential address signatures")
+        check_that(
+            "'potential address signatures'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_potential_address_signatures)),
+        )
 
     @lcc.test("Verify authority")
     @lcc.hidden()
@@ -696,7 +739,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'all contracts'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_all_contracts_exp)),
+            is_(self.get_expected(self.__get_all_contracts)),
         )
 
     @lcc.test("Get contract logs")
@@ -710,7 +753,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'contract logs'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_contract_logs_exp)),
+            is_(self.get_expected(self.__get_contract_logs)),
         )
 
     @lcc.test("Subscribe contract logs")
@@ -730,7 +773,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'contract result'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_contract_result_exp)),
+            is_(self.get_expected(self.__get_contract_result)),
         )
 
     @lcc.test("Get contract")
@@ -743,7 +786,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'contract'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_contract_exp)),
+            is_(self.get_expected(self.__get_contract)),
         )
 
     @lcc.test("Call contract no changing state")
@@ -761,7 +804,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'contracts'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_contracts_exp)),
+            is_(self.get_expected(self.__get_contracts)),
         )
 
     @lcc.test("Get contract balances")
@@ -775,5 +818,5 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'contract balances'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_contract_balances_exp)),
+            is_(self.get_expected(self.__get_contract_balances)),
         )
