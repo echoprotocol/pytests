@@ -320,7 +320,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'account count'",
             self.__resp["result"],
-            is_integer(is_(15))
+            is_integer(is_(21))
         )
 
     @lcc.test("Get account balances, empty param: assets")
@@ -587,6 +587,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Lookup witness accounts")
+    @lcc.hidden()
     def test_lookup_witness_accounts(self, lower_bound_name, limit):
         pass
 
