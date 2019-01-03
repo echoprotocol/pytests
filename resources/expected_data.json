@@ -3431,6 +3431,47 @@
         }
     ],
     "get_transaction_hex": "5415acf7b171839b175c01001400000000000000000c0e40420f000000000000000000011f279c366ec11817f1fb13255228d329df9889a3969359ca54c04e8e3faf73a7050f4ac22e1f8f5843099975f897dd11d3a3fb5608169f54db14295055d4cc236600",
+    "get_required_signatures": [],
     "get_potential_signatures": ["ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"],
-    "get_potential_address_signatures": []
+    "get_potential_address_signatures": [],
+    "get_proposed_transactions": [],
+    "contract_operations": [[
+  47,{
+    "fee": {
+      "amount": 0,
+      "asset_id": "1.3.0"
+    },
+    "registrar": "1.2.0",
+    "asset_id": "1.3.0",
+    "value": 0,
+    "gasPrice": 0,
+    "gas": 0,
+    "code": ""
+  }
+],[
+  48,{
+    "fee": {
+      "amount": 0,
+      "asset_id": "1.3.0"
+    },
+    "from": "1.16.0",
+    "to": "0.0.0",
+    "amount": {
+      "amount": 0,
+      "asset_id": "1.3.0"
+    },
+    "extensions": []
+  }
+]
+    ],
+    "get_required_fees": [
+        {
+            "amount": 20,
+            "asset_id": "1.3.0"
+        },
+        {
+            "amount": 0,
+            "asset_id": "1.3.0"
+        }
+    ]
 }

@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer, equal_to
+from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer, equal_to, is_true
 
 from common.utils import BaseTest
 
@@ -46,8 +46,15 @@ class TestDatabaseMethod(BaseTest):
     __get_workers_by_account = "get_workers_by_account"
     __lookup_vote_ids = "lookup_vote_ids"
     __get_transaction_hex = "get_transaction_hex"
+    __get_required_signatures = "get_required_signatures"
     __get_potential_signatures = "get_potential_signatures"
     __get_potential_address_signatures = "get_potential_address_signatures"
+    __verify_authority = "verify_authority"
+    __verify_account_authority = "verify_account_authority"
+    __validate_transaction = "validate_transaction"
+    __get_required_fees = "get_required_fees"
+    __contract_operations = "contract_operations"
+    __get_proposed_transactions = "get_proposed_transactions"
     __get_all_contracts = "get_all_contracts"
     __get_contract_logs = "get_contract_logs"
     __get_contract_result = "get_contract_result"
@@ -669,9 +676,20 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get required signatures")
-    @lcc.hidden()
-    def test_get_required_signatures(self, trx, available_keys):
-        pass
+    def test_get_required_signatures(self):
+        lcc.set_step("Get potential signatures")
+        self.send_request(self.get_request(self.__get_required_signatures,
+                                           [self.get_expected(self.__get_transaction),
+                                            ["ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"]]),
+                          self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get potential signatures")
+        check_that(
+            "'potential signatures'",
+            self.__resp["result"],
+            is_(["ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"]),
+        )
 
     @lcc.test("Get potential signatures")
     def test_get_potential_signatures(self):
@@ -705,29 +723,80 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Verify authority")
-    @lcc.hidden()
-    def test_verify_authority(self, trx):
-        pass
+    def test_verify_authority(self):
+        lcc.set_step("Verify authority")
+        self.send_request(self.get_request(self.__verify_authority,
+                                           [self.get_expected(self.__get_transaction)]),
+                          self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check verify authority")
+        check_that(
+            "'verify authority'",
+            self.__resp["result"],
+            is_true(),
+        )
 
     @lcc.test("Verify account authority")
-    @lcc.hidden()
-    def test_verify_account_authority(self, name_or_id, signers):
-        pass
+    @lcc.tags("don't work")
+    @lcc.disabled()
+    def test_verify_account_authority(self):
+        lcc.set_step("Verify account authority")
+        params = ["1.2.12", []]
+        self.send_request(self.get_request(self.__verify_account_authority, params), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check verify account authority")
+        check_that(
+            "'verify account authority'",
+            self.__resp["result"],
+            is_true(),
+        )
 
     @lcc.test("Validate transaction")
-    @lcc.hidden()
-    def test_validate_transaction(self, trx):
-        pass
+    @lcc.tags("don't work")
+    @lcc.disabled()
+    def test_validate_transaction(self):
+        lcc.set_step("Validate transaction")
+        self.send_request(self.get_request(self.__validate_transaction,
+                                           [self.get_expected(self.__get_transaction)]),
+                          self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check validate transaction")
+        check_that(
+            "'validate transaction'",
+            self.__resp["result"],
+            is_true(),
+        )
 
     @lcc.test("Get required fees")
-    @lcc.hidden()
-    def test_get_required_fees(self, ops, id):
-        pass
+    def test_get_required_fees(self):
+        lcc.set_step("Get required fees")
+        params = [self.get_expected(self.__contract_operations), "1.3.0"]
+        self.send_request(self.get_request(self.__get_required_fees, params), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get required fees")
+        check_that(
+            "'required fees'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_required_fees)),
+        )
 
     @lcc.test("Get proposed transactions")
-    @lcc.hidden()
-    def test_get_proposed_transactions(self, id):
-        pass
+    @lcc.tags("empty data receive")
+    def test_get_proposed_transactions(self):
+        lcc.set_step("Get proposed transactions")
+        self.send_request(self.get_request(self.__get_proposed_transactions,), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get proposed transactions")
+        check_that(
+            "'proposed transactions'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_proposed_transactions)),
+        )
 
     @lcc.test("Get all contracts")
     def test_get_all_contracts(self):

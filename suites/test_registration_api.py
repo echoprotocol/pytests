@@ -24,5 +24,5 @@ class TestRegistrationMethod(BaseTest):
                             "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
                             "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
                             "DETDvHDsAfk2M8LhYcxLZTbrNJRWT3UH5zxdaWimWc6uZkH"]
-        self.send_request(self.get_request(register_account), self.__identifier)
+        self.send_request(self.get_request("register_account", register_account), self.__identifier)
         self.__resp = self.get_response()
