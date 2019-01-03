@@ -603,3 +603,113 @@ class TestDatabaseMethod(BaseTest):
             self.__resp["result"],
             is_integer(is_(1))
         )
+
+    @lcc.test("Get committee members")
+    @lcc.hidden()
+    def test_get_committee_members(self, committee_member_ids):
+        pass
+
+    @lcc.test("Get committee members by account")
+    @lcc.hidden()
+    def test_get_committee_member_by_account(self, account):
+        pass
+
+    @lcc.test("Lookup committee member by accounts")
+    @lcc.hidden()
+    def test_lookup_committee_member_accounts(self, lower_bound_name, limit):
+        pass
+
+    @lcc.test("Get workers by account")
+    @lcc.hidden()
+    def test_get_workers_by_account(self, account_id):
+        pass
+
+    @lcc.test("Lookup vote ids")
+    @lcc.hidden()
+    def test_lookup_vote_ids(self, votes):
+        pass
+
+    @lcc.test("Get transaction hex")
+    @lcc.hidden()
+    def test_get_transaction_hex(self, trx):
+        pass
+
+    @lcc.test("Get required signatures")
+    @lcc.hidden()
+    def test_get_required_signatures(self, trx, available_keys):
+        pass
+
+    @lcc.test("Get potential signatures")
+    @lcc.hidden()
+    def test_get_potential_signatures(self, trx):
+        pass
+
+    @lcc.test("Get potential address signatures")
+    @lcc.hidden()
+    def test_get_potential_address_signatures(self, trx):
+        pass
+
+    @lcc.test("Verify authority")
+    @lcc.hidden()
+    def test_verify_authority(self, trx):
+        pass
+
+    @lcc.test("Verify account authority")
+    @lcc.hidden()
+    def test_verify_account_authority(self, name_or_id, signers):
+        pass
+
+    @lcc.test("Validate transaction")
+    @lcc.hidden()
+    def test_validate_transaction(self, trx):
+        pass
+
+    @lcc.test("Get required fees")
+    @lcc.hidden()
+    def test_get_required_fees(self, ops, id):
+        pass
+
+    @lcc.test("Get proposed transactions")
+    @lcc.hidden()
+    def test_get_proposed_transactions(self, id):
+        pass
+
+    @lcc.test("Get all contracts")
+    @lcc.hidden()
+    def test_get_all_contracts(self):
+        pass
+
+    @lcc.test("Get contract logs")
+    @lcc.hidden()
+    def test_get_contract_logs(self, contract_id, _from, to):
+        pass
+
+    @lcc.test("Subscribe contract logs")
+    @lcc.hidden()
+    def test_subscribe_contract_logs(self, callback, contract_id, _from, to):
+        pass
+
+    @lcc.test("Get contract result")
+    @lcc.hidden()
+    def test_get_contract_result(self, result_contract_id):
+        pass
+
+    @lcc.test("Get contract")
+    @lcc.hidden()
+    def test_get_contract(self, contract_id):
+        pass
+
+    @lcc.test("Call contract no changing state")
+    @lcc.hidden()
+    def test_call_contract_no_changing_state(self, contract_id, registrar_account, asset_type, code):
+        pass
+
+    @lcc.test("Get contracts")
+    @lcc.hidden()
+    def test_get_contracts(self, contract_ids):
+        pass
+
+    @lcc.test("Get contract balances")
+    @lcc.hidden()
+    def test_get_contract_balances(self, contract_id):
+        pass
