@@ -62,6 +62,18 @@ class TestDatabaseMethod(BaseTest):
     __get_witnesses = "get_witnesses"
     __get_witness_by_account = "get_witness_by_account"
     __get_witness_count = "get_witness_count"
+    __get_all_contracts = "get_all_contracts"
+    __get_all_contracts_exp = "get_all_contracts_exp"
+    __get_contract_logs = "get_contract_logs"
+    __get_contract_logs_exp = "get_contract_logs_exp"
+    __get_contract_result = "get_contract_result"
+    __get_contract_result_exp = "get_contract_result_exp"
+    __get_contract = "get_contract"
+    __get_contract_exp = "get_contract_exp"
+    __get_contracts = "get_contracts"
+    __get_contracts_exp = "get_contracts_exp"
+    __get_contract_balances = "get_contract_balances"
+    __get_contract_balances_exp = "get_contract_balances_exp"
 
     def __init__(self):
         super().__init__()
@@ -675,14 +687,31 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get all contracts")
-    @lcc.hidden()
     def test_get_all_contracts(self):
-        pass
+        lcc.set_step("Get all contracts")
+        self.send_request(self.get_request(self.__get_all_contracts), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get all contracts")
+        check_that(
+            "'all contracts'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_all_contracts_exp)),
+        )
 
     @lcc.test("Get contract logs")
-    @lcc.hidden()
-    def test_get_contract_logs(self, contract_id, _from, to):
-        pass
+    @lcc.tags("empty data receive")
+    def test_get_contract_logs(self):
+        lcc.set_step("Get contract logs")
+        self.send_request(self.get_request(self.__get_contract_logs), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get contract logs")
+        check_that(
+            "'contract logs'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_contract_logs_exp)),
+        )
 
     @lcc.test("Subscribe contract logs")
     @lcc.hidden()
@@ -690,14 +719,32 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get contract result")
-    @lcc.hidden()
-    def test_get_contract_result(self, result_contract_id):
-        pass
+    @lcc.tags("don't work")
+    @lcc.disabled()
+    def test_get_contract_result(self):
+        lcc.set_step("Get contract result")
+        self.send_request(self.get_request(self.__get_contract_result), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get contract result")
+        check_that(
+            "'contract result'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_contract_result_exp)),
+        )
 
     @lcc.test("Get contract")
-    @lcc.hidden()
-    def test_get_contract(self, contract_id):
-        pass
+    def test_get_contract(self):
+        lcc.set_step("Get contract")
+        self.send_request(self.get_request(self.__get_contract), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get contract")
+        check_that(
+            "'contract'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_contract_exp)),
+        )
 
     @lcc.test("Call contract no changing state")
     @lcc.hidden()
@@ -705,11 +752,28 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get contracts")
-    @lcc.hidden()
-    def test_get_contracts(self, contract_ids):
-        pass
+    def test_get_contracts(self):
+        lcc.set_step("Get contracts")
+        self.send_request(self.get_request(self.__get_contracts), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get contracts")
+        check_that(
+            "'contracts'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_contracts_exp)),
+        )
 
     @lcc.test("Get contract balances")
-    @lcc.hidden()
-    def test_get_contract_balances(self, contract_id):
-        pass
+    @lcc.tags("empty data receive")
+    def test_get_contract_balances(self):
+        lcc.set_step("Get contract balances")
+        self.send_request(self.get_request(self.__get_contract_balances), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get contract balances")
+        check_that(
+            "'contract balances'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_contract_balances_exp)),
+        )

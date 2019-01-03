@@ -30,6 +30,12 @@
     "get_witnesses": [["1.6.0"]],
     "get_witness_by_account": ["1.2.0"],
     "get_witness_count": [],
+    "get_all_contracts": [],
+    "get_contract_logs": ["1.16.0", 0, 826938],
+    "get_contract_result": ["1.16.0"],
+    "get_contract": ["1.16.0"],
+    "get_contracts": [["1.16.0", "1.16.1", "1.16.2"]],
+    "get_contract_balances": ["1.16.0"],
 
     "registration": [],
 
