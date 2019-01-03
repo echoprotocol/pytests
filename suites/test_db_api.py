@@ -107,7 +107,7 @@ class TestDatabaseMethod(BaseTest):
 
     @lcc.test("Get block header")
     def test_get_block_header(self):
-        lcc.set_step("Retrieve header of signed block.")
+        lcc.set_step("Retrieve header of signed block")
         self.send_request(self.get_request(self.__get_block_header), self.__identifier)
         self.__resp = self.get_response()
 
