@@ -52,3 +52,13 @@ class TestNetworkBroadcastMethod(BaseTest):
             self.__resp["error"]["message"],
             contains_string("Assert Exception: trx.ref_block_prefix == tapos_block_summary.block_id._hash[1]: ")
         )
+
+    @lcc.test("Broadcast transaction synchronous")
+    @lcc.hidden()
+    def test_broadcast_transaction_synchronous(self, trx):
+        pass
+
+    @lcc.test("Broadcast transaction with callback")
+    @lcc.hidden()
+    def test_broadcast_transaction_with_callback(self, callback, trx):
+        pass
