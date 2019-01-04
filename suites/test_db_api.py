@@ -10,6 +10,7 @@ SUITE = {
 
 @lcc.suite("Test database methods")
 class TestDatabaseMethod(BaseTest):
+    __get_objects = "get_objects"
     __get_block = "get_block"
     __get_block_header = "get_block_header"
     __get_transaction = "get_transaction"
@@ -68,9 +69,18 @@ class TestDatabaseMethod(BaseTest):
         self.__identifier = self.get_identifier(self._database_api)
 
     @lcc.test("Get objects")
-    @lcc.hidden()
-    def test_get_objects(self, array_ids):
-        pass
+    @lcc.tags("debug")
+    def test_get_objects(self):
+        lcc.set_step("Get objects 'account' and 'asset'")
+        self.send_request(self.get_request(self.__get_objects), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check get objects 'account' and 'asset'")
+        check_that(
+            "'account' and 'asset'",
+            self.__resp["result"],
+            is_(self.get_expected(self.__get_objects)),
+        )
 
     @lcc.test("Set subscribe callback")
     @lcc.hidden()

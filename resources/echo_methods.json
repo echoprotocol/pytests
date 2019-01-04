@@ -2,6 +2,7 @@
     "login": ["", ""],
 
     "database": [],
+    "get_objects": [["1.2.8", "1.3.1"]],
     "get_block": ["1054038"],
     "get_block_header": ["1054038"],
     "get_transaction": ["1054038", "0"],
