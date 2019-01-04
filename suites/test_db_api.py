@@ -1,5 +1,5 @@
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer, equal_to, is_true
+from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer, equal_to, is_true, is_none
 
 from common.utils import BaseTest
 
@@ -11,6 +11,10 @@ SUITE = {
 @lcc.suite("Test database methods")
 class TestDatabaseMethod(BaseTest):
     __get_objects = "get_objects"
+    __set_subscribe_callback = "set_subscribe_callback"
+    __set_pending_transaction_callback = "set_pending_transaction_callback"
+    __set_block_applied_callback = "set_block_applied_callback"
+    __cancel_all_subscriptions = "cancel_all_subscriptions"
     __get_block = "get_block"
     __get_block_header = "get_block_header"
     __get_transaction = "get_transaction"
@@ -69,7 +73,6 @@ class TestDatabaseMethod(BaseTest):
         self.__identifier = self.get_identifier(self._database_api)
 
     @lcc.test("Get objects")
-    @lcc.tags("debug")
     def test_get_objects(self):
         lcc.set_step("Get objects 'account' and 'asset'")
         self.send_request(self.get_request(self.__get_objects), self.__identifier)
@@ -83,24 +86,56 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Set subscribe callback")
-    @lcc.hidden()
-    def test_set_subscribe_callback(self, callback, notify_remove_create):
-        pass
+    def test_set_subscribe_callback(self):
+        lcc.set_step("Set subscribe callback")
+        self.send_request(self.get_request(self.__set_subscribe_callback), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check set subscribe callback")
+        check_that(
+            "'subscribe callback'",
+            self.__resp["result"],
+            is_none(),
+        )
 
     @lcc.test("Set pending transaction callback")
-    @lcc.hidden()
-    def test_set_pending_transaction_callback(self, callback):
-        pass
+    def test_set_pending_transaction_callback(self):
+        lcc.set_step("Set pending transaction callback")
+        self.send_request(self.get_request(self.__set_pending_transaction_callback), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check set pending transaction callback")
+        check_that(
+            "'pending transaction callback'",
+            self.__resp["result"],
+            is_none(),
+        )
 
     @lcc.test("Set block applied callback")
-    @lcc.hidden()
-    def test_set_block_applied_callback(self, callback):
-        pass
+    def test_set_block_applied_callback(self):
+        lcc.set_step("Set block applied callback")
+        self.send_request(self.get_request(self.__set_block_applied_callback), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check set block applied callback")
+        check_that(
+            "'block applied callback'",
+            self.__resp["result"],
+            is_none(),
+        )
 
     @lcc.test("Cancel all subscriptions")
-    @lcc.hidden()
     def test_cancel_all_subscriptions(self):
-        pass
+        lcc.set_step("Cancel all subscriptions")
+        self.send_request(self.get_request(self.__cancel_all_subscriptions), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Cancel all subscriptions")
+        check_that(
+            "'cancel all subscriptions'",
+            self.__resp["result"],
+            is_none(),
+        )
 
     @lcc.test("Get block")
     def test_get_block(self):
