@@ -364,7 +364,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'account count'",
             self.__resp["result"],
-            is_integer(is_(21))
+            is_integer(is_(14))
         )
 
     @lcc.test("Get account balances, empty param: assets")
@@ -520,6 +520,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get settle orders")
+    @lcc.tags("empty data receive")
     def test_get_settle_orders(self):
         lcc.set_step("Get settle orders")
         self.send_request(self.get_request(self.__get_settle_orders), self.__identifier)
@@ -533,6 +534,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get margin positions")
+    @lcc.tags("empty data receive")
     def test_get_margin_positions(self):
         lcc.set_step("Get margin positions")
         self.send_request(self.get_request(self.__get_margin_positions), self.__identifier)
@@ -583,7 +585,7 @@ class TestDatabaseMethod(BaseTest):
             "witness_account", is_("1.2.0"),
             "last_aslot", is_integer(),
             "signing_key", is_("ECHO1111111111111111111111111111111114T1Anm"),
-            "pay_vb", is_("1.13.0"),
+            "pay_vb", is_("1.13.1"),
             "vote_id", is_("1:0"),
             "total_votes", is_(0),
             "url", is_(""),
@@ -605,7 +607,7 @@ class TestDatabaseMethod(BaseTest):
             "witness_account", is_("1.2.0"),
             "last_aslot", is_integer(),
             "signing_key", is_("ECHO1111111111111111111111111111111114T1Anm"),
-            "pay_vb", is_("1.13.0"),
+            "pay_vb", is_("1.13.1"),
             "vote_id", is_("1:0"),
             "total_votes", is_(0),
             "url", is_(""),
@@ -816,6 +818,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get required fees")
+    @lcc.tags("no contracts")
     def test_get_required_fees(self):
         lcc.set_step("Get required fees")
         params = [self.get_expected(self.__contract_operations), "1.3.0"]
@@ -844,6 +847,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get all contracts")
+    @lcc.tags("no contracts")
     def test_get_all_contracts(self):
         lcc.set_step("Get all contracts")
         self.send_request(self.get_request(self.__get_all_contracts), self.__identifier)
@@ -891,6 +895,7 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get contract")
+    @lcc.tags("no contracts")
     def test_get_contract(self):
         lcc.set_step("Get contract")
         self.send_request(self.get_request(self.__get_contract), self.__identifier)
@@ -909,6 +914,7 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get contracts")
+    @lcc.tags("no contracts")
     def test_get_contracts(self):
         lcc.set_step("Get contracts")
         self.send_request(self.get_request(self.__get_contracts), self.__identifier)

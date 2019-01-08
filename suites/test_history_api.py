@@ -61,7 +61,8 @@ class TestAssetMethod(BaseTest):
         )
 
     @lcc.test("Get contract history")
-    @lcc.tags("empty data receive")
+    @lcc.tags("no contract")
+    @lcc.disabled()
     def test_get_contract_history(self):
         lcc.set_step("Get contract history")
         self.send_request(self.get_request(self.__get_contract_history), self.__identifier)

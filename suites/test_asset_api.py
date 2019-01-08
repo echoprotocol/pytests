@@ -35,7 +35,7 @@ class TestAssetMethod(BaseTest):
         check_that_in(
             self.resp_all_asset_holders["result"][0],
             "asset_id", is_str(is_("1.3.0")),
-            "count", is_integer(is_(8))
+            "count", is_integer(is_(7))
         )
 
     @lcc.test("Get all asset holders count")
