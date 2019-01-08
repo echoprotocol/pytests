@@ -1,3 +1,4 @@
 {
-    "BASE_URL": "ws://195.201.164.54:6311"
+    "BASE_URL": "ws://195.201.164.54:6311",
+    "DEV_URL": "wss://echo-tmp-wallet.pixelplex.io/ws/"
 }
