@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, is_, is_integer, has_entry, check_that, is_str
 
-from common.utils import BaseTest
+from common.base_test import BaseTest
 
 SUITE = {
     "description": "Test 'Asset API'"

@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_
 
-from common.utils import BaseTest
+from common.base_test import BaseTest
 
 SUITE = {
     "description": "Test 'History API'"

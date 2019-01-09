@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import is_bool, equal_to, check_that
-from common.utils import BaseTest
+from common.base_test import BaseTest
 
 SUITE = {
     "description": "Test 'Login API'"

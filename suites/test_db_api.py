@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import is_, check_that, check_that_in, is_str, is_integer, equal_to, is_true, is_none
 
-from common.utils import BaseTest
+from common.base_test import BaseTest
 
 SUITE = {
     "description": "Test 'Database API'"
