@@ -2443,9 +2443,9 @@
                     "total_ops": 12,
                     "removed_ops": 0,
                     "total_core_in_orders": 0,
-                    "lifetime_fees_paid": 1000000120,
+                    "lifetime_fees_paid": 1001035775,
                     "pending_fees": 0,
-                    "pending_vested_fees": 1035655
+                    "pending_vested_fees": 0
                 },
                 "registrar_name": "nathan",
                 "referrer_name": "nathan",
@@ -2455,7 +2455,7 @@
                     "id": "1.13.0",
                     "owner": "1.2.12",
                     "balance": {
-                        "amount": 96,
+                        "amount": 828620,
                         "asset_id": "1.3.0"
                     },
                     "policy": [
@@ -2463,8 +2463,8 @@
                         {
                             "vesting_seconds": 31536000,
                             "start_claim": "1970-01-01T00:00:00",
-                            "coin_seconds_earned": "3027456000",
-                            "coin_seconds_earned_last_update": "2019-01-05T00:00:00"
+                            "coin_seconds_earned": "26131360320000",
+                            "coin_seconds_earned_last_update": "2019-01-09T00:00:00"
                         }
                     ]
                 },
@@ -2481,7 +2481,7 @@
                         "id": "1.13.0",
                         "owner": "1.2.12",
                         "balance": {
-                            "amount": 96,
+                            "amount": 828620,
                             "asset_id": "1.3.0"
                         },
                         "policy": [
@@ -2489,8 +2489,8 @@
                             {
                                 "vesting_seconds": 31536000,
                                 "start_claim": "1970-01-01T00:00:00",
-                                "coin_seconds_earned": "3027456000",
-                                "coin_seconds_earned_last_update": "2019-01-05T00:00:00"
+                                "coin_seconds_earned": "26131360320000",
+                                "coin_seconds_earned_last_update": "2019-01-09T00:00:00"
                             }
                         ]
                     }
@@ -3328,7 +3328,7 @@
             "block_num": 203,
             "trx_in_block": 0,
             "op_in_trx": 0,
-            "virtual_op": 82
+            "virtual_op": 21
         }
     ],
     "get_relative_account_history": [
@@ -3357,7 +3357,7 @@
             "block_num": 203,
             "trx_in_block": 0,
             "op_in_trx": 0,
-            "virtual_op": 82
+            "virtual_op": 21
         }
     ],
     "get_account_history_operations": [],

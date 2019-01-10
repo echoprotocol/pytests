@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_, is_integer, has_entry, check_that, is_str
+from lemoncheesecake.matching import check_that_in, is_integer, has_entry, check_that, is_str
 
-from common.utils import BaseTest
+from common.base_test import BaseTest
 
 SUITE = {
     "description": "Test 'Asset API'"
@@ -34,8 +35,8 @@ class TestAssetMethod(BaseTest):
         lcc.set_step("Check asset_id and count of all asset holders")
         check_that_in(
             self.resp_all_asset_holders["result"][0],
-            "asset_id", is_str(is_("1.3.0")),
-            "count", is_integer(is_(7))
+            "asset_id", is_str("1.3.0"),
+            "count", is_integer(7)
         )
 
     @lcc.test("Get all asset holders count")
@@ -51,7 +52,7 @@ class TestAssetMethod(BaseTest):
         lcc.set_step("Check count of holders")
         self.send_request(self.get_request(self.__get_all_asset_holders_count, param), self.__identifier)
         self.__resp = self.get_response()
-        check_that("'count of holders'", self.__resp["result"], is_integer(is_(holders_count)))
+        check_that("'count of holders'", self.__resp["result"], is_integer(holders_count))
 
     @lcc.test("Get asset holders")
     def test_get_asset_holders(self):
