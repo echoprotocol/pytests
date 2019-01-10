@@ -27,6 +27,45 @@ class BaseTest(object):
         self.__request = None
         self.__api_id = 0
 
+    @staticmethod
+    def get_file_attachment_path(file_name):
+        return os.path.join(RESOURCES_DIR, file_name)
+
+    def add_file_to_report(self, kind, filename, file_description, data=None):
+        try:
+            if kind == "file" and data is None:
+                lcc.set_step("Attachment file")
+                lcc.save_attachment_file(self.get_file_attachment_path(filename), file_description)
+            elif kind == "image" and data is None:
+                lcc.set_step("Image attachment")
+                lcc.save_image_file(self.get_file_attachment_path(filename), file_description)
+            elif kind == "file" and data is not None:
+                lcc.set_step("Attachment file content")
+                lcc.save_attachment_content(data, filename, file_description)
+            elif kind == "image" and data is not None:
+                lcc.set_step("Image attachment content")
+                lcc.save_image_content(data, filename, file_description)
+        except FileNotFoundError:
+            lcc.log_error("File or image does not exist!")
+
+    @staticmethod
+    def prepare_attach_to_report(kind, filename, file_description, data):
+        try:
+            if kind == "file":
+                lcc.set_step("Prepare attachment file")
+                with lcc.prepare_attachment(filename, file_description) \
+                        as file:
+                    with open(file, "w") as fh:
+                        fh.write(data)
+            elif kind == "image":
+                lcc.set_step("Prepare image attachment")
+                with lcc.prepare_image_attachment(filename, file_description) \
+                        as file:
+                    with open(file, "w") as fh:
+                        fh.write(data)
+        except FileNotFoundError:
+            lcc.log_error("File or image does not exist!")
+
     def get_request(self, method_name, params=None):
         # Params must be list
         self.__request = [1, method_name]

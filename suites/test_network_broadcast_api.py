@@ -51,7 +51,7 @@ class TestNetworkBroadcastMethod(BaseTest):
         check_that(
             "'error message'",
             self.__resp["error"]["message"],
-            contains_string("Assert Exception: now <= trx.expiration: ")
+            contains_string("Assert Exception: trx.ref_block_prefix == tapos_block_summary.block_id._hash[1]: ")
         )
 
     @lcc.test("Broadcast transaction synchronous")

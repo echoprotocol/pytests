@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_
+from lemoncheesecake.matching import check_that, is_, is_list
 
 from common.base_test import BaseTest
 
@@ -31,7 +31,7 @@ class TestAssetMethod(BaseTest):
         check_that(
             "'account history'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_account_history)),
+            is_list(self.get_expected(self.__get_account_history)),
         )
 
     @lcc.test("Get relative account history")
@@ -44,7 +44,7 @@ class TestAssetMethod(BaseTest):
         check_that(
             "'relative account history'",
             self.__resp["result"],
-            is_(self.get_expected(self.__get_relative_account_history)),
+            is_list(self.get_expected(self.__get_relative_account_history)),
         )
 
     @lcc.test("Get account history operations")
