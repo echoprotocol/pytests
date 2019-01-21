@@ -33,11 +33,6 @@ class TestAssetMethod(BaseTest):
         self.get_holders()
 
         lcc.set_step("Check asset_id and count of all asset holders")
-        # check_that_in(
-        #     self.resp_all_asset_holders["result"],
-        #     "asset_id", is_str("1.3.0"),
-        #     "count", is_integer(16)
-        # )
         check_that(
             "'contract result'",
             self.resp_all_asset_holders["result"],
