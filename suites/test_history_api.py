@@ -48,7 +48,6 @@ class TestAssetMethod(BaseTest):
         )
 
     @lcc.test("Get account history operations")
-    @lcc.tags("empty data receive")
     def test_get_account_history_operations(self):
         lcc.set_step("Get account history operations")
         self.send_request(self.get_request(self.__get_account_history_operations), self.__identifier)
@@ -62,8 +61,6 @@ class TestAssetMethod(BaseTest):
         )
 
     @lcc.test("Get contract history")
-    @lcc.tags("no contract")
-    @lcc.disabled()
     def test_get_contract_history(self):
         lcc.set_step("Get contract history")
         self.send_request(self.get_request(self.__get_contract_history), self.__identifier)
