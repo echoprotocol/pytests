@@ -427,6 +427,11 @@ class TestDatabaseMethod(BaseTest):
             is_list(self.get_expected(self.__get_account_balances)),
         )
 
+    @lcc.test("Get balance objects")
+    @lcc.hidden()
+    def test_get_balance_objects(self, addrs):
+        pass
+
     @lcc.test("Get vested balances")
     @lcc.tags("don't work")
     @lcc.disabled()
@@ -442,6 +447,11 @@ class TestDatabaseMethod(BaseTest):
             self.__resp["result"],
             is_(self.get_expected(self.__get_account_balances)),
         )
+
+    @lcc.test("Get vesting balances")
+    @lcc.hidden()
+    def test_get_vesting_balances(self, account_id):
+        pass
 
     @lcc.test("Get assets")
     def test_get_assets(self):

@@ -9,7 +9,7 @@ SUITE = {
 
 
 @lcc.suite("Test smart contract")
-@lcc.disabled()
+# @lcc.disabled()
 class TestSmartContract(BaseTest):
     __get_account_history = "get_account_history"
     __get_contract_result = "get_contract_result"
@@ -37,10 +37,10 @@ class TestSmartContract(BaseTest):
     # todo: need paste the code here after the library would be created
     # Call the greet method to transfer money to a contract and output 'Hello World !!!' - "node greet.js"
 
-    @lcc.test("Get 'Hello world' and put money on a contract balance")
+    @lcc.test("Get 'Hello world'")
     @lcc.tags("greet")
     def test_piggy_smart_contract_step2(self):
-        lcc.set_step("Get 'Hello world' and put money on a contract balance")
+        lcc.set_step("Get 'Hello world'")
         params = ["1.17.191"]
         self.send_request(self.get_request(self.__get_contract_result, params), self.__id_db)
         self.__resp = self.get_response()
