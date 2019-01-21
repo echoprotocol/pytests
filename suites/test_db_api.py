@@ -368,7 +368,7 @@ class TestDatabaseMethod(BaseTest):
         check_that(
             "'account count'",
             self.__resp["result"],
-            is_integer(15)
+            is_integer(29)
         )
 
     @lcc.test("Get account balances, empty param: assets")
@@ -822,8 +822,6 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get required fees")
-    @lcc.tags("no contracts")
-    @lcc.disabled()
     def test_get_required_fees(self):
         lcc.set_step("Get required fees")
         params = [self.get_expected(self.__contract_operations), "1.3.0"]
@@ -852,8 +850,6 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get all contracts")
-    @lcc.tags("no contracts")
-    @lcc.disabled()
     def test_get_all_contracts(self):
         lcc.set_step("Get all contracts")
         self.send_request(self.get_request(self.__get_all_contracts), self.__identifier)
@@ -867,7 +863,6 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get contract logs")
-    @lcc.tags("empty data receive")
     def test_get_contract_logs(self):
         lcc.set_step("Get contract logs")
         self.send_request(self.get_request(self.__get_contract_logs), self.__identifier)
@@ -886,8 +881,6 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get contract result")
-    @lcc.tags("don't work")
-    @lcc.disabled()
     def test_get_contract_result(self):
         lcc.set_step("Get contract result")
         self.send_request(self.get_request(self.__get_contract_result), self.__identifier)
@@ -901,8 +894,6 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get contract")
-    @lcc.tags("no contracts")
-    @lcc.disabled()
     def test_get_contract(self):
         lcc.set_step("Get contract")
         self.send_request(self.get_request(self.__get_contract), self.__identifier)
@@ -921,8 +912,6 @@ class TestDatabaseMethod(BaseTest):
         pass
 
     @lcc.test("Get contracts")
-    @lcc.tags("no contracts")
-    @lcc.disabled()
     def test_get_contracts(self):
         lcc.set_step("Get contracts")
         self.send_request(self.get_request(self.__get_contracts), self.__identifier)
@@ -936,7 +925,6 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Get contract balances")
-    @lcc.tags("empty data receive")
     def test_get_contract_balances(self):
         lcc.set_step("Get contract balances")
         self.send_request(self.get_request(self.__get_contract_balances), self.__identifier)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_integer, has_entry, check_that, is_str
+from lemoncheesecake.matching import is_integer, has_entry, check_that, is_
 
 from common.base_test import BaseTest
 
@@ -33,10 +33,15 @@ class TestAssetMethod(BaseTest):
         self.get_holders()
 
         lcc.set_step("Check asset_id and count of all asset holders")
-        check_that_in(
-            self.resp_all_asset_holders["result"][0],
-            "asset_id", is_str("1.3.0"),
-            "count", is_integer(7)
+        # check_that_in(
+        #     self.resp_all_asset_holders["result"],
+        #     "asset_id", is_str("1.3.0"),
+        #     "count", is_integer(16)
+        # )
+        check_that(
+            "'contract result'",
+            self.resp_all_asset_holders["result"],
+            is_(self.get_expected(self.__get_all_asset_holders)),
         )
 
     @lcc.test("Get all asset holders count")
@@ -44,15 +49,16 @@ class TestAssetMethod(BaseTest):
         lcc.set_step("Get all asset holders")
         self.get_holders()
 
-        lcc.set_step("Get asset_id and count of holders")
-        param = [self.resp_all_asset_holders["result"][0]["asset_id"]]
-        holders_count = self.resp_all_asset_holders["result"][0]["count"]
-        lcc.log_info("Asset id = {}, holders count = {}".format(param, holders_count))
+        for asset in range(len(self.resp_all_asset_holders["result"])):
+            lcc.set_step("Get asset_id and count of holders")
+            param = [self.resp_all_asset_holders["result"][asset]["asset_id"]]
+            holders_count = self.resp_all_asset_holders["result"][asset]["count"]
+            lcc.log_info("Asset id = {}, holders count = {}".format(param, holders_count))
 
-        lcc.set_step("Check count of holders")
-        self.send_request(self.get_request(self.__get_all_asset_holders_count, param), self.__identifier)
-        self.__resp = self.get_response()
-        check_that("'count of holders'", self.__resp["result"], is_integer(holders_count))
+            lcc.set_step("Check count of holders")
+            self.send_request(self.get_request(self.__get_all_asset_holders_count, param), self.__identifier)
+            self.__resp = self.get_response()
+            check_that("'count of holders'", self.__resp["result"], is_integer(holders_count))
 
     @lcc.test("Get asset holders")
     def test_get_asset_holders(self):
