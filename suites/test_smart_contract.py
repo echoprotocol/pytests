@@ -30,7 +30,7 @@ class TestSmartContract(BaseTest):
     @lcc.tags("deploy")
     def test_piggy_smart_contract_step1(self):
         lcc.set_step("Get the address of the new contract")
-        params = ["1.17.190"]
+        params = ["1.17.266"]
         self.send_request(self.get_request(self.__get_contract_result, params), self.__id_db)
         self.__resp = self.get_response()
 
@@ -48,7 +48,7 @@ class TestSmartContract(BaseTest):
     @lcc.test("Get contract balance")
     @lcc.tags("greet")
     def test_piggy_smart_contract_step3(self):
-        lcc.set_step("Получить баланс контракта")
+        lcc.set_step("Get contract balance")
         params = ["1.16.80"]
         self.send_request(self.get_request(self.__get_contract_balances, params), self.__id_db)
         self.__resp = self.get_response()

@@ -162,6 +162,7 @@
     "get_contract": [
         "1.16.0"
     ],
+    "call_contract_no_changing_state": ["1.16.109", "1.2.16", "1.3.0", "cfae3217"],
     "get_contracts": [
         [
             "1.16.0",

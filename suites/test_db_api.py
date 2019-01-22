@@ -66,6 +66,7 @@ class TestDatabaseMethod(BaseTest):
     __get_contract_logs = "get_contract_logs"
     __get_contract_result = "get_contract_result"
     __get_contract = "get_contract"
+    __call_contract_no_changing_state = "call_contract_no_changing_state"
     __get_contracts = "get_contracts"
     __get_contract_balances = "get_contract_balances"
 
@@ -917,9 +918,19 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Call contract no changing state")
-    @lcc.hidden()
-    def test_call_contract_no_changing_state(self, contract_id, registrar_account, asset_type, code):
-        pass
+    @lcc.tags("qwerty")
+    def test_call_contract_no_changing_state(self):
+        lcc.set_step("Get contract")
+        self.send_request(self.get_request(self.__call_contract_no_changing_state), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check call contract no changing state")
+        check_that(
+            "'method call'",
+            self.__resp["result"],
+            is_str("000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000"
+                   "0000000000000000000000000000000e48656c6c6f20576f726c64212121000000000000000000000000000000000000"),
+        )
 
     @lcc.test("Get contracts")
     def test_get_contracts(self):
