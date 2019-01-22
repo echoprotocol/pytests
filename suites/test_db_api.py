@@ -918,7 +918,6 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Call contract no changing state")
-    @lcc.tags("qwerty")
     def test_call_contract_no_changing_state(self):
         lcc.set_step("Get contract")
         self.send_request(self.get_request(self.__call_contract_no_changing_state), self.__identifier)
