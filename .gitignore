@@ -4,5 +4,3 @@ reports
 .idea
 public
 venv
-common/websocket_test.py
-bitshares_generate_data
