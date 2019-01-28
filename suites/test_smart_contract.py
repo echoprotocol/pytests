@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_, is_integer, is_str, check_that_in, is_false
 
 from common.base_test import BaseTest
+from common.echo_operation import EchoOperations
+
 
 SUITE = {
     "description": "Test 'Piggy'"
@@ -9,101 +12,117 @@ SUITE = {
 
 
 @lcc.suite("Test smart contract")
-# @lcc.disabled()
+@lcc.tags("smart")
 class TestSmartContract(BaseTest):
-    __get_account_history = "get_account_history"
     __get_contract_result = "get_contract_result"
     __get_contract_balances = "get_contract_balances"
+    __get_named_account_balances = "get_named_account_balances"
     __get_objects = "get_objects"
-    __get_full_accounts = "get_full_accounts"
 
     def __init__(self):
         super().__init__()
         self.__resp = None
         self.__id_db = self.get_identifier(self._database_api)
-        self.__id_history = self.get_identifier(self._history_api)
+        self.echo_op = EchoOperations()
 
-    # todo: need paste the code here after the library would be created
-    # Deploy contract "node deploy.js"
+    @lcc.test("Test contract 'piggy.sol'")
+    def test_piggy_smart_contract(self):
+        account = "test10123223"
+        value_amount = 1000
 
-    @lcc.test("Get the address of the new contract")
-    @lcc.tags("deploy")
-    def test_piggy_smart_contract_step1(self):
-        lcc.set_step("Get the address of the new contract")
-        params = ["1.17.266"]
-        self.send_request(self.get_request(self.__get_contract_result, params), self.__id_db)
-        self.__resp = self.get_response()
+        lcc.set_step("Deploy contract")
+        self.__resp = self.echo_op.create_contract(self.get_byte_code("piggy_code"), account, value_amount)
 
-    # todo: need paste the code here after the library would be created
-    # Call the greet method to transfer money to a contract and output 'Hello World !!!' - "node greet.js"
+        lcc.set_step("Get id of the new contract")
+        contract_id = [self.get_contract_id(self.__resp)]
+        lcc.log_info("Contract id is {}".format(contract_id))
 
-    @lcc.test("Get 'Hello world'")
-    @lcc.tags("greet")
-    def test_piggy_smart_contract_step2(self):
-        lcc.set_step("Get 'Hello world'")
-        params = ["1.17.191"]
-        self.send_request(self.get_request(self.__get_contract_result, params), self.__id_db)
-        self.__resp = self.get_response()
+        lcc.set_step("Get the new address of the new contract")
+        self.send_request(self.get_request(self.__get_contract_result, contract_id), self.__id_db)
+        self.__resp = self.get_trx_completed_response()
+        contract_identifier = self.get_contract_identifier(self.__resp)
+        lcc.log_info("Contract identifier is {}".format(contract_identifier))
 
-    @lcc.test("Get contract balance")
-    @lcc.tags("greet")
-    def test_piggy_smart_contract_step3(self):
+        lcc.set_step("Call 'greet' method")
+        self.__resp = self.echo_op.call_contract_method(self.get_byte_code("piggy_greet"), account,
+                                                        contract_identifier)
+        contract_id = [self.get_contract_id(self.__resp)]
+        lcc.log_info("Contract id is {}".format(contract_id))
+        self.send_request(self.get_request(self.__get_contract_result, contract_id), self.__id_db)
+        self.__resp = self.get_trx_completed_response()
+
+        lcc.set_step("Check get 'Hello World!!!'")
+        contract_output = self.get_contract_output(self.__resp, False)[1:]
+        check_that(
+            "return of method 'greet'",
+            contract_output,
+            is_("Hello World!!!"),
+        )
+
         lcc.set_step("Get contract balance")
-        params = ["1.16.80"]
-        self.send_request(self.get_request(self.__get_contract_balances, params), self.__id_db)
+        self.send_request(self.get_request(self.__get_contract_balances, [contract_identifier]), self.__id_db)
         self.__resp = self.get_response()
+        check_that_in(
+            self.__resp["result"][0],
+            "amount", is_integer(value_amount),
+            "asset_id", is_str("1.3.0")
+        )
+        contract_balance = self.__resp["result"][0]["amount"]
 
-    @lcc.test("Get owner balance and store")
-    def test_piggy_smart_contract_step4(self):
         lcc.set_step("Get owner balance and store")
-        params = [["1.2.16"], False]
-        self.send_request(self.get_request(self.__get_full_accounts, params), self.__id_db)
+        params = [account, ["1.3.0"]]
+        self.send_request(self.get_request(self.__get_named_account_balances, params), self.__id_db)
         self.__resp = self.get_response()
+        owner_balance = self.__resp["result"][0]["amount"]
 
-    # todo: need paste the code here after the library would be created
-    # Call the getPennie method to transfer 1 asset to owner - "node getPennie.js"
+        lcc.set_step("Call 'getPennie' method")
+        self.__resp = self.echo_op.call_contract_method(self.get_byte_code("piggy_getPennie"), account,
+                                                        contract_identifier)
+        contract_id = [self.get_contract_id(self.__resp)]
+        lcc.log_info("Contract id is {}".format(contract_id))
+        self.send_request(self.get_request(self.__get_contract_result, contract_id), self.__id_db)
+        self.__resp = self.get_trx_completed_response()
 
-    @lcc.test("Send one Asset to owner")
-    @lcc.tags("getPennie")
-    def test_piggy_smart_contract_step5(self):
-        lcc.set_step("Send one Asset to owner")
-        params = ["1.17.198"]
-        self.send_request(self.get_request(self.__get_contract_result, params), self.__id_db)
+        lcc.set_step("Get contract and owner balance. Amount should be reduced and increase by one respectively.")
+        self.send_request(self.get_request(self.__get_contract_balances, [contract_identifier]), self.__id_db)
         self.__resp = self.get_response()
+        check_that_in(
+            self.__resp["result"][0],
+            "amount", is_integer(contract_balance - 1),
+            "asset_id", is_str("1.3.0")
+        )
 
-    @lcc.test("Get contract balance. Amount should be reduced by one.")
-    @lcc.tags("getPennie")
-    def test_piggy_smart_contract_step6(self):
-        lcc.set_step("Get contract balance. Amount should be reduced by one.")
-        params = ["1.16.80"]
-        self.send_request(self.get_request(self.__get_contract_balances, params), self.__id_db)
+        params = [account, ["1.3.0"]]
+        self.send_request(self.get_request(self.__get_named_account_balances, params), self.__id_db)
         self.__resp = self.get_response()
+        check_that(
+            "'owner balance'",
+            self.__resp["result"][0]["amount"],
+            is_(str(int(owner_balance) + 1))
+        )
 
-        lcc.set_step("Get owner balance. Amount should be increase by one")
-        params = [["1.2.16"], False]
-        self.send_request(self.get_request(self.__get_full_accounts, params), self.__id_db)
-        self.__resp = self.get_response()
+        lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
+        self.__resp = self.echo_op.call_contract_method(self.get_byte_code("piggy_breakPiggy"), account,
+                                                        contract_identifier)
+        contract_id = [self.get_contract_id(self.__resp)]
+        lcc.log_info("Contract id is {}".format(contract_id))
+        self.send_request(self.get_request(self.__get_contract_result, contract_id), self.__id_db)
+        self.__resp = self.get_trx_completed_response()
 
-    # todo: need paste the code here after the library would be created
-    # Destroy the contract and check balance and status of it - "node breakPiggy.js"
-
-    @lcc.test("Destroy the contract")
-    @lcc.tags("breakPiggy")
-    def test_piggy_smart_contract_step7(self):
-        lcc.set_step("Destroy the contract")
-        params = ["1.17.196"]
-        self.send_request(self.get_request(self.__get_contract_result, params), self.__id_db)
-        self.__resp = self.get_response()
-
-    @lcc.test("Receive confirmation that the contract has been destroyed.")
-    @lcc.tags("breakPiggy")
-    def test_piggy_smart_contract_step8(self):
         lcc.set_step("Get contract balance, must be 0 (zero)")
-        params = ["1.16.80"]
-        self.send_request(self.get_request(self.__get_contract_balances, params), self.__id_db)
+        self.send_request(self.get_request(self.__get_contract_balances, [contract_identifier]), self.__id_db)
         self.__resp = self.get_response()
+        check_that(
+            "'contract balance'",
+            self.__resp["result"][0]["amount"],
+            is_integer(0)
+        )
 
-        lcc.set_step("Get that contract to be 'suicided=True'")
-        params = [["1.16.80"]]
-        self.send_request(self.get_request(self.__get_objects, params), self.__id_db)
+        lcc.set_step("Check that contract to be 'suicided=True'")
+        self.send_request(self.get_request(self.__get_objects, [[contract_identifier]]), self.__id_db)
         self.__resp = self.get_response()
+        check_that(
+            "contract deleted and 'suicided'",
+            self.__resp["result"][0]["suicided"],
+            is_false()  # todo: change on true when the bug would fixed
+        )

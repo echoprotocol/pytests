@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import codecs
 import json
 import os
 
 from websocket import create_connection
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
@@ -26,6 +28,10 @@ class BaseTest(object):
         self.__resp = None
         self.__request = None
         self.__api_id = 0
+
+    @staticmethod
+    def get_byte_code(var):
+        return json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))[var]
 
     @staticmethod
     def get_file_attachment_path(file_name):
@@ -122,6 +128,16 @@ class BaseTest(object):
         lcc.log_info("Received: \n{}".format(json.dumps(self.__resp, indent=4)))
         return self.__resp
 
+    def get_trx_completed_response(self):
+        # Receive answer from server that transaction completed
+        self.__resp = self.get_response()
+        check_that(
+            "transaction completed",
+            self.__resp["result"][1].get("exec_res").get("excepted"),
+            is_("None")
+        )
+        return self.__resp
+
     def get_identifier(self, api):
         # Initialise identifier for api
         call_template = self.get_template()
@@ -130,6 +146,25 @@ class BaseTest(object):
         self.__resp = json.loads(self.__ws.recv())
         identifier = self.__resp["result"]
         return identifier
+
+    @staticmethod
+    def get_contract_id(response):
+        return str((response.get("operation_results"))[0][-1])
+
+    @staticmethod
+    def get_contract_identifier(response):
+        contract_identifier = response["result"][1].get("exec_res").get("new_address")
+        return "1.16.{}".format(int(str(contract_identifier)[2:], 16))
+
+    @staticmethod
+    def get_contract_output(response, in_hex=False):
+        if in_hex:
+            contract_output = str(response["result"][1].get("exec_res").get("output"))
+            return contract_output
+        else:
+            contract_output = str(codecs.decode(str(response["result"][1].get("exec_res").get("output")),
+                                                "hex").decode('utf-8'))
+            return contract_output.replace("\u0000", "").replace("\u000e", "")
 
     @staticmethod
     def _login_status(response):

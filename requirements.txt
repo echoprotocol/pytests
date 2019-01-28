@@ -3,7 +3,7 @@ flake8
 lemoncheesecake
 mccabe
 pycodestyle
-pyflakes
+pyflakes==2.0.0
 six
 termcolor
 terminaltables
