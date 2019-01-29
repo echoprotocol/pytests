@@ -118,6 +118,7 @@
     "get_witness_by_account": [
         "1.2.0"
     ],
+    "lookup_witness_accounts": ["c", 5],
     "get_witness_count": [],
     "get_committee_members": [
         [
@@ -129,6 +130,7 @@
     "get_committee_member_by_account": [
         "1.2.8"
     ],
+    "lookup_committee_member_accounts": ["in", 5],
     "get_workers_by_account": [
         "1.2.8"
     ],

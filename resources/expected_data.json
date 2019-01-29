@@ -4823,5 +4823,33 @@
             "suicided": false,
             "type": "evm"
         }
+    ],
+    "lookup_witness_accounts": [
+        [
+            "committee-account",
+            "1.6.0"
+        ]
+    ],
+    "lookup_committee_member_accounts": [
+        [
+            "init0",
+            "1.5.0"
+        ],
+        [
+            "init1",
+            "1.5.1"
+        ],
+        [
+            "init2",
+            "1.5.2"
+        ],
+        [
+            "init3",
+            "1.5.3"
+        ],
+        [
+            "init4",
+            "1.5.4"
+        ]
     ]
 }

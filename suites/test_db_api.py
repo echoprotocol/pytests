@@ -47,9 +47,11 @@ class TestDatabaseMethod(BaseTest):
     __get_margin_positions = "get_margin_positions"
     __get_witnesses = "get_witnesses"
     __get_witness_by_account = "get_witness_by_account"
+    __lookup_witness_accounts = "lookup_witness_accounts"
     __get_witness_count = "get_witness_count"
     __get_committee_members = "get_committee_members"
     __get_committee_member_by_account = "get_committee_member_by_account"
+    __lookup_committee_member_accounts = "lookup_committee_member_accounts"
     __get_workers_by_account = "get_workers_by_account"
     __lookup_vote_ids = "lookup_vote_ids"
     __get_transaction_hex = "get_transaction_hex"
@@ -648,9 +650,17 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Lookup witness accounts")
-    @lcc.hidden()
-    def test_lookup_witness_accounts(self, lower_bound_name, limit):
-        pass
+    def test_lookup_witness_accounts(self):
+        lcc.set_step("Lookup witness accounts")
+        self.send_request(self.get_request(self.__lookup_witness_accounts), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check lookup witness accounts")
+        check_that(
+            "'lookup witness accounts'",
+            self.__resp["result"],
+            is_list(self.get_expected(self.__lookup_witness_accounts)),
+        )
 
     @lcc.test("Get witness count")
     def test_get_witness_count(self):
@@ -692,9 +702,17 @@ class TestDatabaseMethod(BaseTest):
         )
 
     @lcc.test("Lookup committee member by accounts")
-    @lcc.hidden()
-    def test_lookup_committee_member_accounts(self, lower_bound_name, limit):
-        pass
+    def test_lookup_committee_member_accounts(self):
+        lcc.set_step("Lookup committee member by accounts")
+        self.send_request(self.get_request(self.__lookup_committee_member_accounts), self.__identifier)
+        self.__resp = self.get_response()
+
+        lcc.set_step("Check lookup committee member by accounts")
+        check_that(
+            "'lookup committee member by accounts'",
+            self.__resp["result"],
+            is_list(self.get_expected(self.__lookup_committee_member_accounts)),
+        )
 
     @lcc.test("Get workers by account")
     @lcc.tags("empty data receive")
