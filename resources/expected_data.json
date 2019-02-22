@@ -192,10 +192,7 @@
             12
         ]
     ],
-    "login_valid_params": [
-        "test",
-        "TEST123"
-    ],
+
     "get_block": {
         "previous": "00048121e504b8ba9c654151185606879253506a",
         "timestamp": "2019-01-08T08:31:42",

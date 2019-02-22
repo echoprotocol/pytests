@@ -14,12 +14,12 @@ class MyProjectConfiguration(SimpleProjectConfiguration, HasMetadataPolicy, HasP
     def get_metadata_policy(self):
         policy = MetadataPolicy()
         policy.add_property_rule(
-            "priority", ("low", "medium", "high"), required=True
+            "priority", ("low", "medium", "high"), required=False
         )
         return policy
 
 
-project = SimpleProjectConfiguration(
+project = MyProjectConfiguration(
     suites_dir=os.path.join(project_dir, "suites"),
     fixtures_dir=os.path.join(project_dir, "fixtures"),
     report_title="Try to make awesome tests"

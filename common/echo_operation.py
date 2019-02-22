@@ -6,6 +6,8 @@ import lemoncheesecake.api as lcc
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
+PASS_PHRASE = json.load(open(os.path.join(RESOURCES_DIR, "wallet.json")))["PASS_PHRASE"]
+PRIVATE_KEY = json.load(open(os.path.join(RESOURCES_DIR, "wallet.json")))["PRIVATE_KEY"]
 
 
 class EchoOperations(object):
@@ -22,8 +24,7 @@ class EchoOperations(object):
         )
         return echo
 
-    def create_or_unlock_wallet(self, pass_phrase="phrase",
-                                private_key="5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss"):
+    def create_or_unlock_wallet(self, pass_phrase=PASS_PHRASE, private_key=PRIVATE_KEY):
         if not self.echo.wallet.created():
             self.echo.wallet.create(pass_phrase)
             self.echo.wallet.addPrivateKey(private_key)

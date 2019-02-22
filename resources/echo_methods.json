@@ -10,16 +10,9 @@
             "1.3.1"
         ]
     ],
-    "set_subscribe_callback": [
-        777,
-        true
-    ],
-    "set_pending_transaction_callback": [
-        666
-    ],
-    "set_block_applied_callback": [
-        555
-    ],
+    "set_subscribe_callback": [],
+    "set_pending_transaction_callback": [],
+    "set_block_applied_callback": [],
     "cancel_all_subscriptions": [],
     "get_block": [
         "295202"
@@ -209,5 +202,6 @@
     "get_asset_holders": [],
     "broadcast_block": [],
     "broadcast_transaction": [],
-    "crypto": []
+    "crypto": [],
+    "subscribe_contract_logs": []
 }

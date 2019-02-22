@@ -4,17 +4,16 @@ import lemoncheesecake.api as lcc
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Test 'Registration API'"
+    "description": "Check all the methods belonging to the registration_api"
 }
 
 
-@lcc.suite("Test registration methods")
-class TestRegistrationMethod(BaseTest):
+@lcc.suite("Testing 'Registration API' methods call")
+class RegistrationApi(BaseTest):
 
     def __init__(self):
         super().__init__()
-        self.__resp = None
-        self.__identifier = self.get_identifier(self._registration_api)
+        self.__api_identifier = self.get_identifier("registration")
 
     @lcc.test("Register an account")
     @lcc.disabled()
@@ -25,5 +24,5 @@ class TestRegistrationMethod(BaseTest):
                             "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
                             "ECHO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
                             "DETDvHDsAfk2M8LhYcxLZTbrNJRWT3UH5zxdaWimWc6uZkH"]
-        self.send_request(self.get_request("register_account", register_account), self.__identifier)
-        self.__resp = self.get_response()
+        response_id = self.send_request(self.get_request("register_account", register_account), self.__api_identifier)
+        self.get_response(response_id)

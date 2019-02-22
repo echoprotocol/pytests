@@ -8,6 +8,9 @@ from websocket import create_connection
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_
 
+from common.receiver import Receiver
+from common.validation import Validator
+
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 METHOD = json.load(open(os.path.join(RESOURCES_DIR, "echo_methods.json")))
@@ -15,19 +18,13 @@ EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
 
 
 class BaseTest(object):
-    _login_api = "login"
-    _database_api = "database"
-    _asset_api = "asset"
-    _history_api = "history"
-    _network_broadcast_api = "network_broadcast"
-    _crypto_api = "crypto"
-    _registration_api = "registration"
 
     def __init__(self):
+        super().__init__()
         self.__ws = create_connection(ECHO_DEV)
-        self.__resp = None
-        self.__request = None
-        self.__api_id = 0
+        self.__id = 0
+        self.receiver = Receiver(self.__ws)
+        self.validator = Validator()
 
     @staticmethod
     def get_byte_code(var):
@@ -72,15 +69,15 @@ class BaseTest(object):
         except FileNotFoundError:
             lcc.log_error("File or image does not exist!")
 
-    def get_request(self, method_name, params=None):
+    @staticmethod
+    def get_request(method_name, params=None):
         # Params must be list
-        self.__request = [1, method_name]
+        request = [1, method_name]
         if params is None:
-            self.__request.extend([METHOD[method_name]])
-            return self.__request
-        else:
-            self.__request.extend([params])
-            return self.__request
+            request.extend([METHOD[method_name]])
+            return request
+        request.extend([params])
+        return request
 
     @staticmethod
     def get_expected(variable_name):
@@ -92,110 +89,142 @@ class BaseTest(object):
         # Return call method format
         return {"id": 0, "method": "call", "params": []}
 
-    def __call_method(self, method, call_back=None):
+    def __call_method(self, method, api_identifier=None):
         # Returns the api method call
-        self.__api_id += 1
+        self.__id += 1
         call_template = self.get_template()
         try:
-            if call_back is None:
-                call_template["id"] = self.__api_id
+            if api_identifier is None:
+                call_template["id"] = self.__id
                 call_template["params"] = method
                 return call_template
-            else:
-                call_template["id"] = self.__api_id
-                call_template["params"].append(call_back)
-                for i in range(1, len(method)):
-                    try:
-                        call_template["params"].append(method[i])
-                    except IndexError:
-                        lcc.log_error("This index does not exist!")
-                return call_template
+            call_template["id"] = self.__id
+            call_template["params"].append(api_identifier)
+            for i in range(1, len(method)):
+                call_template["params"].append(method[i])
+            return call_template
         except KeyError:
             lcc.log_error("That key does not exist!")
+        except IndexError:
+            lcc.log_error("This index does not exist!")
 
-    def send_request(self, request, call_back=None):
+    def send_request(self, request, api_identifier=None, debug_mode=False):
         # Send request to server
-        if call_back is None:
-            self.__ws.send(json.dumps(self.__call_method(request)))
-            return self.__ws
-        else:
-            self.__ws.send(json.dumps(self.__call_method(request, call_back)))
-            return self.__ws
+        if api_identifier is None:
+            method = self.__call_method(request)
+            self.__ws.send(json.dumps(method))
+            if debug_mode:
+                lcc.log_debug("Send: {}".format(method))
+            return method.get("id")
+        method = self.__call_method(request, api_identifier)
+        self.__ws.send(json.dumps(method))
+        if debug_mode:
+            lcc.log_debug("Send: {}".format(method))
+        return method.get("id")
 
-    def get_response(self):
+    def get_response(self, id_response, is_positive=True, debug_mode=False):
         # Receive answer from server
-        self.__resp = json.loads(self.__ws.recv())
-        lcc.log_info("Received: \n{}".format(json.dumps(self.__resp, indent=4)))
-        return self.__resp
+        try:
+            if debug_mode:
+                lcc.log_debug("Parameters: positive={}, ".format(is_positive))
+                response = json.loads(self.__ws.recv())
+                lcc.log_debug("Received:\n{}".format(json.dumps(response, indent=4)))
+            return self.receiver.get_response(id_response, is_positive)
+        except KeyError:
+            lcc.log_error("That key does not exist!")
+        except IndexError:
+            lcc.log_error("This index does not exist!")
 
-    def get_trx_completed_response(self):
+    def get_notice(self, id_response, object_id=None, log_block_id=True, debug_mode=False):
+        # Receive notice from server
+        try:
+            if debug_mode:
+                lcc.log_debug("Parameters: object_id={}, log_block_id={}".format(object_id, log_block_id))
+                response = json.loads(self.__ws.recv())
+                lcc.log_debug("Received:\n{}".format(json.dumps(response, indent=4)))
+            return self.receiver.get_notice(id_response, object_id, log_block_id)
+        except KeyError:
+            lcc.log_error("That key does not exist!")
+        except IndexError:
+            lcc.log_error("This index does not exist!")
+
+    def get_trx_completed_response(self, id_response):
         # Receive answer from server that transaction completed
-        self.__resp = self.get_response()
+        response = self.get_response(id_response)
         check_that(
             "transaction completed",
-            self.__resp["result"][1].get("exec_res").get("excepted"),
+            response.get("result")[1].get("exec_res").get("excepted"),
             is_("None")
         )
-        return self.__resp
+        return response
 
-    def get_identifier(self, api):
+    def get_identifier(self, api, debug_mode=False):
         # Initialise identifier for api
         call_template = self.get_template()
         call_template["params"] = [1, api, []]
         self.__ws.send(json.dumps(call_template))
-        self.__resp = json.loads(self.__ws.recv())
-        identifier = self.__resp["result"]
-        return identifier
+        response = json.loads(self.__ws.recv())
+        api_identifier = response["result"]
+        if debug_mode:
+            lcc.log_debug("Api identifier is '{}'".format(api_identifier))
+        return api_identifier
 
-    @staticmethod
-    def get_contract_id(response):
-        return str((response.get("operation_results"))[0][-1])
+    def get_contract_result(self, response, debug_mode=False):
+        contract_performance_result = str((response.get("operation_results"))[0][-1])
+        if debug_mode:
+            lcc.log_debug("Contract performance result is {}".format(contract_performance_result))
+        if self.validator.is_contract_result_id(contract_performance_result):
+            return contract_performance_result
+        return lcc.log_error("Wrong format of contract result, got {}".format(contract_performance_result))
 
-    @staticmethod
-    def get_contract_identifier(response):
-        contract_identifier = response["result"][1].get("exec_res").get("new_address")
-        return "1.16.{}".format(int(str(contract_identifier)[2:], 16))
+    def get_contract_id(self, response, debug_mode=False):
+        contract_identifier_hex = response["result"][1].get("exec_res").get("new_address")
+        contract_id = "1.16.{}".format(int(str(contract_identifier_hex)[2:], 16))
+        if debug_mode:
+            lcc.log_debug("Contract identifier is {}".format(contract_id))
+        if self.validator.is_contract_id(contract_id):
+            return contract_id
+        return lcc.log_error("Wrong format of contract id, got {}".format(contract_id))
 
     @staticmethod
     def get_contract_output(response, in_hex=False):
         if in_hex:
             contract_output = str(response["result"][1].get("exec_res").get("output"))
             return contract_output
-        else:
-            contract_output = str(codecs.decode(str(response["result"][1].get("exec_res").get("output")),
-                                                "hex").decode('utf-8'))
-            return contract_output.replace("\u0000", "").replace("\u000e", "")
+        contract_output = str(
+            codecs.decode(str(response["result"][1].get("exec_res").get("output")), "hex").decode('utf-8'))
+        return contract_output.replace("\u0000", "").replace("\u000e", "")
 
     @staticmethod
     def _login_status(response):
         # Check authorization status
         try:
-            if response["result"]:
-                lcc.log_info("Login successful")
-            else:
-                lcc.log_info("Login failed")
+            if not response["result"]:
+                lcc.log_error("Login failed!")
+            lcc.log_info("Login successful")
         except KeyError:
-            lcc.log_error("Login failed")
+            lcc.log_error("This key does not exist!")
 
     def __login_echo(self):
         # Login to Echo
         lcc.set_step("Login to Echo")
-        self.send_request(self.get_request(self._login_api))
-        self.__resp = self.get_response()
-        self._login_status(self.__resp)
+        response_id = self.send_request(self.get_request("login"))
+        response = self.get_response(response_id)
+        self._login_status(response)
 
     def setup_suite(self):
         # Check status of connection
         lcc.set_step("Open connection")
-        if self.__ws is not None:
-            lcc.log_url(ECHO_DEV)
-            lcc.log_info("Connection successfully created")
-            self.__login_echo()
-        else:
+        if self.__ws is None:
             lcc.log_error("Connection not established")
+        lcc.log_url(ECHO_DEV)
+        lcc.log_info("Connection successfully created")
+        self.__login_echo()
 
     def teardown_suite(self):
         # Close connection to WebSocket
         lcc.set_step("Close connection")
-        self.__ws.close()
+        connection = self.__ws.close()
+        if connection is not None:
+            lcc.log_error("Connection not closed")
         lcc.log_info("Connection closed")
