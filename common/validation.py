@@ -1,7 +1,5 @@
 import re
 
-import lemoncheesecake.api as lcc
-
 NAME_MIN_LENGTH = 3
 NAME_MAX_LENGTH = 63
 
@@ -46,7 +44,7 @@ class Validator(object):
     @staticmethod
     def is_string(value):
         if not isinstance(value, str):
-            raise ValueError(lcc.log_error("Value is not string"))
+            raise ValueError("Value is not string")
         return True
 
     @staticmethod
@@ -54,22 +52,22 @@ class Validator(object):
         try:
             value = abs(int(value))
             if value > 2 ** x:
-                lcc.log_error("Entered value is greater than this type may contain")
+                raise Exception("Entered value is greater than this type may contain")
             else:
                 return True
         except ValueError:
-            lcc.log_error("Value is not integer")
+            "Value is not integer"
 
     @staticmethod
     def is_uint(value, x):
         try:
             value = int(value)
             if value < 0 or value >= 2 ** x:
-                lcc.log_error("Entered value is greater than this type may contain")
+                raise Exception("Entered value is greater than this type may contain")
             else:
                 return True
         except ValueError:
-            lcc.log_error("Value is not integer")
+            "Value is not integer"
 
     def is_hex(self, value):
         if self.is_string(value) and self.hex_regex.match(value):
@@ -227,9 +225,9 @@ class Validator(object):
     @staticmethod
     def check_account_name(value):
         if value is None or len(value) == 0:
-            raise ValueError(lcc.log_error("Account name should not be empty."))
+            raise ValueError("Account name should not be empty.")
         if len(value) < NAME_MIN_LENGTH or len(value) > NAME_MAX_LENGTH:
-            raise ValueError(lcc.log_error("Account name should be from 3 to 63."))
+            raise ValueError("Account name should be from 3 to 63.")
         for label in range(value.split(".")):
             if not re.match(r"^[~a-z]", str(label)):
                 raise ValueError("Each account segment should start with a letter.")

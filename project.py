@@ -14,7 +14,10 @@ class MyProjectConfiguration(SimpleProjectConfiguration, HasMetadataPolicy, HasP
     def get_metadata_policy(self):
         policy = MetadataPolicy()
         policy.add_property_rule(
-            "priority", ("low", "medium", "high"), required=False
+            "type", ("method", "operation", "scenario", "other"), required=False
+        )
+        policy.add_property_rule(
+            "testing", ("main", "positive", "negative"), on_suite=True, required=False
         )
         return policy
 
@@ -22,5 +25,5 @@ class MyProjectConfiguration(SimpleProjectConfiguration, HasMetadataPolicy, HasP
 project = MyProjectConfiguration(
     suites_dir=os.path.join(project_dir, "suites"),
     fixtures_dir=os.path.join(project_dir, "fixtures"),
-    report_title="Try to make awesome tests"
+    report_title="ECHO tests"
 )

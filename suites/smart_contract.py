@@ -22,12 +22,11 @@ class PiggySmartContract(BaseTest):
 
     @lcc.test("Test contract 'piggy.sol'")
     def test_piggy_smart_contract(self, get_random_number):
-        account = "test-kazak-1"
         value_amount = 1000
         subscription_callback_id = get_random_number
 
         lcc.set_step("Deploy contract")
-        operation_response = self.echo_op.create_contract(self.get_byte_code("piggy_code"), account, value_amount)
+        operation_response = self.echo_op.create_contract(self.get_byte_code("piggy_code"), value_amount)
 
         lcc.set_step("Get performance result of the new contract")
         contract_result = [self.get_contract_result(operation_response)]
@@ -39,8 +38,7 @@ class PiggySmartContract(BaseTest):
         contract_id = self.get_contract_id(contract_id_16)
 
         lcc.set_step("Call 'greet' method")
-        operation_response = self.echo_op.call_contract_method(self.get_byte_code("piggy_greet"), account,
-                                                               contract_id)
+        operation_response = self.echo_op.call_contract_method(self.get_byte_code("piggy_greet"), contract_id)
         contract_result = [self.get_contract_result(operation_response)]
         response_id = self.send_request(self.get_request("get_contract_result", contract_result),
                                         self.__api_identifier)
@@ -66,7 +64,7 @@ class PiggySmartContract(BaseTest):
         contract_balance = response["result"][0]["amount"]
 
         lcc.set_step("Get owner balance and store")
-        params = [account, ["1.3.0"]]
+        params = [self.get_account_name(), ["1.3.0"]]
         response_id = self.send_request(self.get_request("get_named_account_balances", params),
                                         self.__api_identifier)
         response = self.get_response(response_id)
@@ -86,8 +84,7 @@ class PiggySmartContract(BaseTest):
         )
 
         lcc.set_step("Call 'getPennie' method")
-        operation_response = self.echo_op.call_contract_method(self.get_byte_code("piggy_getPennie"), account,
-                                                               contract_id)
+        operation_response = self.echo_op.call_contract_method(self.get_byte_code("piggy_getPennie"), contract_id)
         contract_result = [self.get_contract_result(operation_response)]
 
         lcc.set_step("Check contract logs")
@@ -122,7 +119,7 @@ class PiggySmartContract(BaseTest):
             "asset_id", is_str("1.3.0")
         )
 
-        params = [account, ["1.3.0"]]
+        params = [self.get_account_name(), ["1.3.0"]]
         response_id = self.send_request(self.get_request("get_named_account_balances", params),
                                         self.__api_identifier)
         response = self.get_response(response_id)
@@ -133,7 +130,7 @@ class PiggySmartContract(BaseTest):
         )
 
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
-        response = self.echo_op.call_contract_method(self.get_byte_code("piggy_breakPiggy"), account, contract_id)
+        response = self.echo_op.call_contract_method(self.get_byte_code("piggy_breakPiggy"), contract_id)
         contract_result = [self.get_contract_result(response)]
         response_id = self.send_request(self.get_request("get_contract_result", contract_result),
                                         self.__api_identifier)

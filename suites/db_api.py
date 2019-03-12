@@ -796,10 +796,11 @@ class DatabaseApi(BaseTest):
         )
 
     @lcc.test("Get required fees")
+    @lcc.tags("aa")
     def test_get_required_fees(self):
         lcc.set_step("Get required fees")
         params = [self.get_expected("contract_operations"), "1.3.0"]
-        response_id = self.send_request(self.get_request("get_required_fees", params), self.__api_identifier)
+        response_id = self.send_request(self.get_request("get_required_fees", params), self.__api_identifier, debug_mode=True)
         response = self.get_response(response_id)
 
         lcc.set_step("Check get required fees")
