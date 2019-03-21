@@ -11,6 +11,7 @@ SUITE = {
 
 
 @lcc.suite("Testing 'Database API' methods call")
+@lcc.hidden()
 class DatabaseApi(BaseTest):
 
     def __init__(self):

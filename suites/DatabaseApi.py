@@ -11,12 +11,11 @@ SUITE = {
 
 @lcc.prop("testing", "main")
 @lcc.tags("database_api")
-@lcc.suite("Database API", rank=1)
+@lcc.suite("Database API")
 class DatabaseApi(object):
 
     @lcc.tags("connection_to_database_api")
     @lcc.test("Check connection to to DatabaseApi")
-    # @lcc.depends_on("LoginApi.login_with_empty_credential")  # todo: add with new release lcc
     def connection_to_database_api(self):
         base = BaseTest()
         lcc.set_step("Requesting Access to a Database API")

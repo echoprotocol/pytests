@@ -10,6 +10,7 @@ SUITE = {
 
 
 @lcc.suite("Testing 'Network broadcast API' methods call")
+@lcc.hidden()
 class NetworkBroadcastApi(BaseTest):
 
     def __init__(self):

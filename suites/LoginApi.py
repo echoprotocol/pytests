@@ -11,7 +11,7 @@ SUITE = {
 
 @lcc.prop("testing", "main")
 @lcc.tags("login_api")
-@lcc.suite("LoginApi API", rank=0)
+@lcc.suite("LoginApi API", rank=1)
 class LoginApi(object):
 
     @lcc.prop("type", "method")
@@ -28,12 +28,12 @@ class LoginApi(object):
 
 @lcc.prop("testing", "positive")
 @lcc.tags("login_api")
-@lcc.suite("Positive testing of method 'login'", rank=1)
+@lcc.suite("Positive testing of method 'login'", rank=2)
 class PositiveTesting(object):
 
     @lcc.prop("type", "method")
     @lcc.test("Login with credential")
-    # @lcc.depends_on("LoginApi.login_with_empty_credential")  # todo: add with new release lcc
+    @lcc.depends_on("LoginApi.LoginApi.login_with_empty_credential")
     def login_with_credential(self):
         lcc.set_step("Login to the Full Node with credential")
         base = BaseTest()
@@ -51,8 +51,8 @@ class PositiveTesting(object):
 # class NegativeTesting(object):
 #
     # @lcc.prop("type", "method")
-    # @lcc.test("Login with wrong credential")
-    # @lcc.depends_on("LoginApi.login_with_empty_credential")  # todo: add with new release lcc
+    # @lcc.test("Login with wrong credential", rank=3)
+    # @lcc.depends_on("LoginApi.LoginApi.login_with_empty_credential")
     # def login_with_wrong_credential(self):
     #     base = BaseTest()
     #     lcc.set_step("Login to the Full Node with wrong credential")

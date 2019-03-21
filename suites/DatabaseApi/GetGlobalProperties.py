@@ -8,7 +8,7 @@ from common.base_test import BaseTest
 
 @lcc.prop("testing", "main")
 @lcc.tags("get_global_properties")
-@lcc.suite("Check work of method 'get_global_properties'", rank=3)
+@lcc.suite("Check work of method 'get_global_properties'")
 class GetGlobalProperties(BaseTest):
 
     def __init__(self):
@@ -75,7 +75,6 @@ class GetGlobalProperties(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check all fields in global properties")
-    # @lcc.depends_on("DatabaseApi.GetRequiredFees.GetRequiredFees.method_main_check")  # todo: add with new release lcc
     def fields_in_global_properties(self):
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__api_identifier)

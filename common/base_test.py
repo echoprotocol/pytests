@@ -17,6 +17,7 @@ ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 METHOD = json.load(open(os.path.join(RESOURCES_DIR, "echo_methods.json")))
 EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
+WALLETS = os.path.join(RESOURCES_DIR, "wallets.json")
 
 
 class BaseTest(object):
@@ -28,6 +29,7 @@ class BaseTest(object):
         self.__id = 0
         self.receiver = Receiver(web_socket=self.__ws)
         self.validator = Validator()
+        self.__public_key = None
 
     @staticmethod
     def get_value_for_sorting_func(str_value):
@@ -92,14 +94,14 @@ class BaseTest(object):
         return EXPECTED[variable_name]
 
     @staticmethod
-    def get_template():
+    def get_call_template():
         # Return call method format
         return {"id": 0, "method": "call", "params": []}
 
     def __call_method(self, method, api_identifier=None):
         # Returns the api method call
         self.__id += 1
-        call_template = self.get_template()
+        call_template = self.get_call_template()
         try:
             if api_identifier is None:
                 call_template["id"] = self.__id
@@ -168,7 +170,7 @@ class BaseTest(object):
 
     def get_identifier(self, api, debug_mode=False):
         # Initialise identifier for api
-        call_template = self.get_template()
+        call_template = self.get_call_template()
         call_template["params"] = [1, api, []]
         self.__ws.send(json.dumps(call_template))
         response = json.loads(self.__ws.recv())
@@ -177,14 +179,21 @@ class BaseTest(object):
             print("'{}' api identifier is '{}'\n".format(api, api_identifier))
         return api_identifier
 
-    def get_contract_result(self, response, debug_mode=False):
-        contract_performance_result = str((response.get("trx").get("operation_results"))[0][-1])
-        if debug_mode:
-            lcc.log_debug("Contract performance result is {}".format(contract_performance_result))
-        if not self.validator.is_contract_result_id(contract_performance_result):
-            lcc.log_error("Wrong format of contract result, got {}".format(contract_performance_result))
-            raise Exception("Wrong format of contract result")
-        return [contract_performance_result]
+    def get_operation_results_ids(self, response):
+        operations_count = response.get("trx").get("operations")
+        if len(operations_count) is 1:
+            operation_results = response.get("trx").get("operation_results")[0][1]
+            if not self.validator.is_contract_result_id(operation_results):
+                lcc.log_error("Wrong format of contract result, got {}".format(operation_results))
+                raise Exception("Wrong format of contract result")
+            return [operation_results]
+        operation_results = []
+        for i in range(len(operations_count)):
+            operation_results.append(response.get("trx").get("operation_results")[i][1])
+            if not self.validator.is_contract_result_id(operation_results[i]):
+                lcc.log_error("Wrong format of contract result, got {}".format(operation_results))
+                raise Exception("Wrong format of contract result")
+        return [operation_results]
 
     def get_contract_id(self, response, log_response=True):
         contract_identifier_hex = response["result"][1].get("exec_res").get("new_address")
@@ -196,6 +205,18 @@ class BaseTest(object):
             raise Exception("Wrong format of contract id")
         return contract_id
 
+    def get_transfer_id(self, response, log_response=True):
+        # todo: uncommented and add. Bug: "ECHO-669"
+        transfer_identifier_hex = str(response["result"][1].get("tr_receipt").get("log")[0].get("data"))[:64][-8:]
+        # transfer_id = "1.19.{}".format(int(str(transfer_identifier_hex), 16))
+        transfer_id = int(str(transfer_identifier_hex), 16)
+        if log_response:
+            lcc.log_info("Transfer identifier is {}".format(transfer_id))
+        # if not self.validator.is_transfer_id(transfer_id):
+        #     lcc.log_error("Wrong format of transfer id, got {}".format(transfer_id))
+        #     raise Exception("Wrong format of transfer id")
+        return transfer_id
+
     @staticmethod
     def get_contract_output(response, in_hex=False):
         if in_hex:
@@ -206,25 +227,35 @@ class BaseTest(object):
         return contract_output.replace("\u0000", "").replace("\u000e", "")
 
     @staticmethod
-    def get_public_keys(debug_mode=False):
-        brain_key = BrainKey()
-        public_key = brain_key.get_public_key()
-        if debug_mode:
-            lcc.log_debug("Public_key: {}".format(public_key))
-        return str(public_key)
+    def get_account_details_template(account_name, private_key, public_key):
+        return {account_name: {"id": "", "private_key": private_key, "public_key": public_key}}
 
-    def get_account_by_name(self, account_name, database_api_identifier):
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        database_api_identifier)
-        response = self.get_response(response_id)
-        if response.get("error"):
-            lcc.log_error("Error received, response:\n{}".format(response))
-            raise Exception("Error received")
-        return response
+    @staticmethod
+    def generate_keys():
+        brain_key = BrainKey()
+        private_key = str(brain_key.get_private_key())
+        public_key = str(brain_key.get_public_key())
+        return [private_key, public_key]
+
+    def store_new_account(self, account_name):
+        keys = self.generate_keys()
+        private_key = str(keys[0])
+        public_key = str(keys[1])
+        account_details = self.get_account_details_template(account_name, private_key, public_key)
+        if not os.path.exists(WALLETS):
+            with open(WALLETS, "w") as file:
+                file.write(json.dumps(account_details))
+            return public_key
+        with open(WALLETS, "r") as file:
+            data = json.load(file)
+            data.update(account_details)
+            with open(WALLETS, "w") as new_file:
+                new_file.write(json.dumps(data))
+        self.__public_key = public_key
 
     def register_account(self, account_name, registration_api_identifier):
-        public_key = self.get_public_keys()
-        account_params = [account_name, public_key, public_key, public_key,
+        self.store_new_account(account_name)
+        account_params = [account_name, self.__public_key, self.__public_key, self.__public_key,
                           "DETDvHDsAfk2M8LhYcxLZTbrNJRWT3UH5zxdaWimWc6uZkH"]  # todo: fix
         response_id = self.send_request(self.get_request("register_account", account_params),
                                         registration_api_identifier)
@@ -235,22 +266,37 @@ class BaseTest(object):
             raise Exception("Account not registered.")
         return lcc.log_info("Account '{}' registered".format(account_name))
 
+    def get_account_by_name(self, account_name, database_api_identifier):
+        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
+                                        database_api_identifier)
+        response = self.get_response(response_id)
+        if response.get("error"):
+            lcc.log_error("Error received, response:\n{}".format(response))
+            raise Exception("Error received")
+        return response
+
     def get_or_register_an_account(self, account_name, database_api_identifier, registration_api_identifier,
                                    debug_mode=False):
         response = self.get_account_by_name(account_name, database_api_identifier)
-        if response.get("result") is None:
+        if response.get("result") is None and self.validator.is_account_name(account_name):
             self.register_account(account_name, registration_api_identifier)
             response = self.get_account_by_name(account_name, database_api_identifier)
-        if not response.get("result").get("id"):
-            lcc.log_error("Error received, response:\n{}".format(response))
-            raise Exception("Error received")
+            account_id = response.get("result").get("id")
+            with open(WALLETS, "r") as file:
+                data = json.load(file)
+                data[account_name].update({"id": account_id})
+                with open(WALLETS, "w") as new_file:
+                    new_file.write(json.dumps(data))
         if debug_mode:
             lcc.log_debug("Account is {}".format(response))
         return response
 
-    def get_account_id(self, account_name, database_api_identifier, registration_api_identifier):
+    def get_account_id(self, account_name, database_api_identifier, registration_api_identifier, debug_mode=False):
         account = self.get_or_register_an_account(account_name, database_api_identifier, registration_api_identifier)
-        return account.get("result").get("id")
+        account_id = account.get("result").get("id")
+        if debug_mode:
+            lcc.log_info("Account '{}' with id '{}'".format(account_name, account_id))
+        return account_id
 
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
@@ -273,6 +319,25 @@ class BaseTest(object):
             lcc.log_error("That key does not exist!")
         except IndexError:
             lcc.log_error("This index does not exist!")
+
+    def collect_operations(self, list_operations, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
+                           asset="1.3.0", debug_mode=False):
+        if debug_mode:
+            lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))
+        if type(list_operations) is list:
+            list_operations = [list_operations]
+        for i in range(len(list_operations)):
+            self.add_fee_to_operation(list_operations[i], database_api_identifier, fee_amount, fee_asset_id, asset)
+        return list_operations
+
+    def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):
+        contract_result = self.get_operation_results_ids(broadcast_result)
+        if len(contract_result) is not 1:
+            lcc.log_error("Need one contract id, got:\n{}".format(contract_result))
+            raise Exception("Need one contract id")
+        response_id = self.send_request(self.get_request("get_contract_result", contract_result),
+                                        database_api_identifier, debug_mode=debug_mode)
+        return self.get_trx_completed_response(response_id, debug_mode=debug_mode)
 
     @staticmethod
     def _login_status(response):

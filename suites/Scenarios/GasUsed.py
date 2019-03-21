@@ -14,7 +14,7 @@ SUITE = {
 
 @lcc.prop("testing", "main")
 @lcc.tags("gas_used")
-@lcc.suite("Check scenario 'GasUsed'", rank=2)
+@lcc.suite("Check scenario 'GasUsed'")
 class GasUsed(BaseTest):
 
     def __init__(self):
@@ -61,7 +61,6 @@ class GasUsed(BaseTest):
 
     @lcc.prop("type", "scenario")
     @lcc.test("The scenario checks that gas_used is count correct.")
-    # @lcc.depends_on("Scenario.database_api", "Scenario.registration_api")  # todo: add with new release lcc
     def gas_used_scenario(self):
         lcc.set_step("Get default fee and gas_price in global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
@@ -85,7 +84,7 @@ class GasUsed(BaseTest):
         lcc.set_step("Create 'Piggy' contract in the Echo network. Store gas_used")
         self.add_fee_to_operation(operation, self.__database_api_identifier, fee_amount=self.enough_fee_amount)
         broadcast_result = self.echo_operations.broadcast(echo=self.echo, list_operations=operation)
-        contract_result = self.get_contract_result(broadcast_result)
+        contract_result = self.get_operation_results_ids(broadcast_result)
         response_id = self.send_request(self.get_request("get_contract_result", contract_result),
                                         self.__database_api_identifier)
         response = self.get_trx_completed_response(response_id)
@@ -108,7 +107,7 @@ class GasUsed(BaseTest):
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method. Store gas_used")
         self.add_fee_to_operation(operation, self.__database_api_identifier, fee_amount=self.enough_fee_amount)
         broadcast_result = self.echo_operations.broadcast(echo=self.echo, list_operations=operation)
-        contract_result = self.get_contract_result(broadcast_result)
+        contract_result = self.get_operation_results_ids(broadcast_result)
         response_id = self.send_request(self.get_request("get_contract_result", contract_result),
                                         self.__database_api_identifier)
         response = self.get_trx_completed_response(response_id)

@@ -10,6 +10,7 @@ SUITE = {
 
 
 @lcc.suite("Testing 'History API' methods call")
+@lcc.hidden()
 class HistoryApi(BaseTest):
 
     def __init__(self):

@@ -3,16 +3,30 @@ import os
 
 import lemoncheesecake.api as lcc
 
+from common.validation import Validator
+
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
 OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "echo_operations.json")))
-PRIVATE_KEY = json.load(open(os.path.join(RESOURCES_DIR, "wallet.json")))["PRIVATE_KEY"]
+WALLETS = os.path.join(RESOURCES_DIR, "wallets.json")
 
 
 class EchoOperations(object):
 
     def __init__(self):
         super().__init__()
-        self.list_operations = []
+        self.validator = Validator()
+
+    def get_signer(self, name_or_id):
+        wallets = json.load(open(WALLETS))
+        if self.validator.is_account_name(name_or_id):
+            return wallets[name_or_id]["private_key"]
+        if self.validator.is_account_id(name_or_id):
+            wallets_keys = list(wallets.keys())
+            for key in range(len(wallets_keys)):
+                if wallets[wallets_keys[key]]["id"] == name_or_id:
+                    return wallets[wallets_keys[key]]["private_key"]
+        lcc.log_error("Try to get invalid signer, get: '{}'".format(name_or_id))
+        raise Exception("Try to get invalid signer")
 
     @staticmethod
     def get_operation_json(variable_name, example=False):
@@ -35,7 +49,7 @@ class EchoOperations(object):
         transfer_props["amount"].update({"amount": amount, "asset_id": amount_asset_id})
         if debug_mode:
             lcc.log_debug("Transfer operation: \n{}".format(json.dumps(transfer_props, indent=4)))
-        return [operation_id, transfer_props]
+        return [operation_id, transfer_props, from_account_id]
 
     def get_create_contract_operation(self, echo, registrar, bytecode, fee_amount=0, fee_asset_id="1.3.0",
                                       value_amount=0, value_asset_id="1.3.0", supported_asset_id="1.3.0",
@@ -49,7 +63,7 @@ class EchoOperations(object):
         if debug_mode:
             lcc.log_debug(
                 "Create contract operation: \n{}".format(json.dumps([operation_id, transfer_props], indent=4)))
-        return [operation_id, transfer_props]
+        return [operation_id, transfer_props, registrar]
 
     def get_call_contract_operation(self, echo, registrar, bytecode, callee, fee_amount=0, fee_asset_id="1.3.0",
                                     value_amount=0, value_asset_id="1.3.0", debug_mode=False):
@@ -61,16 +75,16 @@ class EchoOperations(object):
         transfer_props["value"].update({"amount": value_amount, "asset_id": value_asset_id})
         if debug_mode:
             lcc.log_debug("Call contract operation: \n{}".format(json.dumps(transfer_props, indent=4)))
-        return [operation_id, transfer_props]
+        return [operation_id, transfer_props, registrar]
 
-    @staticmethod
-    def broadcast(echo, list_operations, log_broadcast=True):
+    def broadcast(self, echo, list_operations, log_broadcast=True):
         tx = echo.create_transaction()
         if type(list_operations[0]) is int:
             list_operations = [list_operations]
         for i in range(len(list_operations)):
             tx.add_operation(name=list_operations[i][0], props=list_operations[i][1])
-        tx.add_signer(PRIVATE_KEY)
+        for i in range(len(list_operations)):
+            tx.add_signer(self.get_signer(list_operations[i][2]))
         tx.sign()
         broadcast_result = tx.broadcast()
         if log_broadcast:

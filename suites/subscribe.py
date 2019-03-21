@@ -10,6 +10,7 @@ SUITE = {
 
 
 @lcc.suite("Subscription testing")
+@lcc.hidden()
 class SubscribeMethods(BaseTest):
 
     def __init__(self):

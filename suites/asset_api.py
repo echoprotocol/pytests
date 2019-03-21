@@ -10,6 +10,7 @@ SUITE = {
 
 
 @lcc.suite("Testing 'Asset API' methods call")
+@lcc.hidden()
 class AssetApi(BaseTest):
 
     def __init__(self):

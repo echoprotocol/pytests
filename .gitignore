@@ -4,4 +4,4 @@ reports
 .idea
 public
 venv
-resources/wallet.json
+resources/wallets.json

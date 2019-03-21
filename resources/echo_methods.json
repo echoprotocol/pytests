@@ -203,5 +203,6 @@
     "broadcast_block": [],
     "broadcast_transaction": [],
     "crypto": [],
-    "subscribe_contract_logs": []
+    "subscribe_contract_logs": [],
+    "get_sidechain_transfers": []
 }
