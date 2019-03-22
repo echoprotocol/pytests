@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_integer, check_that_entry, this_dict, is_str, check_that, is_list,\
-    require_that, is_, has_length, is_bool, is_dict
+from lemoncheesecake.matching import is_integer, check_that_entry, this_dict, is_str, check_that, is_list, \
+    require_that, is_, has_length, is_bool, is_dict, has_entry
 
 from common.base_test import BaseTest
+
+SUITE = {
+    "description": "Method 'get_global_properties'"
+}
 
 
 @lcc.prop("testing", "main")
 @lcc.tags("get_global_properties")
-@lcc.suite("Check work of method 'get_global_properties'")
+@lcc.suite("Check work of method 'get_global_properties'", rank=1)
 class GetGlobalProperties(BaseTest):
 
     def __init__(self):
@@ -75,7 +79,7 @@ class GetGlobalProperties(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check all fields in global properties")
-    def fields_in_global_properties(self):
+    def method_main_check(self):
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__api_identifier)
         response = self.get_response(response_id)
@@ -115,7 +119,7 @@ class GetGlobalProperties(BaseTest):
                 check_that_entry("count_non_member_votes", is_bool(), quiet=True)
                 check_that_entry("allow_non_member_whitelists", is_bool(), quiet=True)
                 check_that_entry("witness_pay_per_block", is_integer(), quiet=True)
-                check_that_entry("worker_budget_per_day", is_str(), quiet=True)
+                self.check_uint64_numbers(parameters, "worker_budget_per_day", quiet=True)
                 check_that_entry("max_predicate_opcode", is_integer(), quiet=True)
                 check_that_entry("fee_liquidation_threshold", is_integer(), quiet=True)
                 check_that_entry("accounts_per_fee_scale", is_integer(), quiet=True)
@@ -206,3 +210,33 @@ class GetGlobalProperties(BaseTest):
             if check_that("gas_price", gas_price, has_length(2)):
                 check_that_entry("price", is_integer(), quiet=True)
                 check_that_entry("gas_amount", is_integer(), quiet=True)
+
+
+@lcc.prop("testing", "negative")
+@lcc.tags("get_global_properties")
+@lcc.suite("Negative testing of method 'get_global_properties'", rank=2)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__api_identifier = self.get_identifier("database")
+
+    @lcc.prop("type", "method")
+    @lcc.test("Call method with params of all types")
+    @lcc.tags("Bug: 'ECHO-680'")
+    @lcc.depends_on("DatabaseApi.GetGlobalProperties.GetGlobalProperties.method_main_check")
+    def call_method_with_params(self, get_all_random_types):
+        lcc.set_step("Call method with all types of params")
+        random_type_names = list(get_all_random_types.keys())
+        random_values = list(get_all_random_types.values())
+        for i in range(len(get_all_random_types)):
+            # todo: remove if. Bug: "ECHO-680"
+            if i == 4:
+                continue
+            response_id = self.send_request(self.get_request("get_global_properties", random_values[i]),
+                                            self.__api_identifier)
+            response = self.get_response(response_id, negative=True)
+            check_that(
+                "'get_required_fees' return error message with '{}' params".format(random_type_names[i]),
+                response, has_entry("error"),  quiet=True,
+            )

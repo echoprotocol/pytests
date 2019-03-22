@@ -18,9 +18,9 @@ class SubscribeMethods(BaseTest):
         self.__api_identifier = self.get_identifier("database")
 
     @lcc.test("Set subscribe callback. Param=True")
-    def test_set_subscribe_callback_true(self, get_random_number):
+    def test_set_subscribe_callback_true(self, get_random_integer):
         lcc.set_step("Set subscribe callback")
-        subscription_callback_id = get_random_number
+        subscription_callback_id = get_random_integer
         params = [subscription_callback_id, True]
         response_id = self.send_request(self.get_request("set_subscribe_callback", params), self.__api_identifier)
         response = self.get_response(response_id)
@@ -81,9 +81,9 @@ class SubscribeMethods(BaseTest):
         )
 
     @lcc.test("Set subscribe callback. Param=False")
-    def test_set_subscribe_callback_false(self, get_random_number):
+    def test_set_subscribe_callback_false(self, get_random_integer):
         lcc.set_step("Set subscribe callback")
-        subscription_callback_id = get_random_number
+        subscription_callback_id = get_random_integer
         params = [subscription_callback_id, False]
         response_id = self.send_request(self.get_request("set_subscribe_callback", params), self.__api_identifier)
         response = self.get_response(response_id)
@@ -134,9 +134,9 @@ class SubscribeMethods(BaseTest):
         )
 
     @lcc.test("Set block applied callback")
-    def test_set_block_applied_callback(self, get_random_number):
+    def test_set_block_applied_callback(self, get_random_integer):
         lcc.set_step("Set block applied callback")
-        subscription_callback_id = get_random_number
+        subscription_callback_id = get_random_integer
         param = [subscription_callback_id]
         response_id = self.send_request(self.get_request("set_block_applied_callback", param),
                                         self.__api_identifier)

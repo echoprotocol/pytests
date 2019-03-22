@@ -20,7 +20,6 @@ class GetRequiredFees(BaseTest):
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = self.get_identifier("database")
-        self.__registration_api_identifier = self.get_identifier("registration")
         self.echo_operations = EchoOperations()
         self.asset = "1.3.0"
 
@@ -64,9 +63,9 @@ class PositiveTesting(BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.account_1 = self.get_account_id(self.account_1, self.__database_api_identifier,
-                                             self.__registration_api_identifier, debug_mode=True)
+                                             self.__registration_api_identifier)
         self.account_2 = self.get_account_id(self.account_2, self.__database_api_identifier,
-                                             self.__registration_api_identifier, debug_mode=True)
+                                             self.__registration_api_identifier)
         self.operation = self.echo_operations.get_transfer_operation(echo=self.echo, from_account_id=self.account_1,
                                                                      to_account_id=self.account_2, amount=self.amount)
         self.required_fee = self.get_required_fee(self.operation, self.__database_api_identifier)
@@ -141,7 +140,7 @@ class NegativeTesting(BaseTest):
         broadcast_result = self.echo_operations.broadcast(echo=self.echo, list_operations=operation,
                                                           log_broadcast=False)
         contract_result = self.get_operation_results_ids(broadcast_result)
-        response_id = self.send_request(self.get_request("get_contract_result", contract_result),
+        response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
                                         self.__database_api_identifier)
         contract_id_16 = self.get_trx_completed_response(response_id)
         return self.get_contract_id(contract_id_16)
@@ -168,6 +167,60 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Teardown suite for {}".format(self.__class__.__name__))
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
+
+    @lcc.prop("type", "method")
+    @lcc.test("Call method without params and with insufficient number of params")
+    @lcc.depends_on("DatabaseApi.GetRequiredFees.GetRequiredFees.method_main_check")
+    def call_method_without_params_or_insufficient(self):
+        lcc.set_step("Call method without params")
+        response_id = self.send_request(self.get_request("get_required_fees"), self.__database_api_identifier)
+        response = self.get_response(response_id, negative=True)
+        check_that(
+            "'get_required_fees' return error message",
+            response, has_entry("error"), quiet=True,
+        )
+
+        lcc.set_step("Call method with insufficient number of params")
+        response_id = self.send_request(self.get_request("get_required_fees", [
+            [self.echo_operations.get_operation_json("transfer_operation", example=True)]]),
+                                        self.__database_api_identifier)
+        response = self.get_response(response_id, negative=True)
+        check_that(
+            "'get_required_fees' return error message",
+            response, has_entry("error"), quiet=True,
+        )
+
+    @lcc.prop("type", "method")
+    @lcc.test("Call method with wrong params")
+    @lcc.tags("Bug: 'ECHO-681'")
+    @lcc.depends_on("DatabaseApi.GetRequiredFees.GetRequiredFees.method_main_check")
+    def call_method_with_wrong_params(self, get_all_random_types):
+        random_type_names = list(get_all_random_types.keys())
+        random_values = list(get_all_random_types.values())
+        lcc.set_step("Call method with wrong params. Wrong param operation")
+        for i in range(len(get_all_random_types)):
+            # todo: remove if. Bug: "ECHO-681"
+            if i == 4:
+                continue
+            response_id = self.send_request(
+                self.get_request("get_required_fees", [[random_values[i]], self.asset]),
+                self.__database_api_identifier)
+            response = self.get_response(response_id, negative=True)
+            check_that(
+                "'get_required_fees' return error message with '{}' params".format(random_type_names[i]),
+                response, has_entry("error"), quiet=True,
+            )
+
+        lcc.set_step("Call method with wrong params. Wrong param asset")
+        for i in range(len(get_all_random_types)):
+            response_id = self.send_request(self.get_request("get_required_fees", [
+                [self.echo_operations.get_operation_json("transfer_operation", example=True)],
+                random_values[i]]), self.__database_api_identifier)
+            response = self.get_response(response_id, negative=True)
+            check_that(
+                "'get_required_fees' return error message with '{}' params".format(random_type_names[i]),
+                response, has_entry("error"), quiet=True,
+            )
 
     @lcc.prop("type", "method")
     @lcc.test("Use in method call nonexistent asset_id")
@@ -206,13 +259,14 @@ class NegativeTesting(BaseTest):
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
         all_balance_amount = response.get("result")[0].get("amount")
-        lcc.log_info("Account '{}' has '{}' in '{}' asset". format(self.new_account, all_balance_amount, self.asset))
+        lcc.log_info("Account '{}' has '{}' in '{}' asset".format(self.new_account, all_balance_amount, self.asset))
 
         lcc.set_step("Send all assets to any account, if account balance is not 0")
         if all_balance_amount != 0:
             operation = self.echo_operations.get_transfer_operation(echo=self.echo, from_account_id=self.new_account,
-                                                                    to_account_id=self.account_2, amount=all_balance_amount)
-            required_fee = self.get_required_fee(operation, self.__database_api_identifier, debug_mode=True)
+                                                                    to_account_id=self.account_2,
+                                                                    amount=all_balance_amount)
+            required_fee = self.get_required_fee(operation, self.__database_api_identifier)
             required_fee = required_fee[0].get("amount")
             operation = self.echo_operations.get_transfer_operation(echo=self.echo, from_account_id=self.new_account,
                                                                     to_account_id=self.account_2,
@@ -297,7 +351,7 @@ class NegativeTesting(BaseTest):
                                                                                                        self.contract))
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], self.asset]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id, negative=True, log_response=True)
+        response = self.get_response(response_id, negative=True)
         check_that(
             "'get_required_fees' return error message",
             response, has_entry("error"), quiet=True

@@ -18,7 +18,7 @@ SUITE = {
 class RegistrationApi(object):
 
     @lcc.tags("connection_to_registration_api")
-    @lcc.test("Check connection to to RegistrationApi")
+    @lcc.test("Check connection to RegistrationApi")
     def connection_to_registration_api(self, get_random_valid_account_name):
         base = BaseTest()
         lcc.set_step("Requesting Access to a Registration API")

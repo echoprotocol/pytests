@@ -55,27 +55,28 @@ class EchoOperations(object):
                                       value_amount=0, value_asset_id="1.3.0", supported_asset_id="1.3.0",
                                       eth_accuracy=False, debug_mode=False):
         operation_id = echo.config.operation_ids.CREATE_CONTRACT
-        transfer_props = self.get_operation_json("create_contract_operation").copy()
-        transfer_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
-        transfer_props.update({"registrar": registrar, "code": bytecode, "supported_asset_id": supported_asset_id,
-                               "eth_accuracy": eth_accuracy})
-        transfer_props["value"].update({"amount": value_amount, "asset_id": value_asset_id})
+        create_contract_props = self.get_operation_json("create_contract_operation").copy()
+        create_contract_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        create_contract_props.update(
+            {"registrar": registrar, "code": bytecode, "supported_asset_id": supported_asset_id,
+             "eth_accuracy": eth_accuracy})
+        create_contract_props["value"].update({"amount": value_amount, "asset_id": value_asset_id})
         if debug_mode:
             lcc.log_debug(
-                "Create contract operation: \n{}".format(json.dumps([operation_id, transfer_props], indent=4)))
-        return [operation_id, transfer_props, registrar]
+                "Create contract operation: \n{}".format(json.dumps([operation_id, create_contract_props], indent=4)))
+        return [operation_id, create_contract_props, registrar]
 
     def get_call_contract_operation(self, echo, registrar, bytecode, callee, fee_amount=0, fee_asset_id="1.3.0",
                                     value_amount=0, value_asset_id="1.3.0", debug_mode=False):
         operation_id = echo.config.operation_ids.CALL_CONTRACT
 
-        transfer_props = self.get_operation_json("call_contract_operation").copy()
-        transfer_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
-        transfer_props.update({"registrar": registrar, "code": bytecode, "callee": callee})
-        transfer_props["value"].update({"amount": value_amount, "asset_id": value_asset_id})
+        call_contract_props = self.get_operation_json("call_contract_operation").copy()
+        call_contract_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        call_contract_props.update({"registrar": registrar, "code": bytecode, "callee": callee})
+        call_contract_props["value"].update({"amount": value_amount, "asset_id": value_asset_id})
         if debug_mode:
-            lcc.log_debug("Call contract operation: \n{}".format(json.dumps(transfer_props, indent=4)))
-        return [operation_id, transfer_props, registrar]
+            lcc.log_debug("Call contract operation: \n{}".format(json.dumps(call_contract_props, indent=4)))
+        return [operation_id, call_contract_props, registrar]
 
     def broadcast(self, echo, list_operations, log_broadcast=True):
         tx = echo.create_transaction()
