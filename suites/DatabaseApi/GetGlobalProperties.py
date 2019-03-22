@@ -11,6 +11,8 @@ SUITE = {
 
 
 @lcc.prop("testing", "main")
+@lcc.prop("testing", "positive")
+@lcc.prop("testing", "negative")
 @lcc.tags("get_global_properties")
 @lcc.suite("Check work of method 'get_global_properties'", rank=1)
 class GetGlobalProperties(BaseTest):

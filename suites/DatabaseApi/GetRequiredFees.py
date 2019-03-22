@@ -13,6 +13,8 @@ SUITE = {
 
 
 @lcc.prop("testing", "main")
+@lcc.prop("testing", "positive")
+@lcc.prop("testing", "negative")
 @lcc.tags("get_required_fees")
 @lcc.suite("Check work of method 'get_required_fees'", rank=1)
 class GetRequiredFees(BaseTest):
