@@ -279,23 +279,23 @@ class BaseTest(object):
                 new_file.write(json.dumps(data))
         self.__public_key = public_key
 
-    def register_account(self, account_name, registration_api_identifier):
+    def register_account(self, account_name, registration_api_identifier, debug_mode=False):
         self.store_new_account(account_name)
         account_params = [account_name, self.__public_key, self.__public_key, self.__public_key,
                           "DETDvHDsAfk2M8LhYcxLZTbrNJRWT3UH5zxdaWimWc6uZkH"]  # todo: fix
         response_id = self.send_request(self.get_request("register_account", account_params),
-                                        registration_api_identifier)
-        response = self.get_response(response_id)
+                                        registration_api_identifier, debug_mode=debug_mode)
+        response = self.get_response(response_id, debug_mode=debug_mode)
         if response.get("result") is not None:
             lcc.log_error(
                 "Account '{}' not registered, response:\n{}".format(account_name, json.dumps(response, indent=4)))
             raise Exception("Account not registered.")
         return lcc.log_info("Account '{}' registered".format(account_name))
 
-    def get_account_by_name(self, account_name, database_api_identifier):
+    def get_account_by_name(self, account_name, database_api_identifier, debug_mode=False):
         response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        database_api_identifier)
-        response = self.get_response(response_id)
+                                        database_api_identifier, debug_mode=debug_mode)
+        response = self.get_response(response_id, debug_mode=debug_mode)
         if response.get("error"):
             lcc.log_error("Error received, response:\n{}".format(response))
             raise Exception("Error received")
@@ -303,10 +303,10 @@ class BaseTest(object):
 
     def get_or_register_an_account(self, account_name, database_api_identifier, registration_api_identifier,
                                    debug_mode=False):
-        response = self.get_account_by_name(account_name, database_api_identifier)
+        response = self.get_account_by_name(account_name, database_api_identifier, debug_mode=debug_mode)
         if response.get("result") is None and self.validator.is_account_name(account_name):
             self.register_account(account_name, registration_api_identifier)
-            response = self.get_account_by_name(account_name, database_api_identifier)
+            response = self.get_account_by_name(account_name, database_api_identifier, debug_mode=debug_mode)
             account_id = response.get("result").get("id")
             with open(WALLETS, "r") as file:
                 data = json.load(file)
@@ -318,10 +318,11 @@ class BaseTest(object):
         return response
 
     def get_account_id(self, account_name, database_api_identifier, registration_api_identifier, debug_mode=False):
-        account = self.get_or_register_an_account(account_name, database_api_identifier, registration_api_identifier)
+        account = self.get_or_register_an_account(account_name, database_api_identifier, registration_api_identifier,
+                                                  debug_mode=debug_mode)
         account_id = account.get("result").get("id")
         if debug_mode:
-            lcc.log_info("Account '{}' with id '{}'".format(account_name, account_id))
+            lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
         return account_id
 
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
