@@ -13,8 +13,8 @@ import lemoncheesecake.api as lcc
 from common.receiver import Receiver
 from common.validation import Validator
 
+BASE_URL = os.environ["BASE_URL"]
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "..//resources")
-ECHO_DEV = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
 METHOD = json.load(open(os.path.join(RESOURCES_DIR, "echo_methods.json")))
 EXPECTED = json.load(open(os.path.join(RESOURCES_DIR, "expected_data.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
@@ -25,7 +25,7 @@ class BaseTest(object):
 
     def __init__(self):
         super().__init__()
-        self.__ws = create_connection(url=ECHO_DEV)
+        self.__ws = create_connection(url=BASE_URL)
         self.echo = Echo()
         self.__id = 0
         self.receiver = Receiver(web_socket=self.__ws)
@@ -390,7 +390,7 @@ class BaseTest(object):
 
     def _connect_to_echopy_lib(self):
         lcc.set_step("Open connection to echopy-lib")
-        self.echo.connect(url=ECHO_DEV)
+        self.echo.connect(url=BASE_URL)
         if self.echo is None:
             lcc.log_error("Connection to echopy-lib not established")
         lcc.log_info("Connection to echopy-lib successfully created")
@@ -405,7 +405,7 @@ class BaseTest(object):
     def setup_suite(self):
         # Check status of connection
         lcc.set_step("Open connection")
-        lcc.log_url(ECHO_DEV)
+        lcc.log_url(BASE_URL)
         if self.__ws is None:
             lcc.log_error("WebSocket connection not established")
         lcc.log_info("WebSocket connection successfully created")

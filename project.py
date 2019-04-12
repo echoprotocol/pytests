@@ -27,3 +27,8 @@ project = MyProjectConfiguration(
     fixtures_dir=os.path.join(project_dir, "fixtures"),
     report_title="ECHO tests"
 )
+
+if "BASE_URL" not in os.environ:
+    raise Exception("You have not added a environment variable 'BASE_URL', please do the following and try again:\n"
+                    "Linux OS: export BASE_URL=needed_url\n"
+                    "Windows OS: set BASE_URL=needed_url")
