@@ -37,8 +37,130 @@
             "extensions": []
         }
     ],
+    "account_create_operation": [
+        5,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "registrar": "1.2.0",
+            "referrer": "1.2.0",
+            "referrer_percent": 0,
+            "name": "",
+            "active": {
+                "weight_threshold": 0,
+                "account_auths": [],
+                "key_auths": []
+            },
+            "ed_key": "DETDvHDsAfk2M8LhYcxLZTbrNJRWT3UH5zxdaWimWc6uZkH",
+            "options": {
+                "memo_key": "ECHO1111111111111111111111111111111114T1Anm",
+                "voting_account": "1.2.5",
+                "delegating_account": "1.2.0",
+                "num_committee": 0,
+                "votes": [],
+                "extensions": []
+            },
+            "extensions": {}
+        }
+    ],
+    "account_update_operation": [
+        6,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "account": "1.2.0",
+            "active": {
+                "weight_threshold": 0,
+                "account_auths": [],
+                "key_auths": []
+            },
+            "ed_key": "DETDvHDsAfk2M8LhYcxLZTbrNJRWT3UH5zxdaWimWc6uZkH",
+            "new_options": {
+                "memo_key": "ECHO1111111111111111111111111111111114T1Anm",
+                "voting_account": "1.2.5",
+                "delegating_account": "1.2.0",
+                "num_committee": 0,
+                "votes": [],
+                "extensions": []
+            },
+            "extensions": {}
+        }
+    ],
+    "asset_create_operation": [
+        10,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "issuer": "1.2.0",
+            "symbol": "",
+            "precision": 0,
+            "common_options": {
+                "max_supply": "1000000000000000",
+                "market_fee_percent": 0,
+                "max_market_fee": "1000000000000000",
+                "issuer_permissions": 79,
+                "flags": 0,
+                "core_exchange_rate": {
+                    "base": {
+                        "amount": 1,
+                        "asset_id": "1.3.0"
+                    },
+                    "quote": {
+                        "amount": 1,
+                        "asset_id": "1.3.1"
+                    }
+                },
+                "whitelist_authorities": [],
+                "blacklist_authorities": [],
+                "whitelist_markets": [],
+                "blacklist_markets": [],
+                "description": "",
+                "extensions": []
+            },
+            "is_prediction_market": false,
+            "extensions": []
+        }
+    ],
+    "asset_issue_operation": [
+        14,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "issuer": "1.2.0",
+            "asset_to_issue": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "issue_to_account": "1.2.0",
+            "extensions": []
+        }
+    ],
+    "balance_claim_operation": [
+        34,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "deposit_to_account": "1.2.0",
+            "balance_to_claim": "1.15.0",
+            "balance_owner_key": "ECHO1111111111111111111111111111111114T1Anm",
+            "total_claimed": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            }
+        }
+    ],
     "create_contract_operation": [
-        47,
+        40,
         {
             "fee": {
                 "amount": 0,
@@ -55,7 +177,7 @@
         }
     ],
     "call_contract_operation": [
-        48,
+        41,
         {
             "fee": {
                 "amount": 0,
@@ -67,7 +189,23 @@
                 "asset_id": "1.3.0"
             },
             "code": "",
-            "callee": "1.16.0"
+            "callee": "1.14.0"
+        }
+    ],
+    "contract_transfer_operation": [
+        42,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "from": "1.14.0",
+            "to": "0.0.0",
+            "amount": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "extensions": []
         }
     ]
 }
