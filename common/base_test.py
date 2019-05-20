@@ -38,15 +38,19 @@ class BaseTest(object):
 
     @staticmethod
     def create_connection_to_echo():
+        # Method create connection to Echo network
         return create_connection(url=BASE_URL)
 
     def get_object_type(self, object_types):
+        # Give object type mask
         return "{}.{}.".format(self.echo.config.reserved_spaces.PROTOCOL_IDS, object_types)
 
     def get_implementation_object_type(self, implementation_object_types):
+        # Give implementation object type mask
         return "{}.{}.".format(self.echo.config.reserved_spaces.IMPLEMENTATION_IDS, implementation_object_types)
 
     def check_uint64_numbers(self, response, key, quiet=False):
+        # Method check uint64 numbers
         if type(response.get(key)) is str:
             self.validator.is_uint64(response.get(key))
             check_that_entry(key, is_str(), quiet=quiet)
@@ -274,7 +278,9 @@ class BaseTest(object):
 
     def get_contract_id(self, response, log_response=True):
         contract_identifier_hex = response["result"][1].get("exec_res").get("new_address")
-        contract_id = "1.14.{}".format(int(str(contract_identifier_hex)[2:], 16))
+
+        contract_id = "{}{}".format(self.get_object_type(self.echo.config.object_types.CONTRACT),
+                                    int(str(contract_identifier_hex)[2:], 16))
         if not self.validator.is_contract_id(contract_id):
             lcc.log_error("Wrong format of contract id, got {}".format(contract_id))
             raise Exception("Wrong format of contract id")
@@ -290,8 +296,7 @@ class BaseTest(object):
             lcc.log_info("Transfer identifier is {}".format(transfer_id))
         return transfer_id
 
-    @staticmethod
-    def get_contract_output(response, output_type, in_hex=False, debug_mode=False):
+    def get_contract_output(self, response, output_type, in_hex=False, debug_mode=False):
         contract_output = str(response["result"][1].get("exec_res").get("output"))
         if debug_mode:
             lcc.log_debug("Output is '{}'".format(str(contract_output)))
@@ -303,7 +308,8 @@ class BaseTest(object):
         if output_type == int:
             return int(contract_output, 16)
         if output_type == "contract_address":
-            contract_id = "1.14.{}".format(int(str(contract_output[contract_output.find("1") + 1:]), 16))
+            contract_id = "{}{}".format(self.get_object_type(self.echo.config.object_types.CONTRACT),
+                                        int(str(contract_output[contract_output.find("1") + 1:]), 16))
             return contract_id
 
     @staticmethod
@@ -332,7 +338,8 @@ class BaseTest(object):
         # todo: remove memo_key later
         memo_key = keys[2]
         brain_key = keys[3]
-        account_details = self.get_account_details_template(account_name, private_key, public_key, memo_key, brain_key)
+        account_details = self.get_account_details_template(account_name, private_key, public_key, memo_key,
+                                                            brain_key)
         if not os.path.exists(WALLETS):
             with open(WALLETS, "w") as file:
                 file.write(json.dumps(account_details))
@@ -446,6 +453,7 @@ class BaseTest(object):
         return self.get_trx_completed_response(response_id, debug_mode=debug_mode)
 
     def check_node_status(self, database_api_identifier):
+        # Check that the node empty or not
         response_id = self.send_request(self.get_request("get_named_account_balances", ["nathan", []]),
                                         database_api_identifier)
         return self.get_response(response_id)["result"]
@@ -469,6 +477,7 @@ class BaseTest(object):
         self._login_status(response)
 
     def _connect_to_echopy_lib(self):
+        # Create connection to echopy-lib
         lcc.set_step("Open connection to echopy-lib")
         self.echo.connect(url=BASE_URL)
         if self.echo.api.ws.connection is None:
@@ -477,6 +486,7 @@ class BaseTest(object):
         lcc.log_info("Connection to echopy-lib successfully created")
 
     def _disconnect_to_echopy_lib(self):
+        # Close connection to echopy-lib
         lcc.set_step("Close connection to echopy-lib")
         self.echo.disconnect()
         if self.echo.api.ws.connection is not None:
@@ -485,6 +495,7 @@ class BaseTest(object):
         lcc.log_info("Connection to echopy-lib closed")
 
     def perform_pre_deploy_setup(self, database_api_identifier):
+        # Perform pre-deploy for run tests on the empty node
         self._connect_to_echopy_lib()
         lcc.set_step("Pre-deploy setup")
         lcc.log_info("Empty node. Start pre-deploy setup...")

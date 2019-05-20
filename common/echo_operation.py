@@ -17,7 +17,7 @@ class EchoOperations(object):
 
     def get_signer(self, signer):
         """
-        :param signer: name, id or private_key
+        :param signer: name, id or echo_rand_key
         """
         if self.validator.is_echo_rand_key(signer):
             return signer
@@ -204,7 +204,6 @@ class EchoOperations(object):
     def get_call_contract_operation(self, echo, registrar, bytecode, callee, fee_amount=0, fee_asset_id="1.3.0",
                                     value_amount=0, value_asset_id="1.3.0", signer=None, debug_mode=False):
         operation_id = echo.config.operation_ids.CALL_CONTRACT
-
         call_contract_props = deepcopy(self.get_operation_json("call_contract_operation"))
         call_contract_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         call_contract_props.update({"registrar": registrar, "code": bytecode, "callee": callee})

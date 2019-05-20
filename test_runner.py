@@ -24,5 +24,4 @@ else:
 
 echo = Echo()
 echo.connect(BASE_URL)
-
 run(echo)
