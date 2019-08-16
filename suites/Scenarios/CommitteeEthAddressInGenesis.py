@@ -39,7 +39,7 @@ class CommitteeEthAddressInGenesis(BaseTest):
         for i in range(len(initial_committee_candidates)):
             committee_members_names.append(GENESIS["initial_committee_candidates"][i]["owner_name"])
             committee_members_eth_addresses.append(GENESIS["initial_committee_candidates"][i]["eth_address"])
-            lcc.log_info("Committee member #{}: name='{}', eth_address='{}'".format(str(i), committee_members_names[i],
+            lcc.log_info("Committee member #{}: name='{}', eth_address='{}'".format(i, committee_members_names[i],
                                                                                     committee_members_eth_addresses[i]))
 
         lcc.set_step("Get committee members from ECHO network and store their ids")
@@ -60,7 +60,7 @@ class CommitteeEthAddressInGenesis(BaseTest):
         response = self.get_response(response_id)["result"]
         for i in range(len(response)):
             committee_members_eth_addresses_echo.append(response[i]["eth_address"])
-            lcc.log_info("Committee member #'{}' eth_addresses in Echo: '{}'".format(str(i), str(
+            lcc.log_info("Committee member #'{}' eth_addresses in Echo: '{}'".format(i, str(
                 committee_members_eth_addresses_echo[i])))
 
         lcc.set_step("Compare eth_addresses in genesis and ECHO network")

@@ -160,7 +160,7 @@ class PositiveTesting(BaseTest):
 
 
 @lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_key_references")
+@lcc.tags("database_api", "get_key_references")
 @lcc.suite("Negative testing of method 'get_key_references'", rank=3)
 class NegativeTesting(BaseTest):
 

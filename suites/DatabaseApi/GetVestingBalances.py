@@ -350,8 +350,7 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Modified vesting_cliff_seconds and try to withdraw vesting balance")
-    @lcc.tags("qqq")
-    # @lcc.depends_on("DatabaseApi.GetVestingBalances.GetVestingBalances.method_main_check")
+    @lcc.depends_on("DatabaseApi.GetVestingBalances.GetVestingBalances.method_main_check")
     def create_vesting_balance_with_vesting_cliff_seconds(self, get_random_valid_asset_name, get_random_integer,
                                                           get_random_valid_account_name):
         asset_amount = get_random_integer

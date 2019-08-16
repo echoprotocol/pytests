@@ -42,7 +42,7 @@ class GetAccountHistoryOperations(BaseTest):
     @lcc.test("Simple work of method 'get_account_history_operations'")
     def method_main_check(self):
         operation_id = self.echo.config.operation_ids.ACCOUNT_CREATE
-        start = stop = "1.10.0"
+        start, stop = "1.6.0", "1.6.0"
         limit = 1
         lcc.set_step("Get account history operations")
         params = [self.echo_acc0, operation_id, start, stop, limit]
@@ -121,13 +121,13 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check new account history")
-    @lcc.tags("Bug: 'ECHO-700'")
+    @lcc.tags("Bug: 'ECHO-1128'")
     @lcc.disabled()
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def new_account_history(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         operation_id = 0
-        start = stop = "1.10.0"
+        start, stop = "1.6.0", "1.6.0"
         limit = 100
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
@@ -145,7 +145,7 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check operation_id parameter")
-    @lcc.tags("Bug: 'ECHO-700'")
+    @lcc.tags("Bug: 'ECHO-1128'")
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def operation_id_to_retrieve(self, get_random_valid_account_name, get_random_valid_asset_name):
         new_account = get_random_valid_account_name
@@ -153,8 +153,8 @@ class PositiveTesting(BaseTest):
         operation_count = 1
         transfer_operation_id = self.echo.config.operation_ids.TRANSFER
         create_asset_operation_id = self.echo.config.operation_ids.ASSET_CREATE
-        stop = start = "1.10.0"
-        # todo: change '1' to '100' . Bug: "ECHO-700"
+        stop, start = "1.6.0", "1.6.0"
+        # todo: change '1' to '100' . Bug: "ECHO-1128"
         limit = 1
         lcc.set_step("Create and get new account. Add balance to pay for asset_create_operation fee")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
@@ -181,7 +181,7 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check that create asset operation added to account history")
         if self.is_operation_completed(broadcast_result, expected_static_variant=1):
-            # todo: remove 'limit'. Bug: "ECHO-700"
+            # todo: remove 'limit'. Bug: "ECHO-1128"
             limit = 1
             response = self.get_account_history_operations(new_account, create_asset_operation_id, start, stop,
                                                            limit)
@@ -196,11 +196,11 @@ class PositiveTesting(BaseTest):
     def limit_operations_to_retrieve(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         operation_id = 0
-        stop = start = "1.10.0"
+        stop, start = "1.6.0", "1.6.0"
         min_limit = 1
-        # todo: change '6' to '100'. Bug: "ECHO-700"
+        # todo: change '6' to '100'. Bug: "ECHO-1128"
         max_limit = 6
-        # todo: change 'max_limit' to  'get_random_integer_up_to_hundred' fixture. Bug: "ECHO-700"
+        # todo: change 'max_limit' to  'get_random_integer_up_to_hundred' fixture. Bug: "ECHO-1128"
         operation_count = max_limit
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
@@ -248,8 +248,7 @@ class PositiveTesting(BaseTest):
     def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_hundred):
         transfer_amount_1 = get_random_integer
         transfer_amount_2 = get_random_integer_up_to_hundred
-        stop = "1.10.0"
-        start = "1.10.0"
+        start, stop = "1.6.0", "1.6.0"
         operation_identifier = 0
         operations = []
         operation_ids = []

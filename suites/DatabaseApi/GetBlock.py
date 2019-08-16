@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import require_that, this_dict, check_that_entry, is_str, is_list, is_integer, \
-    is_dict, check_that, equal_to, has_length, is_true
+    check_that, equal_to, has_length, is_true
 
 from common.base_test import BaseTest
 
@@ -40,10 +40,11 @@ class GetBlock(BaseTest):
         block_header = response["result"]
         require_that(
             "'the first full block'",
-            block_header, has_length(11)
+            block_header, has_length(13)
         )
         with this_dict(block_header):
             check_that_entry("previous", is_str("0000000000000000000000000000000000000000"), quiet=True)
+            check_that_entry("round", is_integer(), quiet=True)
             if not self.validator.is_iso8601(block_header["timestamp"]):
                 lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
             else:
@@ -52,36 +53,33 @@ class GetBlock(BaseTest):
                 lcc.log_error("Wrong format of 'account id', got: {}".format(block_header["account"]))
             else:
                 lcc.log_info("'id' has correct format: account_id")
+            if not self.validator.is_account_id(block_header["delegate"]):
+                lcc.log_error("Wrong format of 'delegate', got: {}".format(block_header["delegate"]))
+            else:
+                lcc.log_info("'delegate' has correct format: account_id")
             check_that_entry("transaction_merkle_root", is_str("0000000000000000000000000000000000000000"), quiet=True)
-            check_that_entry("vm_root", is_str(), quiet=True)
+            check_that_entry("vm_root", is_list(), quiet=True)
+            check_that_entry("prev_signatures", is_list(), quiet=True)
             check_that_entry("extensions", is_list(), quiet=True)
             check_that_entry("ed_signature", is_str(), quiet=True)
-            check_that_entry("round", is_integer(), quiet=True)
             check_that_entry("rand", is_str(), quiet=True)
-            check_that_entry("cert", is_dict(), quiet=True)
+            check_that_entry("cert", is_list(), quiet=True)
             check_that_entry("transactions", is_list(), quiet=True)
 
-        certificate = block_header["cert"]
-        with this_dict(certificate):
-            check_that_entry("_rand", is_str(), quiet=True)
-            check_that_entry("_block_hash", is_str(), quiet=True)
-            check_that_entry("_producer", is_integer(), quiet=True)
-            check_that_entry("_signatures", is_list(), quiet=True)
-
-        signatures = certificate["_signatures"]
-        if block_header["account"] == "1.2.0":
-            check_that("'_signatures'", signatures, is_list([]), quiet=True)
-        else:
-            require_that(
-                "'_signatures'",
-                signatures, has_length(5)
-            )
-            for i in range(len(signatures)):
-                with this_dict(signatures[i]):
-                    check_that_entry("_step", is_integer(), quiet=True)
-                    check_that_entry("_value", is_integer(), quiet=True)
-                    check_that_entry("_signer", is_integer(), quiet=True)
-                    check_that_entry("_bba_sign", is_str(), quiet=True)
+        certificates = block_header["cert"]
+        for i, certificate in enumerate(certificates):
+            lcc.log_info("Check fields in certificate#'{}'".format(i))
+            with this_dict(certificate):
+                check_that_entry("_step", is_integer(), quiet=True)
+                check_that_entry("_value", is_integer(), quiet=True)
+                check_that_entry("_leader", is_integer(), quiet=True)
+                check_that_entry("_signer", is_integer(), quiet=True)
+                check_that_entry("_delegate", is_integer(), quiet=True)
+                check_that_entry("_fallback", is_integer(), quiet=True)
+                if not self.validator.is_hex(certificate["_bba_sign"]):
+                    lcc.log_error("Wrong format of '_bba_sign', got: {}".format(certificate["_bba_sign"]))
+                else:
+                    lcc.log_info("'_bba_sign' has correct format: hex")
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -131,11 +129,11 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Broadcast transaction and check info about it in block")
+    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.GetBlock.GetBlock.method_main_check")
     def check_transaction_info_in_block(self):
         lcc.set_step("Collect 'get_transaction' operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
+        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
                                                                   to_account_id=self.echo_acc1)
         lcc.log_info("Transfer operation: '{}'".format(str(transfer_operation)))
 

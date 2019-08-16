@@ -1,6 +1,6 @@
 colorama
 flake8
-lemoncheesecake
+lemoncheesecake==0.22.10
 mccabe
 pycodestyle
 pyflakes

@@ -77,7 +77,7 @@ class ValidateTransaction(BaseTest):
         validate_transaction = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'validate_transaction'")
 
-        lcc.set_step("Compare localy signed and validated transactions")
+        lcc.set_step("Compare locally signed and validated transactions")
         require_that(
             "'transaction from 'validate_transaction' result'",
             validate_transaction, has_length(8)
