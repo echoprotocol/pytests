@@ -45,7 +45,8 @@ class GetHistoryOfFirstContractInNetwork(BaseTest):
     @lcc.prop("type", "scenario")
     @lcc.test("Check contract history of the first contract in the network")
     def get_history_of_first_contract_scenario(self):
-        stop, start = "1.6.0", "1.6.0"
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
         limit = 100
 
         lcc.set_step("Check that '{}' first contract in the network or not".format(self.contract_id))

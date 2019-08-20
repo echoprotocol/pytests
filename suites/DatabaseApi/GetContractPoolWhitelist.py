@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, is_list, has_entry, \
-    equal_to, require_that
+from lemoncheesecake.matching import check_that_in, check_that, has_length, is_list, has_entry, equal_to, require_that
 
 from common.base_test import BaseTest
 
@@ -65,10 +64,12 @@ class GetContractPoolWhitelist(BaseTest):
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check simple work of method 'get_contract_pool_whitelist'")
-        with this_dict(result):
-            if check_that("contract pool whitelist", result, has_length(2)):
-                check_that_entry("whitelist", is_list([]))
-                check_that_entry("blacklist", is_list([]))
+        if check_that("contract pool whitelist", result, has_length(2)):
+            check_that_in(
+                result,
+                "whitelist", is_list([]),
+                "blacklist", is_list([])
+            )
 
         lcc.set_step("Add one account to whitelist and one account to blacklist")
         whitelist, blacklist = [self.echo_acc0], [self.echo_acc1]
@@ -83,10 +84,12 @@ class GetContractPoolWhitelist(BaseTest):
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check added accounts to contract lists")
-        with this_dict(result):
-            if check_that("contract pool whitelist", result, has_length(2)):
-                check_that_entry("whitelist", is_list(whitelist))
-                check_that_entry("blacklist", is_list(blacklist))
+        if check_that("contract pool whitelist", result, has_length(2)):
+            check_that_in(
+                result,
+                "whitelist", is_list(whitelist),
+                "blacklist", is_list(blacklist)
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")

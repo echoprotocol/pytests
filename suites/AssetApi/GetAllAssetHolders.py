@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that_entry, is_integer, is_str, check_that, has_entry, \
-    is_not_none, greater_than_or_equal_to
+from lemoncheesecake.matching import check_that_in, is_integer, is_str, check_that, has_entry, is_not_none, \
+    greater_than_or_equal_to
 
 from common.base_test import BaseTest
 
@@ -39,9 +39,11 @@ class GetAllAssetHolders(BaseTest):
         result = response["result"]
         for i in range(len(result)):
             holders = result[i]
-            with this_dict(holders):
-                check_that_entry("asset_id", is_str())
-                check_that_entry("count", greater_than_or_equal_to(0))
+            check_that_in(
+                holders,
+                "asset_id", is_str(),
+                "count", greater_than_or_equal_to(0)
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -102,9 +104,11 @@ class PositiveTesting(BaseTest):
         if self.position_on_the_list is None:
             lcc.log_error(
                 "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id))
-        with this_dict(result[self.position_on_the_list]):
-            check_that_entry("asset_id", is_str(self.new_asset_id))
-            check_that_entry("count", is_integer(0))
+        check_that_in(
+            result[self.position_on_the_list],
+            "asset_id", is_str(self.new_asset_id),
+            "count", is_integer(0)
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("New asset in 'get_all_asset_holders' with holders")
@@ -126,9 +130,11 @@ class PositiveTesting(BaseTest):
         if self.position_on_the_list is None:
             lcc.log_error(
                 "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id))
-        with this_dict(result[self.position_on_the_list]):
-            check_that_entry("asset_id", is_str(self.new_asset_id))
-            check_that_entry("count", is_integer(1))
+        check_that_in(
+            result[self.position_on_the_list],
+            "asset_id", is_str(self.new_asset_id),
+            "count", is_integer(1)
+        )
 
 
 @lcc.prop("suite_run_option_3", "negative")

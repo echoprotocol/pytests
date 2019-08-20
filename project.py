@@ -3,11 +3,21 @@ import json
 import os.path
 import sys
 
-from lemoncheesecake.project import SimpleProjectConfiguration, HasMetadataPolicy, HasPreRunHook, HasPostRunHook
-from lemoncheesecake.validators import MetadataPolicy
+from lemoncheesecake.project import Project
+
+
+class MyProject(Project):
+    def build_report_title(self):
+        return "ECHO tests (ECHO v. 0.9.3)"
+
 
 project_dir = os.path.dirname(__file__)
 sys.path.append(project_dir)
+project = MyProject(project_dir)
+project.metadata_policy.add_property_rule("type", ("method", "operation", "scenario", "other"), required=False)
+project.metadata_policy.add_property_rule("suite_run_option_1", "main", on_suite=True, required=False)
+project.metadata_policy.add_property_rule("suite_run_option_2", "positive", on_suite=True, required=False)
+project.metadata_policy.add_property_rule("suite_run_option_3", "negative", on_suite=True, required=False)
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
 GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), "genesis.json")))
@@ -75,29 +85,3 @@ with open(".env") as env_file:
     GANACHE_PK = (env_file.readline().split('RPC_ACCOUNT=')[1]).split(",")[0]
 with open(".env") as env_file:
     ROPSTEN_PK = env_file.readlines()[-1].split('ROPSTEN_PRIVATE_KEY=')[1]
-
-
-class MyProjectConfiguration(SimpleProjectConfiguration, HasMetadataPolicy, HasPreRunHook, HasPostRunHook):
-
-    def get_metadata_policy(self):
-        policy = MetadataPolicy()
-        policy.add_property_rule(
-            "type", ("method", "operation", "scenario", "other"), required=False
-        )
-        policy.add_property_rule(
-            "suite_run_option_1", "main", on_suite=True, required=False
-        )
-        policy.add_property_rule(
-            "suite_run_option_2", "positive", on_suite=True, required=False
-        )
-        policy.add_property_rule(
-            "suite_run_option_3", "negative", on_suite=True, required=False
-        )
-        return policy
-
-
-project = MyProjectConfiguration(
-    suites_dir=os.path.join(project_dir, "suites"),
-    fixtures_dir=os.path.join(project_dir, "fixtures"),
-    report_title="ECHO tests (ECHO v. 0.9.3)"
-)

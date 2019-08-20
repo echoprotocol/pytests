@@ -2,8 +2,7 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, equal_to, greater_than, has_length, this_dict, require_that_entry, \
-    is_true
+from lemoncheesecake.matching import require_that, equal_to, greater_than, has_length, check_that_in, is_true
 
 from common.base_test import BaseTest
 
@@ -209,9 +208,11 @@ class ERC20(BaseTest):
         require_that("'account withdrawals'", withdrawals, has_length(len(erc20_withdraw_amounts)))
         for i, withdraw in enumerate(withdrawals):
             lcc.log_info("Check account withdraw #'{}'".format(i))
-            with this_dict(withdraw):
-                require_that_entry("id", equal_to(withdraw_erc20_token_ids[i]))
-                require_that_entry("value", equal_to(str(erc20_withdraw_amounts[i])))
+            check_that_in(
+                withdraw,
+                "id", equal_to(withdraw_erc20_token_ids[i]),
+                "value", equal_to(str(erc20_withdraw_amounts[i]))
+            )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance = \
@@ -248,9 +249,11 @@ class ERC20(BaseTest):
         require_that("'account withdrawals'", withdrawals, has_length(len(erc20_withdraw_amounts)))
         for i, withdraw in enumerate(withdrawals):
             lcc.log_info("Check account withdraw #'{}'".format(i))
-            with this_dict(withdraw):
-                require_that_entry("id", equal_to(withdraw_erc20_token_ids[i]))
-                require_that_entry("value", equal_to(str(erc20_withdraw_amounts[i])))
+            check_that_in(
+                withdraw,
+                "id", equal_to(withdraw_erc20_token_ids[i]),
+                "value", equal_to(str(erc20_withdraw_amounts[i]))
+            )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         updated_in_echo_erc20_balance = \

@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, greater_than, has_length, this_dict, check_that_entry, check_that, \
-    is_list, equal_to, is_true
+from lemoncheesecake.matching import require_that, greater_than, has_length, check_that_in, check_that, is_list, \
+    equal_to, is_true
 
 from common.base_test import BaseTest
 
@@ -40,20 +40,23 @@ class GetERC20AccountDeposits(BaseTest):
         for i, deposit in enumerate(deposits):
             lcc.set_step("Check work of method 'get_erc20_account_deposits', deposit #'{}'".format(i))
             check_that("'length of erc20 account deposit'", deposit, has_length(7))
-            with this_dict(deposit):
-                if not self.validator.is_deposit_erc20_id(deposit["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: deposit_erc20_token_object")
-                check_that_entry("account", equal_to(new_account_id), quiet=True)
-                check_that_entry("erc20_addr", equal_to(erc20_contract_address[2:]), quiet=True)
-                check_that_entry("value", equal_to(str(erc20_deposit_amounts[i])), quiet=True)
-                if not self.validator.is_hex(deposit["transaction_hash"]):
-                    lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(deposit["transaction_hash"]))
-                else:
-                    lcc.log_info("'transaction_hash' has correct format: hex")
-                check_that_entry("is_approved", is_true(), quiet=True)
-                check_that_entry("approves", is_list(), quiet=True)
+            if not self.validator.is_deposit_erc20_id(deposit["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
+            else:
+                lcc.log_info("'id' has correct format: deposit_erc20_token_object")
+            if not self.validator.is_hex(deposit["transaction_hash"]):
+                lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(deposit["transaction_hash"]))
+            else:
+                lcc.log_info("'transaction_hash' has correct format: hex")
+            check_that_in(
+                deposit,
+                "account", equal_to(new_account_id),
+                "erc20_addr", equal_to(erc20_contract_address[2:]),
+                "value", equal_to(str(erc20_deposit_amounts[i])),
+                "is_approved", is_true(),
+                "approves", is_list(),
+                quiet=True
+            )
 
     def setup_suite(self):
         super().setup_suite()

@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_, this_dict, check_that_entry, greater_than, is_bool, is_list, \
-    equal_to, check_that, starts_with, has_length
+from lemoncheesecake.matching import require_that, is_, check_that_in, greater_than, is_true, is_list, equal_to, \
+    check_that, starts_with, has_length
 
 from common.base_test import BaseTest
 
@@ -107,14 +107,17 @@ class GetAccountDeposits(BaseTest):
             operation_in_history = response["result"][i]["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
-            with this_dict(operation_in_history[1]):
-                check_that_entry("fee", equal_to(sidechain_eth_issue_operations[i][1]["fee"]))
-                with this_dict(operation_in_history[1]["value"]):
-                    self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
-                    check_that_entry("asset_id", equal_to(sidechain_eth_issue_operations[i][1]["value"]["asset_id"]))
-                check_that_entry("account", equal_to(sidechain_eth_issue_operations[i][1]["account"]))
-                check_that_entry("deposit_id",
-                                 starts_with(self.get_object_type(self.echo.config.object_types.DEPOSIT_ETH)))
+            check_that_in(
+                operation_in_history[1],
+                "fee", equal_to(sidechain_eth_issue_operations[i][1]["fee"]),
+                "account", equal_to(sidechain_eth_issue_operations[i][1]["account"]),
+                "deposit_id", starts_with(self.get_object_type(self.echo.config.object_types.DEPOSIT_ETH))
+            )
+            self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
+            check_that_in(
+                operation_in_history[1]["value"],
+                "asset_id", equal_to(sidechain_eth_issue_operations[i][1]["value"]["asset_id"])
+            )
 
         lcc.set_step("Second send eth to ethereum address of created account")
         eth_amount = eth_amount + eth_amount
@@ -142,14 +145,17 @@ class GetAccountDeposits(BaseTest):
             operation_in_history = response["result"][i]["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
-            with this_dict(operation_in_history[1]):
-                check_that_entry("fee", equal_to(sidechain_eth_issue_operations[i][1]["fee"]))
-                with this_dict(operation_in_history[1]["value"]):
-                    self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
-                    check_that_entry("asset_id", equal_to(sidechain_eth_issue_operations[i][1]["value"]["asset_id"]))
-                check_that_entry("account", equal_to(sidechain_eth_issue_operations[i][1]["account"]))
-                check_that_entry("deposit_id",
-                                 starts_with(self.get_object_type(self.echo.config.object_types.DEPOSIT_ETH)))
+            check_that_in(
+                operation_in_history[1],
+                "fee", equal_to(sidechain_eth_issue_operations[i][1]["fee"]),
+                "account", equal_to(sidechain_eth_issue_operations[i][1]["account"]),
+                "deposit_id", starts_with(self.get_object_type(self.echo.config.object_types.DEPOSIT_ETH))
+            )
+            self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
+            check_that_in(
+                operation_in_history[1]["value"],
+                "asset_id", equal_to(sidechain_eth_issue_operations[i][1]["value"]["asset_id"])
+            )
 
         lcc.set_step("Get deposits of created account")
         params = [new_account]
@@ -166,18 +172,20 @@ class GetAccountDeposits(BaseTest):
                 "'first deposit of created account'",
                 deposit[i], has_length(7)
             )
-            with this_dict(deposit[i]):
-                if not self.validator.is_deposit_eth_id(deposit[i]["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(deposit[i]["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: deposit_eth_object_type")
-                deposit_ids.append(deposit[i]["id"])
-                check_that_entry("deposit_id", greater_than(0), quiet=True)
-                check_that_entry("account", is_(new_account), quiet=True)
-                check_that("value", int(deposit[i]["value"]), is_(deposit_values[i]), quiet=False)
-                check_that_entry("is_approved", is_bool(), quiet=True)
-                check_that_entry("approves", is_list(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
+            if not self.validator.is_deposit_eth_id(deposit[i]["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(deposit[i]["id"]))
+            else:
+                lcc.log_info("'id' has correct format: deposit_eth_object_type")
+            deposit_ids.append(deposit[i]["id"])
+            check_that_in(
+                deposit[i],
+                "deposit_id", greater_than(0),
+                "account", is_(new_account),
+                "is_approved", is_true(),
+                "approves", is_list(),
+                "extensions", is_list(),
+            )
+            check_that("value", int(deposit[i]["value"]), is_(deposit_values[i]))
 
         lcc.set_step("Get deposit by id using 'get_objects'")
         response_id = self.send_request(self.get_request("get_objects", [deposit_ids]),
@@ -188,11 +196,14 @@ class GetAccountDeposits(BaseTest):
         lcc.set_step("Compare deposits in 'get_account_deposits' with method 'get_objects'")
         for i in range(len(deposit)):
             lcc.set_step("Compare #{}: deposit in 'get_account_deposits' with method 'get_objects'".format(i))
-            with this_dict(deposit[i]):
-                check_that_entry("id", is_(response[i]["id"]), quiet=True)
-                check_that_entry("deposit_id", is_(response[i]["deposit_id"]), quiet=True)
-                check_that_entry("account", is_(response[i]["account"]), quiet=True)
-                check_that_entry("value", is_(response[i]["value"]), quiet=True)
-                check_that_entry("is_approved", is_(response[i]["is_approved"]), quiet=True)
-                check_that_entry("approves", is_(response[i]["approves"]), quiet=True)
-                check_that_entry("extensions", is_(response[i]["extensions"]), quiet=True)
+            check_that_in(
+                deposit[i],
+                "id", is_(response[i]["id"]),
+                "deposit_id", is_(response[i]["deposit_id"]),
+                "account", is_(response[i]["account"]),
+                "value", is_(response[i]["value"]),
+                "is_approved", is_(response[i]["is_approved"]),
+                "approves", is_(response[i]["approves"]),
+                "extensions", is_(response[i]["extensions"]),
+                quiet=True
+            )

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, has_length, this_dict, check_that_entry, is_str, is_integer, equal_to
+from lemoncheesecake.matching import require_that, has_length, check_that_in, is_str, is_integer, equal_to
 
 from common.base_test import BaseTest
 
@@ -77,26 +76,29 @@ class GetERC20Token(BaseTest):
         lcc.set_step("Check simple work of method 'get_erc20_token'")
         require_that("'length of ERC20 object'", result, has_length(7))
 
-        with this_dict(result):
-            if not self.validator.is_erc20_object_id(result["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'id' has correct format: erc20_token_object_type")
-            if not self.validator.is_account_id(result["owner"]):
-                lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
-            else:
-                lcc.log_info("'owner' has correct format: account_id_object_type")
-            if not self.validator.is_eth_address(result["eth_addr"]):
-                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
-            else:
-                lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
-            if not self.validator.is_contract_id(result["contract"]):
-                lcc.log_error("Wrong format of 'contract', got: {}".format(result["contract"]))
-            else:
-                lcc.log_info("'contract' has correct format: contract_object_type")
-            check_that_entry("name", is_str(), quiet=True)
-            check_that_entry("symbol", is_str(), quiet=True)
-            check_that_entry("decimals", is_integer(), quiet=True)
+        if not self.validator.is_erc20_object_id(result["id"]):
+            lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
+        else:
+            lcc.log_info("'id' has correct format: erc20_token_object_type")
+        if not self.validator.is_account_id(result["owner"]):
+            lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
+        else:
+            lcc.log_info("'owner' has correct format: account_id_object_type")
+        if not self.validator.is_eth_address(result["eth_addr"]):
+            lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
+        else:
+            lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
+        if not self.validator.is_contract_id(result["contract"]):
+            lcc.log_error("Wrong format of 'contract', got: {}".format(result["contract"]))
+        else:
+            lcc.log_info("'contract' has correct format: contract_object_type")
+        check_that_in(
+            result,
+            "name", is_str(),
+            "symbol", is_str(),
+            "decimals", is_integer(),
+            quiet=True
+        )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -168,13 +170,15 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_erc20_token' with eth_erc20_contract_address='{}' parameter".format(
             erc20_contract.address[2:]))
 
-        with this_dict(result):
-            check_that_entry("id", equal_to(erc20_token_id))
-            check_that_entry("owner", equal_to(self.echo_acc0))
-            check_that_entry("eth_addr", equal_to(erc20_contract.address[2:]))
-            check_that_entry("name", equal_to(contract_name))
-            check_that_entry("symbol", equal_to(erc20_symbol))
-            check_that_entry("decimals", equal_to(erc20_token_decimals))
+        check_that_in(
+            result,
+            "id", equal_to(erc20_token_id),
+            "owner", equal_to(self.echo_acc0),
+            "eth_addr", equal_to(erc20_contract.address[2:]),
+            "name", equal_to(contract_name),
+            "symbol", equal_to(erc20_symbol),
+            "decimals", equal_to(erc20_token_decimals)
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Create contract using register_erc20_token operation and compare response from 'get_erc20_token' "
@@ -218,11 +222,13 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Checking created account")
         erc20_object_info_1 = response_1["result"]
         erc20_object_info_2 = response_2["result"][0]
-        with this_dict(erc20_object_info_1):
-            check_that_entry("id", equal_to(erc20_object_info_2["id"]))
-            check_that_entry("owner", equal_to(erc20_object_info_2["owner"]))
-            check_that_entry("eth_addr", equal_to(erc20_object_info_2["eth_addr"]))
-            check_that_entry("contract", equal_to(erc20_object_info_2["contract"]))
-            check_that_entry("name", equal_to(erc20_object_info_2["name"]))
-            check_that_entry("symbol", equal_to(erc20_object_info_2["symbol"]))
-            check_that_entry("decimals", equal_to(erc20_object_info_2["decimals"]))
+        check_that_in(
+            erc20_object_info_1,
+            "id", equal_to(erc20_object_info_2["id"]),
+            "owner", equal_to(erc20_object_info_2["owner"]),
+            "eth_addr", equal_to(erc20_object_info_2["eth_addr"]),
+            "contract", equal_to(erc20_object_info_2["contract"]),
+            "name", equal_to(erc20_object_info_2["name"]),
+            "symbol", equal_to(erc20_object_info_2["symbol"]),
+            "decimals", equal_to(erc20_object_info_2["decimals"])
+        )

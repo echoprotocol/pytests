@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that_entry, is_str, is_false, check_that, has_length, \
-    require_that, require_that_in, is_true, is_, not_equal_to, is_list
+from lemoncheesecake.matching import check_that_in, is_str, is_false, check_that, has_length, require_that, \
+    require_that_in, is_true, is_, not_equal_to, is_list
 
 from common.base_test import BaseTest
 
@@ -56,21 +56,23 @@ class GetContracts(BaseTest):
 
         lcc.set_step("Check simple work of method 'get_contracts'")
         result = response["result"][0]
-        with this_dict(result):
-            if check_that("config", result, has_length(7)):
-                if not self.validator.is_contract_id(result["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: contract_object_type")
-                if not self.validator.is_contract_statistics_id(result["statistics"]):
-                    lcc.log_error("Wrong format of 'statistics', got: {}".format(result["statistics"]))
-                else:
-                    lcc.log_info("'statistics' has correct format: contract_statistics_object_type")
-                check_that_entry("destroyed", is_false())
-                check_that_entry("type", is_str("evm"))
-                check_that_entry("supported_asset_id", is_str(self.echo_asset))
-                check_that_entry("owner", is_(self.echo_acc0))
-                check_that_entry("extensions", is_list(), quiet=True)
+        if check_that("contract", result, has_length(7)):
+            if not self.validator.is_contract_id(result["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_object_type")
+            if not self.validator.is_contract_statistics_id(result["statistics"]):
+                lcc.log_error("Wrong format of 'statistics', got: {}".format(result["statistics"]))
+            else:
+                lcc.log_info("'statistics' has correct format: contract_statistics_object_type")
+            check_that_in(
+                result,
+                "destroyed", is_false(),
+                "type", is_str("evm"),
+                "supported_asset_id", is_str(self.echo_asset),
+                "owner", is_(self.echo_acc0),
+                "extensions", is_list()
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")

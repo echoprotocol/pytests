@@ -623,8 +623,8 @@ class Utils(object):
         return broadcast_result
 
     @staticmethod
-    def perform_sidechain_erc20_withdraw_token_operation(base_test, account, to, erc20_token, value,
-                                                         database_api_id, log_broadcast=False):
+    def perform_sidechain_erc20_withdraw_token_operation(base_test, account, to, erc20_token, value, database_api_id,
+                                                         log_broadcast=False):
         if to[:2] == "0x":
             to = to[2:]
         operation = base_test.echo_ops.get_sidechain_erc20_withdraw_token_operation(echo=base_test.echo,

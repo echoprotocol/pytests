@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_none, this_dict, has_length, check_that_entry, is_integer, is_, \
-    equal_to, is_list, require_that
+from lemoncheesecake.matching import check_that, is_none, check_that_in, has_length, is_integer, is_, equal_to, \
+    is_list, require_that
 
 from common.base_test import BaseTest
 
@@ -96,29 +96,32 @@ class SubscribeContracts(BaseTest):
             self.echo.config.implementation_object_types.CONTRACT_HISTORY))
 
         lcc.set_step("Check notice 'subscribe_contracts'")
-        with this_dict(notice):
-            if check_that("global_properties", notice, has_length(6)):
-                if not self.validator.is_contract_history_id(notice["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(notice["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: contract_history_object_type")
-                if not self.validator.is_contract_id(notice["contract"]):
-                    lcc.log_error("Wrong format of 'contract', got: {}".format(notice["contract"]))
-                else:
-                    lcc.log_info("'contract' has correct format: contract_id")
-                if not self.validator.is_operation_history_id(notice["operation_id"]):
-                    lcc.log_error("Wrong format of 'operation_id', got: {}".format(notice["operation_id"]))
-                else:
-                    lcc.log_info("'operation_id' has correct format: operation_history_id")
-                check_that_entry("sequence", is_integer(), quiet=True)
-                if not self.validator.is_contract_history_id(notice["next"]):
-                    lcc.log_error("Wrong format of 'next', got: {}".format(notice["next"]))
-                else:
-                    lcc.log_info("'next' has correct format: contract_history_object_type")
-                check_that_entry("next", is_("{}{}".format(
+        if check_that("global_properties", notice, has_length(6)):
+            if not self.validator.is_contract_history_id(notice["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(notice["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_history_object_type")
+            if not self.validator.is_contract_id(notice["contract"]):
+                lcc.log_error("Wrong format of 'contract', got: {}".format(notice["contract"]))
+            else:
+                lcc.log_info("'contract' has correct format: contract_id")
+            if not self.validator.is_operation_history_id(notice["operation_id"]):
+                lcc.log_error("Wrong format of 'operation_id', got: {}".format(notice["operation_id"]))
+            else:
+                lcc.log_info("'operation_id' has correct format: operation_history_id")
+            if not self.validator.is_contract_history_id(notice["next"]):
+                lcc.log_error("Wrong format of 'next', got: {}".format(notice["next"]))
+            else:
+                lcc.log_info("'next' has correct format: contract_history_object_type")
+            check_that_in(
+                notice,
+                "sequence", is_integer(),
+                "next", is_("{}{}".format(
                     self.get_implementation_object_type(self.echo.config.implementation_object_types.CONTRACT_HISTORY),
-                    str((int(notice["id"].split('.')[2]) - 1)))))
-                check_that_entry("extensions", is_list(), quiet=True)
+                    str((int(notice["id"].split('.')[2]) - 1)))),
+                "extensions", is_list(),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -208,9 +211,11 @@ class PositiveTesting(BaseTest):
                     continue
                 lcc.log_error("No '{}' object in the notice".format(notice["id"]))
             if notice["id"].startswith(expected_objs[0]):
-                with this_dict(notice):
-                    check_that_entry("asset_type", equal_to(asset_type))
-                    check_that_entry("balance", equal_to(contract_balance))
+                check_that_in(
+                    notice,
+                    "asset_type", equal_to(asset_type),
+                    "balance", equal_to(contract_balance)
+                )
 
     def setup_suite(self):
         super().setup_suite()
@@ -277,9 +282,11 @@ class PositiveTesting(BaseTest):
         operation_history_id = self.get_contract_history(contract_id)["result"][0]["id"]
 
         lcc.set_step("Check notice about updated contract history")
-        with this_dict(notice):
-            check_that_entry("contract", equal_to(contract_id))
-            check_that_entry("operation_id", equal_to(operation_history_id))
+        check_that_in(
+            notice,
+            "contract", equal_to(contract_id),
+            "operation_id", equal_to(operation_history_id)
+        )
 
         lcc.set_step("Call 'getPennie' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -360,14 +367,17 @@ class PositiveTesting(BaseTest):
         operation_history_id = self.get_contract_history(created_contract_id)["result"][0]["id"]
 
         lcc.set_step("Check notice about updated contract history created by another contract")
-        with this_dict(notice):
-            check_that_entry("contract", equal_to(created_contract_id))
-            check_that_entry("operation_id", equal_to(operation_history_id))
+        check_that_in(
+            notice,
+            "contract", equal_to(created_contract_id),
+            "operation_id", equal_to(operation_history_id)
+        )
 
         lcc.set_step("Call 'tr_asset_to_creator' method of created contract")
+        value_amount = 1
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.tr_asset_to_creator,
-                                                              callee=created_contract_id, value_amount=1)
+                                                              callee=created_contract_id, value_amount=value_amount)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
@@ -382,7 +392,7 @@ class PositiveTesting(BaseTest):
         self.check_contract_history_objs_in_notice(response, notice, created_contract_id)
 
         lcc.set_step("Check notice about contract balance")
-        expected_contract_balance = 0
+        expected_contract_balance = value_amount
         value_asset_id = self.echo_asset
         self.check_balance_and_statistic_objs_in_notice(notice, created_contract_id, expected_contract_balance,
                                                         value_asset_id, expected_statistic=False)

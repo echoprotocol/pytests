@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that, has_entry
+from lemoncheesecake.matching import check_that, has_entry
 
 from common.base_test import BaseTest
 
@@ -35,11 +35,10 @@ class GetChainId(BaseTest):
         lcc.log_info("Call method 'get_chain_id'")
 
         lcc.set_step("Check main fields")
-        with this_dict(response["result"]):
-            if not self.validator.is_hex(response["result"]):
-                lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]))
-            else:
-                lcc.log_info("'chain_id' has correct format: hex")
+        if not self.validator.is_hex(response["result"]):
+            lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]))
+        else:
+            lcc.log_info("'chain_id' has correct format: hex")
 
 
 @lcc.prop("suite_run_option_3", "negative")

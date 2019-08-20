@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_, is_integer, is_str, check_that_in, is_true, this_dict, \
-    check_that_entry
+from lemoncheesecake.matching import check_that, is_, is_integer, is_str, check_that_in, is_true
 
 from common.base_test import BaseTest
 
@@ -87,9 +86,11 @@ class HelloWorld(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
-        with this_dict(response["result"][0]):
-            self.check_uint64_numbers(response["result"][0], "amount")
-            check_that_entry("asset_id", is_str(self.echo_asset))
+        self.check_uint64_numbers(response["result"][0], "amount")
+        check_that_in(
+            response["result"][0],
+            "asset_id", is_str(self.echo_asset)
+        )
         owner_balance = response["result"][0]["amount"]
 
         lcc.set_step("Call 'getPennie' method")

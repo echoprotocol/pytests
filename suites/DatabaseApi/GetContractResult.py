@@ -2,8 +2,8 @@
 import re
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, equal_to, check_that_entry, is_integer, is_list, is_dict, is_str, \
-    ends_with, check_that, require_that, greater_than, has_length, require_that_entry, is_true
+from lemoncheesecake.matching import check_that_in, equal_to, is_integer, is_list, is_dict, is_str, ends_with, \
+    check_that, require_that, greater_than, has_length, require_that_in, is_true
 
 from common.base_test import BaseTest
 
@@ -26,6 +26,7 @@ class GetContractResult(BaseTest):
         self.echo_acc0 = None
         self.piggy = self.get_byte_code("piggy", "code")
         self.getPennie = self.get_byte_code("piggy", "pennieReturned()")
+        self.contract_id = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -69,43 +70,60 @@ class GetContractResult(BaseTest):
         lcc.log_info("Call method 'get_contract_result' with contract_result_id='{}' param".format(contract_result_id))
 
         lcc.set_step("Check contract create result")
-        with this_dict(contract_result):
-            if check_that("contract_result", contract_result, has_length(2)):
-                check_that_entry("exec_res", is_dict(), quiet=True)
-                check_that_entry("tr_receipt", is_dict(), quiet=True)
-                exec_res = contract_result["exec_res"]
-                with this_dict(exec_res):
-                    if check_that("exec_res", exec_res, has_length(7)):
-                        require_that_entry("excepted", equal_to("None"), quiet=True)
-                        if not self.validator.is_hex(exec_res["new_address"]):
-                            lcc.log_error("Wrong format of 'new_address', got: {}".format(exec_res["new_address"]))
-                        else:
-                            lcc.log_info("'new_address' has correct format: hex")
-                        contract_id = self.get_contract_id(response)
-                        contract_output_in_hex = exec_res["output"]
-                        if not self.validator.is_hex(contract_output_in_hex):
-                            lcc.log_error("Wrong format of 'output', got: {}".format(contract_output_in_hex))
-                        else:
-                            lcc.log_info("'output' has correct format: hex")
-                        require_that_entry("code_deposit", equal_to("Success"), quiet=True)
-                        # todo: 'gas_refunded' will removed. Improvement ECHO-1015
-                        check_that_entry("gas_refunded", is_integer(), quiet=True)
-                        check_that_entry("gas_for_deposit", greater_than(0), quiet=True)
-                        contract_output_bytecode_length = len(contract_output_in_hex)
-                        check_that_entry("deposit_size", equal_to(contract_output_bytecode_length // 2), quiet=True)
-                tr_receipt = contract_result["tr_receipt"]
-                with this_dict(tr_receipt):
-                    if check_that("tr_receipt", tr_receipt, has_length(4)):
-                        check_that_entry("status_code", equal_to(1), quiet=True)
-                        # Note: the value in the field 'gas_used' is checked in the 'GasUsed' scenario
-                        check_that_entry("gas_used", greater_than(0), quiet=True)
-                        require_that_entry("log", equal_to([]), quiet=True)
-                        self.check_zero_bloom(tr_receipt["bloom"])
+        if check_that("contract_result", contract_result, has_length(2)):
+            check_that_in(
+                contract_result,
+                "exec_res", is_dict(),
+                "tr_receipt", is_dict(),
+                quiet=True
+            )
+            exec_res = contract_result["exec_res"]
+            if check_that("exec_res", exec_res, has_length(7)):
+                require_that_in(
+                    exec_res,
+                    "excepted", equal_to("None"),
+                    "code_deposit", equal_to("Success"),
+                    quiet=True
+                )
+                if not self.validator.is_hex(exec_res["new_address"]):
+                    lcc.log_error("Wrong format of 'new_address', got: {}".format(exec_res["new_address"]))
+                else:
+                    lcc.log_info("'new_address' has correct format: hex")
+                self.contract_id = self.get_contract_id(response)
+                contract_output_in_hex = exec_res["output"]
+                if not self.validator.is_hex(contract_output_in_hex):
+                    lcc.log_error("Wrong format of 'output', got: {}".format(contract_output_in_hex))
+                else:
+                    lcc.log_info("'output' has correct format: hex")
+                contract_output_bytecode_length = len(contract_output_in_hex)
+                check_that_in(
+                    exec_res,
+                    # todo: 'gas_refunded' will removed. Improvement ECHO-1015
+                    "gas_refunded", is_integer(),
+                    "gas_for_deposit", greater_than(0),
+                    "deposit_size", equal_to(contract_output_bytecode_length // 2),
+                    quiet=True
+                )
+            tr_receipt = contract_result["tr_receipt"]
+            if check_that("tr_receipt", tr_receipt, has_length(4)):
+                check_that_in(
+                    tr_receipt,
+                    "status_code", equal_to(1),
+                    # Note: the value in the field 'gas_used' is checked in the 'GasUsed' scenario
+                    "gas_used", greater_than(0),
+                    quiet=True
+                )
+                require_that_in(
+                    tr_receipt,
+                    "log", equal_to([]),
+                    quiet=True
+                )
+                self.check_zero_bloom(tr_receipt["bloom"])
 
         lcc.set_step("Call method 'getPennie'")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.getPennie,
-                                                              callee=contract_id)
+                                                              callee=self.contract_id)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
@@ -122,43 +140,51 @@ class GetContractResult(BaseTest):
             "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_result_id))
 
         lcc.set_step("Check contract call result")
-        with this_dict(contract_call_result):
-            if check_that("contract_call_result", contract_call_result, has_length(2)):
-                exec_res = contract_call_result["exec_res"]
-                with this_dict(exec_res):
-                    if check_that("exec_res", exec_res, has_length(7)):
-                        require_that_entry("excepted", equal_to("None"), quiet=True)
-                        check_that_entry("output", is_str(), quiet=True)
-                        require_that_entry("code_deposit", equal_to("None"), quiet=True)
-                        # todo: 'gas_refunded' will removed. Improvement ECHO-1015
-                        require_that_entry("gas_refunded", equal_to(0), quiet=True)
-                        require_that_entry("gas_for_deposit", equal_to(0), quiet=True)
-                        require_that_entry("deposit_size", equal_to(0), quiet=True)
+        if check_that("contract_call_result", contract_call_result, has_length(2)):
+            exec_res = contract_call_result["exec_res"]
+            if check_that("exec_res", exec_res, has_length(7)):
+                require_that_in(
+                    exec_res,
+                    "excepted", equal_to("None"),
+                    "code_deposit", equal_to("None"),
+                    # todo: 'gas_refunded' will removed. Improvement ECHO-1015
+                    "gas_refunded", equal_to(0),
+                    "gas_for_deposit", equal_to(0),
+                    "deposit_size", equal_to(0),
+                    quiet=True
+                )
+                check_that_in(
+                    exec_res, "output", is_str(), quiet=True
+                )
                 tr_receipt = contract_call_result["tr_receipt"]
-                with this_dict(tr_receipt):
-                    if check_that("tr_receipt", tr_receipt, has_length(4)):
-                        check_that_entry("status_code", equal_to(1), quiet=True)
+                if check_that("tr_receipt", tr_receipt, has_length(4)):
+                    check_that_in(
+                        tr_receipt,
+                        "status_code", equal_to(1),
                         # Note: the value in the field 'gas_used' is checked in the 'GasUsed' scenario
-                        check_that_entry("gas_used", greater_than(0), quiet=True)
-                        logs = tr_receipt["log"]
-                        check_that_entry("log", is_list(), quiet=True)
-                        require_that("'log has value'", bool(logs), is_true(), quiet=True)
-                        for log in logs:
-                            with this_dict(log):
-                                contract_id_that_called = self.get_contract_id(response, contract_call_result=True,
-                                                                               new_contract=False)
-                                require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-                                log_values = log["log"]
-                                for log_value in log_values:
-                                    if not self.validator.is_hex(log_value):
-                                        lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
-                                    else:
-                                        lcc.log_info("'log_value' has correct format: hex")
-                                check_that_entry("data", is_str(), quiet=True)
-                        if not self.validator.is_hex(tr_receipt["bloom"]):
-                            lcc.log_error("Wrong format of 'bloom', got: {}".format(tr_receipt["bloom"]))
-                        else:
-                            lcc.log_info("'bloom' has correct format: hex")
+                        "gas_used", greater_than(0),
+                        "log", is_list(),
+                        quiet=True
+                    )
+                    logs = tr_receipt["log"]
+                    require_that("'log has value'", bool(logs), is_true(), quiet=True)
+                    for log in logs:
+                        contract_id_that_called = self.get_contract_id(response, contract_call_result=True,
+                                                                       new_contract=False)
+                        require_that("contract_id", contract_id_that_called, equal_to(self.contract_id), quiet=True)
+                        log_values = log["log"]
+                        for log_value in log_values:
+                            if not self.validator.is_hex(log_value):
+                                lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
+                            else:
+                                lcc.log_info("'log_value' has correct format: hex")
+                        check_that_in(
+                            log, "data", is_str(), quiet=True
+                        )
+                    if not self.validator.is_hex(tr_receipt["bloom"]):
+                        lcc.log_error("Wrong format of 'bloom', got: {}".format(tr_receipt["bloom"]))
+                    else:
+                        lcc.log_info("'bloom' has correct format: hex")
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -286,19 +312,18 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract result with several logs")
         for i, log in enumerate(dynamic_fields_contract_call_logs):
             lcc.log_info("Check log#'{}'".format(i))
-            with this_dict(log):
-                contract_id_that_called = self.get_contract_id(response, contract_call_result=True, new_contract=False)
-                require_that("contract_id", contract_id_that_called, equal_to(dynamic_fields_contract_id), quiet=True)
-                log_values = log["log"]
-                for log_value in log_values:
-                    if not self.validator.is_hex(log_value):
-                        lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
-                    else:
-                        lcc.log_info("'log_value' has correct format: hex")
-                if not self.validator.is_hex(log["data"]):
-                    lcc.log_error("Wrong format of 'data', got: {}".format(log["data"]))
+            contract_id_that_called = self.get_contract_id(response, contract_call_result=True, new_contract=False)
+            require_that("contract_id", contract_id_that_called, equal_to(dynamic_fields_contract_id), quiet=True)
+            log_values = log["log"]
+            for log_value in log_values:
+                if not self.validator.is_hex(log_value):
+                    lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                 else:
-                    lcc.log_info("'data' has correct format: hex")
+                    lcc.log_info("'log_value' has correct format: hex")
+            if not self.validator.is_hex(log["data"]):
+                lcc.log_error("Wrong format of 'data', got: {}".format(log["data"]))
+            else:
+                lcc.log_info("'data' has correct format: hex")
         for i in range(len(dynamic_fields_contract_call_logs))[:-1]:
             check_that(
                 "'addresses in contract call result are the same'",

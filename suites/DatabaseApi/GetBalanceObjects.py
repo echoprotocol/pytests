@@ -3,7 +3,7 @@ import json
 import os
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, is_not_none, check_that, has_length, is_, is_list, check_that_entry
+from lemoncheesecake.matching import check_that_in, is_not_none, check_that, has_length, is_, is_list
 
 from common.base_test import BaseTest
 from project import EXECUTION_STATUS_PATH, INIT0_PK, ROPSTEN
@@ -51,7 +51,7 @@ class GetBalanceObjects(BaseTest):
             else:
                 lcc.log_error("'{}' account does not have initial balance in genesis".format(self.init0_account_name))
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
 
     def teardown_suite(self):
         if not ROPSTEN:
@@ -66,29 +66,30 @@ class GetBalanceObjects(BaseTest):
                 response_id = self.send_request(self.get_request("get_balance_objects", [[self.public_key]]),
                                                 self.__database_api_identifier)
                 result = self.get_response(response_id)["result"][0]
-                with this_dict(result):
-                    if check_that("balance_object", result, has_length(5)):
-                        if not self.validator.is_balance_id(result["id"]):
-                            lcc.log_error("Wrong format of 'balance_id', got: {}".format(result["id"]))
-                        else:
-                            lcc.log_info("'balance_id' has correct format: balance_id")
-                        if not self.validator.is_iso8601(result["last_claim_date"]):
-                            lcc.log_error(
-                                "Wrong format of 'last_claim_date', got: {}".format(result["last_claim_date"]))
-                        else:
-                            lcc.log_info("'last_claim_date' has correct format: iso8601")
-                        with this_dict(result["balance"]):
-                            self.check_uint256_numbers(result["balance"], "amount", quiet=True)
-                            if not self.validator.is_asset_id(result["balance"]["asset_id"]):
-                                lcc.log_error(
-                                    "Wrong format of 'asset_id', got: {}".format(result["balance"]["asset_id"]))
-                            else:
-                                lcc.log_info("'asset_id' has correct format: asset_object_type")
-                        check_that_entry("extensions", is_list(), quiet=True)
+                if check_that("balance_object", result, has_length(5)):
+                    if not self.validator.is_balance_id(result["id"]):
+                        lcc.log_error("Wrong format of 'balance_id', got: {}".format(result["id"]))
+                    else:
+                        lcc.log_info("'balance_id' has correct format: balance_id")
+                    if not self.validator.is_iso8601(result["last_claim_date"]):
+                        lcc.log_error(
+                            "Wrong format of 'last_claim_date', got: {}".format(result["last_claim_date"]))
+                    else:
+                        lcc.log_info("'last_claim_date' has correct format: iso8601")
+                    self.check_uint256_numbers(result["balance"], "amount", quiet=True)
+                    if not self.validator.is_asset_id(result["balance"]["asset_id"]):
+                        lcc.log_error(
+                            "Wrong format of 'asset_id', got: {}".format(result["balance"]["asset_id"]))
+                    else:
+                        lcc.log_info("'asset_id' has correct format: asset_object_type")
+                    check_that_in(
+                        result,
+                        "extensions", is_list()
+                    )
             else:
                 lcc.log_info("Testing of the 'get_balance_objects' method was successfully completed earlier")
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -139,7 +140,7 @@ class PositiveTesting(BaseTest):
                 lcc.log_error("'{}', '{}' accounts do not have initial balances in genesis"
                               "".format(self.init0_account_name, self.init1_account_name))
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
 
     def teardown_suite(self):
         if not ROPSTEN:
@@ -173,7 +174,7 @@ class PositiveTesting(BaseTest):
             else:
                 lcc.log_info("Testing of the 'get_balance_objects' method was successfully completed earlier")
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
 
     @lcc.prop("type", "method")
     @lcc.test("Work of method after balance claim operation")
@@ -229,4 +230,4 @@ class PositiveTesting(BaseTest):
                     lcc.log_error("Test of method 'get_balance_objects' failed during the previous run. "
                                   "Can not claim initial balance again. To run test again please run a clean node.")
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_balance_objects' was skipped.")

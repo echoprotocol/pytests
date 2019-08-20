@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, has_entry, is_str
+from lemoncheesecake.matching import check_that_in, check_that, has_length, has_entry, is_str
 
 from common.base_test import BaseTest
 from project import BASE_ASSET_SYMBOL
@@ -59,18 +59,21 @@ class GetConfig(BaseTest):
                         "ECHO_DEFAULT_COMMITEE_PAY_VESTING_SECONDS"]
         echo_config_accounts = ["ECHO_COMMITTEE_ACCOUNT", "ECHO_RELAXED_COMMITTEE_ACCOUNT", "ECHO_NULL_ACCOUNT",
                                 "ECHO_TEMP_ACCOUNT"]
-        with this_dict(response["result"]):
-            if check_that("config", response["result"], has_length(51)):
-                for echo_config_symbol in echo_config_symbols:
-                    check_that_entry(echo_config_symbol, is_str(BASE_ASSET_SYMBOL), quiet=True)
-                for i in range(len(echo_configs)):
-                    self.check_uint64_numbers(response["result"], echo_configs[i], quiet=True)
-                for echo_config_account in echo_config_accounts:
-                    if not self.validator.is_account_id(response["result"][echo_config_account]):
-                        lcc.log_error("Wrong format of '{}', got: {}".format(echo_config_account, response["result"][
-                            echo_config_account]))
-                    else:
-                        lcc.log_info("'{}' has correct format: account_id".format(echo_config_account))
+        if check_that("config", response["result"], has_length(51)):
+            for echo_config_symbol in echo_config_symbols:
+                check_that_in(
+                    response["result"],
+                    echo_config_symbol, is_str(BASE_ASSET_SYMBOL),
+                    quiet=True
+                )
+            for i in range(len(echo_configs)):
+                self.check_uint64_numbers(response["result"], echo_configs[i], quiet=True)
+            for echo_config_account in echo_config_accounts:
+                if not self.validator.is_account_id(response["result"][echo_config_account]):
+                    lcc.log_error("Wrong format of '{}', got: {}".format(echo_config_account, response["result"][
+                        echo_config_account]))
+                else:
+                    lcc.log_info("'{}' has correct format: account_id".format(echo_config_account))
 
 
 @lcc.prop("suite_run_option_3", "negative")

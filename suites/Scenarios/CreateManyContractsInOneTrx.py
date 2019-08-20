@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to
+from lemoncheesecake.matching import check_that, equal_to, has_length
 
 from common.base_test import BaseTest
 
@@ -56,5 +56,5 @@ class CreateManyContractsInOneTrx(BaseTest):
         lcc.set_step("Check that all contracts created in the Echo network")
         check_that(
             "in 'broadcast_result' are 'operation_results'",
-            len(broadcast_result.get("trx").get("operation_results")), equal_to(number_of_contracts)
+            broadcast_result.get("trx").get("operation_results"), has_length(number_of_contracts)
         )

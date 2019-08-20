@@ -49,6 +49,7 @@ class HistoryOfContractCreatedByAnotherContract(BaseTest):
               "Getting the history of the created contract")
     @lcc.tags("Bug ECHO-812")
     def history_of_contract_created_by_another_contract(self):
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         operations = []
         # todo: add. Bug ECHO-812
         # contract_create_operation = self.echo_ops.get_operation_json("contract_create_operation", example=True)
@@ -127,7 +128,7 @@ class HistoryOfContractCreatedByAnotherContract(BaseTest):
         )
 
         lcc.set_step("Get contract history of created contract by another contract")
-        stop, start = "1.6.0", "1.6.0"
+        stop, start = operation_history_obj, operation_history_obj
         limit = 100
         params = [created_contract_id, stop, limit, start]
         response_id = self.send_request(self.get_request("get_contract_history", params), self.__history_api_identifier)

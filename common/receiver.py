@@ -31,7 +31,7 @@ class Receiver(object):
     @staticmethod
     def get_negative_result(response, print_log):
         if print_log:
-            lcc.log_warn("Error received:\n{}".format(json.dumps(response, indent=4)))
+            lcc.log_warning("Error received:\n{}".format(json.dumps(response, indent=4)))
         return response
 
     def get_response(self, id_response, negative, print_log):
@@ -131,6 +131,6 @@ class Receiver(object):
                 lcc.log_info(
                     "Received notice about pending transaction:\n{}".format(json.dumps(response, indent=4)))
             return notice_params
-        lcc.log_warn(
+        lcc.log_warning(
             "Not validate response, got params:\n{}".format(json.dumps(response.get("params")[1], indent=4)))
         raise Exception("Not validate response")

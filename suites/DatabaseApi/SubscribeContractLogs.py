@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, this_dict, check_that_entry, equal_to, is_str, has_length, \
-    require_that, is_true, has_entry
+from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_str, has_length, require_that, is_true, \
+    has_entry
 
 from common.base_test import BaseTest
 
@@ -99,18 +99,19 @@ class SubscribeContractLogs(BaseTest):
 
         lcc.set_step("Check subscribe contracts log")
         for log in contract_logs_notice:
-            with this_dict(log):
-                if check_that("contract_log", log, has_length(3)):
-                    contract_id_that_called = self.get_contract_id(log["address"], address_format=True,
-                                                                   new_contract=False)
-                    require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-                    log_values = log["log"]
-                    for log_value in log_values:
-                        if not self.validator.is_hex(log_value):
-                            lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
-                        else:
-                            lcc.log_info("'log_value' has correct format: hex")
-                    check_that_entry("data", is_str(), quiet=True)
+            if check_that("contract_log", log, has_length(3)):
+                contract_id_that_called = self.get_contract_id(log["address"], address_format=True,
+                                                               new_contract=False)
+                require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
+                log_values = log["log"]
+                for log_value in log_values:
+                    if not self.validator.is_hex(log_value):
+                        lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
+                    else:
+                        lcc.log_info("'log_value' has correct format: hex")
+                check_that_in(
+                    log, "data", is_str(), quiet=True
+                )
 
         lcc.set_step("Get the head_block number")
         head_block_number = self.get_head_block_number()
@@ -277,19 +278,18 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract logs in notice with several logs")
         for i, log in enumerate(contract_logs_notice):
             lcc.log_info("Check log#'{}'".format(i))
-            with this_dict(log):
-                contract_id_that_called = self.get_contract_id(log["address"], address_format=True, new_contract=False)
-                require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-                log_values = log["log"]
-                for log_value in log_values:
-                    if not self.validator.is_hex(log_value):
-                        lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
-                    else:
-                        lcc.log_info("'log_value' has correct format: hex")
-                if not self.validator.is_hex(log["data"]):
-                    lcc.log_error("Wrong format of 'data', got: {}".format(log["data"]))
+            contract_id_that_called = self.get_contract_id(log["address"], address_format=True, new_contract=False)
+            require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
+            log_values = log["log"]
+            for log_value in log_values:
+                if not self.validator.is_hex(log_value):
+                    lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                 else:
-                    lcc.log_info("'data' has correct format: hex")
+                    lcc.log_info("'log_value' has correct format: hex")
+            if not self.validator.is_hex(log["data"]):
+                lcc.log_error("Wrong format of 'data', got: {}".format(log["data"]))
+            else:
+                lcc.log_info("'data' has correct format: hex")
         for i in range(len(contract_logs_notice))[:-1]:
             check_that(
                 "'addresses in contract call result are the same'",

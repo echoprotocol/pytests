@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, is_dict, is_integer, \
-    has_entry, is_list
+from lemoncheesecake.matching import check_that_in, check_that, has_length, is_dict, is_integer, has_entry, is_list
 
 from common.base_test import BaseTest
 
@@ -36,24 +35,30 @@ class GetChainProperties(BaseTest):
         lcc.log_info("Call method 'get_chain_properties'")
 
         lcc.set_step("Check main fields")
-        with this_dict(response["result"]):
-            if check_that("chain_properties", response["result"], has_length(4)):
-                if not self.validator.is_chain_property_object_id(response["result"]["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: chain_property_object_type")
-                if not self.validator.is_hex(response["result"]["chain_id"]):
-                    lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]["chain_id"]))
-                else:
-                    lcc.log_info("'chain_id' has correct format: hex")
-                check_that_entry("immutable_parameters", is_dict(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
+        if check_that("chain_properties", response["result"], has_length(4)):
+            if not self.validator.is_chain_property_object_id(response["result"]["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
+            else:
+                lcc.log_info("'id' has correct format: chain_property_object_type")
+            if not self.validator.is_hex(response["result"]["chain_id"]):
+                lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]["chain_id"]))
+            else:
+                lcc.log_info("'chain_id' has correct format: hex")
+            check_that_in(
+                response["result"],
+                "immutable_parameters", is_dict(),
+                "extensions", is_list(),
+                quiet=True
+            )
 
         lcc.set_step("Check 'immutable_parameters'")
         immutable_parameters = response["result"]["immutable_parameters"]
-        with this_dict(immutable_parameters):
-            if check_that("immutable_parameters", immutable_parameters, has_length(1)):
-                check_that_entry("min_committee_member_count", is_integer(), quiet=True)
+        if check_that("immutable_parameters", immutable_parameters, has_length(1)):
+            check_that_in(
+                immutable_parameters,
+                "min_committee_member_count", is_integer(),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_3", "negative")

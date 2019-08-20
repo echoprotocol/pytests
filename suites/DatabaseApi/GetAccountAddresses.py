@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_list, this_dict, check_that_entry, has_length, is_str, equal_to, \
-    require_that, not_equal_to
+from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, is_str, equal_to, require_that, \
+    not_equal_to
 
 from common.base_test import BaseTest
 
@@ -83,22 +83,25 @@ class GetAccountAddresses(BaseTest):
 
         lcc.set_step("Check new account address object in method 'get_account_addresses'")
         result = response["result"][0]
-        with this_dict(result):
-            if check_that("account_addresses", result, has_length(5)):
-                if not self.validator.is_account_address_id(result["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: account_address_object_type")
-                if not self.validator.is_account_id(result["owner"]):
-                    lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
-                else:
-                    lcc.log_info("'owner' has correct format: account_object_type")
-                check_that_entry("label", is_str(), quiet=True)
-                if not self.validator.is_hex(result["address"]):
-                    lcc.log_error("Wrong format of 'address', got: {}".format(result["owner"]))
-                else:
-                    lcc.log_info("'address' has correct format: hex")
-                check_that_entry("extensions", is_list(), quiet=True)
+        if check_that("account_addresses", result, has_length(5)):
+            if not self.validator.is_account_address_id(result["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
+            else:
+                lcc.log_info("'id' has correct format: account_address_object_type")
+            if not self.validator.is_account_id(result["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: account_object_type")
+            if not self.validator.is_hex(result["address"]):
+                lcc.log_error("Wrong format of 'address', got: {}".format(result["owner"]))
+            else:
+                lcc.log_info("'address' has correct format: hex")
+            check_that_in(
+                result,
+                "label", is_str(),
+                "extensions", is_list(),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -164,7 +167,7 @@ class PositiveTesting(BaseTest):
         for i in range(total_addresses_count):
             self.utils.perform_account_address_create_operation(self, new_account, generated_labels[i],
                                                                 self.__database_api_identifier)
-            lcc.log_info("Account address create operation #'{}' for new account performed".format(str(i)))
+            lcc.log_info("Account address create operation #'{}' for new account performed".format(i))
 
         lcc.set_step("Get list of addresses of created account in the network")
         response = self.get_account_addresses(new_account)
@@ -178,12 +181,13 @@ class PositiveTesting(BaseTest):
         address_obj2 = result[1]
         require_that("'account address1 label1'", address_obj1["label"], equal_to(generated_labels[0]))
         require_that("'account address2 label2'", address_obj2["label"], equal_to(generated_labels[1]))
-
-        with this_dict(address_obj1):
-            check_that_entry("id", not_equal_to(address_obj2["id"]), quiet=True)
-            check_that_entry("owner", equal_to(address_obj2["owner"]), quiet=True)
-            check_that_entry("label", not_equal_to(address_obj2["label"]), quiet=True)
-            check_that_entry("address", not_equal_to(address_obj2["address"]), quiet=True)
+        check_that_in(
+            address_obj1,
+            "id", not_equal_to(address_obj2["id"]),
+            "owner", equal_to(address_obj2["owner"]),
+            "label", not_equal_to(address_obj2["label"]),
+            "address", not_equal_to(address_obj2["address"]),
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Check work of from and limit param")
@@ -203,7 +207,7 @@ class PositiveTesting(BaseTest):
         self.utils.perform_account_address_create_operation(self, new_account, label, self.__database_api_identifier,
                                                             operation_count=total_addresses_count)
         lcc.log_info("Account address create operation for new account performed. '{}' addresses created".format(
-            str(total_addresses_count)))
+            total_addresses_count))
 
         lcc.set_step("Get list of addresses of created account in the network")
         _from, limit = 0, 100
@@ -275,10 +279,12 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_objects' with account address object of new account")
 
         lcc.set_step("Compare address object from 'get_account_addresses' and 'get_objects'")
-        with this_dict(response):
-            if check_that("account_addresses", response, has_length(5)):
-                check_that_entry("id", equal_to(response_from_get_objects["id"]))
-                check_that_entry("owner", equal_to(response_from_get_objects["owner"]))
-                check_that_entry("label", equal_to(response_from_get_objects["label"]))
-                check_that_entry("address", equal_to(response_from_get_objects["address"]))
-                check_that_entry("extensions", equal_to(response_from_get_objects["extensions"]))
+        if check_that("account_addresses", response, has_length(5)):
+            check_that_in(
+                response,
+                "id", equal_to(response_from_get_objects["id"]),
+                "owner", equal_to(response_from_get_objects["owner"]),
+                "label", equal_to(response_from_get_objects["label"]),
+                "address", equal_to(response_from_get_objects["address"]),
+                "extensions", equal_to(response_from_get_objects["extensions"]),
+            )

@@ -8,7 +8,7 @@ import lemoncheesecake.api as lcc
 from Crypto.Hash import keccak
 from echopy import Echo
 from eth_account import Account
-from lemoncheesecake.matching import is_str, is_integer, check_that_entry
+from lemoncheesecake.matching import is_str, is_integer, check_that_in
 from web3 import Web3
 from websocket import create_connection
 
@@ -65,16 +65,16 @@ class BaseTest(object):
         # Method check uint64 numbers
         if type(response.get(key)) is str:
             self.validator.is_uint64(response.get(key))
-            check_that_entry(key, is_str(), quiet=quiet)
+            check_that_in(response, key, is_str(), quiet=quiet)
         else:
-            check_that_entry(key, is_integer(), quiet=quiet)
+            check_that_in(response, key, is_integer(), quiet=quiet)
 
     def check_uint256_numbers(self, response, key, quiet=False):
         if type(response.get(key)) is str:
             self.validator.is_uint256(response.get(key))
-            check_that_entry(key, is_str(), quiet=quiet)
+            check_that_in(response, key, is_str(), quiet=quiet)
         else:
-            check_that_entry(key, is_integer(), quiet=quiet)
+            check_that_in(response, key, is_integer(), quiet=quiet)
 
     @staticmethod
     def get_time(global_time=False):

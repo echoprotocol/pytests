@@ -2,8 +2,8 @@
 import re
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, this_dict, check_that_entry, is_str, is_list, is_integer, \
-    is_dict, equal_to, check_that, has_length, match_pattern
+from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, is_dict, equal_to, \
+    check_that, has_length, match_pattern
 
 from common.base_test import BaseTest
 from project import ECHO_ASSET_SYMBOL
@@ -26,64 +26,67 @@ class ListAssets(BaseTest):
         self.echo_symbol = ECHO_ASSET_SYMBOL
 
     def check_core_exchange_rate_structure(self, core_exchange_rate):
-        with this_dict(core_exchange_rate):
-            check_that_entry("base", is_dict(), quiet=True)
-            check_that_entry("quote", is_dict(), quiet=True)
-            for key in core_exchange_rate:
-                core_exchange_rate_part = core_exchange_rate[key]
-                with this_dict(core_exchange_rate_part):
-                    self.check_uint64_numbers(core_exchange_rate_part, "amount", quiet=True)
-                    if not self.validator.is_asset_id(core_exchange_rate_part["asset_id"]):
-                        lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
-                            key, core_exchange_rate_part["asset_id"]))
-                    else:
-                        lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
+        check_that_in(
+            core_exchange_rate,
+            "base", is_dict(),
+            "quote", is_dict(),
+            quiet=True
+        )
+        for key in core_exchange_rate:
+            core_exchange_rate_part = core_exchange_rate[key]
+            self.check_uint64_numbers(core_exchange_rate_part, "amount", quiet=True)
+            if not self.validator.is_asset_id(core_exchange_rate_part["asset_id"]):
+                lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
+                    key, core_exchange_rate_part["asset_id"]))
+            else:
+                lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
 
     def check_asset_structure(self, asset):
-        with this_dict(asset):
-            if not self.validator.is_asset_id(asset["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(asset["id"]))
-            else:
-                lcc.log_info("'id' has correct format: asset_id")
-            if not self.validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
-                lcc.log_error("Wrong format of 'dynamic_asset_data_id', got: {}".format(
-                    asset["dynamic_asset_data_id"]))
-            else:
-                lcc.log_info("'dynamic_asset_data_id' has correct format: dynamic_asset_data_id")
+        if not self.validator.is_asset_id(asset["id"]):
+            lcc.log_error("Wrong format of 'id', got: {}".format(asset["id"]))
+        else:
+            lcc.log_info("'id' has correct format: asset_id")
+        if not self.validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
+            lcc.log_error("Wrong format of 'dynamic_asset_data_id', got: {}".format(
+                asset["dynamic_asset_data_id"]))
+        else:
+            lcc.log_info("'dynamic_asset_data_id' has correct format: dynamic_asset_data_id")
 
-            if not self.validator.is_account_id(asset["issuer"]):
-                lcc.log_error("Wrong format of 'issuer', got: {}".format(asset["issuer"]))
-            else:
-                lcc.log_info("'issuer' has correct format: account_id")
-
-            check_that_entry("options", is_dict(), quiet=True)
-            options = asset["options"]
-            with this_dict(options):
-                require_that("'options'", options, has_length(8))
-                check_that_entry("blacklist_authorities", is_list(), quiet=True)
-                check_that_entry("core_exchange_rate", is_dict(), quiet=True)
-
-                core_exchange_rate = options["core_exchange_rate"]
-                require_that(
-                    "'core_exchange_rate'",
-                    core_exchange_rate, has_length(2)
-                )
-                self.check_core_exchange_rate_structure(core_exchange_rate)
-
-                check_that_entry("description", is_str(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
-                check_that_entry("flags", is_integer(), quiet=True)
-                check_that_entry("issuer_permissions", is_integer(), quiet=True)
-
-                self.check_uint64_numbers(options, "max_supply", quiet=True)
-                check_that_entry("whitelist_authorities", is_list(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
-
-            check_that_entry("precision", is_integer(8))
-            if not self.validator.is_asset_name(asset["symbol"]):
-                lcc.log_error("Wrong format of 'symbol', got: {}".format(asset["symbol"]))
-            else:
-                lcc.log_info("'symbol' has correct format: asset_name")
+        if not self.validator.is_account_id(asset["issuer"]):
+            lcc.log_error("Wrong format of 'issuer', got: {}".format(asset["issuer"]))
+        else:
+            lcc.log_info("'issuer' has correct format: account_id")
+        if not self.validator.is_asset_name(asset["symbol"]):
+            lcc.log_error("Wrong format of 'symbol', got: {}".format(asset["symbol"]))
+        else:
+            lcc.log_info("'symbol' has correct format: asset_name")
+        check_that_in(
+            asset,
+            "options", is_dict(),
+            "extensions", is_list(),
+            "precision", is_integer(8),
+            quiet=True
+        )
+        options = asset["options"]
+        require_that("'options'", options, has_length(8))
+        check_that_in(
+            options,
+            "blacklist_authorities", is_list(),
+            "core_exchange_rate", is_dict(),
+            "description", is_str(),
+            "extensions", is_list(),
+            "flags", is_integer(),
+            "issuer_permissions", is_integer(),
+            "whitelist_authorities", is_list(),
+            quiet=True
+        )
+        core_exchange_rate = options["core_exchange_rate"]
+        require_that(
+            "'core_exchange_rate'",
+            core_exchange_rate, has_length(2)
+        )
+        self.check_core_exchange_rate_structure(core_exchange_rate)
+        self.check_uint64_numbers(options, "max_supply", quiet=True)
 
     def setup_suite(self):
         super().setup_suite()
@@ -146,11 +149,13 @@ class PositiveTesting(BaseTest):
         if performed_operation["symbol"] == asset_info["symbol"]:
             performed_operation["common_options"]["core_exchange_rate"]["quote"]["asset_id"] = \
                 asset_info["options"]["core_exchange_rate"]["quote"]["asset_id"]
-            with this_dict(asset_info):
-                check_that_entry("issuer", equal_to(performed_operation["issuer"]))
-                check_that_entry("symbol", equal_to(performed_operation["symbol"]))
-                check_that_entry("precision", equal_to(performed_operation["precision"]))
-                check_that_entry("options", equal_to(performed_operation["common_options"]))
+            check_that_in(
+                asset_info,
+                "issuer", equal_to(performed_operation["issuer"]),
+                "symbol", equal_to(performed_operation["symbol"]),
+                "precision", equal_to(performed_operation["precision"]),
+                "options", equal_to(performed_operation["common_options"])
+            )
 
     def setup_suite(self):
         super().setup_suite()
@@ -305,4 +310,6 @@ class PositiveTesting(BaseTest):
         pattern_regex = "^[{}-Z][A-Z]*$".format(lower_bound_symbol[0])
         pattern = re.compile(pattern_regex)
         for asset in assets:
-            check_that_entry("symbol", match_pattern(pattern), in_=asset)
+            check_that_in(
+                asset, "symbol", match_pattern(pattern)
+            )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that, has_length, has_entry, greater_than_or_equal_to, \
-    check_that_entry, is_list
+from lemoncheesecake.matching import check_that_in, check_that, has_length, has_entry, greater_than_or_equal_to, \
+    is_list
 
 from common.base_test import BaseTest
 
@@ -42,31 +42,30 @@ class GetDynamicGlobalProperties(BaseTest):
                                      "last_irreversible_block_num"]
         dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
         result = response["result"]
-        with this_dict(result):
-            if check_that("dynamic global properties", result, has_length(13)):
-                if not self.validator.is_dynamic_global_object_id(result["id"]):
-                    lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
+        if check_that("dynamic global properties", result, has_length(13)):
+            if not self.validator.is_dynamic_global_object_id(result["id"]):
+                lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
+            else:
+                lcc.log_info("'id' has correct format: dynamic_global_object_id")
+            for i in range(len(dynamic_global_properties)):
+                self.check_uint64_numbers(result, dynamic_global_properties[i], quiet=True)
+                value = int(result[dynamic_global_properties[i]])
+                check_that(dynamic_global_properties[i], value, greater_than_or_equal_to(0), quiet=True)
+            if not self.validator.is_hex(result["head_block_id"]):
+                lcc.log_error("Wrong format of 'head_block_id', got: {}".format(result))
+            else:
+                lcc.log_info("'head_block_id' has correct format: hex")
+
+            for i in range(len(dynamic_global_properties_time)):
+                if not self.validator.is_iso8601(result[dynamic_global_properties_time[i]]):
+                    lcc.log_error(
+                        "Wrong format of '{}', got: {}".format(dynamic_global_properties_time[i],
+                                                               result[dynamic_global_properties_time[i]]))
                 else:
-                    lcc.log_info("'id' has correct format: dynamic_global_object_id")
-
-                for i in range(len(dynamic_global_properties)):
-                    self.check_uint64_numbers(result, dynamic_global_properties[i], quiet=True)
-                    value = int(result[dynamic_global_properties[i]])
-                    check_that(dynamic_global_properties[i], value, greater_than_or_equal_to(0), quiet=True)
-
-                if not self.validator.is_hex(result["head_block_id"]):
-                    lcc.log_error("Wrong format of 'head_block_id', got: {}".format(result))
-                else:
-                    lcc.log_info("'head_block_id' has correct format: hex")
-
-                for i in range(len(dynamic_global_properties_time)):
-                    if not self.validator.is_iso8601(result[dynamic_global_properties_time[i]]):
-                        lcc.log_error(
-                            "Wrong format of '{}', got: {}".format(dynamic_global_properties_time[i],
-                                                                   result[dynamic_global_properties_time[i]]))
-                    else:
-                        lcc.log_info("'{}' has correct format: iso8601".format(dynamic_global_properties_time[i]))
-                check_that_entry("extensions", is_list(), quiet=True)
+                    lcc.log_info("'{}' has correct format: iso8601".format(dynamic_global_properties_time[i]))
+            check_that_in(
+                result, "extensions", is_list(), quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_3", "negative")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_, this_dict, check_that_entry, is_list, is_integer, require_that
+from lemoncheesecake.matching import check_that, is_, check_that_in, is_list, is_integer, require_that
 
 from common.base_test import BaseTest
 
@@ -58,17 +58,21 @@ class GetRelativeAccountHistory(BaseTest):
         )
         for i in range(len(result)):
             list_operations = result[i]
-            with this_dict(list_operations):
-                if not self.validator.is_operation_history_id(list_operations["id"]):
-                    lcc.log_error("Wrong format of 'operation id', got: {}".format(list_operations["id"]))
-                else:
-                    lcc.log_info("'operation_id' has correct format: operation_history_id")
-                check_that_entry("op", is_list(), quiet=True)
-                check_that_entry("result", is_list(), quiet=True)
-                check_that_entry("block_num", is_integer(), quiet=True)
-                check_that_entry("trx_in_block", is_integer(), quiet=True)
-                check_that_entry("op_in_trx", is_integer(), quiet=True)
-                check_that_entry("virtual_op", is_integer(), quiet=True)
+            list_operations = result[i]
+            if not self.validator.is_operation_history_id(list_operations["id"]):
+                lcc.log_error("Wrong format of 'operation id', got: {}".format(list_operations["id"]))
+            else:
+                lcc.log_info("'operation_id' has correct format: operation_history_id")
+            check_that_in(
+                list_operations,
+                "op", is_list(),
+                "result", is_list(),
+                "block_num", is_integer(),
+                "trx_in_block", is_integer(),
+                "op_in_trx", is_integer(),
+                "virtual_op", is_integer(),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")

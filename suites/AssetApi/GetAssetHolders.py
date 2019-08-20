@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_, this_dict, check_that_entry, is_str, require_that, is_list, \
-    has_entry, is_not_none
+from lemoncheesecake.matching import check_that, is_, check_that_in, is_str, require_that, is_list, has_entry, \
+    is_not_none
 
 from common.base_test import BaseTest
 from project import ACCOUNT_PREFIX
@@ -49,10 +49,12 @@ class GetAssetHolders(BaseTest):
         )
         for i in range(len(result)):
             holders = result[i]
-            with this_dict(holders):
-                check_that_entry("name", is_str())
-                check_that_entry("account_id", is_str())
-                self.check_uint64_numbers(holders, "amount")
+            check_that_in(
+                holders,
+                "name", is_str(),
+                "account_id", is_str()
+            )
+            self.check_uint64_numbers(holders, "amount")
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -87,10 +89,12 @@ class PositiveTesting(BaseTest):
         )
         for i in range(limit):
             holders_info = result[i]
-            with this_dict(holders_info):
-                check_that_entry("name", is_(account_names + str(start + i)))
-                check_that_entry("account_id", is_(accounts_ids[start + i]))
-                check_that_entry("amount", is_(asset_value - i))
+            check_that_in(
+                holders_info,
+                "name", is_(account_names + str(start + i)),
+                "account_id", is_(accounts_ids[start + i]),
+                "amount", is_(asset_value - i)
+            )
 
     def setup_suite(self):
         super().setup_suite()
@@ -146,10 +150,12 @@ class PositiveTesting(BaseTest):
         )
         for i in range(len(result)):
             holders_info = result[i]
-            with this_dict(holders_info):
-                check_that_entry("name", is_(new_holders_names[i]))
-                check_that_entry("account_id", is_(new_holders[i]))
-                check_that_entry("amount", is_(asset_value - i))
+            check_that_in(
+                holders_info,
+                "name", is_(new_holders_names[i]),
+                "account_id", is_(new_holders[i]),
+                "amount", is_(asset_value - i)
+            )
 
     @lcc.prop("type", "method")
     @lcc.test("Check work of start and limit params")

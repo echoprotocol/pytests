@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, require_that_entry, equal_to
+from lemoncheesecake.matching import check_that_in, equal_to
 
 from common.base_test import BaseTest
 
@@ -83,9 +83,11 @@ class TransferAssetViaContactAddresses(BaseTest):
                                                                        balance_after_transfer["amount"]))
 
         lcc.set_step("Check that transfer assets completed successfully")
-        with this_dict(balance_after_transfer):
-            require_that_entry("amount", equal_to(balance_before_transfer["amount"] + transfer_amount))
-            require_that_entry("asset_id", equal_to(balance_before_transfer["asset_id"]))
+        check_that_in(
+            balance_after_transfer,
+            "amount", equal_to(balance_before_transfer["amount"] + transfer_amount),
+            "asset_id", equal_to(balance_before_transfer["asset_id"])
+        )
 
         lcc.set_step("Transfer assets via second account_address")
         amount = transfer_amount + transfer_amount
@@ -100,9 +102,11 @@ class TransferAssetViaContactAddresses(BaseTest):
                                                                        balance_after_second_transfer["amount"]))
 
         lcc.set_step("Check that second transfer assets completed successfully")
-        with this_dict(balance_after_second_transfer):
-            require_that_entry("amount", equal_to(balance_after_transfer["amount"] + amount))
-            require_that_entry("asset_id", equal_to(balance_after_transfer["asset_id"]))
+        check_that_in(
+            balance_after_second_transfer,
+            "amount", equal_to(balance_after_transfer["amount"] + amount),
+            "asset_id", equal_to(balance_after_transfer["asset_id"])
+        )
 
         lcc.set_step("Transfer assets received to account address")
         self.utils.perform_transfer_operations(self, new_account, self.echo_acc0, self.__database_api_identifier,
@@ -111,9 +115,11 @@ class TransferAssetViaContactAddresses(BaseTest):
 
         lcc.set_step("Get account balance after return to sender")
         balance = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)
-        with this_dict(balance):
-            require_that_entry("amount", equal_to(balance_after_second_transfer["amount"] - withdraw_amount))
-            require_that_entry("asset_id", equal_to(balance_before_transfer["asset_id"]))
+        check_that_in(
+            balance,
+            "amount", equal_to(balance_after_second_transfer["amount"] - withdraw_amount),
+            "asset_id", equal_to(balance_before_transfer["asset_id"])
+        )
 
         lcc.set_step("Again transfer assets via first account_address")
         amount = transfer_amount + withdraw_amount
@@ -127,6 +133,8 @@ class TransferAssetViaContactAddresses(BaseTest):
                                                                        balance_after_transfer["amount"]))
 
         lcc.set_step("Check that transfer assets completed successfully")
-        with this_dict(balance_after_transfer):
-            require_that_entry("amount", equal_to(balance["amount"] + amount))
-            require_that_entry("asset_id", equal_to(balance_before_transfer["asset_id"]))
+        check_that_in(
+            balance_after_transfer,
+            "amount", equal_to(balance["amount"] + amount),
+            "asset_id", equal_to(balance_before_transfer["asset_id"])
+        )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that_entry, check_that, require_that, ends_with, is_, is_list, \
-    equal_to, not_equal_to, has_length
+from lemoncheesecake.matching import check_that_in, check_that, require_that, ends_with, is_, is_list, equal_to, \
+    not_equal_to, has_length
 
 from common.base_test import BaseTest
 
@@ -181,11 +181,13 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check contract info after contract destroy")
         contract_info = response["result"][1]
-        with this_dict(contract_info):
-            check_that_entry("code", not_equal_to(contract_code), quiet=True)
-            check_that_entry("code", equal_to(""), quiet=True)
-            check_that_entry("storage", not_equal_to(contract_storage), quiet=True)
-            check_that_entry("storage", equal_to([]), quiet=True)
+        check_that_in(
+            contract_info,
+            "code", not_equal_to(contract_code),
+            "code", equal_to(""),
+            "storage", not_equal_to(contract_storage),
+            "storage", equal_to([]),
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Verification of changes in case of dynamic fields of a contract")

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_, this_dict, check_that_entry, is_str, is_list, is_integer, \
-    require_that, require_that_in
+from lemoncheesecake.matching import check_that, check_that_in, is_, is_str, is_list, is_integer, require_that, \
+    require_that_in
 
 from common.base_test import BaseTest
 
@@ -41,7 +41,8 @@ class GetAccountHistory(BaseTest):
     @lcc.prop("type", "method")
     @lcc.test("Simple work of method 'get_account_history'")
     def method_main_check(self):
-        stop, start = "1.6.0", "1.6.0"
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
         limit = 1
         lcc.set_step("Get account history")
         params = [self.echo_acc0, stop, limit, start]
@@ -59,17 +60,20 @@ class GetAccountHistory(BaseTest):
         )
         for i in range(len(result)):
             list_operations = result[i]
-            with this_dict(list_operations):
-                if not self.validator.is_operation_history_id(list_operations["id"]):
-                    lcc.log_error("Wrong format of 'operation id', got: {}".format(list_operations["id"]))
-                else:
-                    lcc.log_info("'operation_id' has correct format: operation_history_id")
-                check_that_entry("op", is_list(), quiet=True)
-                check_that_entry("result", is_list(), quiet=True)
-                check_that_entry("block_num", is_integer(), quiet=True)
-                check_that_entry("trx_in_block", is_integer(), quiet=True)
-                check_that_entry("op_in_trx", is_integer(), quiet=True)
-                check_that_entry("virtual_op", is_integer(), quiet=True)
+            if not self.validator.is_operation_history_id(list_operations["id"]):
+                lcc.log_error("Wrong format of 'operation id', got: {}".format(list_operations["id"]))
+            else:
+                lcc.log_info("'operation_id' has correct format: operation_history_id")
+            check_that_in(
+                list_operations,
+                "op", is_list(),
+                "result", is_list(),
+                "block_num", is_integer(),
+                "trx_in_block", is_integer(),
+                "op_in_trx", is_integer(),
+                "virtual_op", is_integer(),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -117,7 +121,8 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("HistoryApi.GetAccountHistory.GetAccountHistory.method_main_check")
     def new_account_history(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
-        stop, start = "1.6.0", "1.6.0"
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
         limit = 100
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
@@ -144,7 +149,8 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("HistoryApi.GetAccountHistory.GetAccountHistory.method_main_check")
     def limit_operations_to_retrieve(self, get_random_valid_account_name, get_random_integer_up_to_hundred):
         new_account = get_random_valid_account_name
-        stop, start = "1.6.0", "1.6.0"
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
         min_limit = 1
         max_limit = 100
         default_account_create_operation, default_get_assets_operation = 1, 1
@@ -197,7 +203,8 @@ class PositiveTesting(BaseTest):
     def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_hundred):
         transfer_amount_1 = get_random_integer
         transfer_amount_2 = get_random_integer_up_to_hundred
-        stop, start = "1.6.0", "1.6.0"
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
         operations = []
         operation_ids = []
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_list, this_dict, has_length, is_bool, check_that_entry, is_none
+from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, is_bool, is_none
 
 from common.base_test import BaseTest
 
@@ -74,20 +74,23 @@ class GetEthAddress(BaseTest):
         response_id = self.send_request(self.get_request("get_eth_address", [new_account]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
-        with this_dict(result):
-            if check_that("account_eth_address", result, has_length(6)):
-                if not self.validator.is_eth_address_id(result["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: eth_address_object_type")
-                if not self.validator.is_account_id(result["account"]):
-                    lcc.log_error("Wrong format of 'account', got: {}".format(result["account"]))
-                else:
-                    lcc.log_info("'account' has correct format: account_object_type")
-                if not self.validator.is_hex(result["eth_addr"]):
-                    lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
-                else:
-                    lcc.log_info("'eth_addr' has correct format: hex")
-                check_that_entry("is_approved", is_bool(), quiet=True)
-                check_that_entry("approves", is_list(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
+        if check_that("account_eth_address", result, has_length(6)):
+            if not self.validator.is_eth_address_id(result["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
+            else:
+                lcc.log_info("'id' has correct format: eth_address_object_type")
+            if not self.validator.is_account_id(result["account"]):
+                lcc.log_error("Wrong format of 'account', got: {}".format(result["account"]))
+            else:
+                lcc.log_info("'account' has correct format: account_object_type")
+            if not self.validator.is_hex(result["eth_addr"]):
+                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
+            else:
+                lcc.log_info("'eth_addr' has correct format: hex")
+            check_that_in(
+                result,
+                "is_approved", is_bool(),
+                "approves", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_integer, check_that_entry, this_dict, check_that, is_list, require_that, is_, \
-    has_length, is_dict, has_entry
+from lemoncheesecake.matching import is_integer, check_that_in, check_that, is_list, require_that, is_, has_length, \
+    is_dict, has_entry
 
 from common.base_test import BaseTest
 
@@ -34,40 +34,54 @@ class GetGlobalProperties(BaseTest):
 
     @staticmethod
     def only_fee(actual_fee):
-        with this_dict(actual_fee):
-            if check_that("fee", actual_fee, has_length(1)):
-                check_that_entry("fee", is_integer(), quiet=True)
+        if check_that("fee", actual_fee, has_length(1)):
+            check_that_in(
+                actual_fee,
+                "fee", is_integer(), quiet=True
+            )
 
     @staticmethod
     def fee_with_price_per_kbyte(actual_fee):
-        with this_dict(actual_fee):
-            if check_that("fee", actual_fee, has_length(2)):
-                check_that_entry("fee", is_integer(), quiet=True)
-                check_that_entry("price_per_kbyte", is_integer(), quiet=True)
+        if check_that("fee", actual_fee, has_length(2)):
+            check_that_in(
+                actual_fee,
+                "fee", is_integer(),
+                "price_per_kbyte", is_integer(),
+                quiet=True
+            )
 
     @staticmethod
     def account_create_fee(actual_fee):
-        with this_dict(actual_fee):
-            if check_that("fee", actual_fee, has_length(3)):
-                check_that_entry("basic_fee", is_integer(), quiet=True)
-                check_that_entry("premium_fee", is_integer(), quiet=True)
-                check_that_entry("price_per_kbyte", is_integer(), quiet=True)
+        if check_that("fee", actual_fee, has_length(3)):
+            check_that_in(
+                actual_fee,
+                "basic_fee", is_integer(),
+                "premium_fee", is_integer(),
+                "price_per_kbyte", is_integer(),
+                quiet=True
+            )
 
     @staticmethod
     def asset_create_fee(actual_fee):
-        with this_dict(actual_fee):
-            if check_that("fee", actual_fee, has_length(4)):
-                check_that_entry("symbol3", is_integer(), quiet=True)
-                check_that_entry("symbol4", is_integer(), quiet=True)
-                check_that_entry("long_symbol", is_integer(), quiet=True)
-                check_that_entry("price_per_kbyte", is_integer(), quiet=True)
+        if check_that("fee", actual_fee, has_length(4)):
+            check_that_in(
+                actual_fee,
+                "symbol3", is_integer(),
+                "symbol4", is_integer(),
+                "long_symbol", is_integer(),
+                "price_per_kbyte", is_integer(),
+                quiet=True
+            )
 
     @staticmethod
     def pool_fee(actual_fee):
-        with this_dict(actual_fee):
-            if check_that("fee", actual_fee, has_length(2)):
-                check_that_entry("fee", is_integer(), quiet=True)
-                check_that_entry("pool_fee", is_integer(), quiet=True)
+        if check_that("fee", actual_fee, has_length(2)):
+            check_that_in(
+                actual_fee,
+                "fee", is_integer(),
+                "pool_fee", is_integer(),
+                quiet=True
+            )
 
     def check_default_fee_for_operation(self, current_fees, operations, check_kind):
         for i in range(len(operations)):
@@ -79,57 +93,58 @@ class GetGlobalProperties(BaseTest):
                     break
 
     def check_sidechain_config(self, sidechain_config, eth_params, eth_methods):
-        with this_dict(sidechain_config):
-            if check_that("sidechain_config", sidechain_config, has_length(17)):
-                for i in range(len(eth_params)):
-                    if not self.validator.is_hex(sidechain_config[eth_params[i]]):
-                        lcc.log_error(
-                            "Wrong format of '{}', got: {}".format(eth_params[i], sidechain_config[eth_params[i]]))
-                    else:
-                        lcc.log_info("'{}' has correct format: hex".format(eth_params[i]))
-                for i in range(len(eth_methods)):
-                    if check_that_entry([eth_methods[i]], has_length(2)):
-                        with this_dict(sidechain_config[eth_methods[i]]):
-                            if not self.validator.is_hex(sidechain_config[eth_methods[i]]["method"]):
-                                lcc.log_error(
-                                    "Wrong format of '{}', got: {}".format(eth_methods[i],
-                                                                           sidechain_config[eth_methods[i]]))
-                            else:
-                                lcc.log_info("'{}' has correct format: hex".format(eth_methods[i]))
-                            check_that_entry("gas", is_integer(), quiet=True)
-                if not self.validator.is_eth_asset_id(sidechain_config["ETH_asset_id"]):
-                    lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(sidechain_config["ETH_asset_id"]))
+        if check_that("sidechain_config", sidechain_config, has_length(17)):
+            check_that_in(
+                sidechain_config, "waiting_blocks", is_integer(), quiet=True
+            )
+            for eth_param in eth_params:
+                if not self.validator.is_hex(sidechain_config[eth_param]):
+                    lcc.log_error(
+                        "Wrong format of '{}', got: {}".format(eth_param, sidechain_config[eth_param]))
                 else:
-                    lcc.log_info("'ETH_asset_id' has correct format: eth_asset_id")
-                with this_dict(sidechain_config["fines"]):
-                    if check_that("fines", sidechain_config["fines"], has_length(1)):
-                        check_that_entry("generate_eth_address", is_(-10), quiet=True)
-                self.check_uint64_numbers(sidechain_config, "gas_price", quiet=False)
-                check_that_entry("waiting_blocks", is_integer(), quiet=True)
+                    lcc.log_info("'{}' has correct format: hex".format(eth_param))
+            for eth_method in eth_methods:
+                if check_that("eth_method", sidechain_config[eth_method], has_length(2)):
+                    if not self.validator.is_hex(sidechain_config[eth_method]["method"]):
+                        lcc.log_error(
+                            "Wrong format of '{}', got: {}".format(eth_method, sidechain_config[eth_method]))
+                    else:
+                        lcc.log_info("'{}' has correct format: hex".format(eth_method))
+                    check_that_in(
+                        sidechain_config[eth_method], "gas", is_integer(), quiet=True
+                    )
+            if not self.validator.is_eth_asset_id(sidechain_config["ETH_asset_id"]):
+                lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(sidechain_config["ETH_asset_id"]))
+            else:
+                lcc.log_info("'ETH_asset_id' has correct format: eth_asset_id")
+            if check_that("fines", sidechain_config["fines"], has_length(1)):
+                check_that_in(
+                    sidechain_config["fines"], "generate_eth_address", is_(-10), quiet=True
+                )
+            self.check_uint64_numbers(sidechain_config, "gas_price", quiet=False)
 
     def check_erc20_config(self, erc20_config, erc20_methods):
-        with this_dict(erc20_config):
-            if check_that("erc20_config", erc20_config, has_length(6)):
-                if not self.validator.is_hex(erc20_config["contract_code"]):
-                    lcc.log_error(
-                        "Wrong format of 'contract_code', got: {}".format(erc20_config["contract_code"]))
-                else:
-                    lcc.log_info("'contract_code' has correct format: hex")
-                check_that_entry("create_token_fee", is_integer(), quiet=True)
-                if not self.validator.is_hex(erc20_config["transfer_topic"]):
-                    lcc.log_error("Wrong format of 'transfer_topic', got: {}".format(erc20_config["transfer_topic"]))
-                else:
-                    lcc.log_info("'transfer_topic' has correct format: hex")
-                for i in range(len(erc20_methods)):
-                    if check_that_entry([erc20_methods[i]], has_length(2)):
-                        with this_dict(erc20_config[erc20_methods[i]]):
-                            if not self.validator.is_hex(erc20_config[erc20_methods[i]]["method"]):
-                                lcc.log_error(
-                                    "Wrong format of '{}', got: {}".format(erc20_methods[i],
-                                                                           erc20_config[erc20_methods[i]]))
-                            else:
-                                lcc.log_info("'{}' has correct format: hex".format(erc20_methods[i]))
-                            check_that_entry("gas", is_integer(), quiet=True)
+        if check_that("erc20_config", erc20_config, has_length(6)):
+            if not self.validator.is_hex(erc20_config["contract_code"]):
+                lcc.log_error("Wrong format of 'contract_code', got: {}".format(erc20_config["contract_code"]))
+            else:
+                lcc.log_info("'contract_code' has correct format: hex")
+            if not self.validator.is_hex(erc20_config["transfer_topic"]):
+                lcc.log_error("Wrong format of 'transfer_topic', got: {}".format(erc20_config["transfer_topic"]))
+            else:
+                lcc.log_info("'transfer_topic' has correct format: hex")
+            check_that_in(
+                erc20_config, "create_token_fee", is_integer(), quiet=True
+            )
+            for erc20_method in erc20_methods:
+                if check_that("erc20_method", erc20_config[erc20_method], has_length(2)):
+                    if not self.validator.is_hex(erc20_config[erc20_method]["method"]):
+                        lcc.log_error("Wrong format of '{}', got: {}".format(erc20_method, erc20_config[erc20_method]))
+                    else:
+                        lcc.log_info("'{}' has correct format: hex".format(erc20_method))
+                    check_that_in(
+                        erc20_config[erc20_method], "gas", is_integer(), quiet=True
+                    )
 
     def setup_suite(self):
         super().setup_suite()
@@ -166,51 +181,61 @@ class GetGlobalProperties(BaseTest):
         lcc.log_info("Call method 'get_global_properties'")
 
         lcc.set_step("Check main fields")
-        with this_dict(response["result"]):
-            if check_that("global_properties", response["result"], has_length(4)):
-                if not self.validator.is_global_object_id(response["result"]["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: global_property_object_type")
-                check_that_entry("parameters", is_dict(), quiet=True)
-                check_that_entry("next_available_vote_id", is_integer(), quiet=True)
-                check_that_entry("active_committee_members", is_list(), quiet=True)
+        if check_that("global_properties", response["result"], has_length(4)):
+            if not self.validator.is_global_object_id(response["result"]["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
+            else:
+                lcc.log_info("'id' has correct format: global_property_object_type")
+            check_that_in(
+                response["result"],
+                "parameters", is_dict(),
+                "next_available_vote_id", is_integer(),
+                "active_committee_members", is_list(),
+                quiet=True
+            )
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         parameters = response["result"]["parameters"]
-        with this_dict(parameters):
-            if check_that("parameters", parameters, has_length(24)):
-                check_that_entry("current_fees", is_dict(), quiet=True)
-                check_that_entry("block_interval", is_integer(), quiet=True)
-                check_that_entry("maintenance_interval", is_integer(), quiet=True)
-                check_that_entry("maintenance_duration_seconds", is_integer(), quiet=True)
-                check_that_entry("committee_proposal_review_period", is_integer(), quiet=True)
-                check_that_entry("maximum_transaction_size", is_integer(), quiet=True)
-                check_that_entry("maximum_block_size", is_integer(), quiet=True)
-                check_that_entry("maximum_time_until_expiration", is_integer(), quiet=True)
-                check_that_entry("maximum_proposal_lifetime", is_integer(), quiet=True)
-                check_that_entry("maximum_asset_whitelist_authorities", is_integer(), quiet=True)
-                check_that_entry("maximum_asset_feed_publishers", is_integer(), quiet=True)
-                check_that_entry("maximum_committee_count", is_integer(), quiet=True)
-                check_that_entry("maximum_authority_membership", is_integer(), quiet=True)
-                check_that_entry("reserve_percent_of_fee", is_integer(), quiet=True)
-                check_that_entry("network_percent_of_fee", is_integer(), quiet=True)
-                check_that_entry("max_predicate_opcode", is_integer(), quiet=True)
-                check_that_entry("accounts_per_fee_scale", is_integer(), quiet=True)
-                check_that_entry("account_fee_scale_bitshifts", is_integer(), quiet=True)
-                check_that_entry("max_authority_depth", is_integer(), quiet=True)
-                check_that_entry("echorand_config", is_dict(), quiet=True)
-                check_that_entry("sidechain_config", is_dict(), quiet=True)
-                check_that_entry("erc20_config", is_dict(), quiet=True)
-                check_that_entry("gas_price", is_dict(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
+        if check_that("parameters", parameters, has_length(24)):
+            check_that_in(
+                parameters,
+                "current_fees", is_dict(),
+                "block_interval", is_integer(),
+                "maintenance_interval", is_integer(),
+                "maintenance_duration_seconds", is_integer(),
+                "committee_proposal_review_period", is_integer(),
+                "maximum_transaction_size", is_integer(),
+                "maximum_block_size", is_integer(),
+                "maximum_time_until_expiration", is_integer(),
+                "maximum_proposal_lifetime", is_integer(),
+                "maximum_asset_whitelist_authorities", is_integer(),
+                "maximum_asset_feed_publishers", is_integer(),
+                "maximum_committee_count", is_integer(),
+                "maximum_authority_membership", is_integer(),
+                "reserve_percent_of_fee", is_integer(),
+                "network_percent_of_fee", is_integer(),
+                "max_predicate_opcode", is_integer(),
+                "accounts_per_fee_scale", is_integer(),
+                "account_fee_scale_bitshifts", is_integer(),
+                "account_fee_scale_bitshifts", is_integer(),
+                "max_authority_depth", is_integer(),
+                "echorand_config", is_dict(),
+                "sidechain_config", is_dict(),
+                "erc20_config", is_dict(),
+                "gas_price", is_dict(),
+                "extensions", is_list(),
+                quiet=True
+            )
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         current_fees = parameters["current_fees"]
-        with this_dict(current_fees):
-            if check_that("current_fees", current_fees, has_length(2)):
-                check_that_entry("parameters", is_list(), quiet=True)
-                check_that_entry("scale", is_integer(), quiet=True)
+        if check_that("current_fees", current_fees, has_length(2)):
+            check_that_in(
+                current_fees,
+                "parameters", is_list(),
+                "scale", is_integer(),
+                quiet=True
+            )
 
         lcc.set_step("Check the count of fees for operations")
         fee_parameters = current_fees["parameters"]
@@ -254,7 +279,7 @@ class GetGlobalProperties(BaseTest):
                 self.asset_create_count += 1
                 continue
             else:
-                lcc.log_warn("Warn: Added new option for calculating fee for the operation, got: '{}'".format(
+                lcc.log_warning("Warn: Added new option for calculating fee for the operation, got: '{}'".format(
                     fee_parameter))
 
         lcc.set_step("Check 'fee_with_price_per_kbyte' for operations")
@@ -288,15 +313,18 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'echorand_config' field")
         echorand_config = parameters["echorand_config"]
-        with this_dict(echorand_config):
-            if check_that("echorand_config", echorand_config, has_length(7)):
-                check_that_entry("_time_net_1mb", is_integer(), quiet=True)
-                check_that_entry("_time_net_256b", is_integer(), quiet=True)
-                check_that_entry("_creator_count", is_integer(), quiet=True)
-                check_that_entry("_verifier_count", is_integer(), quiet=True)
-                check_that_entry("_ok_threshold", is_integer(), quiet=True)
-                check_that_entry("_max_bba_steps", is_integer(), quiet=True)
-                check_that_entry("_gc1_delay", is_integer(), quiet=True)
+        if check_that("echorand_config", echorand_config, has_length(7)):
+            check_that_in(
+                echorand_config,
+                "_time_net_1mb", is_integer(),
+                "_time_net_256b", is_integer(),
+                "_creator_count", is_integer(),
+                "_verifier_count", is_integer(),
+                "_ok_threshold", is_integer(),
+                "_max_bba_steps", is_integer(),
+                "_gc1_delay", is_integer(),
+                quiet=True
+            )
 
         lcc.set_step("Check global parameters: 'sidechain_config' field")
         sidechain_config = parameters["sidechain_config"]
@@ -313,10 +341,13 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'gas_price' field")
         gas_price = parameters["gas_price"]
-        with this_dict(gas_price):
-            if check_that("gas_price", gas_price, has_length(2)):
-                check_that_entry("price", is_integer(), quiet=True)
-                check_that_entry("gas_amount", is_integer(), quiet=True)
+        if check_that("gas_price", gas_price, has_length(2)):
+            check_that_in(
+                gas_price,
+                "price", is_integer(),
+                "gas_amount", is_integer(),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_3", "negative")

@@ -2,7 +2,7 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that_entry, equal_to
+from lemoncheesecake.matching import check_that_in, equal_to
 
 from common.base_test import BaseTest
 
@@ -57,9 +57,11 @@ class GetContractBalances(BaseTest):
         lcc.log_info("Call method 'get_contract_balances' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check main fields")
-        with this_dict(response):
-            check_that_entry("amount", equal_to(value_amount))
-            check_that_entry("asset_id", equal_to(self.echo_asset))
+        check_that_in(
+            response,
+            "amount", equal_to(value_amount),
+            "asset_id", equal_to(self.echo_asset)
+        )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -128,9 +130,11 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
-        with this_dict(result):
-            check_that_entry("amount", equal_to(value_amount))
-            check_that_entry("asset_id", equal_to(new_asset_id))
+        check_that_in(
+            result,
+            "amount", equal_to(value_amount),
+            "asset_id", equal_to(new_asset_id)
+        )
 
         lcc.set_step("Call 'getPennie' method to contract balance change check")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -143,9 +147,11 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
-        with this_dict(result):
-            check_that_entry("amount", equal_to(value_amount - 1))
-            check_that_entry("asset_id", equal_to(new_asset_id))
+        check_that_in(
+            result,
+            "amount", equal_to(value_amount - 1),
+            "asset_id", equal_to(new_asset_id)
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Get contract balance in several assets")
@@ -184,6 +190,8 @@ class PositiveTesting(BaseTest):
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
         for i, result in enumerate(response["result"]):
-            with this_dict(result):
-                check_that_entry("amount", equal_to(value_amounts[i]))
-                check_that_entry("asset_id", equal_to(new_asset_ids[i]))
+            check_that_in(
+                result,
+                "amount", equal_to(value_amounts[i]),
+                "asset_id", equal_to(new_asset_ids[i])
+            )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, this_dict, check_that_entry, is_str, is_list, is_integer, \
-    check_that, equal_to, has_length, is_true
+from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, check_that, equal_to, \
+    has_length, is_true
 
 from common.base_test import BaseTest
 
@@ -42,44 +42,46 @@ class GetBlock(BaseTest):
             "'the first full block'",
             block_header, has_length(13)
         )
-        with this_dict(block_header):
-            check_that_entry("previous", is_str("0000000000000000000000000000000000000000"), quiet=True)
-            check_that_entry("round", is_integer(), quiet=True)
-            if not self.validator.is_iso8601(block_header["timestamp"]):
-                lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
-            else:
-                lcc.log_info("'timestamp' has correct format: iso8601")
-            if not self.validator.is_account_id(block_header["account"]):
-                lcc.log_error("Wrong format of 'account id', got: {}".format(block_header["account"]))
-            else:
-                lcc.log_info("'id' has correct format: account_id")
-            if not self.validator.is_account_id(block_header["delegate"]):
-                lcc.log_error("Wrong format of 'delegate', got: {}".format(block_header["delegate"]))
-            else:
-                lcc.log_info("'delegate' has correct format: account_id")
-            check_that_entry("transaction_merkle_root", is_str("0000000000000000000000000000000000000000"), quiet=True)
-            check_that_entry("vm_root", is_list(), quiet=True)
-            check_that_entry("prev_signatures", is_list(), quiet=True)
-            check_that_entry("extensions", is_list(), quiet=True)
-            check_that_entry("ed_signature", is_str(), quiet=True)
-            check_that_entry("rand", is_str(), quiet=True)
-            check_that_entry("cert", is_list(), quiet=True)
-            check_that_entry("transactions", is_list(), quiet=True)
+        if not self.validator.is_iso8601(block_header["timestamp"]):
+            lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
+        else:
+            lcc.log_info("'timestamp' has correct format: iso8601")
+        if not self.validator.is_account_id(block_header["account"]):
+            lcc.log_error("Wrong format of 'account id', got: {}".format(block_header["account"]))
+        else:
+            lcc.log_info("'id' has correct format: account_id")
+        if not self.validator.is_account_id(block_header["delegate"]):
+            lcc.log_error("Wrong format of 'delegate', got: {}".format(block_header["delegate"]))
+        else:
+            lcc.log_info("'delegate' has correct format: account_id")
+        check_that_in(
+            block_header,
+            "previous", is_str("0000000000000000000000000000000000000000"),
+            "round", is_integer(),
+            "transaction_merkle_root", is_str("0000000000000000000000000000000000000000"),
+            "vm_root", is_list(),
+            "prev_signatures", is_list(),
+            "extensions", is_list(),
+            "ed_signature", is_str(),
+            "rand", is_str(),
+            "cert", is_list(),
+            "transactions", is_list(),
+            quiet=True
+        )
 
         certificates = block_header["cert"]
         for i, certificate in enumerate(certificates):
             lcc.log_info("Check fields in certificate#'{}'".format(i))
-            with this_dict(certificate):
-                check_that_entry("_step", is_integer(), quiet=True)
-                check_that_entry("_value", is_integer(), quiet=True)
-                check_that_entry("_leader", is_integer(), quiet=True)
-                check_that_entry("_signer", is_integer(), quiet=True)
-                check_that_entry("_delegate", is_integer(), quiet=True)
-                check_that_entry("_fallback", is_integer(), quiet=True)
-                if not self.validator.is_hex(certificate["_bba_sign"]):
-                    lcc.log_error("Wrong format of '_bba_sign', got: {}".format(certificate["_bba_sign"]))
-                else:
-                    lcc.log_info("'_bba_sign' has correct format: hex")
+            check_that_in(
+                certificate,
+                "_step", is_integer(),
+                "_value", is_integer(),
+                "_leader", is_integer(),
+                "_signer", is_integer(),
+                "_delegate", is_integer(),
+                "_fallback", is_integer(),
+                quiet=False
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")

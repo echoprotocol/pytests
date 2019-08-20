@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that_entry, equal_to, is_str, check_that, has_entry, has_length, \
-    require_that, is_true
+from lemoncheesecake.matching import check_that_in, equal_to, is_str, check_that, has_entry, has_length, require_that, \
+    is_true
 
 from common.base_test import BaseTest
 
@@ -73,18 +73,19 @@ class GetContractLogs(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(logs), is_true(), quiet=True)
         for log in logs:
-            with this_dict(log):
-                if check_that("contract_log", log, has_length(3)):
-                    contract_id_that_called = self.get_contract_id(log["address"], address_format=True,
-                                                                   new_contract=False)
-                    require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-                    log_values = log["log"]
-                    for log_value in log_values:
-                        if not self.validator.is_hex(log_value):
-                            lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
-                        else:
-                            lcc.log_info("'log_value' has correct format: hex")
-                    check_that_entry("data", is_str(), quiet=True)
+            if check_that("contract_log", log, has_length(3)):
+                contract_id_that_called = self.get_contract_id(log["address"], address_format=True,
+                                                               new_contract=False)
+                require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
+                log_values = log["log"]
+                for log_value in log_values:
+                    if not self.validator.is_hex(log_value):
+                        lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
+                    else:
+                        lcc.log_info("'log_value' has correct format: hex")
+                check_that_in(
+                    log, "data", is_str(), quiet=True
+                )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -286,7 +287,7 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check work of the method outside the block in which the logs of the contract were recorded'")
-    # @lcc.depends_on("DatabaseApi.GetContractLogs.GetContractLogs.method_main_check")
+    @lcc.depends_on("DatabaseApi.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_outside_block_with_logs(self, get_random_integer):
         value_amount = get_random_integer
 

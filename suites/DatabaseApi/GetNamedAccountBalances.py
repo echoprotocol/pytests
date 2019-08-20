@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that_entry, equal_to
+from lemoncheesecake.matching import check_that_in, equal_to
 
 from common.base_test import BaseTest
 
@@ -50,9 +50,11 @@ class GetNamedAccountBalances(BaseTest):
 
         lcc.set_step("Check that new account has empty balances")
         for i in range(len(assets_ids)):
-            with this_dict(response["result"][i]):
-                check_that_entry("amount", equal_to(0))
-                check_that_entry("asset_id", equal_to(assets_ids[i]))
+            check_that_in(
+                response["result"][i],
+                "amount", equal_to(0),
+                "asset_id", equal_to(assets_ids[i])
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -117,9 +119,11 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_named_account_balances' in '{}' assets".format(self.echo_asset))
 
         lcc.set_step("Check that account balance increased by transfer amount")
-        with this_dict(updated_response["result"][0]):
-            check_that_entry("amount", equal_to(response["result"][0]["amount"] + transfer_amount))
-            check_that_entry("asset_id", equal_to(self.echo_asset))
+        check_that_in(
+            updated_response["result"][0],
+            "amount", equal_to(response["result"][0]["amount"] + transfer_amount),
+            "asset_id", equal_to(self.echo_asset)
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Try to get account balance in nonexistent assets")
@@ -144,6 +148,8 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_named_account_balances' in '{}' assets".format(nonexistent_asset_id))
 
         lcc.set_step("Check that new account has empty balance in nonexistent assets")
-        with this_dict(response["result"][0]):
-            check_that_entry("amount", equal_to(0))
-            check_that_entry("asset_id", equal_to(nonexistent_asset_id))
+        check_that_in(
+            response["result"][0],
+            "amount", equal_to(0),
+            "asset_id", equal_to(nonexistent_asset_id)
+        )

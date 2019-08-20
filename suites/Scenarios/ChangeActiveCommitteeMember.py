@@ -64,7 +64,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                                                  self.__registration_api_identifier)
             lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         else:
-            lcc.log_warn(
+            lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
 
     def teardown_suite(self):
@@ -221,5 +221,5 @@ class ChangeActiveCommitteeMember(BaseTest):
             check_that("'status of old committee member '{}''".format(old_member_address), old_committee_member_status,
                        is_false())
         else:
-            lcc.log_warn(
+            lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")

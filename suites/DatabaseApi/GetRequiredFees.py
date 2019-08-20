@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-from lemoncheesecake.matching import check_that, is_not_none, this_dict, check_that_entry, is_integer, is_str, \
-    has_entry, is_, is_dict, require_that_entry
+from lemoncheesecake.matching import check_that, is_not_none, check_that_in, is_integer, has_entry, is_, is_dict, \
+    require_that_in
 
 from common.base_test import BaseTest
 
@@ -42,9 +42,12 @@ class GetRequiredFees(BaseTest):
         lcc.set_step("Check simple work of method 'get_required_fees'")
         for i in range(len(response["result"])):
             required_fee = response["result"][i]
-            with this_dict(required_fee):
-                check_that_entry("amount", is_integer())
-                check_that_entry("asset_id", is_str(self.echo_asset))
+            check_that_in(
+                required_fee,
+                "amount", is_integer(),
+                "asset_id", is_(self.echo_asset),
+                quiet=True
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -133,9 +136,12 @@ class PositiveTesting(BaseTest):
         params = [[operation], self.eth_asset]
         response_id = self.send_request(self.get_request("get_required_fees", params), self.__database_api_identifier)
         response = self.get_response(response_id)
-        with this_dict(response["result"][0]):
-            check_that_entry("amount", is_integer(), quiet=True)
-            check_that_entry("asset_id", is_(self.eth_asset), quiet=True)
+        check_that_in(
+            response["result"][0],
+            "amount", is_integer(),
+            "asset_id", is_(self.eth_asset),
+            quiet=True
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Required fee to call contract")
@@ -148,15 +154,24 @@ class PositiveTesting(BaseTest):
         params = [[operation], self.echo_asset]
         response_id = self.send_request(self.get_request("get_required_fees", params), self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
-        with this_dict(result):
-            require_that_entry("fee", is_dict(), quiet=True)
-            with this_dict(result["fee"]):
-                check_that_entry("amount", is_integer(), quiet=True)
-                check_that_entry("asset_id", is_(self.echo_asset), quiet=True)
-            require_that_entry("user_to_pay", is_dict(), quiet=True)
-            with this_dict(result["user_to_pay"]):
-                check_that_entry("amount", is_integer(), quiet=True)
-                check_that_entry("asset_id", is_(self.echo_asset), quiet=True)
+        require_that_in(
+            result,
+            "fee", is_dict(),
+            "user_to_pay", is_dict(),
+            quiet=True
+        )
+        check_that_in(
+            result["fee"],
+            "amount", is_integer(),
+            "asset_id", is_(self.echo_asset),
+            quiet=True
+        )
+        check_that_in(
+            result["user_to_pay"],
+            "amount", is_integer(),
+            "asset_id", is_(self.echo_asset),
+            quiet=True
+        )
 
 
 @lcc.prop("suite_run_option_3", "negative")

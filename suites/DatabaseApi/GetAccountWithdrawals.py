@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_, this_dict, greater_than_or_equal_to, check_that_entry, \
-    is_bool, is_list, has_length, check_that, equal_to, starts_with
+from lemoncheesecake.matching import require_that, is_, check_that_in, greater_than_or_equal_to, is_true, is_list, \
+    has_length, check_that, equal_to, starts_with
 
 from common.base_test import BaseTest
 
@@ -117,14 +117,17 @@ class GetAccountWithdrawals(BaseTest):
             operation_in_history = response["result"][i]["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
-            with this_dict(operation_in_history[1]):
-                check_that_entry("fee", equal_to(sidechain_eth_burn_operations[i][1]["fee"]))
-                with this_dict(operation_in_history[1]["value"]):
-                    self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
-                    check_that_entry("asset_id", equal_to(sidechain_eth_burn_operations[i][1]["value"]["asset_id"]))
-                check_that_entry("account", equal_to(sidechain_eth_burn_operations[i][1]["account"]))
-                check_that_entry("withdraw_id",
-                                 starts_with(self.get_object_type(self.echo.config.object_types.WITHDRAW_ETH)))
+            check_that_in(
+                operation_in_history[1],
+                "fee", equal_to(sidechain_eth_burn_operations[i][1]["fee"]),
+                "account", equal_to(sidechain_eth_burn_operations[i][1]["account"]),
+                "withdraw_id", starts_with(self.get_object_type(self.echo.config.object_types.WITHDRAW_ETH))
+            )
+            self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
+            check_that_in(
+                operation_in_history[1]["value"],
+                "asset_id", equal_to(sidechain_eth_burn_operations[i][1]["value"]["asset_id"])
+            )
 
         lcc.set_step("Get updated account balance in ethereum after first withdraw")
         ethereum_balance = self.utils.get_eth_balance(self, new_account, self.__database_api_identifier,
@@ -157,14 +160,17 @@ class GetAccountWithdrawals(BaseTest):
             operation_in_history = response["result"][i]["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
-            with this_dict(operation_in_history[1]):
-                check_that_entry("fee", equal_to(sidechain_eth_burn_operations[i][1]["fee"]))
-                with this_dict(operation_in_history[1]["value"]):
-                    self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
-                    check_that_entry("asset_id", equal_to(sidechain_eth_burn_operations[i][1]["value"]["asset_id"]))
-                check_that_entry("account", equal_to(sidechain_eth_burn_operations[i][1]["account"]))
-                check_that_entry("withdraw_id",
-                                 starts_with(self.get_object_type(self.echo.config.object_types.WITHDRAW_ETH)))
+            check_that_in(
+                operation_in_history[1],
+                "fee", equal_to(sidechain_eth_burn_operations[i][1]["fee"]),
+                "account", equal_to(sidechain_eth_burn_operations[i][1]["account"]),
+                "withdraw_id", starts_with(self.get_object_type(self.echo.config.object_types.WITHDRAW_ETH))
+            )
+            self.check_uint256_numbers(operation_in_history[1]["value"], "amount")
+            check_that_in(
+                operation_in_history[1]["value"],
+                "asset_id", equal_to(sidechain_eth_burn_operations[i][1]["value"]["asset_id"])
+            )
 
         lcc.set_step("Get withdrawals of created account")
         params = [new_account]
@@ -181,22 +187,24 @@ class GetAccountWithdrawals(BaseTest):
                 "'first deposit of created account'",
                 withdraw[i], has_length(8)
             )
-            with this_dict(withdraw[i]):
-                if not self.validator.is_withdraw_eth_id(withdraw[i]["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(withdraw[i]["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: withdraw_eth_object_type")
-                withdraw_ids.append(withdraw[i]["id"])
-                check_that_entry("withdraw_id", greater_than_or_equal_to(0), quiet=True)
-                check_that_entry("account", is_(new_account), quiet=True)
-                if not self.validator.is_eth_address(withdraw[i]["eth_addr"]):
-                    lcc.log_error("Wrong format of 'eth_addr', got: {}".format(withdraw[i]["eth_addr"]))
-                else:
-                    lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
-                check_that("value", int(withdraw[i]["value"]), is_(withdraw_values[i]), quiet=True)
-                check_that_entry("is_approved", is_bool(True), quiet=True)
-                check_that_entry("approves", is_list(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
+            if not self.validator.is_withdraw_eth_id(withdraw[i]["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(withdraw[i]["id"]))
+            else:
+                lcc.log_info("'id' has correct format: withdraw_eth_object_type")
+            if not self.validator.is_eth_address(withdraw[i]["eth_addr"]):
+                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(withdraw[i]["eth_addr"]))
+            else:
+                lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
+            withdraw_ids.append(withdraw[i]["id"])
+            check_that_in(
+                withdraw[i],
+                "withdraw_id", greater_than_or_equal_to(0),
+                "account", is_(new_account),
+                "is_approved", is_true(),
+                "approves", is_list(),
+                "extensions", is_list(),
+            )
+            check_that("value", int(withdraw[i]["value"]), is_(withdraw_values[i]), quiet=True)
 
         lcc.set_step("Get withdraw by id using 'get_objects'")
         response_id = self.send_request(self.get_request("get_objects", [withdraw_ids]),
@@ -207,12 +215,15 @@ class GetAccountWithdrawals(BaseTest):
         lcc.set_step("Compare withdrawals in 'get_account_withdrawals' with method 'get_objects'")
         for i in range(len(withdraw)):
             lcc.set_step("Compare #{}, withdraw in 'get_account_withdrawals' with method 'get_objects'".format(i))
-            with this_dict(withdraw[i]):
-                check_that_entry("id", is_(response[i]["id"]), quiet=True)
-                check_that_entry("withdraw_id", is_(response[i]["withdraw_id"]), quiet=True)
-                check_that_entry("account", is_(response[i]["account"]), quiet=True)
-                check_that_entry("eth_addr", is_(response[i]["eth_addr"]), quiet=True)
-                check_that_entry("value", is_(response[i]["value"]), quiet=True)
-                check_that_entry("is_approved", is_(response[i]["is_approved"]), quiet=True)
-                check_that_entry("approves", is_(response[i]["approves"]), quiet=True)
-                check_that_entry("extensions", is_(response[i]["extensions"]), quiet=True)
+            check_that_in(
+                withdraw[i],
+                "id", is_(response[i]["id"]),
+                "withdraw_id", is_(response[i]["withdraw_id"]),
+                "account", is_(response[i]["account"]),
+                "eth_addr", is_(response[i]["eth_addr"]),
+                "value", is_(response[i]["value"]),
+                "is_approved", is_(response[i]["is_approved"]),
+                "approves", is_(response[i]["approves"]),
+                "extensions", is_(response[i]["extensions"]),
+                quiet=True
+            )

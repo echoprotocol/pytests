@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, greater_than, equal_to, has_length, this_dict, is_list, \
-    check_that_entry, check_that, is_bool, greater_than_or_equal_to
+from lemoncheesecake.matching import require_that, greater_than, equal_to, has_length, check_that_in, is_list, \
+    check_that, is_bool, greater_than_or_equal_to
 
 from common.base_test import BaseTest
 
@@ -40,26 +40,30 @@ class GetERC20AccountWithdrawals(BaseTest):
         require_that("'account withdrawals'", withdrawals, has_length(len(erc20_withdrawal_amounts)))
         for i, withdrawal in enumerate(withdrawals):
             lcc.set_step("Check work of method 'get_erc20_account_withdrawals', withdrawal #'{}'".format(i))
-            with this_dict(withdrawal):
-                if not self.validator.is_withdraw_erc20_id(withdrawal["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(withdrawal["id"]))
-                else:
-                    lcc.log_info("'id' has correct format: withdraw_erc20_token_object")
-                check_that_entry("withdraw_id", greater_than_or_equal_to(0), quiet=True)
-                check_that_entry("id", equal_to(withdrawal_erc20_token_ids[i]), quiet=True)
-                check_that_entry("account", equal_to(new_account_id), quiet=True)
-                if not self.validator.is_eth_address(withdrawal["to"]):
-                    lcc.log_error("Wrong format of 'to', got: {}".format(withdrawal["to"]))
-                else:
-                    lcc.log_info("'to' has correct format: ethereum_address_type")
-                if not self.validator.is_erc20_object_id(withdrawal["erc20_token"]):
-                    lcc.log_error("Wrong format of 'erc20_token', got: {}".format(withdrawal["erc20_token"]))
-                else:
-                    lcc.log_info("'erc20_token' has correct format: erc20_token_object")
-                check_that_entry("value", equal_to(str(erc20_withdrawal_amounts[i])), quiet=True)
+            check_that("'length of erc20 account withdrawal'", withdrawal, has_length(8))
+            if not self.validator.is_withdraw_erc20_id(withdrawal["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(withdrawal["id"]))
+            else:
+                lcc.log_info("'id' has correct format: withdraw_erc20_token_object")
+            if not self.validator.is_eth_address(withdrawal["to"]):
+                lcc.log_error("Wrong format of 'to', got: {}".format(withdrawal["to"]))
+            else:
+                lcc.log_info("'to' has correct format: ethereum_address_type")
+            if not self.validator.is_erc20_object_id(withdrawal["erc20_token"]):
+                lcc.log_error("Wrong format of 'erc20_token', got: {}".format(withdrawal["erc20_token"]))
+            else:
+                lcc.log_info("'erc20_token' has correct format: erc20_token_object")
+            check_that_in(
+                withdrawal,
+                "withdraw_id", greater_than_or_equal_to(0),
+                "id", equal_to(withdrawal_erc20_token_ids[i]),
+                "account", equal_to(new_account_id),
+                "value", equal_to(str(erc20_withdrawal_amounts[i])),
                 # todo: always False, change to 'is_true'. Bug ECHO-1212
-                check_that_entry("is_approved", is_bool(), quiet=True)
-                check_that_entry("approves", is_list(), quiet=True)
+                "is_approved", is_bool(),
+                "approves", is_list(),
+                quiet=True
+            )
 
     def setup_suite(self):
         super().setup_suite()

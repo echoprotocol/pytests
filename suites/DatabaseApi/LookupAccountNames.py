@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, is_integer, is_dict, \
-    is_list, require_that, equal_to
+from lemoncheesecake.matching import check_that_in, check_that, has_length, is_integer, is_dict, is_list, require_that, \
+    equal_to
 
 from common.base_test import BaseTest
 
@@ -28,57 +28,64 @@ class LookupAccountNames(BaseTest):
             lcc.log_info("'{}' has correct format: account_object_type".format(field))
 
     def check_account_structure(self, account_info):
-        with this_dict(account_info):
-            if check_that("account_info", account_info, has_length(15)):
-                self.check_fields_account_ids_format(account_info, "id")
-                if not self.validator.is_account_id(account_info["registrar"]):
-                    lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
+        if check_that("account_info", account_info, has_length(15)):
+            check_that_in(
+                account_info,
+                "network_fee_percentage", is_integer(),
+                "active", is_dict(),
+                "options", is_dict(),
+                "whitelisting_accounts", is_list(),
+                "blacklisting_accounts", is_list(),
+                "whitelisted_accounts", is_list(),
+                "blacklisted_accounts", is_list(),
+                "active_special_authority", is_list(),
+                "top_n_control_flags", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
+            self.check_fields_account_ids_format(account_info, "id")
+            if not self.validator.is_account_id(account_info["registrar"]):
+                lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
+            else:
+                lcc.log_info("'registrar' has correct format: account_object_type")
+            if not self.validator.is_account_name(account_info["name"]):
+                lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
+            else:
+                lcc.log_info("'name' has correct format: account_name")
+            if not self.validator.is_echorand_key(account_info["echorand_key"]):
+                lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
+            else:
+                lcc.log_info("'echorand_key' has correct format: echo_rand_key")
+            if not self.validator.is_account_statistics_id(account_info["statistics"]):
+                lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
+            else:
+                lcc.log_info("'statistics' has correct format: account_statistics_object_type")
+            if len(account_info) == 21:
+                if not self.validator.is_vesting_balance_id(account_info["cashback_vb"]):
+                    lcc.log_error("Wrong format of 'cashback_vb', got: {}".format(account_info["cashback_vb"]))
                 else:
-                    lcc.log_info("'registrar' has correct format: account_object_type")
-                check_that_entry("network_fee_percentage", is_integer(), quiet=True)
-                if not self.validator.is_account_name(account_info["name"]):
-                    lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
-                else:
-                    lcc.log_info("'name' has correct format: account_name")
-                check_that_entry("active", is_dict(), quiet=True)
-                if not self.validator.is_echorand_key(account_info["echorand_key"]):
-                    lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
-                else:
-                    lcc.log_info("'echorand_key' has correct format: echo_rand_key")
-                check_that_entry("options", is_dict(), quiet=True)
-                if not self.validator.is_account_statistics_id(account_info["statistics"]):
-                    lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
-                else:
-                    lcc.log_info("'statistics' has correct format: account_statistics_object_type")
-                check_that_entry("whitelisting_accounts", is_list(), quiet=True)
-                check_that_entry("blacklisting_accounts", is_list(), quiet=True)
-                check_that_entry("whitelisted_accounts", is_list(), quiet=True)
-                check_that_entry("blacklisted_accounts", is_list(), quiet=True)
-                if len(account_info) == 21:
-                    if not self.validator.is_vesting_balance_id(account_info["cashback_vb"]):
-                        lcc.log_error("Wrong format of 'cashback_vb', got: {}".format(account_info["cashback_vb"]))
-                    else:
-                        lcc.log_info("'cashback_vb' has correct format: vesting_balance_object_type")
-                check_that_entry("active_special_authority", is_list(), quiet=True)
-                check_that_entry("top_n_control_flags", is_integer(), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
-
-                lcc.set_step("Check 'active' field")
-                with this_dict(account_info["active"]):
-                    if check_that("active", account_info["active"], has_length(3)):
-                        check_that_entry("weight_threshold", is_integer(), quiet=True)
-                        check_that_entry("account_auths", is_list(), quiet=True)
-                        check_that_entry("key_auths", is_list(), quiet=True)
-
-                lcc.set_step("Check 'options' field")
-                with this_dict(account_info["options"]):
-                    if check_that("active", account_info["options"], has_length(5)):
-                        account_ids_format = ["voting_account", "delegating_account"]
-                        for k in range(len(account_ids_format)):
-                            self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
-                        check_that_entry("num_committee", is_integer(), quiet=True)
-                        check_that_entry("votes", is_list(), quiet=True)
-                        check_that_entry("extensions", is_list(), quiet=True)
+                    lcc.log_info("'cashback_vb' has correct format: vesting_balance_object_type")
+            lcc.set_step("Check 'options' field")
+            if check_that("active", account_info["active"], has_length(3)):
+                check_that_in(
+                    account_info["active"],
+                    "weight_threshold", is_integer(),
+                    "account_auths", is_list(),
+                    "key_auths", is_list(),
+                    quiet=True
+                )
+            lcc.set_step("Check 'options' field")
+            if check_that("active", account_info["options"], has_length(5)):
+                account_ids_format = ["voting_account", "delegating_account"]
+                for k in range(len(account_ids_format)):
+                    self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
+                check_that_in(
+                    account_info["options"],
+                    "num_committee", is_integer(),
+                    "votes", is_list(),
+                    "extensions", is_list(),
+                    quiet=True
+                )
 
     def setup_suite(self):
         super().setup_suite()
@@ -120,12 +127,14 @@ class PositiveTesting(BaseTest):
 
     @staticmethod
     def compare_accounts(account, performed_account):
-        with this_dict(account):
-            check_that_entry("registrar", equal_to(performed_account["registrar"]))
-            check_that_entry("name", equal_to(performed_account["name"]))
-            check_that_entry("active", equal_to(performed_account["active"]))
-            check_that_entry("echorand_key", equal_to(performed_account["echorand_key"]))
-            check_that_entry("options", equal_to(performed_account["options"]))
+        check_that_in(
+            account,
+            "registrar", equal_to(performed_account["registrar"]),
+            "name", equal_to(performed_account["name"]),
+            "active", equal_to(performed_account["active"]),
+            "echorand_key", equal_to(performed_account["echorand_key"]),
+            "options", equal_to(performed_account["options"])
+        )
 
     def setup_suite(self):
         super().setup_suite()

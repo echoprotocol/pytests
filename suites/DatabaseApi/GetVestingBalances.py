@@ -3,8 +3,8 @@ import random
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, is_, is_integer, \
-    equal_to, require_that, require_that_entry, greater_than, is_list
+from lemoncheesecake.matching import check_that_in, check_that, has_length, is_, is_integer, equal_to, require_that, \
+    greater_than, is_list, require_that_in
 
 from common.base_test import BaseTest
 
@@ -63,42 +63,48 @@ class GetVestingBalances(BaseTest):
         lcc.log_info("Call method 'get_vesting_balances' with param: '{}'".format(self.echo_acc0))
 
         lcc.set_step("Check simple work of method 'get_vesting_balances'")
-        with this_dict(result):
-            if check_that("balance_object", result, has_length(5)):
-                if not self.validator.is_vesting_balance_id(result["id"]):
-                    lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
+        if check_that("balance_object", result, has_length(5)):
+            if not self.validator.is_vesting_balance_id(result["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
+            else:
+                lcc.log_info("'id' has correct format: vesting_balance_object_type")
+            check_that_in(
+                result,
+                "id", is_(vesting_balance_id),
+                "owner", is_(self.echo_acc0),
+                "extensions", is_list(),
+                quiet=True
+            )
+            balance = result["balance"]
+            if check_that("balance", balance, has_length(2)):
+                self.check_uint256_numbers(balance, "amount", quiet=True)
+                check_that_in(
+                    balance,
+                    "amount", is_(value_amount), quiet=True
+                )
+                if not self.validator.is_asset_id(balance["asset_id"]):
+                    lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
                 else:
-                    lcc.log_info("'id' has correct format: vesting_balance_object_type")
-                check_that_entry("id", is_(vesting_balance_id), quiet=True)
-                check_that_entry("owner", is_(self.echo_acc0), quiet=True)
-                check_that_entry("extensions", is_list(), quiet=True)
-                balance = result["balance"]
-                with this_dict(balance):
-                    if check_that("balance", balance, has_length(2)):
-                        self.check_uint256_numbers(balance, "amount", quiet=True)
-                        check_that_entry("amount", is_(value_amount), quiet=True)
-                        if not self.validator.is_asset_id(balance["asset_id"]):
-                            lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
-                        else:
-                            lcc.log_info("'asset_id' has correct format: asset_object_type")
-                policy = result["policy"]
-                with this_dict(policy):
-                    if check_that("policy", policy, has_length(2)):
-                        first_element = policy[0]
-                        second_element = policy[1]
-                        # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
-                        check_that("first element", first_element, is_(0), quiet=True)
-                        with this_dict(second_element):
-                            if not self.validator.is_iso8601(second_element["begin_timestamp"]):
-                                lcc.log_error(
-                                    "Wrong format of 'begin_timestamp', got: {}".format(
-                                        second_element["begin_timestamp"]))
-                            else:
-                                lcc.log_info("'begin_timestamp' has correct format: iso8601")
-                            check_that_entry("vesting_cliff_seconds", is_integer(), quiet=True)
-                            check_that_entry("vesting_duration_seconds", is_integer(), quiet=True)
-                            self.check_uint256_numbers(second_element, "begin_balance", quiet=True)
-                            check_that_entry("begin_balance", is_(value_amount), quiet=True)
+                    lcc.log_info("'asset_id' has correct format: asset_object_type")
+            policy = result["policy"]
+            if check_that("policy", policy, has_length(2)):
+                first_element = policy[0]
+                second_element = policy[1]
+                # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
+                check_that("first element", first_element, is_(0), quiet=True)
+                if not self.validator.is_iso8601(second_element["begin_timestamp"]):
+                    lcc.log_error(
+                        "Wrong format of 'begin_timestamp', got: {}".format(second_element["begin_timestamp"]))
+                else:
+                    lcc.log_info("'begin_timestamp' has correct format: iso8601")
+                check_that_in(
+                    second_element,
+                    "vesting_cliff_seconds", is_integer(),
+                    "vesting_duration_seconds", is_integer(),
+                    "begin_balance", is_(value_amount),
+                    quiet=True
+                )
+                self.check_uint256_numbers(second_element, "begin_balance", quiet=True)
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -166,23 +172,27 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check that 'get_vesting_balances' method return broadcast operation")
         operation_data = operation[1]
-        with this_dict(result):
-            check_that_entry("id", is_(vesting_balance_id))
-            check_that_entry("owner", is_(new_account))
-            with this_dict(result["balance"]):
-                check_that_entry("amount", is_(operation_data["amount"]["amount"]))
-                check_that_entry("asset_id", is_(operation_data["amount"]["asset_id"]))
-            with this_dict(result["policy"]):
-                first_element = result["policy"][0]
-                second_element = result["policy"][1]
-                # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
-                check_that("first element", first_element, is_(operation_data["policy"][0]))
-                with this_dict(second_element):
-                    check_that_entry("begin_timestamp", is_(operation_data["policy"][1]["begin_timestamp"]))
-                    check_that_entry("vesting_cliff_seconds", is_(operation_data["policy"][1]["vesting_cliff_seconds"]))
-                    check_that_entry("vesting_duration_seconds",
-                                     is_(operation_data["policy"][1]["vesting_duration_seconds"]))
-                    check_that_entry("begin_balance", is_(operation_data["amount"]["amount"]))
+        check_that_in(
+            result,
+            "id", is_(vesting_balance_id),
+            "owner", is_(new_account)
+        )
+        check_that_in(
+            result["balance"],
+            "amount", is_(operation_data["amount"]["amount"]),
+            "asset_id", is_(operation_data["amount"]["asset_id"])
+        )
+        first_element = result["policy"][0]
+        second_element = result["policy"][1]
+        # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
+        check_that("first element", first_element, is_(operation_data["policy"][0]))
+        check_that_in(
+            second_element,
+            "begin_timestamp", is_(operation_data["policy"][1]["begin_timestamp"]),
+            "vesting_cliff_seconds", is_(operation_data["policy"][1]["vesting_cliff_seconds"]),
+            "vesting_duration_seconds", is_(operation_data["policy"][1]["vesting_duration_seconds"]),
+            "begin_balance", is_(operation_data["amount"]["amount"])
+        )
 
         lcc.set_step("Perform vesting balance withdraw operation. Owner = new account")
         withdraw_amount_1 = self.get_random_amount(value_amount)
@@ -244,9 +254,11 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", [self.echo_acc0, [new_asset]]),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)["result"][0]
-        with this_dict(response):
-            require_that_entry("asset_id", equal_to(new_asset))
-            require_that_entry("amount", equal_to(new_asset_amount))
+        require_that_in(
+            response,
+            "asset_id", equal_to(new_asset),
+            "amount", equal_to(new_asset_amount)
+        )
 
         lcc.set_step("Check that account have enough echo assets")
         response_id = self.send_request(self.get_request("get_account_balances", [self.echo_acc0, [self.echo_asset]]),
@@ -276,11 +288,12 @@ class PositiveTesting(BaseTest):
                                         self.__database_api_identifier)
         vesting_balances = self.get_response(response_id)["result"]
         for i in range(len(vesting_balances)):
-            with this_dict(vesting_balances[i]):
-                check_that_entry("owner", equal_to(new_account))
-                with this_dict(vesting_balances[i]["balance"]):
-                    check_that_entry("amount", equal_to(amounts[i]))
-                    check_that_entry("asset_id", equal_to(assets[i]))
+            check_that_in(vesting_balances[i], "owner", equal_to(new_account))
+            check_that_in(
+                vesting_balances[i]["balance"],
+                "amount", equal_to(amounts[i]),
+                "asset_id", equal_to(assets[i])
+            )
 
     @lcc.prop("type", "method")
     @lcc.test("Modified begin_timestamp and try to withdraw vesting balance")

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, is_integer, is_str, is_dict, \
-    is_list, require_that, is_, equal_to
+from lemoncheesecake.matching import check_that_in, check_that, has_length, is_integer, is_str, is_dict, is_list, \
+    require_that, is_, equal_to
 
 from common.base_test import BaseTest
 
@@ -51,52 +51,62 @@ class GetAccounts(BaseTest):
         for i in range(len(response["result"])):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
             account_info = response["result"][i]
-            with this_dict(account_info):
-                if check_that("account_info", account_info, has_length(15)):
-                    check_that_entry("id", is_str(params[i]))
-                    if not self.validator.is_account_id(account_info["registrar"]):
-                        lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
-                    else:
-                        lcc.log_info("'registrar' has correct format: account_object_type")
-                    check_that_entry("network_fee_percentage", is_integer(), quiet=True)
-                    if not self.validator.is_account_name(account_info["name"]):
-                        lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
-                    else:
-                        lcc.log_info("'name' has correct format: account_name")
-                    check_that_entry("active", is_dict(), quiet=True)
-                    if not self.validator.is_echorand_key(account_info["echorand_key"]):
-                        lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
-                    else:
-                        lcc.log_info("'echorand_key' has correct format: echo_rand_key")
-                    check_that_entry("options", is_dict(), quiet=True)
-                    if not self.validator.is_account_statistics_id(account_info["statistics"]):
-                        lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
-                    else:
-                        lcc.log_info("'statistics' has correct format: account_statistics_object_type")
-                    check_that_entry("whitelisting_accounts", is_list(), quiet=True)
-                    check_that_entry("blacklisting_accounts", is_list(), quiet=True)
-                    check_that_entry("whitelisted_accounts", is_list(), quiet=True)
-                    check_that_entry("blacklisted_accounts", is_list(), quiet=True)
-                    check_that_entry("active_special_authority", is_list(), quiet=True)
-                    check_that_entry("top_n_control_flags", is_integer(), quiet=True)
-                    check_that_entry("extensions", is_list(), quiet=True)
+            if check_that("account_info", account_info, has_length(15)):
+                check_that_in(
+                    account_info,
+                    "id", is_str(params[i]),
+                    "network_fee_percentage", is_integer(),
+                    "active", is_dict(),
+                    "options", is_dict(),
+                    "whitelisting_accounts", is_list(),
+                    "whitelisting_accounts", is_list(),
+                    "blacklisting_accounts", is_list(),
+                    "whitelisted_accounts", is_list(),
+                    "blacklisted_accounts", is_list(),
+                    "active_special_authority", is_list(),
+                    "top_n_control_flags", is_integer(),
+                    "extensions", is_list(),
+                    quiet=True
+                )
+                if not self.validator.is_account_id(account_info["registrar"]):
+                    lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
+                else:
+                    lcc.log_info("'registrar' has correct format: account_object_type")
+                if not self.validator.is_account_name(account_info["name"]):
+                    lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
+                else:
+                    lcc.log_info("'name' has correct format: account_name")
+                if not self.validator.is_echorand_key(account_info["echorand_key"]):
+                    lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
+                else:
+                    lcc.log_info("'echorand_key' has correct format: echo_rand_key")
+                if not self.validator.is_account_statistics_id(account_info["statistics"]):
+                    lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
+                else:
+                    lcc.log_info("'statistics' has correct format: account_statistics_object_type")
 
-                    lcc.set_step("Check 'active' field")
-                    with this_dict(account_info["active"]):
-                        if check_that("active", account_info["active"], has_length(3)):
-                            check_that_entry("weight_threshold", is_integer(), quiet=True)
-                            check_that_entry("account_auths", is_list(), quiet=True)
-                            check_that_entry("key_auths", is_list(), quiet=True)
+                lcc.set_step("Check 'active' field")
+                if check_that("active", account_info["active"], has_length(3)):
+                    check_that_in(
+                        account_info["active"],
+                        "weight_threshold", is_integer(),
+                        "account_auths", is_list(),
+                        "key_auths", is_list(),
+                        quiet=True
+                    )
 
-                    lcc.set_step("Check 'options' field")
-                    with this_dict(account_info["options"]):
-                        if check_that("active", account_info["options"], has_length(5)):
-                            account_ids_format = ["voting_account", "delegating_account"]
-                            for k in range(len(account_ids_format)):
-                                self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
-                            check_that_entry("num_committee", is_integer(), quiet=True)
-                            check_that_entry("votes", is_list(), quiet=True)
-                            check_that_entry("extensions", is_list(), quiet=True)
+                lcc.set_step("Check 'options' field")
+                if check_that("active", account_info["options"], has_length(5)):
+                    account_ids_format = ["voting_account", "delegating_account"]
+                    for k in range(len(account_ids_format)):
+                        self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
+                    check_that_in(
+                        account_info["options"],
+                        "num_committee", is_integer(),
+                        "votes", is_list(),
+                        "extensions", is_list(),
+                        quiet=True
+                    )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -150,12 +160,14 @@ class PositiveTesting(BaseTest):
             lcc.set_step("Checking account #{}".format(i))
             performed_operations = accounts.get("list_operations")[i][0][1]
             account_info = response["result"][i]
-            with this_dict(account_info):
-                check_that_entry("registrar", equal_to(performed_operations["registrar"]))
-                check_that_entry("name", equal_to(performed_operations["name"]))
-                check_that_entry("active", equal_to(performed_operations["active"]))
-                check_that_entry("echorand_key", equal_to(performed_operations["echorand_key"]))
-                check_that_entry("options", equal_to(performed_operations["options"]))
+            check_that_in(
+                account_info,
+                "registrar", equal_to(performed_operations["registrar"]),
+                "name", equal_to(performed_operations["name"]),
+                "active", equal_to(performed_operations["active"]),
+                "echorand_key", equal_to(performed_operations["echorand_key"]),
+                "options", equal_to(performed_operations["options"])
+            )
 
     @lcc.prop("type", "method")
     @lcc.test(
@@ -193,10 +205,12 @@ class PositiveTesting(BaseTest):
         account_info_1 = response_1["result"]
         account_info_2 = response_2["result"]
         for i in range(len(account_info_1)):
-            with this_dict(account_info_1[i]):
-                check_that_entry("registrar", equal_to(account_info_2[i]["registrar"]))
-                check_that_entry("name", equal_to(account_info_2[i]["name"]))
-                check_that_entry("active", equal_to(account_info_2[i]["active"]))
-                check_that_entry("echorand_key", equal_to(account_info_2[i]["echorand_key"]))
-                check_that_entry("options", equal_to(account_info_2[i]["options"]))
-                check_that_entry("extensions", equal_to(account_info_2[i]["extensions"]))
+            check_that_in(
+                account_info_1[i],
+                "registrar", equal_to(account_info_2[i]["registrar"]),
+                "name", equal_to(account_info_2[i]["name"]),
+                "active", equal_to(account_info_2[i]["active"]),
+                "echorand_key", equal_to(account_info_2[i]["echorand_key"]),
+                "options", equal_to(account_info_2[i]["options"]),
+                "extensions", equal_to(account_info_2[i]["extensions"])
+            )

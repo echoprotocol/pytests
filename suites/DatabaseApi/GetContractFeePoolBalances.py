@@ -3,7 +3,7 @@ import random
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-from lemoncheesecake.matching import this_dict, check_that, has_length, check_that_entry, require_that_entry, equal_to
+from lemoncheesecake.matching import check_that_in, check_that, has_length, equal_to, require_that_in
 
 from common.base_test import BaseTest
 
@@ -63,10 +63,12 @@ class GetContractFeePoolBalances(BaseTest):
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check simple work of method 'get_contract'")
-        with this_dict(result):
-            if check_that("contract pool balance", result, has_length(2)):
-                check_that_entry("amount", equal_to(value_to_pool))
-                check_that_entry("asset_id", equal_to(self.echo_asset))
+        if check_that("contract pool balance", result, has_length(2)):
+            check_that_in(
+                result,
+                "amount", equal_to(value_to_pool),
+                "asset_id", equal_to(self.echo_asset)
+            )
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -134,9 +136,11 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         account_balance = self.get_response(response_id)["result"][0]
-        with this_dict(account_balance):
-            require_that_entry("amount", equal_to(0))
-            require_that_entry("asset_id", equal_to(self.echo_asset))
+        require_that_in(
+            account_balance,
+            "amount", equal_to(0),
+            "asset_id", equal_to(self.echo_asset)
+        )
 
         lcc.set_step("First: add fee pool to perform the call contract 'greet' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=new_account,
@@ -172,9 +176,11 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         account_balance = self.get_response(response_id)["result"][0]
-        with this_dict(account_balance):
-            require_that_entry("amount", equal_to(0))
-            require_that_entry("asset_id", equal_to(self.echo_asset))
+        require_that_in(
+            account_balance,
+            "amount", equal_to(0),
+            "asset_id", equal_to(self.echo_asset)
+        )
 
         lcc.set_step("Add echo assets to new_account")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=new_account,

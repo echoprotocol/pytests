@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import this_dict, is_not_none, has_length, check_that
+from lemoncheesecake.matching import is_not_none, has_length, check_that
 
 from common.base_test import BaseTest
 from project import ROPSTEN
@@ -37,7 +37,7 @@ class GetVestedBalances(BaseTest):
             else:
                 lcc.log_error("'{}' account does not have initial balance in genesis".format(self.init2_account_name))
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
 
     def teardown_suite(self):
         if not ROPSTEN:
@@ -60,15 +60,14 @@ class GetVestedBalances(BaseTest):
             lcc.log_info("Call method 'get_vested_balances' with param: '{}'".format(balance_id))
 
             lcc.set_step("Check simple work of method 'vested balance'")
-            with this_dict(result):
-                if check_that("balance_object", result, has_length(2)):
-                    self.check_uint256_numbers(result, "amount", quiet=True)
-                    if not self.validator.is_asset_id(result["asset_id"]):
-                        lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
-                    else:
-                        lcc.log_info("'asset_id' has correct format: asset_id")
+            if check_that("balance_object", result, has_length(2)):
+                self.check_uint256_numbers(result, "amount", quiet=True)
+                if not self.validator.is_asset_id(result["asset_id"]):
+                    lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
+                else:
+                    lcc.log_info("'asset_id' has correct format: asset_id")
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -94,7 +93,7 @@ class PositiveTesting(BaseTest):
                 lcc.log_error("'{}', '{}' accounts do not have initial balances in genesis"
                               "".format(self.init2_account_name, self.init3_account_name))
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
 
     def teardown_suite(self):
         if not ROPSTEN:
@@ -136,4 +135,4 @@ class PositiveTesting(BaseTest):
             for vested_assets in result:
                 check_that("vested_assets", vested_assets, is_not_none())
         else:
-            lcc.log_warn("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
+            lcc.log_warning("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
