@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, check_that_in, is_, is_str, is_list, is_integer, require_that, \
-    require_that_in
+    require_that_in, has_length
 
 from common.base_test import BaseTest
 
@@ -53,19 +53,18 @@ class GetAccountHistory(BaseTest):
                 self.echo_acc0, stop, limit, start))
 
         lcc.set_step("Check response from method 'get_account_history'")
-        result = response["result"]
+        results = response["result"]
         check_that(
             "'number of history results'",
-            len(result), is_(limit)
+            results, has_length(limit)
         )
-        for i in range(len(result)):
-            list_operations = result[i]
-            if not self.validator.is_operation_history_id(list_operations["id"]):
-                lcc.log_error("Wrong format of 'operation id', got: {}".format(list_operations["id"]))
+        for result in results:
+            if not self.validator.is_operation_history_id(result["id"]):
+                lcc.log_error("Wrong format of 'operation id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'operation_id' has correct format: operation_history_id")
             check_that_in(
-                list_operations,
+                result,
                 "op", is_list(),
                 "result", is_list(),
                 "block_num", is_integer(),
@@ -136,7 +135,7 @@ class PositiveTesting(BaseTest):
         expected_number_of_operations = 1
         require_that(
             "'new account history'",
-            len(response["result"]), is_(expected_number_of_operations)
+            response["result"], has_length(expected_number_of_operations)
         )
         check_that(
             "'id single operation'",
@@ -172,14 +171,14 @@ class PositiveTesting(BaseTest):
             operation_count = operation_count + default_get_assets_operation
         check_that(
             "'number of history results'",
-            len(response["result"]), is_(operation_count + default_account_create_operation)
+            response["result"], has_length(operation_count + default_account_create_operation)
         )
 
         lcc.set_step("Check minimum list length account history")
         response = self.get_account_history(new_account, stop, min_limit, start)
         check_that(
             "'number of history results'",
-            len(response["result"]), is_(min_limit)
+            response["result"], has_length(min_limit)
         )
 
         lcc.set_step("Perform operations using a new account to create max_limit operations")
@@ -194,7 +193,7 @@ class PositiveTesting(BaseTest):
         response = self.get_account_history(new_account, stop, max_limit, start)
         check_that(
             "'number of history results'",
-            len(response["result"]), is_(max_limit)
+            response["result"], has_length(max_limit)
         )
 
     @lcc.prop("type", "method")
@@ -258,13 +257,13 @@ class PositiveTesting(BaseTest):
         stop = operation_id
         start = operation_ids[0]
         lcc.set_step("Get account history. Stop: '{}', limit: '{}' and start: '{}'".format(stop, limit, start))
-        response = self.get_account_history(self.echo_acc0, stop, limit, start)
+        results = self.get_account_history(self.echo_acc0, stop, limit, start)["result"]
 
         lcc.set_step("Check account history to see operations from the selected ids interval")
-        for i in range(len(response["result"])):
+        for i, result in enumerate(results):
             lcc.log_info("Check operation #{}:".format(i))
             require_that_in(
-                response["result"][i],
+                result,
                 ["id"], is_str(operation_ids[i]),
                 ["op"], is_list(operations[i])
             )

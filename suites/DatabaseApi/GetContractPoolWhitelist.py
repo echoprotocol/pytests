@@ -79,8 +79,8 @@ class GetContractPoolWhitelist(BaseTest):
 
         lcc.set_step("Get updated a contract's fee pool whitelist")
         response_id = self.send_request(self.get_request("get_contract_pool_whitelist", [contract_id]),
-                                        self.__database_api_identifier)
-        result = self.get_response(response_id)["result"]
+                                        self.__database_api_identifier, debug_mode=True)
+        result = self.get_response(response_id, debug_mode=True)["result"]
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check added accounts to contract lists")

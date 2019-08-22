@@ -66,8 +66,8 @@ class GetConfig(BaseTest):
                     echo_config_symbol, is_str(BASE_ASSET_SYMBOL),
                     quiet=True
                 )
-            for i in range(len(echo_configs)):
-                self.check_uint64_numbers(response["result"], echo_configs[i], quiet=True)
+            for echo_config in echo_configs:
+                self.check_uint64_numbers(response["result"], echo_config, quiet=True)
             for echo_config_account in echo_config_accounts:
                 if not self.validator.is_account_id(response["result"][echo_config_account]):
                     lcc.log_error("Wrong format of '{}', got: {}".format(echo_config_account, response["result"][

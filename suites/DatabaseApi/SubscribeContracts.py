@@ -165,30 +165,29 @@ class PositiveTesting(BaseTest):
     @staticmethod
     def check_contract_history_objs_in_notice(response, notice, contract_id):
         counter = 0
-        for i in range(len(response)):
-            operation_history_id = response[i]["id"]
-            for j in range(len(response)):
-                notice_id = notice[j]["id"]
-                if "contract" not in notice[j]:
-                    if counter != len(notice):
-                        counter += 1
-                        continue
-                    lcc.log_error("No needed operation in the notice, got: '{}'".format(notice))
-                notice_contract_id = notice[j]["contract"]
-                notice_operation_history_id = notice[j]["operation_id"]
-                if notice_operation_history_id != operation_history_id:
-                    if counter != len(response):
-                        counter += 1
-                        continue
-                    lcc.log_error("No '{}' operation in the notice".format(operation_history_id))
-                if notice_contract_id != contract_id:
-                    lcc.log_error("Notice has incorrect contract id, got '{}', but need '{}'".format(notice_contract_id,
-                                                                                                     contract_id))
-                lcc.log_info("Received and check notice with id '{}'".format(notice_id))
-                lcc.log_info("Notice has correct contract id: '{}'".format(notice_contract_id))
-                lcc.log_info("Operations are the same: notice has operation '{}' like contract history='{}'".format(
-                    notice_operation_history_id, operation_history_id))
-                break
+        for i, operation_history in enumerate(response):
+            operation_history_id = operation_history["id"]
+            notice_id = notice[i]["id"]
+            if "contract" not in notice[i]:
+                if counter != len(notice):
+                    counter += 1
+                    continue
+                lcc.log_error("No needed operation in the notice, got: '{}'".format(notice))
+            notice_contract_id = notice[i]["contract"]
+            notice_operation_history_id = notice[i]["operation_id"]
+            if notice_operation_history_id != operation_history_id:
+                if counter != len(response):
+                    counter += 1
+                    continue
+                lcc.log_error("No '{}' operation in the notice".format(operation_history_id))
+            if notice_contract_id != contract_id:
+                lcc.log_error("Notice has incorrect contract id, got '{}', but need '{}'".format(notice_contract_id,
+                                                                                                 contract_id))
+            lcc.log_info("Received and check notice with id '{}'".format(notice_id))
+            lcc.log_info("Notice has correct contract id: '{}'".format(notice_contract_id))
+            lcc.log_info("Operations are the same: notice has operation '{}' like contract history='{}'".format(
+                notice_operation_history_id, operation_history_id))
+            break
 
     def check_balance_and_statistic_objs_in_notice(self, notices, contract_id, contract_balance, asset_type,
                                                    expected_statistic=True):
@@ -328,7 +327,6 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check notices of contract created by another contract")
-    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.SubscribeContracts.SubscribeContracts.method_main_check")
     def check_notices_of_contract_created_by_another_contract(self, get_random_integer):
         lcc.set_step("Set subscribe callback")

@@ -45,13 +45,13 @@ class GetNamedAccountBalances(BaseTest):
         params = [get_random_valid_account_name, assets_ids]
         response_id = self.send_request(self.get_request("get_named_account_balances", params),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_named_account_balances'")
 
         lcc.set_step("Check that new account has empty balances")
-        for i in range(len(assets_ids)):
+        for i, result in enumerate(results):
             check_that_in(
-                response["result"][i],
+                result,
                 "amount", equal_to(0),
                 "asset_id", equal_to(assets_ids[i])
             )

@@ -81,31 +81,31 @@ class PositiveTesting(BaseTest):
         referenced_ids = []
 
         lcc.set_step("Get initial accounts by name and store their echorand keys")
-        for i in range(len(initial_accounts_names)):
-            account_info = self.get_account_by_name(initial_accounts_names[i], self.__database_api_identifier)
+        for i, initial_account_name in enumerate(initial_accounts_names):
+            account_info = self.get_account_by_name(initial_account_name, self.__database_api_identifier)
             echorand_keys.append(account_info["result"]["echorand_key"])
             lcc.log_info(
-                "Get default account '{}' by name and store his echorand_key: '{}'".format(initial_accounts_names[i],
+                "Get default account '{}' by name and store his echorand_key: '{}'".format(initial_account_name,
                                                                                            echorand_keys[i]))
 
         lcc.set_step("Get accounts IDs associated with the given keys")
         response_id = self.send_request(self.get_request("get_key_references", [echorand_keys]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)["result"]
-        for i in range(len(response)):
-            referenced_ids.append(response[i][0])
+        results = self.get_response(response_id)["result"]
+        for i, result in enumerate(results):
+            referenced_ids.append(result[0])
             lcc.log_info("Get account id: '{}' associated with key: '{}'".format(referenced_ids[i], echorand_keys[i]))
 
         lcc.set_step("Get accounts by referenced ids")
         response_id = self.send_request(self.get_request("get_accounts", [referenced_ids]),
                                         self.__database_api_identifier)
-        result = self.get_response(response_id)["result"]
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_accounts' with param: '{}'".format(referenced_ids))
 
         lcc.set_step("Check work of method 'get_key_references' with multiple keys")
-        for i in range(len(result)):
-            check_that("'account name'", result[i]["name"], equal_to(initial_accounts_names[i]), quiet=True)
-            check_that("'echorand_key'", result[i]["echorand_key"], equal_to(echorand_keys[i]), quiet=True)
+        for i, result in enumerate(results):
+            check_that("'account name'", result["name"], equal_to(initial_accounts_names[i]), quiet=True)
+            check_that("'echorand_key'", result["echorand_key"], equal_to(echorand_keys[i]), quiet=True)
 
     @lcc.prop("type", "method")
     @lcc.test("Use 'get_key_references' with crated account")

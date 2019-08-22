@@ -30,9 +30,9 @@ class GasUsed(BaseTest):
     @staticmethod
     def get_default_fee(response, operation_id):
         all_fees = response.get("result").get("parameters").get("current_fees").get("parameters")
-        for i in range(len(all_fees)):
-            if all_fees[i][0] == operation_id:
-                return all_fees[i][1]["fee"]
+        for fee in all_fees:
+            if fee[0] == operation_id:
+                return fee[1]["fee"]
         raise Exception("No needed operation")
 
     @staticmethod

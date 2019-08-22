@@ -274,13 +274,12 @@ class PositiveTesting(BaseTest):
         contract_storage_with_string = response["result"][1]["storage"]
         require_that("'contract storage'", contract_storage_with_string, has_length(3))
         check_that("'contract storage'", contract_storage_with_string[0], equal_to(contract_storage_with_int[0]))
-        for i in range(len(contract_storage_with_string)):
-            if not self.validator.is_hex(contract_storage_with_string[i][0]):
-                lcc.log_error(
-                    "Wrong format of 'contract storage var 1', got: {}".format(contract_storage_with_string[0][0]))
+        for contract_storage in contract_storage_with_string:
+            if not self.validator.is_hex(contract_storage[0]):
+                lcc.log_error("Wrong format of 'contract storage var 1', got: {}".format(contract_storage[0][0]))
             else:
                 lcc.log_info("'contract storage var 1' has correct format: hex")
-            check_that("'contract storage var 2'", contract_storage_with_string[i][1], is_list(), quiet=True)
+            check_that("'contract storage var 2'", contract_storage[1], is_list(), quiet=True)
 
         lcc.set_step("Call method 'delete_string' to delete string field in contract")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,

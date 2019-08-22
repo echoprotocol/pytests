@@ -46,8 +46,8 @@ class GetAccountByName(BaseTest):
         account_info = response["result"]
         if check_that("account_info", account_info, has_length(15)):
             account_ids_format = ["id", "registrar"]
-            for j in range(len(account_ids_format)):
-                self.check_fields_account_ids_format(account_info, account_ids_format[j])
+            for account_id_format in account_ids_format:
+                self.check_fields_account_ids_format(account_info, account_id_format)
             if not self.validator.is_account_name(account_info["name"]):
                 lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
             else:
@@ -88,8 +88,8 @@ class GetAccountByName(BaseTest):
             lcc.set_step("Check 'options' field")
             if check_that("active", account_info["options"], has_length(5)):
                 account_ids_format = ["voting_account", "delegating_account"]
-                for k in range(len(account_ids_format)):
-                    self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
+                for account_id_format in account_ids_format:
+                    self.check_fields_account_ids_format(account_info["options"], account_id_format)
                 check_that_in(
                     account_info["options"],
                     "num_committee", is_integer(),

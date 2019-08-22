@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, check_that, has_length, is_integer, is_str, is_dict, is_list, \
-    require_that, is_, equal_to, is_bool
+    require_that, equal_to, is_bool
 
 from common.base_test import BaseTest
 
@@ -40,19 +40,19 @@ class GetFullAccounts(BaseTest):
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_full_accounts", [params, False]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_full_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
         require_that(
             "'list of received accounts'",
-            len(response["result"]), is_(len(params))
+            results, has_length(len(params))
         )
 
-        for i in range(len(response["result"])):
+        for i, result in enumerate(results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            check_that("account_id", response["result"][i][0], equal_to(params[i]))
-            full_account_info = response["result"][i][1]
+            check_that("account_id", result[0], equal_to(params[i]))
+            full_account_info = result[1]
             if check_that("full_account_info", full_account_info, has_length(8)):
                 account_info = full_account_info.get("account")
                 if check_that("account_info", account_info, has_length(15)):
@@ -102,8 +102,8 @@ class GetFullAccounts(BaseTest):
                     lcc.set_step("Check 'options' field")
                     if check_that("active", account_info["options"], has_length(5)):
                         account_ids_format = ["voting_account", "delegating_account"]
-                        for k in range(len(account_ids_format)):
-                            self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
+                        for account_id_format in account_ids_format:
+                            self.check_fields_account_ids_format(account_info["options"], account_id_format)
                         check_that_in(
                             account_info["options"],
                             "num_committee", is_integer(),
@@ -152,24 +152,24 @@ class GetFullAccounts(BaseTest):
                 check_that_in(
                     full_account_info, "balances", is_list(), quiet=True
                 )
-                balance = full_account_info["balances"]
-                if balance:
-                    for j in range(len(balance)):
-                        lcc.set_step("Check 'balance #{}' field".format(str(j)))
-                        if check_that("account_balances", balance[j], has_length(5)):
-                            if not self.validator.is_account_balance_id(balance[j]["id"]):
+                balances = full_account_info["balances"]
+                if balances:
+                    for j, balance in enumerate(balances):
+                        lcc.set_step("Check 'balance #{}' field".format(j))
+                        if check_that("account_balances", balance, has_length(5)):
+                            if not self.validator.is_account_balance_id(balance["id"]):
                                 lcc.log_error(
-                                    "Wrong format of 'id', got: {}".format(balance[j]["id"]))
+                                    "Wrong format of 'id', got: {}".format(balance["id"]))
                             else:
                                 lcc.log_info("'id' has correct format: account_balance_object_type")
-                            self.check_fields_account_ids_format(balance[j], "owner")
-                            if not self.validator.is_asset_id(balance[j]["asset_type"]):
+                            self.check_fields_account_ids_format(balance, "owner")
+                            if not self.validator.is_asset_id(balance["asset_type"]):
                                 lcc.log_error(
-                                    "Wrong format of 'asset_type', got: {}".format(balance[j]["asset_type"]))
+                                    "Wrong format of 'asset_type', got: {}".format(balance["asset_type"]))
                             else:
                                 lcc.log_info("'asset_type' has correct format: asset_object_type")
                             check_that_in(
-                                balance[j],
+                                balance,
                                 "balance", is_integer(),
                                 "extensions", is_list(),
                                 quiet=True

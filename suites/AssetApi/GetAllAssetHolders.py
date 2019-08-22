@@ -32,15 +32,13 @@ class GetAllAssetHolders(BaseTest):
     def method_main_check(self):
         lcc.set_step("Get all asset ids with the number of holders")
         response_id = self.send_request(self.get_request("get_all_asset_holders"), self.__asset_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_all_asset_holders'")
 
         lcc.set_step("Check response from method 'get_all_asset_holders'")
-        result = response["result"]
-        for i in range(len(result)):
-            holders = result[i]
+        for holder in results:
             check_that_in(
-                holders,
+                holder,
                 "asset_id", is_str(),
                 "count", greater_than_or_equal_to(0)
             )
@@ -95,17 +93,15 @@ class PositiveTesting(BaseTest):
         lcc.log_info("New asset created, asset_id is '{}'".format(self.new_asset_id))
 
         lcc.set_step("Check that the new asset is in the list and its number of holders is zero")
-        response = self.get_all_asset_holders()
-        result = response["result"]
-        for i in range(len(result)):
-            assets_ids = result[i]
-            if assets_ids.get("asset_id") == self.new_asset_id:
+        results = self.get_all_asset_holders()["result"]
+        for i, result in enumerate(results):
+            if result.get("asset_id") == self.new_asset_id:
                 self.position_on_the_list = i
         if self.position_on_the_list is None:
             lcc.log_error(
                 "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id))
         check_that_in(
-            result[self.position_on_the_list],
+            results[self.position_on_the_list],
             "asset_id", is_str(self.new_asset_id),
             "count", is_integer(0)
         )
@@ -121,17 +117,16 @@ class PositiveTesting(BaseTest):
             "Echo account '{}' became new asset holder of '{}' asset_id".format(self.echo_acc0, self.new_asset_id))
 
         lcc.set_step("Check that the new asset is in the list and its number of holders is zero")
-        response = self.get_all_asset_holders()
-        result = response["result"]
-        for i in range(len(result)):
-            assets_ids = result[i]
+        results = self.get_all_asset_holders()["result"]
+        for i, result in enumerate(results):
+            assets_ids = result
             if assets_ids.get("asset_id") == self.new_asset_id:
                 self.position_on_the_list = i
         if self.position_on_the_list is None:
             lcc.log_error(
                 "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id))
         check_that_in(
-            result[self.position_on_the_list],
+            results[self.position_on_the_list],
             "asset_id", is_str(self.new_asset_id),
             "count", is_integer(1)
         )

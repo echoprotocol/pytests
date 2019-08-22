@@ -97,14 +97,14 @@ class GetAccountDeposits(BaseTest):
 
         lcc.set_step("Get account history operations")
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_ISSUE
-        response = self.utils.get_account_history_operations(self, new_account, operation_id,
-                                                             self.__history_api_identifier,
-                                                             limit=len(sidechain_eth_issue_operations))
+        results = self.utils.get_account_history_operations(self, new_account, operation_id,
+                                                            self.__history_api_identifier,
+                                                            limit=len(sidechain_eth_issue_operations))["result"]
         lcc.log_info("Account history operations of 'sidechain_eth_issue_operation' received")
 
         lcc.set_step("Check response from method 'get_account_history_operations'")
-        for i in range(len(response["result"])):
-            operation_in_history = response["result"][i]["op"]
+        for i, result in enumerate(results):
+            operation_in_history = result["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
             check_that_in(
@@ -135,14 +135,14 @@ class GetAccountDeposits(BaseTest):
 
         lcc.set_step("Get account history operations")
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_ISSUE
-        response = self.utils.get_account_history_operations(self, new_account, operation_id,
-                                                             self.__history_api_identifier,
-                                                             limit=len(sidechain_eth_issue_operations))
+        results = self.utils.get_account_history_operations(self, new_account, operation_id,
+                                                            self.__history_api_identifier,
+                                                            limit=len(sidechain_eth_issue_operations))["result"]
         lcc.log_info("Account history operations of 'sidechain_eth_issue_operation' received")
 
         lcc.set_step("Check response from method 'get_account_history_operations'")
-        for i in range(len(response["result"])):
-            operation_in_history = response["result"][i]["op"]
+        for i, result in enumerate(results):
+            operation_in_history = result["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
             check_that_in(
@@ -161,31 +161,30 @@ class GetAccountDeposits(BaseTest):
         params = [new_account]
         response_id = self.send_request(self.get_request("get_account_deposits", params),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        deposits = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_account_deposits' of new account '{}'".format(new_account))
 
         lcc.set_step("Check simple work of method 'get_account_deposits'")
-        deposit = response["result"]
-        for i in range(len(deposit)):
+        for i, deposit in enumerate(deposits):
             lcc.set_step("Check account deposit #{}".format(i))
             require_that(
                 "'first deposit of created account'",
-                deposit[i], has_length(7)
+                deposit, has_length(7)
             )
-            if not self.validator.is_deposit_eth_id(deposit[i]["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(deposit[i]["id"]))
+            if not self.validator.is_deposit_eth_id(deposit["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
             else:
                 lcc.log_info("'id' has correct format: deposit_eth_object_type")
-            deposit_ids.append(deposit[i]["id"])
+            deposit_ids.append(deposit["id"])
             check_that_in(
-                deposit[i],
+                deposit,
                 "deposit_id", greater_than(0),
                 "account", is_(new_account),
                 "is_approved", is_true(),
                 "approves", is_list(),
                 "extensions", is_list(),
             )
-            check_that("value", int(deposit[i]["value"]), is_(deposit_values[i]))
+            check_that("value", int(deposit["value"]), is_(deposit_values[i]))
 
         lcc.set_step("Get deposit by id using 'get_objects'")
         response_id = self.send_request(self.get_request("get_objects", [deposit_ids]),
@@ -194,10 +193,10 @@ class GetAccountDeposits(BaseTest):
         lcc.log_info("Call method 'get_objects' with param: {}".format(deposit_ids))
 
         lcc.set_step("Compare deposits in 'get_account_deposits' with method 'get_objects'")
-        for i in range(len(deposit)):
+        for i, deposit in enumerate(deposits):
             lcc.set_step("Compare #{}: deposit in 'get_account_deposits' with method 'get_objects'".format(i))
             check_that_in(
-                deposit[i],
+                deposit,
                 "id", is_(response[i]["id"]),
                 "deposit_id", is_(response[i]["deposit_id"]),
                 "account", is_(response[i]["account"]),

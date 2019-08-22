@@ -157,12 +157,12 @@ class PositiveTesting(BaseTest):
         notice = self.get_notice(subscription_callback_id, object_id=param)
 
         lcc.set_step("Check object format")
-        for j in range(len(notice)):
+        for i in range(len(notice)):
             check_that(
                 "'updated object '{}''".format(param),
                 notice,
                 has_entry(
-                    object_keys[j],
+                    object_keys[i],
                 ),
             )
 

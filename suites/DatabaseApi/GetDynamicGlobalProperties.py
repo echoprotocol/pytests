@@ -47,22 +47,21 @@ class GetDynamicGlobalProperties(BaseTest):
                 lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
             else:
                 lcc.log_info("'id' has correct format: dynamic_global_object_id")
-            for i in range(len(dynamic_global_properties)):
-                self.check_uint64_numbers(result, dynamic_global_properties[i], quiet=True)
-                value = int(result[dynamic_global_properties[i]])
-                check_that(dynamic_global_properties[i], value, greater_than_or_equal_to(0), quiet=True)
+            for propertie in dynamic_global_properties:
+                self.check_uint64_numbers(result, propertie, quiet=True)
+                value = int(result[propertie])
+                check_that(propertie, value, greater_than_or_equal_to(0), quiet=True)
             if not self.validator.is_hex(result["head_block_id"]):
                 lcc.log_error("Wrong format of 'head_block_id', got: {}".format(result))
             else:
                 lcc.log_info("'head_block_id' has correct format: hex")
 
-            for i in range(len(dynamic_global_properties_time)):
-                if not self.validator.is_iso8601(result[dynamic_global_properties_time[i]]):
+            for time_propertie in dynamic_global_properties_time:
+                if not self.validator.is_iso8601(result[time_propertie]):
                     lcc.log_error(
-                        "Wrong format of '{}', got: {}".format(dynamic_global_properties_time[i],
-                                                               result[dynamic_global_properties_time[i]]))
+                        "Wrong format of '{}', got: {}".format(time_propertie, result[time_propertie]))
                 else:
-                    lcc.log_info("'{}' has correct format: iso8601".format(dynamic_global_properties_time[i]))
+                    lcc.log_info("'{}' has correct format: iso8601".format(time_propertie))
             check_that_in(
                 result, "extensions", is_list(), quiet=True
             )

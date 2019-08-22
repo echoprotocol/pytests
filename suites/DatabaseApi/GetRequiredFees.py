@@ -36,14 +36,13 @@ class GetRequiredFees(BaseTest):
             [self.echo_ops.get_operation_json("transfer_operation", example=True),
              self.echo_ops.get_operation_json("transfer_operation", example=True)],
             self.echo_asset]), self.__database_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Get required fee for two default 'transfer_operation' in one list operations")
 
         lcc.set_step("Check simple work of method 'get_required_fees'")
-        for i in range(len(response["result"])):
-            required_fee = response["result"][i]
+        for result in results:
             check_that_in(
-                required_fee,
+                result,
                 "amount", is_integer(),
                 "asset_id", is_(self.echo_asset),
                 quiet=True

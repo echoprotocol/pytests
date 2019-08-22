@@ -66,11 +66,11 @@ class BalanceObjectsInSubscribe(BaseTest):
         lcc.log_info("Accounts info received. Subscription completed")
 
         lcc.set_step("Get accounts balances before transfer and store")
-        for i in range(len(tracked_accounts)):
+        for i, tracked_account in enumerate(tracked_accounts):
             accounts_balance_before_transfer.append(
-                self.utils.get_account_balances(self, tracked_accounts[i], self.__database_api_identifier)["amount"])
+                self.utils.get_account_balances(self, tracked_account, self.__database_api_identifier)["amount"])
             lcc.log_info(
-                "'{}' balance before transfer: '{}'".format(tracked_accounts[i], accounts_balance_before_transfer[i]))
+                "'{}' balance before transfer: '{}'".format(tracked_account, accounts_balance_before_transfer[i]))
 
         lcc.set_step("Transfer assets from account to account")
         broadcast_result = self.utils.perform_transfer_operations(self, tracked_accounts[0], tracked_accounts[1],
@@ -84,27 +84,27 @@ class BalanceObjectsInSubscribe(BaseTest):
 
         lcc.set_step("Get notice about accounts updates")
         balance_object_count = 0
-        notice = None
+        notices = None
         requests_limit = 0
         wrong_notice = True
         while wrong_notice and requests_limit < 10:
-            notice = self.get_notice(subscription_callback_id, notices_list=True)
-            for i in range(len(notice)):
-                if self.validator.is_account_balance_id(notice[i]["id"]):
+            notices = self.get_notice(subscription_callback_id, notices_list=True)
+            for notice in notices:
+                if self.validator.is_account_balance_id(notice["id"]):
                     wrong_notice = False
                 requests_limit += 1
-        for i in range(len(tracked_accounts)):
-            for j in range(len(notice)):
-                if notice[j]["owner"] == tracked_accounts[i]:
-                    if self.validator.is_account_balance_id(notice[j]["id"]):
-                        accounts_balance_after_transfer.append(notice[j]["balance"])
+        for tracked_account in tracked_accounts:
+            for notice in notices:
+                if notice["owner"] == tracked_account:
+                    if self.validator.is_account_balance_id(notice["id"]):
+                        accounts_balance_after_transfer.append(notice["balance"])
                         balance_object_count += 1
         if balance_object_count != len(tracked_accounts):
             raise Exception("Wrong notice received")
         lcc.log_info("Get notice with '{}' balance_objects owned by tracked accounts".format(balance_object_count))
 
         lcc.set_step("Check that the notice came the updated accounts balances")
-        for i in range(len(tracked_accounts)):
+        for i, tracked_account in enumerate(tracked_accounts):
             if i != 0:
                 fee = 0
                 transfer_amount = - transfer_amount

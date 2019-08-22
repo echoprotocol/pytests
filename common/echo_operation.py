@@ -469,10 +469,10 @@ class EchoOperations(object):
             list_operations = [list_operations]
         if len(list_operations) > 1:
             list_operations = [item for sublist in list_operations for item in sublist]
-        for i in range(len(list_operations)):
-            tx.add_operation(name=list_operations[i][0], props=list_operations[i][1])
-        for i in range(len(list_operations)):
-            tx.add_signer(self.get_signer(list_operations[i][2]))
+        for operation in list_operations:
+            tx.add_operation(name=operation[0], props=operation[1])
+        for operation in list_operations:
+            tx.add_signer(self.get_signer(signer=operation[2]))
         if expiration:
             tx.expiration = expiration
         tx.sign()

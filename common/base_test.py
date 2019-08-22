@@ -217,12 +217,12 @@ class BaseTest(object):
             method = self.__call_method(request)
             self.ws.send(json.dumps(method))
             if debug_mode:
-                lcc.log_debug("Send: {}".format(json.dumps(method, indent=4)))
+                lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
             return method["id"]
         method = self.__call_method(request, api_identifier)
         self.ws.send(json.dumps(method))
         if debug_mode:
-            lcc.log_debug("Send: {}".format(json.dumps(method, indent=4)))
+            lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
         return method["id"]
 
     def get_response(self, id_response, negative=False, log_response=False, debug_mode=False):
@@ -281,15 +281,15 @@ class BaseTest(object):
 
     @staticmethod
     def is_completed_operation_return_empty_object(response):
-        operations_count = response.get("trx").get("operations")
-        if len(operations_count) == 1:
+        operations_count = len(response.get("trx").get("operations"))
+        if operations_count == 1:
             operation_result = response.get("trx").get("operation_results")[0]
             if operation_result[0] != 0 and operation_result[1] != {}:
                 lcc.log_error("Wrong format of operation result, got {}".format(operation_result))
                 raise Exception("Wrong format of operation result")
             return True
         operation_results = []
-        for i in range(len(operations_count)):
+        for i in range(operations_count):
             operation_results.append(response.get("trx").get("operation_results")[i])
             if operation_results[i][0] != 0 and operation_results[i][1] != {}:
                 lcc.log_error("Wrong format of operation results, got {}".format(operation_results))
@@ -297,15 +297,15 @@ class BaseTest(object):
             return True
 
     def is_completed_operation_return_id(self, response):
-        operations_count = response.get("trx").get("operations")
-        if len(operations_count) == 1:
+        operations_count = len(response.get("trx").get("operations"))
+        if operations_count == 1:
             operation_result = response.get("trx").get("operation_results")[0]
             if operation_result[0] != 1 and not self.validator.is_object_id(operation_result[1]):
                 lcc.log_error("Wrong format of operation result, got {}".format(operation_result))
                 raise Exception("Wrong format of operation result")
             return True
         operation_results = []
-        for i in range(len(operations_count)):
+        for i in range(operations_count):
             operation_results.append(response.get("trx").get("operation_results")[i])
             if operation_results[i][0] != 1 and not self.validator.is_object_id(operation_results[i][1]):
                 lcc.log_error("Wrong format of operation results, got {}".format(operation_results))
@@ -320,15 +320,15 @@ class BaseTest(object):
 
     @staticmethod
     def get_operation_results_ids(response):
-        operations_count = response.get("trx").get("operations")
-        if len(operations_count) == 1:
+        operations_count = len(response.get("trx").get("operations"))
+        if operations_count == 1:
             operation_result = response.get("trx").get("operation_results")[0]
             if operation_result[0] != 1:
                 lcc.log_error("Wrong format of operation result, need [0] = 1, got {}".format(operation_result))
                 raise Exception("Wrong format of operation result")
             return operation_result[1]
         operation_results = []
-        for i in range(len(operations_count)):
+        for i in range(operations_count):
             operation_results.append(response.get("trx").get("operation_results")[i])
             if operation_results[i][0] != 1:
                 lcc.log_error("Wrong format of operation results, need [0] = 1, got {}".format(operation_results))
@@ -508,8 +508,8 @@ class BaseTest(object):
             lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))
         if type(list_operations) is list:
             list_operations = [list_operations.copy()]
-        for i in range(len(list_operations)):
-            self.add_fee_to_operation(list_operations[i], database_api_identifier, fee_amount, fee_asset_id, debug_mode)
+        for operation in list_operations:
+            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, debug_mode)
         return list_operations
 
     def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):

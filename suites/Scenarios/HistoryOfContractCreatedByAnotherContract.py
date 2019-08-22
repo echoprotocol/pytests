@@ -132,14 +132,14 @@ class HistoryOfContractCreatedByAnotherContract(BaseTest):
         limit = 100
         params = [created_contract_id, stop, limit, start]
         response_id = self.send_request(self.get_request("get_contract_history", params), self.__history_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Get '{}' contract history".format(created_contract_id))
 
         # todo: add. Bug ECHO-812
         lcc.set_step("Check history of contract that created by another contract")
-        for i in range(len(operations)):
+        for i, operation in enumerate(operations):
             lcc.log_info("Check operation #{}:".format(i))
             require_that(
                 "'contract history'",
-                response["result"][i]["op"], is_list(operations[i])
+                results[i]["op"], is_list(operation)
             )

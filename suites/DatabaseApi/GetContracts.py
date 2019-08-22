@@ -92,12 +92,12 @@ class PositiveTesting(BaseTest):
 
     @staticmethod
     def check_contracts_ids(response, contracts):
-        result = response["result"]
-        if require_that("contracts info", result, has_length(len(contracts))):
-            for i in range(len(result)):
+        results = response["result"]
+        if require_that("contracts info", results, has_length(len(contracts))):
+            for i, result in enumerate(results):
                 lcc.log_info("Check contract #{}:".format(i))
                 require_that_in(
-                    result[i],
+                    result,
                     ["id"], is_str(contracts[i]),
                 )
 
@@ -266,17 +266,17 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Get info about created contracts")
         response_id = self.send_request(self.get_request("get_contracts", [contracts_ids]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        contracts = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_contracts' with params: '{}'".format(contracts_ids))
 
         lcc.set_step("Check that the same contracts have different owners (creators)")
-        for i in range(len(contracts_ids)):
+        for i, contract in enumerate(contracts):
             require_that(
                 "'#{} contract owner'".format(str(i)),
-                response["result"][i]["owner"], is_str(creators[i])
+                contract["owner"], is_str(creators[i])
             )
 
         check_that(
             "'contract owners'",
-            response["result"][0]["owner"], not_equal_to(response["result"][1]["owner"])
+            contracts[0]["owner"], not_equal_to(contracts[1]["owner"])
         )

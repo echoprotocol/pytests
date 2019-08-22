@@ -107,14 +107,14 @@ class GetAccountWithdrawals(BaseTest):
 
         lcc.set_step("Get account history operations")
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_BURN
-        response = self.utils.get_account_history_operations(self, new_account, operation_id,
-                                                             self.__history_api_identifier,
-                                                             limit=len(sidechain_eth_burn_operations))
+        results = self.utils.get_account_history_operations(self, new_account, operation_id,
+                                                            self.__history_api_identifier,
+                                                            limit=len(sidechain_eth_burn_operations))["result"]
         lcc.log_info("Account history operations of 'sidechain_eth_burn_operation' received")
 
         lcc.set_step("Check response from method 'get_account_history_operations'")
-        for i in range(len(response["result"])):
-            operation_in_history = response["result"][i]["op"]
+        for i, result in enumerate(results):
+            operation_in_history = result["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
             check_that_in(
@@ -150,14 +150,14 @@ class GetAccountWithdrawals(BaseTest):
 
         lcc.set_step("Get account history operations")
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_BURN
-        response = self.utils.get_account_history_operations(self, new_account, operation_id,
-                                                             self.__history_api_identifier,
-                                                             limit=len(sidechain_eth_burn_operations))
+        results = self.utils.get_account_history_operations(self, new_account, operation_id,
+                                                            self.__history_api_identifier,
+                                                            limit=len(sidechain_eth_burn_operations))["result"]
         lcc.log_info("Account history operations of 'sidechain_eth_burn_operation' received")
 
         lcc.set_step("Check response from method 'get_account_history_operations'")
-        for i in range(len(response["result"])):
-            operation_in_history = response["result"][i]["op"]
+        for i, result in enumerate(results):
+            operation_in_history = result["op"]
             lcc.set_step("Check operation #{} in account history operations".format(i))
             check_that("operation_id", operation_in_history[0], equal_to(operation_id))
             check_that_in(
@@ -176,35 +176,34 @@ class GetAccountWithdrawals(BaseTest):
         params = [new_account]
         response_id = self.send_request(self.get_request("get_account_withdrawals", params),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        withdrawals = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_account_withdrawals' of new account '{}'".format(new_account))
 
         lcc.set_step("Check simple work of method 'get_account_withdrawals'")
-        withdraw = response["result"]
-        for i in range(len(withdraw)):
+        for i, withdraw in enumerate(withdrawals):
             lcc.set_step("Check account withdraw #{}".format(i))
             require_that(
                 "'first deposit of created account'",
-                withdraw[i], has_length(8)
+                withdraw, has_length(8)
             )
-            if not self.validator.is_withdraw_eth_id(withdraw[i]["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(withdraw[i]["id"]))
+            if not self.validator.is_withdraw_eth_id(withdraw["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(withdraw["id"]))
             else:
                 lcc.log_info("'id' has correct format: withdraw_eth_object_type")
-            if not self.validator.is_eth_address(withdraw[i]["eth_addr"]):
-                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(withdraw[i]["eth_addr"]))
+            if not self.validator.is_eth_address(withdraw["eth_addr"]):
+                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(withdraw["eth_addr"]))
             else:
                 lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
-            withdraw_ids.append(withdraw[i]["id"])
+            withdraw_ids.append(withdraw["id"])
             check_that_in(
-                withdraw[i],
+                withdraw,
                 "withdraw_id", greater_than_or_equal_to(0),
                 "account", is_(new_account),
                 "is_approved", is_true(),
                 "approves", is_list(),
                 "extensions", is_list(),
             )
-            check_that("value", int(withdraw[i]["value"]), is_(withdraw_values[i]), quiet=True)
+            check_that("value", int(withdraw["value"]), is_(withdraw_values[i]), quiet=True)
 
         lcc.set_step("Get withdraw by id using 'get_objects'")
         response_id = self.send_request(self.get_request("get_objects", [withdraw_ids]),
@@ -213,10 +212,10 @@ class GetAccountWithdrawals(BaseTest):
         lcc.log_info("Call method 'get_objects' with param: {}".format(withdraw_ids))
 
         lcc.set_step("Compare withdrawals in 'get_account_withdrawals' with method 'get_objects'")
-        for i in range(len(withdraw)):
+        for i, withdraw in enumerate(withdrawals):
             lcc.set_step("Compare #{}, withdraw in 'get_account_withdrawals' with method 'get_objects'".format(i))
             check_that_in(
-                withdraw[i],
+                withdraw,
                 "id", is_(response[i]["id"]),
                 "withdraw_id", is_(response[i]["withdraw_id"]),
                 "account", is_(response[i]["account"]),

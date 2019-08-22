@@ -132,22 +132,22 @@ class PositiveTesting(BaseTest):
         params = [new_account, _from, limit]
         response_id = self.send_request(self.get_request("get_account_addresses", params),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)["result"]
-        for i in range(len(response)):
-            account_addresses.append(response[i]["address"])
+        results = self.get_response(response_id)["result"]
+        for result in results:
+            account_addresses.append(result["address"])
         lcc.log_info("Call method 'get_account_addresses' of new account")
 
         lcc.set_step("Check that generating addresses are not the same")
-        for i in range(len(account_addresses)):
+        for i, account_address in enumerate(account_addresses):
             if i != len(account_addresses) - 1:
                 require_that(
                     "'generating addresses are not the same'",
-                    account_addresses[i] != account_addresses[i + 1], is_true()
+                    account_address != account_addresses[i + 1], is_true()
                 )
 
         lcc.set_step("Get created account by created account_addresses")
-        for i in range(len(account_addresses)):
-            params = [account_addresses[i]]
+        for i, account_address in enumerate(account_addresses):
+            params = [account_address]
             response_id = self.send_request(self.get_request("get_account_by_address", params),
                                             self.__database_api_identifier)
             response = self.get_response(response_id)

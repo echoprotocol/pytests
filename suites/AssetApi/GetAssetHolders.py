@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_, check_that_in, is_str, require_that, is_list, has_entry, \
-    is_not_none
+    is_not_none, has_length
 
 from common.base_test import BaseTest
 from project import ACCOUNT_PREFIX
@@ -36,25 +36,23 @@ class GetAssetHolders(BaseTest):
         lcc.set_step("Get holders of ECHO asset")
         params = [self.echo_asset, start, limit]
         response_id = self.send_request(self.get_request("get_asset_holders", params), self.__asset_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_asset_holders' with: asset='{}', start='{}', limit='{}' parameters".format(
                 self.echo_asset, start, limit))
 
         lcc.set_step("Check response from method 'get_asset_holders'")
-        result = response["result"]
         check_that(
             "'number of asset '{}' holders'".format(self.echo_asset),
-            len(result), is_(limit)
+            results, has_length(limit)
         )
-        for i in range(len(result)):
-            holders = result[i]
+        for holder in results:
             check_that_in(
-                holders,
+                holder,
                 "name", is_str(),
                 "account_id", is_str()
             )
-            self.check_uint64_numbers(holders, "amount")
+            self.check_uint64_numbers(holder, "amount")
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -81,16 +79,14 @@ class PositiveTesting(BaseTest):
         return self.get_response(response_id, negative=negative)
 
     def check_start_and_limit_params(self, asset_id, start, limit, account_names, accounts_ids, asset_value):
-        response = self.get_asset_holders(asset_id, start, limit)
-        result = response["result"]
+        results = self.get_asset_holders(asset_id, start, limit)["result"]
         require_that(
             "'number of asset '{}' holders'".format(asset_id),
-            len(result), is_(limit)
+            results, has_length(limit)
         )
-        for i in range(limit):
-            holders_info = result[i]
+        for i, holder_info in enumerate(results):
             check_that_in(
-                holders_info,
+                holder_info,
                 "name", is_(account_names + str(start + i)),
                 "account_id", is_(accounts_ids[start + i]),
                 "amount", is_(asset_value - i)
@@ -132,8 +128,8 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Add new asset holders")
         new_holders = [self.echo_acc0, self.echo_acc1, self.echo_acc2]
-        for i in range(len(new_holders)):
-            self.utils.add_assets_to_account(self, asset_value - i, new_asset_id, new_holders[i],
+        for i, new_holder in enumerate(new_holders):
+            self.utils.add_assets_to_account(self, asset_value - i, new_asset_id, new_holder,
                                              self.__database_api_identifier)
         lcc.log_info(
             "Echo accounts '{}' became new asset holders of '{}' asset_id".format(new_holders, new_asset_id))
@@ -142,16 +138,14 @@ class PositiveTesting(BaseTest):
         start = 0
         limit = 100
         new_holders_names = [self.echo_acc0_name, self.echo_acc1_name, self.echo_acc2_name]
-        response = self.get_asset_holders(new_asset_id, start, limit)
-        result = response["result"]
+        results = self.get_asset_holders(new_asset_id, start, limit)["result"]
         check_that(
             "'number of asset '{}' holders'".format(new_asset_id),
-            len(result), is_(len(new_holders))
+            results, has_length(len(new_holders))
         )
-        for i in range(len(result)):
-            holders_info = result[i]
+        for i, holder_info in enumerate(results):
             check_that_in(
-                holders_info,
+                holder_info,
                 "name", is_(new_holders_names[i]),
                 "account_id", is_(new_holders[i]),
                 "amount", is_(asset_value - i)

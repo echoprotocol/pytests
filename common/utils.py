@@ -240,8 +240,8 @@ class Utils(object):
                 return {"account_id": account_id, "operation": collected_operation}
             return account_id
         list_operations = []
-        for i in range(len(account_names)):
-            operation = base_test.echo_ops.get_account_create_operation(echo=base_test.echo, name=account_names[i],
+        for i, account_name in enumerate(account_names):
+            operation = base_test.echo_ops.get_account_create_operation(echo=base_test.echo, name=account_name,
                                                                         active_key_auths=account_keys[i][1],
                                                                         echorand_key=account_keys[i][1],
                                                                         registrar=signer, signer=signer)
@@ -253,8 +253,8 @@ class Utils(object):
             raise Exception("Default accounts are not created")
         operation_results = base_test.get_operation_results_ids(broadcast_result)
         accounts_ids = []
-        for i in range(len(operation_results)):
-            accounts_ids.append(operation_results[i][1])
+        for operation_result in operation_results:
+            accounts_ids.append(operation_result[1])
         if need_operations:
             return {"accounts_ids": accounts_ids, "account_names": account_names, "list_operations": list_operations}
         return accounts_ids

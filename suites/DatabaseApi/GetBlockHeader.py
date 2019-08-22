@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_, check_that_in, is_str, is_list, is_integer
+from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, has_length
 
 from common.base_test import BaseTest
 
@@ -40,7 +40,7 @@ class GetBlockHeader(BaseTest):
         block_header = response["result"]
         require_that(
             "'the block header of the first block'",
-            len(block_header), is_(9)
+            block_header, has_length(9)
         )
         check_that_in(
             block_header,

@@ -67,9 +67,9 @@ class TransferAssetViaContactAddresses(BaseTest):
         params = [new_account, _from, limit]
         response_id = self.send_request(self.get_request("get_account_addresses", params),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)["result"]
-        for i in range(len(response)):
-            account_addresses.append(response[i]["address"])
+        results = self.get_response(response_id)["result"]
+        for result in results:
+            account_addresses.append(result["address"])
         lcc.log_info("Call method 'get_account_addresses' of new account")
 
         lcc.set_step("Transfer assets via first account_address")

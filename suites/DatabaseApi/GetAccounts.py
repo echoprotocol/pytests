@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, check_that, has_length, is_integer, is_str, is_dict, is_list, \
-    require_that, is_, equal_to
+    require_that, equal_to
 
 from common.base_test import BaseTest
 
@@ -39,18 +39,17 @@ class GetAccounts(BaseTest):
         lcc.set_step("Get info about default accounts")
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
         require_that(
             "'list of received accounts'",
-            len(response["result"]), is_(len(params))
+            results, has_length(len(params))
         )
 
-        for i in range(len(response["result"])):
+        for i, account_info in enumerate(results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            account_info = response["result"][i]
             if check_that("account_info", account_info, has_length(15)):
                 check_that_in(
                     account_info,
@@ -98,8 +97,8 @@ class GetAccounts(BaseTest):
                 lcc.set_step("Check 'options' field")
                 if check_that("active", account_info["options"], has_length(5)):
                     account_ids_format = ["voting_account", "delegating_account"]
-                    for k in range(len(account_ids_format)):
-                        self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
+                    for account_id_format in account_ids_format:
+                        self.check_fields_account_ids_format(account_info["options"], account_id_format)
                     check_that_in(
                         account_info["options"],
                         "num_committee", is_integer(),
@@ -153,13 +152,12 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Get a list of created accounts by ID")
         response_id = self.send_request(self.get_request("get_accounts", [accounts.get("accounts_ids")]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_accounts' with params: {}".format(accounts.get("accounts_ids")))
 
-        for i in range(len(response["result"])):
+        for i, account_info in enumerate(results):
             lcc.set_step("Checking account #{}".format(i))
             performed_operations = accounts.get("list_operations")[i][0][1]
-            account_info = response["result"][i]
             check_that_in(
                 account_info,
                 "registrar", equal_to(performed_operations["registrar"]),
@@ -204,9 +202,9 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Checking created account")
         account_info_1 = response_1["result"]
         account_info_2 = response_2["result"]
-        for i in range(len(account_info_1)):
+        for i, result in enumerate(account_info_1):
             check_that_in(
-                account_info_1[i],
+                result,
                 "registrar", equal_to(account_info_2[i]["registrar"]),
                 "name", equal_to(account_info_2[i]["name"]),
                 "active", equal_to(account_info_2[i]["active"]),

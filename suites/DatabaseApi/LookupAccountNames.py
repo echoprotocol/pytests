@@ -77,8 +77,8 @@ class LookupAccountNames(BaseTest):
             lcc.set_step("Check 'options' field")
             if check_that("active", account_info["options"], has_length(5)):
                 account_ids_format = ["voting_account", "delegating_account"]
-                for k in range(len(account_ids_format)):
-                    self.check_fields_account_ids_format(account_info["options"], account_ids_format[k])
+                for account_id_format in account_ids_format:
+                    self.check_fields_account_ids_format(account_info["options"], account_id_format)
                 check_that_in(
                     account_info["options"],
                     "num_committee", is_integer(),
@@ -211,5 +211,5 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_objects' with param: {}".format(account_id))
 
         lcc.set_step("Checking created account")
-        for account_num in range(len(account_info_1)):
-            self.compare_accounts(account_info_1[account_num], account_info_2[account_num])
+        for i, result in enumerate(account_info_1):
+            self.compare_accounts(result, account_info_2[i])

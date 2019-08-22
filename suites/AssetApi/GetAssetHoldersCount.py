@@ -108,16 +108,16 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Add new asset holders")
         new_holders = [self.echo_acc0, self.echo_acc1, self.echo_acc2]
-        for i in range(len(new_holders)):
-            self.utils.add_assets_to_account(self, value, new_asset_id, new_holders[i], self.__database_api_identifier)
+        for new_holder in new_holders:
+            self.utils.add_assets_to_account(self, value, new_asset_id, new_holder, self.__database_api_identifier)
         lcc.log_info(
             "Echo accounts '{}' became new asset holders of '{}' asset_id".format(new_holders, new_asset_id))
 
         lcc.set_step("Check count of added holders")
-        response = self.get_asset_holders_count(new_asset_id)
+        results = self.get_asset_holders_count(new_asset_id)["result"]
         check_that(
             "'number of asset '{}' holders'".format(new_asset_id),
-            response["result"], is_integer(len(new_holders))
+            results, is_integer(len(new_holders))
         )
 
 

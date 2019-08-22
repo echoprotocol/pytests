@@ -84,12 +84,12 @@ class GetGlobalProperties(BaseTest):
             )
 
     def check_default_fee_for_operation(self, current_fees, operations, check_kind):
-        for i in range(len(operations)):
-            for j in range(len(current_fees)):
-                if current_fees[j][0] == self.all_operations.get(operations[i].upper()):
+        for operation in operations:
+            for fee in current_fees:
+                if fee[0] == self.all_operations.get(operation.upper()):
                     lcc.log_info("Check default fee for '{}' operation, "
-                                 "operation_id is '{}'".format(operations[i], current_fees[j][0]))
-                    check_kind(current_fees[j][1])
+                                 "operation_id is '{}'".format(operation, fee[0]))
+                    check_kind(fee[1])
                     break
 
     def check_sidechain_config(self, sidechain_config, eth_params, eth_methods):

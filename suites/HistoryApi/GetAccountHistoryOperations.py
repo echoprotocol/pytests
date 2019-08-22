@@ -49,29 +49,27 @@ class GetAccountHistoryOperations(BaseTest):
         params = [self.echo_acc0, operation_id, start, stop, limit]
         response_id = self.send_request(self.get_request("get_account_history_operations", params),
                                         self.__history_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_account_history_operations' with: account='{}', operation_id='{}', stop='{}', start='{}',"
             " limit='{}' parameters".format(self.echo_acc0, operation_id, stop, start, limit))
 
         lcc.set_step("Check response from method 'get_account_history_operations'")
-        result = response["result"]
         check_that(
             "'number of history results'",
-            len(result), is_(limit)
+            results, has_length(limit)
         )
-        for i in range(len(result)):
-            list_operations = result[i]
+        for result in results:
             check_that(
                 "'operation id'",
-                list_operations["op"][0], is_(operation_id)
+                result["op"][0], is_(operation_id)
             )
-            if not self.validator.is_operation_history_id(list_operations["id"]):
-                lcc.log_error("Wrong format of 'operation id', got: {}".format(list_operations["id"]))
+            if not self.validator.is_operation_history_id(result["id"]):
+                lcc.log_error("Wrong format of 'operation id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'operation_id' has correct format: operation_history_id")
             check_that_in(
-                list_operations,
+                result,
                 "op", is_list(),
                 "result", is_list(),
                 "block_num", is_integer(),
@@ -224,14 +222,14 @@ class PositiveTesting(BaseTest):
         response = self.get_account_history_operations(new_account, operation_id, start, stop, max_limit)
         check_that(
             "'number of history results'",
-            len(response["result"]), is_(operation_count)
+            response["result"], has_length(operation_count)
         )
 
         lcc.set_step("Check minimum list length account history")
         response = self.get_account_history_operations(new_account, operation_id, start, stop, min_limit)
         check_that(
             "'number of history results'",
-            len(response["result"]), is_(min_limit)
+            response["result"], has_length(min_limit)
         )
 
         lcc.set_step("Perform operations using a new account to create max_limit operations")
@@ -246,7 +244,7 @@ class PositiveTesting(BaseTest):
         response = self.get_account_history_operations(new_account, operation_id, start, stop, max_limit)
         check_that(
             "'number of history results'",
-            len(response["result"]), is_(max_limit)
+            response["result"], has_length(max_limit)
         )
 
     @lcc.prop("type", "method")
@@ -311,13 +309,14 @@ class PositiveTesting(BaseTest):
         stop = operation_id
         start = operation_ids[0]
         lcc.set_step("Get account history. Start: '{}', stop: '{}' and limit: '{}'".format(start, stop, limit))
-        response = self.get_account_history_operations(self.echo_acc0, operation_identifier, start, stop, limit)
+        results = self.get_account_history_operations(self.echo_acc0, operation_identifier, start, stop, limit)[
+            "result"]
 
         lcc.set_step("Check account history to see operations from the selected ids interval")
-        for i in range(len(response["result"])):
+        for i, result in enumerate(results):
             lcc.log_info("Check operation #{}:".format(i))
             require_that_in(
-                response["result"][i],
+                result,
                 ["id"], is_str(operation_ids[i]),
                 ["op"], is_list(operations[i])
             )

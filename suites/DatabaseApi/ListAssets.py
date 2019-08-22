@@ -204,10 +204,9 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check created assets")
         assets_info = response["result"]
-        for operation_num in range(len(collected_operations)):
-            performed_operation = collected_operations[operation_num][0][1]
+        for collected_operation in collected_operations:
             for asset_info in assets_info:
-                self.check_created_asset(asset_info, performed_operation)
+                self.check_created_asset(asset_info, collected_operation[0][1])
 
     @lcc.prop("type", "method")
     @lcc.test("List assets with set `limit` parameter more than exist in chain")

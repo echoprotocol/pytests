@@ -275,10 +275,10 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Perform vesting balance create operation. Owner = new account")
         assets = [self.echo_asset, new_asset]
         amounts = [echo_asset_amount, new_asset_amount]
-        for i in range(len(assets)):
+        for i, asset in enumerate(assets):
             operation = self.echo_ops.get_vesting_balance_create_operation(echo=self.echo, creator=self.echo_acc0,
                                                                            owner=new_account, amount=amounts[i],
-                                                                           amount_asset_id=assets[i])
+                                                                           amount_asset_id=asset)
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             list_operations.append(collected_operation)
         self.echo_ops.broadcast(echo=self.echo, list_operations=list_operations)
@@ -287,10 +287,10 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_vesting_balances", [new_account]),
                                         self.__database_api_identifier)
         vesting_balances = self.get_response(response_id)["result"]
-        for i in range(len(vesting_balances)):
-            check_that_in(vesting_balances[i], "owner", equal_to(new_account))
+        for i, vesting_balance in enumerate(vesting_balances):
+            check_that_in(vesting_balance, "owner", equal_to(new_account))
             check_that_in(
-                vesting_balances[i]["balance"],
+                vesting_balance["balance"],
                 "amount", equal_to(amounts[i]),
                 "asset_id", equal_to(assets[i])
             )

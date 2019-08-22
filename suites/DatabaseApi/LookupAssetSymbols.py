@@ -209,10 +209,9 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check created assets")
         assets_by_symbol = response["result"]
-        for operation_num in range(len(collected_operations)):
-            performed_operation = collected_operations[operation_num][0][1]
+        for collected_operation in collected_operations:
             for asset_by_symbol_info in assets_by_symbol:
-                self.compare_assets(asset_by_symbol_info, performed_operation, asset_is_created=True)
+                self.compare_assets(asset_by_symbol_info, collected_operation[0][1], asset_is_created=True)
 
         lcc.set_step("Lookup created assets by ids")
         response_id = self.send_request(self.get_request("lookup_asset_symbols", [asset_ids]),
