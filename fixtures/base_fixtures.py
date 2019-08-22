@@ -154,3 +154,11 @@ def get_random_character():
         random.SystemRandom().choice(string.punctuation))
     lcc.log_info("Generated random punctuation: {}".format(random_character))
     return random_character
+
+
+@lcc.fixture(scope="test")
+def get_random_url():
+    random_url = "https://{}.com/".format(''.join(
+        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)))
+    lcc.log_info("Generated random url: {}".format(random_url))
+    return random_url

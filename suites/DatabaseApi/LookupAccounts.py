@@ -137,9 +137,7 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("DatabaseApi.LookupAccounts.LookupAccounts.method_main_check")
     def lookup_more_accounts_than_exists(self):
         lcc.set_step("Get parameters, for lookup accounts more than exists")
-        lower_bound_name, limit = self.utils.get_nonexistent_account_name_for_lookup(self,
-                                                                                     self.__database_api_identifier
-                                                                                     )
+        lower_bound_name, limit = self.utils.get_nonexistent_account_name(self, self.__database_api_identifier)
         lcc.log_info("Got parameters: lower_bound_name='{}', limit='{}'".format(lower_bound_name, limit))
 
         lcc.set_step("Lookup accounts")

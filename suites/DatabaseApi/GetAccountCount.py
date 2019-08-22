@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_integer, has_entry, is_
+from lemoncheesecake.matching import check_that, is_integer, has_entry, is_true
 
 from common.base_test import BaseTest
 
@@ -85,11 +85,11 @@ class PositiveTesting(BaseTest):
         account_count_after = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_account_count', account_count='{}'".format(account_count_after))
 
-        lcc.set_step("Check simple work of method 'get_account_count'")
+        lcc.set_step("Check that created account added")
         check_that(
-            "'account count'",
-            account_count_after - account_count_before,
-            is_(1),
+            "'new account added'",
+            (account_count_after - account_count_before) == 1,
+            is_true(),
         )
 
 

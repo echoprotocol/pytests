@@ -47,8 +47,7 @@ class Utils(object):
             return asset_id, symbol
         return asset_id
 
-    def get_nonexistent_asset_symbol(self, base_test, database_api_id, symbol="",
-                                     list_asset_symbols=None):
+    def get_nonexistent_asset_symbol(self, base_test, database_api_id, symbol="", list_asset_symbols=None):
         if list_asset_symbols is None:
             list_asset_symbols = []
         max_limit = 100
@@ -64,26 +63,40 @@ class Utils(object):
             nonexistent_asset_symbol = get_random_valid_asset_name()
         return nonexistent_asset_symbol
 
-    def get_nonexistent_account_name_for_lookup(self, base_test, database_api_id, lower_bound_name="",
-                                                list_account_names=None):
+    def get_nonexistent_account_name(self, base_test, database_api_id, lower_bound_name="", list_account_names=None,
+                                     committee_member=False):
         if list_account_names is None:
             list_account_names = []
+        method_name = "lookup_accounts" if not committee_member else "lookup_committee_member_accounts"
         max_limit = 1000
-        response_id = base_test.send_request(base_test.get_request("lookup_accounts", [lower_bound_name, max_limit]),
+        response_id = base_test.send_request(base_test.get_request(method_name, [lower_bound_name, max_limit]),
                                              database_api_id)
         response = base_test.get_response(response_id)
         for account in response["result"]:
             list_account_names.append(account[0])
         if len(response["result"]) == max_limit:
-            return self.get_nonexistent_account_name_for_lookup(base_test, database_api_id,
-                                                                lower_bound_name=list_account_names[-1],
-                                                                list_account_names=list_account_names)
+            return self.get_nonexistent_account_name(base_test, database_api_id,
+                                                     lower_bound_name=list_account_names[-1],
+                                                     list_account_names=list_account_names)
         account_names_count = len(list_account_names)
         result_lower_bound_name = list_account_names[len(list_account_names) // max_limit * max_limit] \
             if account_names_count > 1000 else lower_bound_name
         result_limit = account_names_count % max_limit + 1 if account_names_count > 1000 \
             else account_names_count + 1
         return result_lower_bound_name, result_limit
+
+    @staticmethod
+    def get_nonexistent_committee_member_id(base_test, database_api_id):
+        response_id = base_test.send_request(base_test.get_request("get_committee_count"), database_api_id)
+        committee_count = base_test.get_response(response_id)["result"]
+        return "{}{}".format(base_test.get_object_type(base_test.echo.config.object_types.COMMITTEE_MEMBER),
+                             committee_count)
+
+    @staticmethod
+    def get_nonexistent_vote_id(base_test, database_api_id):
+        response_id = base_test.send_request(base_test.get_request("get_global_properties"), database_api_id)
+        next_available_vote_id = base_test.get_response(response_id)["result"]["next_available_vote_id"]
+        return "0:{}".format(next_available_vote_id)
 
     def get_contract_id(self, base_test, registrar, contract_bytecode, database_api_id, value_amount=0,
                         value_asset_id="1.3.0", supported_asset_id=None, get_only_fee=False,
@@ -537,11 +550,11 @@ class Utils(object):
                 "Error: fund pool from '{}' account is not performed, response:\n{}".format(sender, broadcast_result))
         return broadcast_result
 
-    def perform_committee_member_create_operation(self, base_test, account_id, eth_address, database_api_id,
+    def perform_committee_member_create_operation(self, base_test, account_id, eth_address, database_api_id, url="",
                                                   log_broadcast=False):
         operation = base_test.echo_ops.get_committee_member_create_operation(echo=base_test.echo,
                                                                              committee_member_account=account_id,
-                                                                             eth_address=eth_address, url="test_url")
+                                                                             eth_address=eth_address, url=url)
         if account_id != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             broadcast_result = self.add_balance_for_operations(base_test, account_id, temp_operation, database_api_id,
@@ -555,6 +568,29 @@ class Utils(object):
             raise Exception(
                 "Error: '{}' account did not become new committee member, response:\n{}".format(account_id,
                                                                                                 broadcast_result))
+        return broadcast_result
+
+    def perform_committee_member_update_operation(self, base_test, committee_member, committee_member_account,
+                                                  database_api_id, new_eth_address=None, new_url=None,
+                                                  log_broadcast=False):
+        operation = \
+            base_test.echo_ops.get_committee_member_update_operation(echo=base_test.echo,
+                                                                     committee_member=committee_member,
+                                                                     committee_member_account=committee_member_account,
+                                                                     new_eth_address=new_eth_address,
+                                                                     new_url=new_url)
+        if committee_member_account != base_test.echo_acc0:
+            temp_operation = deepcopy(operation)
+            broadcast_result = self.add_balance_for_operations(base_test, committee_member_account, temp_operation,
+                                                               database_api_id, log_broadcast=log_broadcast)
+            if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
+                raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
+        collected_operation = base_test.collect_operations(operation, database_api_id)
+        broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
+                                                        log_broadcast=log_broadcast)
+        if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
+            raise Exception("Error: '{}' committee member did not updated, response:\n{}"
+                            "".format(committee_member_account, broadcast_result))
         return broadcast_result
 
     def perform_account_update_operation(self, base_test, account_id, account_info, database_api_id,

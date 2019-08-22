@@ -162,6 +162,50 @@ class EchoOperations(object):
             return [operation_id, asset_issue_props, issuer]
         return [operation_id, asset_issue_props, signer]
 
+    def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, fee_amount=0,
+                                              fee_asset_id="1.3.0", url="", extensions=None, signer=None,
+                                              debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_CREATE
+        committee_member_create_props = self.get_operation_json("committee_member_create_operation")
+        committee_member_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_create_props.update(
+            {"committee_member_account": committee_member_account, "url": url, "eth_address": eth_address,
+             "extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Committee member create operation: \n{}".format(
+                json.dumps([operation_id, committee_member_create_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_create_props, committee_member_account]
+        return [operation_id, committee_member_create_props, signer]
+
+    def get_committee_member_update_operation(self, echo, committee_member, committee_member_account,
+                                              new_eth_address=None, new_url=None, fee_amount=0, fee_asset_id="1.3.0",
+                                              extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_UPDATE
+        committee_member_update_props = self.get_operation_json("committee_member_update_operation")
+        committee_member_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_update_props.update(
+            {"committee_member": committee_member, "committee_member_account": committee_member_account,
+             "extensions": extensions})
+        if new_eth_address is not None:
+            committee_member_update_props.update({"new_eth_address": new_eth_address})
+        else:
+            del committee_member_update_props["new_eth_address"]
+        if new_url is not None:
+            committee_member_update_props.update({"new_url": new_url})
+        else:
+            del committee_member_update_props["new_url"]
+        if debug_mode:
+            lcc.log_debug("Committee member update operation: \n{}".format(
+                json.dumps([operation_id, committee_member_update_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_update_props, committee_member_account]
+        return [operation_id, committee_member_update_props, signer]
+
     def get_vesting_balance_create_operation(self, echo, creator, owner, fee_amount=0, fee_asset_id="1.3.0", amount=1,
                                              amount_asset_id="1.3.0", begin_timestamp="1970-01-01T00:00:00",
                                              vesting_cliff_seconds=0, vesting_duration_seconds=0, extensions=None,
@@ -200,24 +244,6 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, vesting_balance_withdraw_props, owner]
         return [operation_id, vesting_balance_withdraw_props, signer]
-
-    def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, fee_amount=0,
-                                              fee_asset_id="1.3.0", url="", extensions=None, signer=None,
-                                              debug_mode=False):
-        if extensions is None:
-            extensions = []
-        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_CREATE
-        committee_member_create_props = self.get_operation_json("committee_member_create_operation")
-        committee_member_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
-        committee_member_create_props.update(
-            {"committee_member_account": committee_member_account, "url": url, "eth_address": eth_address,
-             "extensions": extensions})
-        if debug_mode:
-            lcc.log_debug("Committee member create operation: \n{}".format(
-                json.dumps([operation_id, committee_member_create_props], indent=4)))
-        if signer is None:
-            return [operation_id, committee_member_create_props, committee_member_account]
-        return [operation_id, committee_member_create_props, signer]
 
     def get_balance_claim_operation(self, echo, deposit_to_account, balance_owner_public_key, value_amount,
                                     balance_owner_private_key=None, fee_amount=0, fee_asset_id="1.3.0",
