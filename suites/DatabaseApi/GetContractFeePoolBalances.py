@@ -231,13 +231,6 @@ class PositiveTesting(BaseTest):
                                                         self.__database_api_identifier)
         lcc.log_info("Fee pool added to '{}' contract successfully".format(contract_id))
 
-        lcc.set_step("Get balance of account and store")
-        params = [self.echo_acc0, [self.echo_asset]]
-        response_id = self.send_request(self.get_request("get_account_balances", params),
-                                        self.__database_api_identifier)
-        account_balance = self.get_response(response_id)["result"][0]["amount"]
-        lcc.log_info("'{}' account has '{}' '{}' assets".format(self.echo_acc0, account_balance, self.echo_asset))
-
         lcc.set_step("Get a contract's fee pool balance before contract destroyed")
         response_id = self.send_request(self.get_request("get_contract_pool_balance", [contract_id]),
                                         self.__database_api_identifier)
@@ -245,9 +238,23 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'. "
                      "Fee pool balance: '{}' assets".format(contract_id, fee_pool_balance))
 
+        lcc.set_step("Get balance of account and store")
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
+                                                         print_log=False)
+        params = [self.echo_acc0, [self.echo_asset]]
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        account_balance = self.get_response(response_id)["result"][0]["amount"]
+        lcc.log_info("'{}' account has '{}' '{}' assets".format(self.echo_acc0, account_balance, self.echo_asset))
+
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                   log_broadcast=False)
+        block_num = broadcast_result["block_num"]
+
+        lcc.set_step("Get account block reward")
+        reward = self.utils.get_account_block_reward(self, [self.echo_acc0], block_num, self.__database_api_identifier)
 
         lcc.set_step("Check contract fee pool balance after contract destroyed")
         response_id = self.send_request(self.get_request("get_contract_pool_balance", [contract_id]),
@@ -261,7 +268,7 @@ class PositiveTesting(BaseTest):
                                         self.__database_api_identifier)
         updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
         check_that("'account balance'", int(updated_account_balance),
-                   equal_to(int(account_balance) + fee_pool_balance - needed_fee))
+                   equal_to(int(account_balance) + fee_pool_balance + reward[0] - needed_fee))
 
     @lcc.prop("type", "method")
     @lcc.test("Add insufficient fee pool to contract to call contract method")
@@ -280,13 +287,6 @@ class PositiveTesting(BaseTest):
         lcc.log_info(
             "Added '{}' assets value to '{}' contract fee pool successfully".format(value_to_pool, contract_id))
 
-        lcc.set_step("Get balances of new account and store")
-        params = [self.echo_acc0, [self.echo_asset]]
-        response_id = self.send_request(self.get_request("get_account_balances", params),
-                                        self.__database_api_identifier)
-        account_balance = self.get_response(response_id)["result"][0]["amount"]
-        lcc.log_info("'{}' account has '{}' '{}' assets".format(self.echo_acc0, account_balance, self.echo_asset))
-
         lcc.set_step("Get a contract's fee pool balance")
         response_id = self.send_request(self.get_request("get_contract_pool_balance", [contract_id]),
                                         self.__database_api_identifier)
@@ -294,9 +294,31 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'. "
                      "Fee pool balance: '{}' assets".format(contract_id, fee_pool_balance))
 
+        lcc.set_step("Get balances of new account and store")
+        params = [self.echo_acc0, [self.echo_asset]]
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
+                                                         print_log=False)
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier, debug_mode=True)
+        account_balance = self.get_response(response_id, log_response=True)["result"][0]["amount"]
+        lcc.log_info("'{}' account has '{}' '{}' assets".format(self.echo_acc0, account_balance, self.echo_asset))
+
         lcc.set_step("Call 'greet' method using new account, that don't have any balance")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                   log_broadcast=True)
+        block_num = broadcast_result["block_num"]
+
+        lcc.set_step("Get account block reward")
+        reward = self.utils.get_account_block_reward(self, [self.echo_acc0], block_num, self.__database_api_identifier)
+
+        lcc.set_step("Get updated balances of new account and check it")
+        params = [self.echo_acc0, [self.echo_asset]]
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
+        check_that("'account balance'", int(updated_account_balance),
+                   equal_to(int(account_balance) - (needed_fee - value_to_pool) + reward[0]))
 
         lcc.set_step("Get a contract's fee pool balance after contract call")
         response_id = self.send_request(self.get_request("get_contract_pool_balance", [contract_id]),
@@ -305,14 +327,6 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check that contract pool balance became empty")
         check_that("'contract pool balance'", updated_fee_pool_balance, equal_to(fee_pool_balance - value_to_pool))
-
-        lcc.set_step("Get updated balances of new account and check it")
-        params = [self.echo_acc0, [self.echo_asset]]
-        response_id = self.send_request(self.get_request("get_account_balances", params),
-                                        self.__database_api_identifier)
-        updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
-        check_that("'account balance'", int(updated_account_balance),
-                   equal_to(int(account_balance) - (needed_fee - value_to_pool)))
 
 
 @lcc.prop("suite_run_option_3", "negative")

@@ -93,10 +93,7 @@ class GetGlobalProperties(BaseTest):
                     break
 
     def check_sidechain_config(self, sidechain_config, eth_params, eth_methods):
-        if check_that("sidechain_config", sidechain_config, has_length(17)):
-            check_that_in(
-                sidechain_config, "waiting_blocks", is_integer(), quiet=True
-            )
+        if check_that("sidechain_config", sidechain_config, has_length(18)):
             for eth_param in eth_params:
                 if not self.validator.is_hex(sidechain_config[eth_param]):
                     lcc.log_error(
@@ -121,6 +118,11 @@ class GetGlobalProperties(BaseTest):
                 check_that_in(
                     sidechain_config["fines"], "generate_eth_address", is_(-10), quiet=True
                 )
+            check_that_in(
+                sidechain_config,
+                "waiting_blocks", is_integer(),
+                "waiting_eth_blocks", is_integer(),
+                quiet=True)
             self.check_uint64_numbers(sidechain_config, "gas_price", quiet=False)
 
     def check_erc20_config(self, erc20_config, erc20_methods):
@@ -196,11 +198,10 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         parameters = response["result"]["parameters"]
-        if check_that("parameters", parameters, has_length(24)):
+        if check_that("parameters", parameters, has_length(25)):
             check_that_in(
                 parameters,
                 "current_fees", is_dict(),
-                "block_interval", is_integer(),
                 "maintenance_interval", is_integer(),
                 "maintenance_duration_seconds", is_integer(),
                 "committee_proposal_review_period", is_integer(),
@@ -219,6 +220,8 @@ class GetGlobalProperties(BaseTest):
                 "account_fee_scale_bitshifts", is_integer(),
                 "account_fee_scale_bitshifts", is_integer(),
                 "max_authority_depth", is_integer(),
+                "block_producer_reward_ratio", is_integer(),
+                "block_emission_amount", is_integer(),
                 "echorand_config", is_dict(),
                 "sidechain_config", is_dict(),
                 "erc20_config", is_dict(),
@@ -313,7 +316,7 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'echorand_config' field")
         echorand_config = parameters["echorand_config"]
-        if check_that("echorand_config", echorand_config, has_length(7)):
+        if check_that("echorand_config", echorand_config, has_length(8)):
             check_that_in(
                 echorand_config,
                 "_time_net_1mb", is_integer(),
@@ -323,6 +326,7 @@ class GetGlobalProperties(BaseTest):
                 "_ok_threshold", is_integer(),
                 "_max_bba_steps", is_integer(),
                 "_gc1_delay", is_integer(),
+                "_time_generate", is_integer(),
                 quiet=True
             )
 

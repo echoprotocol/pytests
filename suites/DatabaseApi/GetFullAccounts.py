@@ -100,12 +100,13 @@ class GetFullAccounts(BaseTest):
                         )
 
                     lcc.set_step("Check 'options' field")
-                    if check_that("active", account_info["options"], has_length(5)):
+                    if check_that("active", account_info["options"], has_length(6)):
                         account_ids_format = ["voting_account", "delegating_account"]
                         for account_id_format in account_ids_format:
                             self.check_fields_account_ids_format(account_info["options"], account_id_format)
                         check_that_in(
                             account_info["options"],
+                            "delegate_share", is_integer(),
                             "num_committee", is_integer(),
                             "votes", is_list(),
                             "extensions", is_list(),
@@ -114,7 +115,7 @@ class GetFullAccounts(BaseTest):
 
                 lcc.set_step("Check 'statistics' field")
                 account_statistics = full_account_info.get("statistics")
-                if check_that("account_statistics", account_statistics, has_length(11)):
+                if check_that("account_statistics", account_statistics, has_length(10)):
                     if not self.validator.is_account_statistics_id(account_statistics["id"]):
                         lcc.log_error("Wrong format of 'id', got: {}".format(account_statistics["id"]))
                     else:
@@ -131,7 +132,6 @@ class GetFullAccounts(BaseTest):
                         "removed_ops", is_integer(),
                         "total_blocks", is_integer(),
                         "total_core_in_orders", is_integer(),
-                        "pending_fees", is_integer(),
                         "generated_eth_address", is_bool(),
                         "committeeman_rating", is_integer(),
                         "extensions", is_list(),

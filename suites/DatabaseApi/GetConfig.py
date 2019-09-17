@@ -9,7 +9,8 @@ SUITE = {
     "description": "Method 'get_config'"
 }
 
-
+#todo: change main fields. Bug ECHO-1290
+@lcc.disabled()
 @lcc.prop("suite_run_option_1", "main")
 @lcc.prop("suite_run_option_2", "positive")
 @lcc.prop("suite_run_option_3", "negative")

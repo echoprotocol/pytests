@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_none, is_list, is_, has_entry, check_that_in, not_equal_to, \
-    require_that, equal_to
+    require_that, equal_to, greater_than_or_equal_to
 
 from common.base_test import BaseTest
 
@@ -84,7 +84,7 @@ class SetSubscribeCallback(BaseTest):
         block2 = int(block2.split(".")[2])
         check_that(
             "'block_id and its neighboring block_id differ by one'",
-            block2 - block1, is_(1),
+            block2 - block1, greater_than_or_equal_to(1),
         )
 
 
@@ -109,6 +109,9 @@ class PositiveTesting(BaseTest):
         if result is not None:
             raise Exception("Subscription not issued")
         lcc.log_info("Call method 'set_subscribe_callback', 'notify_remove_create'={}".format(notify_remove_create))
+
+    def get_head_block_num(self):
+        return self.echo.api.database.get_dynamic_global_properties()["head_block_number"]
 
     def setup_suite(self):
         super().setup_suite()
@@ -171,15 +174,17 @@ class PositiveTesting(BaseTest):
         response = self.get_response(response_id)["result"][0]
 
         lcc.set_step("Check that updated object does not match previous")
+        block_num = self.get_head_block_num()
         notice = self.get_notice(subscription_callback_id, object_id=param)
+        response_last_irreversible_block_num = response["last_irreversible_block_num"]
+        irreversible_matcher = not_equal_to(response_last_irreversible_block_num) if block_num > 15 \
+            else equal_to(response_last_irreversible_block_num)
         check_that_in(
             notice,
             "head_block_number", not_equal_to(response["head_block_number"]),
             "head_block_id", not_equal_to(response["head_block_id"]),
             "time", not_equal_to(response["time"]),
-            "recently_missed_count", not_equal_to(response["recently_missed_count"]),
-            "current_aslot", not_equal_to(response["current_aslot"]),
-            "last_irreversible_block_num", not_equal_to(response["last_irreversible_block_num"]),
+            "last_irreversible_block_num", irreversible_matcher,
         )
 
     @lcc.prop("type", "method")

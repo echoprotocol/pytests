@@ -8,7 +8,7 @@ from lemoncheesecake.project import Project
 
 class MyProject(Project):
     def build_report_title(self):
-        return "ECHO tests (ECHO v. 0.9.3)"
+        return "ECHO tests (ECHO v. 0.10.0)"
 
 
 project_dir = os.path.dirname(__file__)
@@ -55,7 +55,7 @@ else:
 ECHO_OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "echo_operations.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
 WALLETS = os.path.join(RESOURCES_DIR, "wallets.json")
-EXECUTION_STATUS_PATH = os.path.join(RESOURCES_DIR, "execution_status.json")
+UTILS = os.path.join(RESOURCES_DIR, "utils.json")
 ECHO_INITIAL_BALANCE = int(GENESIS["initial_balances"][0]["amount"])
 ECHO_ASSET_SYMBOL = GENESIS["initial_balances"][0]["asset_symbol"]
 INITIAL_ACCOUNTS = GENESIS["initial_accounts"]
@@ -71,7 +71,8 @@ for i, initial_committee_candidate in enumerate(INITIAL_COMMITTEE_CANDIDATES):
 ACCOUNT_PREFIX = "account"
 DEFAULT_ACCOUNTS_COUNT = 1000
 MAIN_TEST_ACCOUNT_COUNT = 1
-BLOCK_RELEASE_INTERVAL = GENESIS["initial_parameters"]["block_interval"]
+#todo: delete. Block_interval =5
+BLOCK_RELEASE_INTERVAL = 5
 BLOCKS_NUM_TO_WAIT = 45
 BASE_ASSET_SYMBOL, ETH_ASSET_SYMBOL = "ECHO", "EETH"
 ETH_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["ETH_asset_id"]

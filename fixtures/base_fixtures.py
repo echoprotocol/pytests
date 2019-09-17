@@ -69,6 +69,14 @@ def get_random_string():
 
 
 @lcc.fixture(scope="test")
+def get_random_string_only_letters():
+    random_string = ''.join(
+        random.SystemRandom().choice(string.ascii_letters) for _ in range(RANGE_OF_STR))
+    lcc.log_info("Generated random string: {}".format(random_string))
+    return random_string
+
+
+@lcc.fixture(scope="test")
 def get_random_dict():
     random_dict = {}
     random_int = random.randrange(RANGE_OF_LENGTH)

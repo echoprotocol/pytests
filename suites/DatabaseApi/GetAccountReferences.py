@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, has_item, is_list
+from lemoncheesecake.matching import require_that, has_item, is_list, equal_to
 
 from common.base_test import BaseTest
 
@@ -65,11 +65,20 @@ class PositiveTesting(BaseTest):
         self.echo_acc0 = None
         self.echo_acc3 = None
         self.echo_acc4 = None
+        self.reserved_public_key = None
 
     def get_account_info(self, account_id):
         response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
                                         self.__database_api_identifier)
         return self.get_response(response_id)["result"][0]
+
+    def delete_duplicate_key_auths(self, key_auths):
+        result = []
+        for key_auth in key_auths:
+            if key_auth not in result:
+                result.append(key_auth)
+
+        return result
 
     def setup_suite(self):
         super().setup_suite()
@@ -87,6 +96,8 @@ class PositiveTesting(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info(
             "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc3, self.echo_acc4))
+        self.reserved_public_key = self.get_reserved_public_key()
+        lcc.log_info("Reserved public key: {}".format(self.reserved_public_key))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -133,7 +144,108 @@ class PositiveTesting(BaseTest):
             "'references of '{}' account'".format(self.echo_acc3),
             response["result"],
             is_list([self.echo_acc4]),
-            quiet=True
+            quiet=False
         )
 
-        # todo: Add test with 'key_auths' updating, BUG ECHO-1031
+
+@lcc.prop("suite_run_option_3", "negative")
+@lcc.tags("database_api", "get_account_references")
+@lcc.suite("Negative testing of method 'get_account_references'", rank=3)
+class NegativeTesting(BaseTest):
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.__registration_api_identifier = None
+        self.echo_acc0 = None
+        self.echo_acc3 = None
+        self.echo_acc4 = None
+
+    def get_account_info(self, account_id):
+        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
+                                        self.__database_api_identifier)
+        return self.get_response(response_id)["result"][0]
+
+    def delete_duplicate_key_auths(self, key_auths):
+        result = []
+        for key_auth in key_auths:
+            if key_auth not in result:
+                result.append(key_auth)
+
+        return result
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        self.__registration_api_identifier = self.get_identifier("registration")
+        lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
+        lcc.log_info("Registration API identifier is '{}'".format(self.__registration_api_identifier))
+        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
+                                             self.__registration_api_identifier)
+        self.echo_acc3 = self.get_account_id(self.accounts[3], self.__database_api_identifier,
+                                             self.__registration_api_identifier)
+        self.echo_acc4 = self.get_account_id(self.accounts[4], self.__database_api_identifier,
+                                             self.__registration_api_identifier)
+        lcc.log_info(
+            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc3, self.echo_acc4))
+        self.reserved_public_key = self.get_reserved_public_key()
+        lcc.log_info("Reserved public key: {}".format(self.reserved_public_key))
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.prop("type", "method")
+    @lcc.test("Add additional key_auths to account and get references of added account")
+    @lcc.depends_on("DatabaseApi.GetAccountReferences.GetAccountReferences.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.GetPotentialSignatures.PositiveTesting.get_potential_signatures_of_accounts_with_additional_key_auths")
+    def get_references_of_account_that_added_to_another_key_auths(self):
+        lcc.set_step("Get account active keys")
+        account_info_1 = self.get_account_info(self.echo_acc3)
+        account_active_keys_1 = account_info_1["active"]
+        lcc.log_info("Active keys of account {} were taken".format(self.echo_acc3))
+
+        lcc.set_step("Get account active keys")
+        account_info_2 = self.get_account_info(self.echo_acc4)
+        account_active_keys_2 = account_info_2["active"]
+        lcc.log_info("Active keys of account {} were taken".format(self.echo_acc4))
+
+        lcc.set_step("Update info of '{}' account (add key_auths)".format(self.echo_acc4))
+        key_auths = [key_auth[0] for key_auth in account_active_keys_1["key_auths"]]
+        condition = all([key_auth[0] in key_auths for key_auth in account_active_keys_2["key_auths"]])
+        new_key_auths = [[key_auth[0], 1] for key_auth in account_active_keys_2["key_auths"]]
+        if not condition:
+            new_active_keys = account_active_keys_1.copy()
+            new_active_keys["key_auths"].extend(new_key_auths)
+            account_info_1["active"] = new_active_keys
+            self.utils.perform_account_update_operation(self, self.echo_acc3, account_info_1,
+                                                        self.__database_api_identifier)
+        new_key_auths.extend(account_info_1["active"]["key_auths"])
+        new_key_auths = self.delete_duplicate_key_auths(new_key_auths)
+        lcc.log_info("'key_auths' of '{}' account was updated".format(self.echo_acc3))
+
+        lcc.set_step("Get active keys info about account")
+        actual_account_info_1 = self.get_account_info(self.echo_acc3)
+        actual_account_active_keys_1 = actual_account_info_1["active"]
+        for key_auth in new_key_auths:
+            require_that(
+                "new keys",
+                actual_account_active_keys_1["key_auths"], has_item(key_auth),
+                quiet=False
+            )
+
+        lcc.set_step("Get account references")
+        response_id = self.send_request(self.get_request("get_account_references", [self.echo_acc4]),
+                                        self.__database_api_identifier)
+        response = self.get_response(response_id)
+        lcc.log_info("Call method 'get_account_references' with account_id='{}' parameter".format(self.echo_acc4))
+
+        lcc.set_step("Check 'get_account_references' method result")
+        require_that(
+            "'references of '{}' account'".format(self.echo_acc4),
+            response["result"],
+            is_list([]),
+            quiet=False
+        )

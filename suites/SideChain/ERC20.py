@@ -227,7 +227,8 @@ class ERC20(BaseTest):
         updated_in_ethereum_erc20_balance = \
             self.utils.get_updated_account_erc20_balance_in_eth_network(self, self.erc20_contract,
                                                                         self.eth_account.address,
-                                                                        self.in_ethereum_erc20_balance)
+                                                                        self.in_ethereum_erc20_balance,
+                                                                        self.__database_api_identifier)
         require_that("'in ethereum owner'serc20 balance'", updated_in_ethereum_erc20_balance,
                      equal_to(self.in_ethereum_erc20_balance + int(erc20_withdraw_amounts[0])))
 
@@ -268,7 +269,8 @@ class ERC20(BaseTest):
         final_in_ethereum_erc20_balance = \
             self.utils.get_updated_account_erc20_balance_in_eth_network(self, self.erc20_contract,
                                                                         self.eth_account.address,
-                                                                        self.in_ethereum_erc20_balance)
+                                                                        self.in_ethereum_erc20_balance,
+                                                                        self.__database_api_identifier)
         require_that("'in ethereum owner'serc20 balance'", final_in_ethereum_erc20_balance,
                      equal_to(updated_in_ethereum_erc20_balance + int(erc20_withdraw_amounts[1])))
         require_that("'final balance equal to start balance'",

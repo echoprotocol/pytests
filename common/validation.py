@@ -36,14 +36,13 @@ class Validator(object):
     block_summary_id_regex = re.compile(r"^2\.7\.(0|[1-9]\d*)$")
     account_transaction_history_id_regex = re.compile(r"^2\.8\.(0|[1-9]\d*)$")
     chain_property_object_id_regex = re.compile(r"^2.9.0$")
-    budget_record_id_regex = re.compile(r"^2\.10\.(0|[1-9]\d*)$")
-    special_authority_id_regex = re.compile(r"^2\.11\.(0|[1-9]\d*)$")
-    contract_balance_id_regex = re.compile(r"^2\.12\.(0|[1-9]\d*)$")
-    contract_history_id_regex = re.compile(r"^2\.13\.(0|[1-9]\d*)$")
-    contract_statistics_id_regex = re.compile(r"^2\.14\.(0|[1-9]\d*)$")
-    account_address_id_regex = re.compile(r"^2\.15\.(0|[1-9]\d*)$")
-    contract_pool_id_regex = re.compile(r"^2\.16\.(0|[1-9]\d*)$")
-    malicious_committeemen_id_regex = re.compile(r"^2\.17\.(0|[1-9]\d*)$")
+    special_authority_id_regex = re.compile(r"^2\.10\.(0|[1-9]\d*)$")
+    contract_balance_id_regex = re.compile(r"^2\.11\.(0|[1-9]\d*)$")
+    contract_history_id_regex = re.compile(r"^2\.12\.(0|[1-9]\d*)$")
+    contract_statistics_id_regex = re.compile(r"^2\.13\.(0|[1-9]\d*)$")
+    account_address_id_regex = re.compile(r"^2\.14\.(0|[1-9]\d*)$")
+    contract_pool_id_regex = re.compile(r"^2\.15\.(0|[1-9]\d*)$")
+    malicious_committeemen_id_regex = re.compile(r"^2\.16\.(0|[1-9]\d*)$")
     hex_regex = re.compile(r"^[0-9a-fA-F]+")
     bytecode_regex = re.compile(r"^[\da-fA-F]{8}([\da-fA-F]{64})*$")
     vote_id_type_regex = re.compile(r"^[0-3]:[0-9]+")
@@ -204,10 +203,6 @@ class Validator(object):
     def is_chain_property_object_id(self, value):
         if self.is_string(value):
             return bool(self.chain_property_object_id_regex.match(value))
-
-    def is_budget_record_object_id(self, value):
-        if self.is_string(value):
-            return bool(self.budget_record_id_regex.match(value))
 
     def is_special_authority_object_id(self, value):
         if self.is_string(value):

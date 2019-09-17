@@ -77,7 +77,7 @@ class GetBlock(BaseTest):
                 "_step", is_integer(),
                 "_value", is_integer(),
                 "_leader", is_integer(),
-                "_signer", is_integer(),
+                "_producer", is_integer(),
                 "_delegate", is_integer(),
                 "_fallback", is_integer(),
                 quiet=False

@@ -51,6 +51,8 @@ class AssetInt(BaseTest):
         contract_id = self.get_contract_id(contract_result)
 
         lcc.set_step("Get account balances using database_api")
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
+                                                         print_log=False)
         params = [self.echo_acc0, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)

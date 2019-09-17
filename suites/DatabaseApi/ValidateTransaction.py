@@ -80,6 +80,6 @@ class ValidateTransaction(BaseTest):
         lcc.set_step("Compare locally signed and validated transactions")
         require_that(
             "'transaction from 'validate_transaction' result'",
-            validate_transaction, has_length(8)
+            validate_transaction, has_length(9)
         )
         self.compare_objects(signed_transaction, validate_transaction)

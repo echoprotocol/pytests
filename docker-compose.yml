@@ -50,7 +50,7 @@ services:
 
 
   echo:
-    image: registry-gitlab.pixelplex.by/631_echo/echo:0.9.3-rc.1
+    image: echoprotocol/echo:0.10.2-rc.1
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -73,7 +73,8 @@ services:
       --registrar-account=\"1.2.8\"
       --api-access=/echo/access.json
       --plugins=sidechain
-      --sidechain-eth-node-url=ws://ganache:8545'
+      --eth-node-ip=ganache
+      --eth-node-rpc-port=8545'
     ports:
       - 56451:6311
     volumes:

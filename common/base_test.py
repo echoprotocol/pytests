@@ -19,7 +19,7 @@ from common.utils import Utils
 from common.validation import Validator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
-    DEFAULT_ACCOUNTS_COUNT, EXECUTION_STATUS_PATH, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
+    DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
     GANACHE_PK, DEBUG
 
 
@@ -88,9 +88,7 @@ class BaseTest(object):
             return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
 
-    def set_timeout_wait(self, seconds=None, wait_block_count=None, print_log=True):
-        if wait_block_count is not None:
-            seconds = wait_block_count * BLOCK_RELEASE_INTERVAL
+    def set_timeout_wait(self, seconds=None, print_log=True):
         if print_log:
             lcc.log_info("Start a '{}' second(s) sleep..."
                          "\nglobal_time:'{}'"
@@ -562,6 +560,19 @@ class BaseTest(object):
             lcc.log_info("'{}' value in keccak '{}' standard is '{}'".format(value, digest_bits, keccak_hash_in_hex))
         return keccak_hash_in_hex
 
+    def get_reserved_public_key(self):
+        data = {}
+        if os.path.exists(UTILS):
+            with open(UTILS, 'r') as file:
+                data = json.load(file)
+        if 'RESERVED_PUBLIC_KEY' not in data:
+            reserved_public_key = self.echo.brain_key().get_public_key_base58()
+            data.update({'RESERVED_PUBLIC_KEY': reserved_public_key})
+            with open(UTILS, 'w') as new_file:
+                new_file.write(json.dumps(data))
+
+        return data['RESERVED_PUBLIC_KEY']
+
     @staticmethod
     def _login_status(response):
         # Check authorization status
@@ -616,8 +627,8 @@ class BaseTest(object):
         lcc.log_info("Empty node. Start pre-deploy setup...")
         if os.path.exists(WALLETS):
             os.remove(WALLETS)
-        if os.path.exists(EXECUTION_STATUS_PATH):
-            os.remove(EXECUTION_STATUS_PATH)
+        if os.path.exists(UTILS):
+            os.remove(UTILS)
         pre_deploy_echo(self, database_api_identifier, lcc)
         lcc.log_info("Pre-deploy setup completed successfully")
         self._disconnect_to_echopy_lib()

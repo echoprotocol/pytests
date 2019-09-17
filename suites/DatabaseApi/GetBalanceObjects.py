@@ -6,7 +6,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, is_not_none, check_that, has_length, is_, is_list
 
 from common.base_test import BaseTest
-from project import EXECUTION_STATUS_PATH, INIT0_PK, ROPSTEN
+from project import UTILS, INIT0_PK, ROPSTEN
 
 SUITE = {
     "description": "Method 'get_balance_objects'"
@@ -28,12 +28,19 @@ class GetBalanceObjects(BaseTest):
         self.state = None
 
     def check_status_file(self):
-        self.state = True
-        if not os.path.exists(EXECUTION_STATUS_PATH):
-            with open(EXECUTION_STATUS_PATH, "w") as file:
-                file.write(json.dumps({"get_balance_objects": {"state": True}}))
+        if not os.path.exists(UTILS):
+            with open(UTILS, "w") as utils:
+                utils_data = {"get_balance_objects": {"state": True}}
+                utils.write(json.dumps(utils_data))
         else:
-            self.state = False
+            with open(UTILS, "r") as utils:
+                utils_data = json.load(utils)
+                if "get_balance_objects" not in utils_data:
+                    utils_data.update({"get_balance_objects": {"state": True}})
+                    with open(UTILS, "w") as utils:
+                        utils.write(json.dumps(utils_data))
+
+        self.state = utils_data["get_balance_objects"]["state"]
 
     def setup_suite(self):
         if not ROPSTEN:
@@ -104,24 +111,24 @@ class PositiveTesting(BaseTest):
         self.state = None
 
     def read_execution_status(self):
-        execution_status = json.load(open(EXECUTION_STATUS_PATH, "r"))
+        execution_status = json.load(open(UTILS, "r"))
         self.state = execution_status["get_balance_objects"]["state"]
 
     def change_test_status(self):
-        execution_status = json.load(open(EXECUTION_STATUS_PATH, "r"))
+        execution_status = json.load(open(UTILS, "r"))
         if execution_status["get_balance_objects"]:
             execution_status["get_balance_objects"]["state"] = False
             self.state = False
-            with open(EXECUTION_STATUS_PATH, "w") as file:
+            with open(UTILS, "w") as file:
                 file.write(json.dumps(execution_status))
         else:
             self.state = False
 
     @staticmethod
     def add_log_info(log):
-        execution_status = json.load(open(EXECUTION_STATUS_PATH, "r"))
+        execution_status = json.load(open(UTILS, "r"))
         execution_status["get_balance_objects"]["state"] = False
-        with open(EXECUTION_STATUS_PATH, "w") as file:
+        with open(UTILS, "w") as file:
             execution_status["get_balance_objects"].update({"passed": log})
             file.write(json.dumps(execution_status))
 
@@ -223,7 +230,7 @@ class PositiveTesting(BaseTest):
                 if check_that("balance", result, is_([])):
                     self.add_log_info(True)
             else:
-                execution_status = json.load(open(EXECUTION_STATUS_PATH, "r"))["get_balance_objects"]
+                execution_status = json.load(open(UTILS, "r"))["get_balance_objects"]
                 if execution_status["passed"]:
                     lcc.log_info("Testing of the 'get_balance_objects' method was successfully completed earlier")
                 else:

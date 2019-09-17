@@ -27,13 +27,6 @@ class SubscribeContractLogs(BaseTest):
         self.contract = self.get_byte_code("piggy", "code")
         self.getPennie = self.get_byte_code("piggy", "pennieReturned()")
 
-    def get_head_block_number(self):
-        response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
-                                        self.__database_api_identifier)
-        head_block_number = self.get_response(response_id)["result"]["head_block_number"]
-        lcc.log_info("head block number: {}".format(head_block_number))
-        return head_block_number
-
     def setup_suite(self):
         super().setup_suite()
         self._connect_to_echopy_lib()
@@ -63,23 +56,17 @@ class SubscribeContractLogs(BaseTest):
         super().teardown_suite()
 
     @lcc.prop("type", "method")
-    @lcc.disabled()
-    @lcc.tags("Bug: 'ECHO-1055'")
     @lcc.test("Simple work of method 'subscribe_contract_logs'")
     def method_main_check(self, get_random_integer, get_random_integer_up_to_ten):
         subscription_callback_id = get_random_integer
         value_amount = get_random_integer_up_to_ten
-        _from = 0
 
         lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
                                                  value_amount=value_amount)
 
-        lcc.set_step("Get the head_block number")
-        head_block_number = self.get_head_block_number()
-
         lcc.set_step("Subscribe to created contract")
-        params = [subscription_callback_id, contract_id, _from, head_block_number]
+        params = [subscription_callback_id, contract_id]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -113,18 +100,6 @@ class SubscribeContractLogs(BaseTest):
                     log, "data", is_str(), quiet=True
                 )
 
-        lcc.set_step("Get the head_block number")
-        head_block_number = self.get_head_block_number()
-
-        lcc.set_step("Get contract logs with 'to' param that equal to head_block_number")
-        params = [contract_id, _from, head_block_number]
-        response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
-        contract_logs = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_contract_logs' with params: from='{}', to='{}'".format(_from, head_block_number))
-
-        lcc.set_step("Check that responses from 'get_contract_logs' and 'subscribe_contract_logs' are equal")
-        check_that("result", contract_logs, equal_to(contract_logs_notice), quiet=True)
-
 
 @lcc.prop("suite_run_option_2", "positive")
 @lcc.tags("database_api", "subscribe_contract_logs")
@@ -144,21 +119,8 @@ class PositiveTesting(BaseTest):
         self.dynamic_fields_contract = self.get_byte_code("dynamic_fields", "code")
         self.set_all_values = self.get_byte_code("dynamic_fields", self.setAllValues_method_name)
 
-    def get_random_int(self, _to, _from=1):
-        amount = random.randrange(_from, _to)
-        if amount == _to:
-            return self.get_random_int(_to=_to, _from=_from)
-        return amount
-
-    def get_head_block_number(self):
-        response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
-                                        self.__database_api_identifier)
-        head_block_number = self.get_response(response_id)["result"]["head_block_number"]
-        lcc.log_info("head block number: {}".format(head_block_number))
-        return head_block_number
-
-    def subscribe_contract_logs(self, callback, contract_id, _from, head_block_number):
-        params = [callback, contract_id, _from, head_block_number]
+    def subscribe_contract_logs(self, callback, contract_id):
+        params = [callback, contract_id]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -196,22 +158,16 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check contract logs in notices two identical contract calls")
-    @lcc.disabled()
-    @lcc.tags("Bug: 'ECHO-1055'")
     @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notices_two_identical_contract_calls(self, get_random_integer):
         subscription_callback_id = value_amount = get_random_integer
-        _from = 0
 
         lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
                                                  self.__database_api_identifier, value_amount=value_amount)
 
-        lcc.set_step("Get the head_block number")
-        head_block_number = self.get_head_block_number()
-
         lcc.set_step("Subscribe to created contract")
-        self.subscribe_contract_logs(subscription_callback_id, contract_id, _from, head_block_number)
+        self.subscribe_contract_logs(subscription_callback_id, contract_id)
 
         lcc.set_step("Call contract method getPennie")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -242,24 +198,18 @@ class PositiveTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Check contract logs in notices contract call that make two different logs")
-    @lcc.disabled()
-    @lcc.tags("Bug: 'ECHO-1055'")
     @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notice_contract_call_that_make_two_different_logs(self, get_random_integer,
                                                                                  get_random_string):
         subscription_callback_id = int_param = get_random_integer
         string_param = get_random_string
-        _from = 0
 
         lcc.set_step("Create 'dynamic_fields' contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.dynamic_fields_contract,
                                                  self.__database_api_identifier)
 
-        lcc.set_step("Get the head_block number")
-        head_block_number = self.get_head_block_number()
-
         lcc.set_step("Subscribe to created contract")
-        self.subscribe_contract_logs(subscription_callback_id, contract_id, _from, head_block_number)
+        self.subscribe_contract_logs(subscription_callback_id, contract_id)
 
         lcc.set_step("Call method of dynamic_fields contract: 'set_all_values'")
         int_param_code = self.get_byte_code_param(int_param, param_type=int)
@@ -311,125 +261,6 @@ class PositiveTesting(BaseTest):
             lcc.log_info("Check data#'{}'".format(i))
             check_that("'converted 'data' from hex'", data, equal_to(call_contract_params[i]))
 
-    @lcc.prop("type", "method")
-    @lcc.test("Check contract logs in notices from 'first block' to more than 'head_block_number'")
-    @lcc.disabled()
-    @lcc.tags("Bug: 'ECHO-1055'")
-    @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
-    def check_contract_logs_in_notice_from_first_block_to_more_than_head_block_number(self, get_random_integer):
-        subscription_callback_id = value_amount = get_random_integer
-        _from = 0
-        contract_log_keys = ["address", "log", "data"]
-
-        lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier, value_amount=value_amount)
-
-        lcc.set_step("Get the head_block number and make 'to' param more than it")
-        _to = self.get_head_block_number() + get_random_integer
-        lcc.log_info("More than 'head_block_number' number is '{}'".format(_to))
-
-        lcc.set_step("Subscribe to created contract")
-        self.subscribe_contract_logs(subscription_callback_id, contract_id, _from, _to)
-
-        lcc.set_step("Call contract method getPennie")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.getPennie, callee=contract_id)
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
-        lcc.log_info("Method 'getPennie' performed successfully")
-
-        lcc.set_step("Get notices about updates of created contract")
-        contract_logs_notice = self.get_notice(subscription_callback_id)
-
-        lcc.set_step("Check contract logs in notice")
-        require_that("'log in notice has value'", bool(contract_logs_notice), is_true(), quiet=True)
-        for log in contract_logs_notice:
-            if check_that("contract_logs in notice", log, has_length(3)):
-                for key in contract_log_keys:
-                    require_that("contract_logs in notice", log, has_entry(key), quiet=True)
-
-    @lcc.prop("type", "method")
-    @lcc.test(
-        "Check contract logs in notices from 'random block in [first block, head_block_number]' to 'head_block_number'")
-    @lcc.disabled()
-    @lcc.tags("Bug ECHO-1055")
-    @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
-    def check_contract_logs_in_notice_from_random_block_to_head_block_number(self, get_random_integer):
-        subscription_callback_id = value_amount = get_random_integer
-        contract_log_keys = ["address", "log", "data"]
-
-        lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier, value_amount=value_amount)
-
-        lcc.set_step("Get the head_block number")
-        head_block_number = self.get_head_block_number()
-
-        lcc.set_step("Get random_block in [first block, head_block_number] interval")
-        random_block_num = self.get_random_int(_to=head_block_number)
-        lcc.log_info("random block number: {}".format(random_block_num))
-
-        lcc.set_step("Subscribe to created contract")
-        self.subscribe_contract_logs(subscription_callback_id, contract_id, random_block_num, head_block_number)
-
-        lcc.set_step("Call contract method getPennie")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.getPennie, callee=contract_id)
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
-        lcc.log_info("Method 'getPennie' performed successfully")
-
-        lcc.set_step("Get notices about updates of created contract")
-        contract_logs_notice = self.get_notice(subscription_callback_id)
-
-        lcc.set_step("Check contract logs in notice")
-        require_that("'log in notice has value'", bool(contract_logs_notice), is_true(), quiet=True)
-        for log in contract_logs_notice:
-            if check_that("contract_logs in notice", log, has_length(3)):
-                for key in contract_log_keys:
-                    require_that("contract_logs in notice", log, has_entry(key), quiet=True)
-
-    @lcc.prop("type", "method")
-    @lcc.test("Check contract logs in notices from 'negative block number' to 'head_block_number'")
-    @lcc.disabled()
-    @lcc.tags("Bug 'ECHO-1055'")
-    @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
-    def check_contract_logs_in_notice_from_negative_block_number_to_head_block_number(self, get_random_integer):
-        subscription_callback_id = value_amount = get_random_integer
-        contract_log_keys = ["address", "log", "data"]
-
-        lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier, value_amount=value_amount)
-
-        lcc.set_step("Get the head_block number")
-        head_block_number = self.get_head_block_number()
-
-        lcc.set_step("Get negative block number")
-        negative_block_num = self.get_random_int(_to=get_random_integer) * -1
-        lcc.log_info("negative block number: {}".format(negative_block_num))
-
-        lcc.set_step("Subscribe to created contract")
-        self.subscribe_contract_logs(subscription_callback_id, contract_id, negative_block_num, head_block_number)
-
-        lcc.set_step("Call contract method getPennie")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.getPennie, callee=contract_id)
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
-        lcc.log_info("Method 'getPennie' performed successfully")
-
-        lcc.set_step("Get notices about updates of created contract")
-        contract_logs_notice = self.get_notice(subscription_callback_id)
-
-        lcc.set_step("Check contract logs in notice")
-        require_that("'log in notice has value'", bool(contract_logs_notice), is_true(), quiet=True)
-        for log in contract_logs_notice:
-            if check_that("contract_logs in notice", log, has_length(3)):
-                for key in contract_log_keys:
-                    require_that("contract_logs in notice", log, has_entry(key), quiet=True)
-
 
 @lcc.prop("suite_run_option_3", "negative")
 @lcc.tags("database_api", "subscribe_contract_logs")
@@ -441,14 +272,7 @@ class NegativeTesting(BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
-        self.piggy_contract = self.get_byte_code("piggy", "code")
-        self.getPennie = self.get_byte_code("piggy", "pennieReturned()")
-
-    def get_random_int(self, _to, _from=1):
-        amount = random.randrange(_from, _to)
-        if amount == _to:
-            return self.get_random_int(_to=_to, _from=_from)
-        return amount
+        self.contract = self.get_byte_code("piggy", "code")
 
     def setup_suite(self):
         super().setup_suite()
@@ -479,31 +303,76 @@ class NegativeTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.prop("type", "method")
-    @lcc.test("Call method with negative parameter 'to'")
-    @lcc.disabled()
-    @lcc.tags("Bug 'ECHO-1055'")
+    @lcc.test("Call method without parameters")
     @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
-    def check_contract_logs_in_notice_with_negative_parameter_to(self, get_random_integer):
-        subscription_callback_id = value_amount = get_random_integer
-        _from = 0
-
-        lcc.set_step("Create contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier, value_amount=value_amount)
-
-        lcc.set_step("Get negative block number")
-        negative_block_num = self.get_random_int(_to=get_random_integer) * -1
-        lcc.log_info("negative block number: {}".format(negative_block_num))
-
-        lcc.set_step("Subscribe to created contract")
-        params = [subscription_callback_id, contract_id, _from, negative_block_num]
-        response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
+    def check_contract_logs_without_params(self):
+        lcc.set_step("Call method without params")
+        response_id = self.send_request(self.get_request("subscribe_contract_logs"),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
-        if response["result"]:
-            raise Exception("Subscription to contract logs not issued")
-        lcc.log_info("Subscription to contract logs successful")
+        response = self.get_response(response_id, negative=True)
+        check_that(
+            "'subscribe_contract_logs' return error message",
+            response, has_entry("error"), quiet=True,
+        )
 
-        lcc.set_step("Check contract logs")
-        check_that("'subscribe_contract_logs' return error message with '{}' params".format(params),
-                   response, has_entry("error"), quiet=True)
+    @lcc.prop("type", "method")
+    @lcc.test("Call method with wrong parameters")
+    @lcc.depends_on("DatabaseApi.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
+    def check_contract_logs_with_wrong_paramss(self, get_random_integer, get_all_random_types):
+        subscription_callback_id = value_amount = get_random_integer
+
+        lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
+        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
+                                                 value_amount=value_amount)
+
+        lcc.set_step("Call method with wrong amount of params")
+        random_type_names = list(get_all_random_types.keys())
+        random_values = list(get_all_random_types.values())
+        for i in range(len(get_all_random_types)):
+            # todo: remove if. Bug: "ECHO-680"
+            if i == 4:
+                continue
+            response_id = self.send_request(
+                self.get_request("subscribe_contract_logs", [random_values[i]]),
+                self.__database_api_identifier)
+            response = self.get_response(response_id, negative=True)
+            check_that(
+                "'subscribe_contract_logs' return error message with '{}' params".format(random_type_names[i]),
+                response, has_entry("error"), quiet=True
+            )
+
+        lcc.set_step("Call method with wrong param 'subscription_callback_id'")
+        random_type_names = list(get_all_random_types.keys())
+        random_values = list(get_all_random_types.values())
+        for i in range(len(get_all_random_types)):
+            # todo: remove if. Bug: "ECHO-680"
+            if i == 4:
+                continue
+            if type(random_values[i]) is int or type(random_values[i]) is float or type(random_values[i]) is bool:
+                continue
+            response_id = self.send_request(
+                self.get_request("subscribe_contract_logs", [random_values[i], contract_id]),
+                self.__database_api_identifier)
+            response = self.get_response(response_id, negative=True)
+            check_that(
+                "'subscribe_contract_logs' return error message with '{}', '{}' params".format(random_type_names[i],
+                                                                                               contract_id),
+                response, has_entry("error"), quiet=True
+            )
+
+        lcc.set_step("Call method with wrong param 'contract_id'")
+        random_type_names = list(get_all_random_types.keys())
+        random_values = list(get_all_random_types.values())
+        for i in range(len(get_all_random_types)):
+            # todo: remove if. Bug: "ECHO-680"
+            if i == 4:
+                continue
+            response_id = self.send_request(
+                self.get_request("subscribe_contract_logs", [subscription_callback_id, random_values[i]]),
+                self.__database_api_identifier)
+            response = self.get_response(response_id, negative=True)
+            check_that(
+                "'subscribe_contract_logs' return error message with '{}', '{}' params".format(random_type_names[i],
+                                                                                               contract_id),
+                response, has_entry("error"), quiet=True
+            )

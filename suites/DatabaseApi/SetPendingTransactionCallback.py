@@ -108,6 +108,7 @@ class PositiveTesting(BaseTest):
     def get_trx_from_broadcast_result(broadcast_result):
         trx = deepcopy(broadcast_result["trx"])
         del trx["operation_results"]
+        del trx["fees_collected"]
         return trx
 
     def setup_suite(self):

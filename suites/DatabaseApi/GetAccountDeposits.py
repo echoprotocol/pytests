@@ -99,6 +99,7 @@ class GetAccountDeposits(BaseTest):
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_ISSUE
         results = self.utils.get_account_history_operations(self, new_account, operation_id,
                                                             self.__history_api_identifier,
+                                                            self.__database_api_identifier,
                                                             limit=len(sidechain_eth_issue_operations))["result"]
         lcc.log_info("Account history operations of 'sidechain_eth_issue_operation' received")
 
@@ -137,6 +138,7 @@ class GetAccountDeposits(BaseTest):
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_ISSUE
         results = self.utils.get_account_history_operations(self, new_account, operation_id,
                                                             self.__history_api_identifier,
+                                                            self.__database_api_identifier,
                                                             limit=len(sidechain_eth_issue_operations))["result"]
         lcc.log_info("Account history operations of 'sidechain_eth_issue_operation' received")
 

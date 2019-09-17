@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import time
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_, is_integer, is_str, check_that_in, is_true
 
@@ -82,6 +84,8 @@ class HelloWorld(BaseTest):
         contract_balance = response["result"][0]["amount"]
 
         lcc.set_step("Get owner balance and store")
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
+                                                         print_log=False)
         params = [self.echo_acc0, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
@@ -98,7 +102,11 @@ class HelloWorld(BaseTest):
                                                               bytecode=self.get_pennie, callee=contract_id)
         fee = self.get_required_fee(operation, self.__database_api_identifier)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        block_num = broadcast_result["block_num"]
+
+        lcc.set_step("Get account block reward")
+        reward = self.utils.get_account_block_reward(self, [self.echo_acc0], block_num, self.__database_api_identifier)
 
         lcc.set_step("Get contract. Amount should be reduced by one.")
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
@@ -122,7 +130,7 @@ class HelloWorld(BaseTest):
         check_that(
             "'owner balance'",
             actual_balance,
-            is_(owner_balance - fee[0].get("amount") + 1)
+            is_(owner_balance - fee[0].get("amount") + 1 + reward[0])
         )
 
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")

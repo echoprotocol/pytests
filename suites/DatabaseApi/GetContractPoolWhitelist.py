@@ -177,6 +177,8 @@ class PositiveTesting(BaseTest):
         require_that("'contract_pool_whitelist'", contract_pool_whitelist["whitelist"], is_list(full_whitelist))
 
         lcc.set_step("First: call 'greet' method using fee pool sender")
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
+                                                         print_log=False)
         account_balance = self.utils.get_account_balances(self, self.echo_acc0, self.__database_api_identifier)[
             "amount"]
         collected_operation = self.collect_operations(operation_method, self.__database_api_identifier)
@@ -264,7 +266,8 @@ class PositiveTesting(BaseTest):
         self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
                                                         self.__database_api_identifier, add_to_blacklist=blacklist,
                                                         log_broadcast=False)
-        lcc.log_info("Added '{}' accounts to '{}' contract blacklist successfully".format(full_blacklist, contract_id))
+        lcc.log_info("Added '{}' accounts to '{}' contract blacklist successfully".format(full_blacklist,
+                                                                                          contract_id))
 
         lcc.set_step("Get a contract's fee pool whitelist and check added accounts")
         contract_pool_whitelist = self.get_contract_pool_whitelist(contract_id)
@@ -302,6 +305,8 @@ class PositiveTesting(BaseTest):
         require_that("'contract_pool_blacklist'", contract_pool_whitelist["blacklist"], is_list(full_blacklist))
 
         lcc.set_step("Second: call 'greet' method using fee pool sender")
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
+                                                         print_log=False)
         account_balance = self.utils.get_account_balances(self, self.echo_acc0, self.__database_api_identifier)[
             "amount"]
         operation_method = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -403,7 +408,8 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Add one account to whitelist and blacklist at the same time")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
-                                                            self.__database_api_identifier, add_to_whitelist=whitelist,
+                                                            self.__database_api_identifier,
+                                                            add_to_whitelist=whitelist,
                                                             add_to_blacklist=blacklist)
             lcc.log_error(
                 "Error: broadcast transaction complete. Can add account to whitelist and blacklist at the same time")
@@ -429,7 +435,8 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Add one account to whitelist and remove at the same time")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
-                                                            self.__database_api_identifier, add_to_whitelist=whitelist,
+                                                            self.__database_api_identifier,
+                                                            add_to_whitelist=whitelist,
                                                             remove_from_whitelist=whitelist)
             lcc.log_error(
                 "Error: broadcast transaction complete. Can add account to whitelist and remove at the same time")
@@ -440,7 +447,8 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Add one account to blacklist and remove at the same time")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
-                                                            self.__database_api_identifier, add_to_blacklist=blacklist,
+                                                            self.__database_api_identifier,
+                                                            add_to_blacklist=blacklist,
                                                             remove_from_blacklist=blacklist)
             lcc.log_error(
                 "Error: broadcast transaction complete. Can add account to blacklist and remove at the same time")
@@ -466,7 +474,8 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Add one account to whitelist twice")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
-                                                            self.__database_api_identifier, add_to_whitelist=whitelist)
+                                                            self.__database_api_identifier,
+                                                            add_to_whitelist=whitelist)
             lcc.log_error(
                 "Error: broadcast transaction complete. Can add account to whitelist twice")
         except RPCError as e:
@@ -487,7 +496,8 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Add one account to blacklist twice")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
-                                                            self.__database_api_identifier, add_to_blacklist=blacklist)
+                                                            self.__database_api_identifier,
+                                                            add_to_blacklist=blacklist)
             lcc.log_error(
                 "Error: broadcast transaction complete. Can add account to blacklist twice")
         except RPCError as e:

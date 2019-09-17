@@ -110,7 +110,7 @@ class PositiveTesting(BaseTest):
         return amount
 
     def get_head_block_number(self):
-        self.set_timeout_wait(wait_block_count=1)
+        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
                                         self.__database_api_identifier)
         head_block_number = self.get_response(response_id)["result"]["head_block_number"]

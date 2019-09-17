@@ -109,7 +109,7 @@ class GetRecentTransactionById(BaseTest):
         transaction_from_api_method = response["result"]
         require_that(
             "'transaction from broadcast result'",
-            transaction_from_broadcast_result, has_length(8)
+            transaction_from_broadcast_result, has_length(9)
         )
         require_that(
             "'transaction from 'get_recent_transaction_by_id' method result'",
@@ -143,4 +143,4 @@ class GetRecentTransactionById(BaseTest):
                 )
 
                 break
-            self.set_timeout_wait(wait_block_count=1)
+            self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)

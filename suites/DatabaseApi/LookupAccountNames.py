@@ -75,12 +75,13 @@ class LookupAccountNames(BaseTest):
                     quiet=True
                 )
             lcc.set_step("Check 'options' field")
-            if check_that("active", account_info["options"], has_length(5)):
+            if check_that("active", account_info["options"], has_length(6)):
                 account_ids_format = ["voting_account", "delegating_account"]
                 for account_id_format in account_ids_format:
                     self.check_fields_account_ids_format(account_info["options"], account_id_format)
                 check_that_in(
                     account_info["options"],
+                    "delegate_share", is_integer(),
                     "num_committee", is_integer(),
                     "votes", is_list(),
                     "extensions", is_list(),

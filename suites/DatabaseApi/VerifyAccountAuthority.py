@@ -1,27 +1,32 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, has_length, has_item, equal_to
+from lemoncheesecake.matching import require_that, is_true, has_item
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_potential_signatures'"
+    "description": "Method 'verify_account_authority'"
 }
 
 
 @lcc.prop("suite_run_option_1", "main")
 @lcc.prop("suite_run_option_2", "positive")
 @lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("database_api", "get_potential_signatures")
-@lcc.suite("Check work of method 'get_potential_signatures'", rank=1)
-class GetPotentialSignatures(BaseTest):
+@lcc.tags("database_api", "verify_account_authority")
+@lcc.suite("Check work of method 'verify_account_authority'", rank=1)
+class VerifyAccountAuthority(BaseTest):
 
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
-        self.echo_acc1 = None
+        self.echo_acc0_name = None
+
+    def get_account_info(self, account_id):
+        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
+                                        self.__database_api_identifier)
+        return self.get_response(response_id)["result"][0]
 
     def setup_suite(self):
         super().setup_suite()
@@ -32,53 +37,39 @@ class GetPotentialSignatures(BaseTest):
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
+        self.echo_acc0_name = self.accounts[0]
+        self.echo_acc0 = self.get_account_id(self.echo_acc0_name, self.__database_api_identifier,
                                              self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
+        lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
     @lcc.prop("type", "method")
-    @lcc.test("Simple work of method 'get_potential_signatures'")
+    @lcc.test("Simple work of method 'verify_account_authority'")
     def method_main_check(self):
-        lcc.set_step("Build transfer transaction")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1)
-        collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            no_broadcast=True)
-        del signed_tx["signatures"]
-        lcc.log_info("Transaction was built")
+        lcc.set_step("Get account active keys")
+        account_info = self.get_account_info(self.echo_acc0)
+        account_public_key = account_info["active"]["key_auths"][0][0]
+        lcc.log_info("Active keys of account {} were taken".format(self.echo_acc0))
 
-        lcc.set_step("Get active keys info about account")
-        response_id = self.send_request(self.get_request("get_accounts", [[self.echo_acc0]]),
-                                        self.__database_api_identifier)
-        active_keys = self.get_response(response_id)["result"][0]["active"]
-        lcc.log_info("Active keys of account '{}' were taken".format(self.echo_acc0))
-
-        expected_keys = [active_keys["key_auths"][0][0]]
-
-        lcc.set_step("Get potential signatures for built transaction")
-        response_id = self.send_request(self.get_request("get_potential_signatures", [signed_tx]),
+        lcc.set_step("Verify authority of '{}' account".format(self.echo_acc0))
+        params = [self.echo_acc0_name, [account_public_key]]
+        response_id = self.send_request(self.get_request("verify_account_authority", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
-        lcc.log_info("Call 'get_potential_signatures' method for built transaction")
+        lcc.log_info("Call 'verify_account_authority' with '{}' parameters".format(params))
 
-        lcc.set_step("Check 'get_potential_signatures' method result")
         require_that(
-            "potential keys",
-            response["result"], equal_to(expected_keys), quiet=True
+            "account authority verify status",
+            response["result"], is_true()
         )
 
 
 @lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("database_api", "get_potential_signatures")
-@lcc.suite("Positive testing of method 'get_potential_signatures'", rank=2)
+@lcc.tags("database_api", "verify_account_authority")
+@lcc.suite("Positive testing of method 'verify_account_authority'", rank=2)
 class PositiveTesting(BaseTest):
     def __init__(self):
         super().__init__()
@@ -87,7 +78,13 @@ class PositiveTesting(BaseTest):
         self.echo_acc0 = None
         self.echo_acc3 = None
         self.echo_acc4 = None
+        self.echo_acc4_name = None
         self.reserved_public_key = None
+
+    def get_account_info(self, account_id):
+        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
+                                        self.__database_api_identifier)
+        return self.get_response(response_id)["result"][0]
 
     def setup_suite(self):
         super().setup_suite()
@@ -102,25 +99,21 @@ class PositiveTesting(BaseTest):
                                              self.__registration_api_identifier)
         self.echo_acc3 = self.get_account_id(self.accounts[3], self.__database_api_identifier,
                                              self.__registration_api_identifier)
-        self.echo_acc4 = self.get_account_id(self.accounts[4], self.__database_api_identifier,
+        self.echo_acc4_name = self.accounts[4]
+        self.echo_acc4 = self.get_account_id(self.echo_acc4_name, self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info(
             "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc3, self.echo_acc4))
         self.reserved_public_key = self.get_reserved_public_key()
         lcc.log_info("Reserved public key: {}".format(self.reserved_public_key))
 
-    def get_account_info(self, account_id):
-        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
-                                        self.__database_api_identifier)
-        return self.get_response(response_id)["result"][0]
-
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
     @lcc.prop("type", "method")
-    @lcc.test("Add additional account_auths to account and get potential signatures for it")
-    @lcc.depends_on("DatabaseApi.GetPotentialSignatures.GetPotentialSignatures.method_main_check")
+    @lcc.test("Add additional account_auths to account and verify account authority for it")
+    @lcc.depends_on("DatabaseApi.VerifyAccountAuthority.VerifyAccountAuthority.method_main_check")
     def get_potential_signatures_of_accounts_with_additional_account_auths(self):
         lcc.set_step("Get account active keys")
         account_info_1 = self.get_account_info(self.echo_acc3)
@@ -152,47 +145,24 @@ class PositiveTesting(BaseTest):
             quiet=True
         )
 
-        lcc.set_step("Build transfer transaction and store expected keys")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc4,
-                                                                  to_account_id=self.echo_acc3)
-        collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            no_broadcast=True)
-        del signed_tx["signatures"]
-        expected_keys = [
-            key_auth[0] for key_auth in actual_account_active_keys_2["key_auths"]
-        ]
-        expected_keys.append(account_active_keys_1["key_auths"][0][0])
-        lcc.log_info("Transaction was built")
+        account_public_key_1 = account_active_keys_1["key_auths"][0][0]
 
-        lcc.set_step("Get potential signatures for built transaction")
-        response_id = self.send_request(self.get_request("get_potential_signatures", [signed_tx]),
+        lcc.set_step("Verify authority of '{}' account".format(self.echo_acc4))
+        params = [self.echo_acc4_name, [account_public_key_1]]
+        response_id = self.send_request(self.get_request("verify_account_authority", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
-        lcc.log_info("Call 'get_potential_signatures' method for built transaction")
+        lcc.log_info("Call 'verify_account_authority' with '{}' parameters".format(params))
 
-        lcc.set_step("Check 'get_potential_signatures' method result")
-        potential_keys = response["result"]
         require_that(
-            "potential keys",
-            potential_keys, has_length(len(expected_keys)), quiet=False
+            "account authority verify status",
+            response["result"], is_true()
         )
-        for expected_key in expected_keys:
-            require_that(
-                "potential_keys",
-                potential_keys, has_item(expected_key), quiet=True
-            )
 
     @lcc.prop("type", "method")
-    @lcc.test("Add additional key_auths to account and get potential signatures for it")
-    @lcc.depends_on("DatabaseApi.GetPotentialSignatures.GetPotentialSignatures.method_main_check")
+    @lcc.test("Add additional key_auths to account and verify account authority for it")
+    @lcc.depends_on("DatabaseApi.VerifyAccountAuthority.VerifyAccountAuthority.method_main_check")
     def get_potential_signatures_of_accounts_with_additional_key_auths(self):
-        lcc.set_step("Get account active keys")
-        account_info_1 = self.get_account_info(self.echo_acc3)
-        account_active_keys_1 = account_info_1["active"]
-        lcc.log_info("Active keys of account {} were taken".format(self.echo_acc3))
-
         lcc.set_step("Get account active keys")
         account_info_2 = self.get_account_info(self.echo_acc4)
         account_active_keys_2 = account_info_2["active"]
@@ -218,34 +188,14 @@ class PositiveTesting(BaseTest):
             quiet=True
         )
 
-        lcc.set_step("Build transfer transaction and store expected keys")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc4,
-                                                                  to_account_id=self.echo_acc3)
-        collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            no_broadcast=True)
-        del signed_tx["signatures"]
-        expected_keys = [
-            key_auth[0] for key_auth in actual_account_active_keys_2["key_auths"]
-        ]
-        expected_keys.append(account_active_keys_1["key_auths"][0][0])
-        lcc.log_info("Transaction was built")
-
-        lcc.set_step("Get potential signatures for built transaction")
-        response_id = self.send_request(self.get_request("get_potential_signatures", [signed_tx]),
+        lcc.set_step("Verify authority of '{}' account".format(self.echo_acc4))
+        params = [self.echo_acc4_name, [self.reserved_public_key]]
+        response_id = self.send_request(self.get_request("verify_account_authority", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
-        lcc.log_info("Call 'get_potential_signatures' method for built transaction")
+        lcc.log_info("Call 'verify_account_authority' with '{}' parameters".format(params))
 
-        lcc.set_step("Check 'get_potential_signatures' method result")
-        potential_keys = response["result"]
         require_that(
-            "potential keys",
-            potential_keys, has_length(len(expected_keys)), quiet=False
+            "account authority verify status",
+            response["result"], is_true()
         )
-        for expected_key in expected_keys:
-            require_that(
-                "potential_keys",
-                potential_keys, has_item(expected_key), quiet=False
-            )

@@ -90,10 +90,10 @@ class GetTransaction(BaseTest):
 
         require_that(
             "'transaction from broadcast result'",
-            transaction_from_broadcast_result, has_length(8)
+            transaction_from_broadcast_result, has_length(9)
         )
         require_that(
             "'transaction from 'get_transaction' method result'",
-            transaction_from_api_method, has_length(8)
+            transaction_from_api_method, has_length(9)
         )
         self.compare_objects(transaction_from_broadcast_result, transaction_from_api_method)

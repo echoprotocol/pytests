@@ -153,7 +153,8 @@ class GetERC20AccountWithdrawals(BaseTest):
             self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account_id,
                                                        balance_of_method=self.erc20_balanceOf,
                                                        contract_id=erc20_contract_id,
-                                                       database_api_id=self.__database_api_identifier)
+                                                       database_api_id=self.__database_api_identifier,
+                                                       previous_balance=0)
         require_that("'in echo account's erc20 balance'", in_echo_erc20_balance, equal_to(in_echo_erc20_start_balance))
 
         lcc.set_step("Perform first withdrawal ERC20 token operation")
@@ -179,7 +180,8 @@ class GetERC20AccountWithdrawals(BaseTest):
             self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account_id,
                                                        balance_of_method=self.erc20_balanceOf,
                                                        contract_id=erc20_contract_id,
-                                                       database_api_id=self.__database_api_identifier)
+                                                       database_api_id=self.__database_api_identifier,
+                                                       previous_balance=in_echo_erc20_balance)
         require_that("'in echo account's erc20 balance'", in_echo_erc20_balance_after_first_withdrawal,
                      equal_to(in_echo_erc20_start_balance - int(erc20_withdrawal_amounts[0])))
 
@@ -212,7 +214,8 @@ class GetERC20AccountWithdrawals(BaseTest):
             self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account_id,
                                                        balance_of_method=self.erc20_balanceOf,
                                                        contract_id=erc20_contract_id,
-                                                       database_api_id=self.__database_api_identifier)
+                                                       database_api_id=self.__database_api_identifier,
+                                                       previous_balance=in_echo_erc20_balance_after_first_withdrawal)
         check_that("'in echo account's erc20 balance'", in_echo_erc20_balance_after_second_withdrawal,
                    equal_to(
                        in_echo_erc20_balance - int(erc20_withdrawal_amounts[0]) - int(erc20_withdrawal_amounts[1])))

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import datetime
 import math
+import random
 import time
 from copy import deepcopy
 
+import lemoncheesecake.api as lcc
+
 from fixtures.base_fixtures import get_random_valid_asset_name
-from project import BLOCK_RELEASE_INTERVAL, GENESIS, BLOCKS_NUM_TO_WAIT
+from project import GENESIS, BLOCKS_NUM_TO_WAIT
 
 
 class Utils(object):
@@ -152,7 +155,7 @@ class Utils(object):
 
     def perform_transfer_operations(self, base_test, account_1, account_2, database_api_id, transfer_amount=1,
                                     operation_count=1, only_in_history=False, amount_asset_id="1.3.0",
-                                    get_only_fee=False, log_broadcast=False):
+                                    get_only_fee=False, log_broadcast=False, broadcast_with_callback=False):
         add_balance_operation = 0
         operation = base_test.echo_ops.get_transfer_operation(echo=base_test.echo, from_account_id=account_1,
                                                               to_account_id=account_2, amount=transfer_amount,
@@ -172,13 +175,15 @@ class Utils(object):
         collected_operation = base_test.collect_operations(operation, database_api_id)
         if operation_count == 1:
             broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
-                                                            log_broadcast=log_broadcast)
+                                                            log_broadcast=log_broadcast,
+                                                            broadcast_with_callback=broadcast_with_callback)
             return broadcast_result
         list_operations = []
         for i in range(operation_count - add_balance_operation):
             list_operations.append(collected_operation)
         broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=list_operations,
-                                                        log_broadcast=log_broadcast)
+                                                        log_broadcast=log_broadcast,
+                                                        broadcast_with_callback=broadcast_with_callback)
         return broadcast_result
 
     def perform_transfer_to_address_operations(self, base_test, account_1, to_address, database_api_id,
@@ -351,19 +356,45 @@ class Utils(object):
                                                                                                     broadcast_result))
         return broadcast_result
 
-    def get_eth_address(self, base_test, account_id, database_api_id, temp_count=0):
-        temp_count += 1
+    @staticmethod
+    def cancel_all_subscriptions(base_test, database_api_id):
+        response_id = base_test.send_request(base_test.get_request("cancel_all_subscriptions"), database_api_id)
+        response = base_test.get_response(response_id)
+        if "result" not in response or response["result"] is not None:
+            raise Exception("Can't cancel all cancel_all_subscriptions, got:\n{}".format(str(response)))
+
+    def set_timeout_until_num_blocks_released(self, base_test, database_api_id, wait_block_count=1, print_log=True):
+        self.waiting_time_result = base_test.convert_time_in_seconds(base_test.get_time())
+        callback, current_block = random.randrange(100), None
+        response_id = base_test.send_request(base_test.get_request("set_block_applied_callback", [callback]),
+                                             database_api_id)
+        response = base_test.get_response(response_id)
+        if "result" not in response or response["result"] is not None:
+            raise Exception("Can't subscribe to release of blocks, got:\n{}".format(response))
+        for block_count in range(wait_block_count):
+            new_block = base_test.get_notice(callback, log_response=False)
+            if not current_block != new_block:
+                raise Exception("Released blocks have the same hash")
+            current_block = new_block
+        self.waiting_time_result = base_test.convert_time_in_seconds(base_test.get_time()) - self.waiting_time_result
+        if print_log:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds"
+                         "".format(wait_block_count, self.waiting_time_result))
+        self.cancel_all_subscriptions(base_test, database_api_id)
+        return self.waiting_time_result
+
+    def get_eth_address(self, base_test, account_id, database_api_id, wait_time=0, temp_count=0):
         response_id = base_test.send_request(base_test.get_request("get_eth_address", [account_id]), database_api_id)
         response = base_test.get_response(response_id)
-        if response["result"]:
+        if "result" in response and response["result"]:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return response
+        temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
-            return self.get_eth_address(base_test, account_id, database_api_id, temp_count=temp_count)
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            return self.get_eth_address(base_test, account_id, database_api_id, wait_time, temp_count=temp_count)
         raise Exception(
-            "No ethereum address of '{}' account. Waiting time result='{}'".format(account_id,
-                                                                                   self.waiting_time_result))
+            "No ethereum address of '{}' account. Waiting time result='{}'".format(account_id, wait_time))
 
     @staticmethod
     def get_account_balances(base_test, account, database_api_id, assets=None):
@@ -377,48 +408,42 @@ class Utils(object):
             return base_test.get_response(response_id)["result"][0]
         return base_test.get_response(response_id)["result"]
 
-    def get_eth_balance(self, base_test, account_id, database_api_id, previous_balance=None, temp_count=0):
-        temp_count += 1
+    def get_eth_balance(self, base_test, account_id, database_api_id, previous_balance=None, wait_time=0, temp_count=0):
         current_balance = self.get_account_balances(base_test, account_id, database_api_id, base_test.eth_asset)[
             "amount"]
         if previous_balance is None and current_balance != 0:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return current_balance
         if previous_balance and previous_balance != current_balance:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return current_balance
-        if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
-            return self.get_eth_balance(base_test, account_id, database_api_id, previous_balance=previous_balance,
-                                        temp_count=temp_count)
-        if previous_balance:
-            raise Exception("Ethereum balance of '{}' account not updated. Waiting time result='{}'"
-                            "".format(account_id, self.waiting_time_result))
-        raise Exception(
-            "No ethereum balance of '{}' account. Waiting time result='{}'".format(account_id,
-                                                                                   self.waiting_time_result))
-
-    @staticmethod
-    def cancel_all_subscriptions(base_test, database_api_id):
-        response_id = base_test.send_request(base_test.get_request("cancel_all_subscriptions"), database_api_id)
-        response = base_test.get_response(response_id)
-        if "result" not in response or response["result"] is not None:
-            raise Exception("Can't cancel all cancel_all_subscriptions, got:\n{}".format(str(response)))
-
-    def get_updated_address_balance_in_eth_network(self, base_test, account_address, previous_balance, currency="ether",
-                                                   temp_count=0):
         temp_count += 1
+        if temp_count <= BLOCKS_NUM_TO_WAIT:
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            return self.get_eth_balance(base_test, account_id, database_api_id, previous_balance=previous_balance,
+                                        wait_time=wait_time, temp_count=temp_count)
+        if previous_balance:
+            raise Exception(
+                "Ethereum balance of '{}' account not updated. Waited for release of '{}' block(s). Wait time: '{}' "
+                "seconds".format(account_id, temp_count, wait_time))
+        raise Exception(
+            "Ethereum balance of '{}' account not updated. Waiting time result='{}'".format(account_id, wait_time))
+
+    def get_updated_address_balance_in_eth_network(self, base_test, account_address, previous_balance, database_api_id,
+                                                   wait_time=0, currency="ether", temp_count=0):
         current_balance = base_test.eth_trx.get_address_balance_in_eth_network(base_test.web3, account_address,
                                                                                currency=currency)
         if previous_balance != current_balance:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return current_balance
+        temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
             return self.get_updated_address_balance_in_eth_network(base_test, account_address, previous_balance,
-                                                                   currency=currency, temp_count=temp_count)
+                                                                   database_api_id, wait_time, currency=currency,
+                                                                   temp_count=temp_count)
         raise Exception(
-            "Ethereum balance of '{}' account not updated. Waiting time result='{}'".format(account_address,
-                                                                                            self.waiting_time_result))
+            "Ethereum balance of '{}' account not updated. Waiting time result='{}'".format(account_address, wait_time))
 
     @staticmethod
     def convert_ethereum_to_eeth(value):
@@ -483,30 +508,31 @@ class Utils(object):
         ts = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%dT%H:%M:%S")
         return ts
 
-    def get_account_history_operations(self, base_test, account_id, operation_id, history_api_id, limit, start="1.6.0",
-                                       stop="1.6.0", temp_count=0):
-        temp_count += 1
+    def get_account_history_operations(self, base_test, account_id, operation_id, history_api_id, database_api_id,
+                                       limit, wait_time=0, start="1.6.0", stop="1.6.0", temp_count=0):
         params = [account_id, operation_id, start, stop, limit]
         response_id = base_test.send_request(base_test.get_request("get_account_history_operations", params),
                                              history_api_id)
         # todo: remove debug_mode and error block. Bug: "ECHO-1128"
-        response = base_test.get_response(response_id, debug_mode=True)
+        response = base_test.get_response(response_id)
         if "error" in response:
             if temp_count <= BLOCKS_NUM_TO_WAIT:
-                base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-                self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
+                wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
                 return self.get_account_history_operations(base_test, account_id, operation_id, history_api_id,
-                                                           start=start, limit=limit, stop=stop, temp_count=temp_count)
-        if len(response["result"]) == limit:
+                                                           database_api_id, limit, wait_time, start=start,
+                                                           stop=stop, temp_count=temp_count)
+        if "result" in response and len(response["result"]) == limit:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return response
+        temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
             return self.get_account_history_operations(base_test, account_id, operation_id, history_api_id,
-                                                       start=start, limit=limit, stop=stop, temp_count=temp_count)
+                                                       database_api_id, limit, wait_time, start=start, stop=stop,
+                                                       temp_count=temp_count)
         raise Exception(
-            "No needed operation (id='{}') in '{}' account history. "
-            "Waiting time result='{}'".format(operation_id, account_id, self.waiting_time_result))
+            "No needed operation (id='{}') in '{}' account history. Waiting time result='{}'"
+            "".format(operation_id, account_id, wait_time))
 
     def perform_contract_fund_pool_operation(self, base_test, sender, contract, value_amount, database_api_id,
                                              value_asset_id="1.3.0", log_broadcast=False):
@@ -681,28 +707,27 @@ class Utils(object):
             raise Exception("Error: ERC20 token did not withdrew, response:\n{}".format(broadcast_result))
         return broadcast_result
 
-    def get_erc20_account_deposits(self, base_test, account_id, database_api_id, previous_account_deposits=None,
-                                   temp_count=0):
-        temp_count += 1
+    def get_erc20_account_deposits(self, base_test, account_id, database_api_id, wait_time=0,
+                                   previous_account_deposits=None, temp_count=0):
         response_id = base_test.send_request(base_test.get_request("get_erc20_account_deposits", [account_id]),
                                              database_api_id)
         response = base_test.get_response(response_id)
         if response["result"] and response["result"] != previous_account_deposits:
             if False not in [False for deposit in response["result"] if not deposit["is_approved"]]:
+                lcc.log_info(
+                    "Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
                 return response
+        temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
-            return self.get_erc20_account_deposits(base_test, account_id, database_api_id,
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            return self.get_erc20_account_deposits(base_test, account_id, database_api_id, wait_time,
                                                    previous_account_deposits=previous_account_deposits,
                                                    temp_count=temp_count)
         raise Exception(
-            "No needed '{}' account erc20 deposits. Waiting time result='{}'".format(account_id,
-                                                                                     self.waiting_time_result))
+            "No needed '{}' account erc20 deposits. Waiting time result='{}'".format(account_id, wait_time))
 
-    def get_erc20_account_withdrawals(self, base_test, account_id, database_api_id, previous_account_withdrawals=None,
-                                      temp_count=0):
-        temp_count += 1
+    def get_erc20_account_withdrawals(self, base_test, account_id, database_api_id, wait_time=0,
+                                      previous_account_withdrawals=None, temp_count=0):
         response_id = base_test.send_request(base_test.get_request("get_erc20_account_withdrawals", [account_id]),
                                              database_api_id)
         response = base_test.get_response(response_id)
@@ -710,50 +735,150 @@ class Utils(object):
             # todo: uncomment. Bug ECHO-1212
             # if False not in [False for withdrawal in response["result"] if not withdrawal["is_approved"]]:
             #     return response
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return response
+        temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
-            return self.get_erc20_account_withdrawals(base_test, account_id, database_api_id,
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            return self.get_erc20_account_withdrawals(base_test, account_id, database_api_id, wait_time,
                                                       previous_account_withdrawals=previous_account_withdrawals,
                                                       temp_count=temp_count)
         raise Exception(
-            "No needed '{}' account erc20 withdrawals. Waiting time result='{}'".format(account_id,
-                                                                                        self.waiting_time_result))
+            "No needed '{}' account erc20 withdrawals. Waiting time result='{}'".format(account_id, wait_time))
 
     def get_updated_account_erc20_balance_in_eth_network(self, base_test, contract_instance, eth_account,
-                                                         previous_balance, temp_count=0):
-        temp_count += 1
+                                                         previous_balance, database_api_id, wait_time=0, temp_count=0):
         current_balance = base_test.eth_trx.get_balance_of(contract_instance, eth_account)
         if previous_balance != current_balance:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return current_balance
+        temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            base_test.set_timeout_wait(wait_block_count=1, print_log=False)
-            self.waiting_time_result = self.waiting_time_result + BLOCK_RELEASE_INTERVAL
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
             return self.get_updated_account_erc20_balance_in_eth_network(base_test, contract_instance, eth_account,
-                                                                         previous_balance, temp_count=temp_count)
+                                                                         previous_balance, database_api_id, wait_time,
+                                                                         temp_count=temp_count)
         raise Exception(
-            "ERC20 balance of '{}' account not updated. Waiting time result='{}'".format(eth_account,
-                                                                                         self.waiting_time_result))
+            "ERC20 balance of '{}' account not updated. Waiting time result='{}'".format(eth_account, wait_time))
 
     def get_erc20_token_balance_in_echo(self, base_test, account_id, balance_of_method, contract_id, database_api_id,
-                                        log_broadcast=False):
+                                        previous_balance=None, wait_time=0, temp_count=0):
         argument = base_test.get_byte_code_param(account_id)
         operation = base_test.echo_ops.get_contract_call_operation(base_test.echo, account_id,
                                                                    bytecode=balance_of_method + argument,
                                                                    callee=contract_id)
         if account_id != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
-            broadcast_result = self.add_balance_for_operations(base_test, account_id, temp_operation, database_api_id,
-                                                               log_broadcast=log_broadcast)
+            broadcast_result = self.add_balance_for_operations(base_test, account_id, temp_operation, database_api_id)
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
         collected_operation = base_test.collect_operations(operation, database_api_id)
         broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
-                                                        log_broadcast=log_broadcast)
+                                                        log_broadcast=False)
         if not base_test.is_operation_completed(broadcast_result, expected_static_variant=1):
             raise Exception(
                 "Error: Can't call method 'balanceOf' of '{}' contract, response:\n{}".format(contract_id,
                                                                                               broadcast_result))
         contract_result = base_test.get_contract_result(broadcast_result, database_api_id)
-        return base_test.get_contract_output(contract_result, output_type=int)
+        balance = base_test.get_contract_output(contract_result, output_type=int)
+        if balance != previous_balance:
+            lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
+            return balance
+        temp_count += 1
+        if temp_count <= BLOCKS_NUM_TO_WAIT:
+            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            return self.get_erc20_token_balance_in_echo(base_test, account_id, balance_of_method, contract_id,
+                                                        database_api_id, previous_balance=previous_balance,
+                                                        wait_time=wait_time, temp_count=temp_count)
+        raise Exception(
+            "ERC20 balance of '{}' account not updated. Waiting time result='{}'".format(account_id, wait_time))
+
+    def get_verifiers_account_ids(self, prev_signatures):
+        verifers_account_ids = []
+        for signature in prev_signatures:
+            if signature["_fallback"] == 0:
+                verifers_account_ids.append("1.2." + str(signature["_producer"]))
+        return verifers_account_ids
+
+    def get_account_block_reward(self, base_test, account_ids, block_number, database_api_id):
+        total_verifiers_balance, reward, total_verifiers_reward, delegate_reward, account_reward = 0, 0, 0, 0, 0
+        verifiers_balances, rewards = [], []
+        verifiers_rewards, producer_rewards = {}, {}
+        verifier, producer = False, False
+
+        lcc.set_step("Get block with operation")
+        response_id = base_test.send_request(base_test.get_request("get_block", [block_number]),
+                                             database_api_id)
+        result = base_test.get_response(response_id)["result"]
+        block_producer = result["account"]
+        fee_amount = result["transactions"][0]["fees_collected"]
+        prev_signatures = result["cert"]
+        lcc.log_info("Block producer: '{}' account".format(block_producer))
+        verifiers_account_ids = self.get_verifiers_account_ids(prev_signatures)
+        lcc.log_info("Block verifiers: {}".format(verifiers_account_ids))
+
+        lcc.set_step("Check account ids in block verifiers")
+        for account_id in account_ids:
+            if account_id in verifiers_account_ids:
+                verifier = True
+                lcc.log_info("'{}' account in block verifiers".format(account_id))
+
+        if verifier:
+            lcc.set_step("Get verifiers total balance")
+            params = [[verifiers_account_id, [base_test.echo_asset]] for verifiers_account_id in verifiers_account_ids]
+            for param in params:
+                response_id = base_test.send_request(base_test.get_request("get_account_balances", param),
+                                                     database_api_id)
+                verifiers_balance = base_test.get_response(response_id)["result"][0]["amount"]
+                total_verifiers_balance += int(verifiers_balance)
+                verifiers_balances.append(verifiers_balance)
+            lcc.log_info("Verifiers total balance: {}".format(total_verifiers_balance))
+
+            lcc.set_step("Get next block after block with operation")
+            next_block_num = block_number + 1
+            self.set_timeout_until_num_blocks_released(base_test, database_api_id)
+            response_id = base_test.send_request(base_test.get_request("get_block", [next_block_num]), database_api_id)
+            prev_signatures = base_test.get_response(response_id)["result"]["prev_signatures"]
+
+            lcc.set_step("Calculate verifiers reward")
+            lcc.log_info("fee_amount: " + str(fee_amount))
+            for i, verifier_balance in enumerate(verifiers_balances):
+                verifier_reward_calculation = int(verifier_balance) * (fee_amount / 2)
+                verifier_reward = int(verifier_reward_calculation / total_verifiers_balance)
+                total_verifiers_reward += verifier_reward
+                if prev_signatures[i]["_delegate"] != 0:
+                    delegate_reward = int(verifier_reward * 0.2)
+                    verifier_reward = verifier_reward - delegate_reward
+                verifiers_rewards[verifiers_account_ids[i]] = int(verifier_reward)
+                lcc.log_info(
+                    "Added reward for verifier '{}' account: '{}'".format(verifiers_account_ids[i], verifier_reward))
+            lcc.log_info("Verifiers rewards: {}".format(verifiers_rewards))
+
+        lcc.set_step("Check account ids is block producer")
+        for account_id in account_ids:
+            if account_id == block_producer:
+                producer = True
+                lcc.log_info("'{}' account is block producer".format(account_id))
+        if producer:
+            fee_verifiers_rest = int(fee_amount / 2) - total_verifiers_reward
+            total_producer_reward = int(fee_amount / 2) + fee_verifiers_rest
+            if result["account"] != "":
+                delegate_reward = int(total_producer_reward * 0.2)
+            producer_reward = total_producer_reward - delegate_reward
+            producer_rewards[block_producer] = producer_reward
+        self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+
+        lcc.set_step("Confirm account ids rewards")
+        for i, account_id in enumerate(account_ids):
+            if verifier:
+                if verifiers_rewards.get(account_id) is not None:
+                    account_reward += verifiers_rewards[account_id]
+            if producer:
+                if producer_rewards.get(account_id) is not None:
+                    account_reward += producer_rewards[account_id]
+            if verifier or producer:
+                rewards.append(account_reward)
+            else:
+                rewards.append(0)
+            lcc.log_info("'{}' account got '{}' reward".format(account_id, rewards[i]))
+        return rewards

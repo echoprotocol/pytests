@@ -59,6 +59,7 @@ class SubscribeContracts(BaseTest):
         lcc.log_info("Test {}".format(status))
 
     def teardown_suite(self):
+        self.utils.cancel_all_subscriptions(self, self.__database_api_identifier)
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
