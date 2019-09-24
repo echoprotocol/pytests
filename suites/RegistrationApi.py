@@ -14,8 +14,10 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("registration_api")
+@lcc.prop("main", "type")
+@lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "registration_api")
 @lcc.suite("Registration API", rank=1)
 class RegistrationApi(object):
 
@@ -61,8 +63,8 @@ class RegistrationApi(object):
         base.ws.close()
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("registration_api")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "registration_api")
 @lcc.suite("Positive testing of method 'register_account'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -91,7 +93,6 @@ class PositiveTesting(BaseTest):
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
 
-    @lcc.prop("type", "method")
     @lcc.test("Registration with valid credential")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def registration_with_valid_credential(self, get_random_valid_account_name, get_random_integer):
@@ -115,7 +116,6 @@ class PositiveTesting(BaseTest):
             response["result"], is_not_none(), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Registration with unequal public keys")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def registration_with_unequal_public_keys(self, get_random_valid_account_name, get_random_integer):
@@ -139,7 +139,6 @@ class PositiveTesting(BaseTest):
         check_that("'echorand public key'", result["echorand_key"] == public_keys_echorand, is_true())
         check_that("'keys are unequal'", public_keys_active == public_keys_echorand, is_false())
 
-    @lcc.prop("type", "method")
     @lcc.test("Get callback: notification whenever transaction for registration account broadcast")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def get_callback_about_registration_account(self, get_random_integer, get_random_valid_account_name):
@@ -173,8 +172,8 @@ class PositiveTesting(BaseTest):
         check_that("'transactions are equal'", transaction == transaction_in_block, is_true())
 
 
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("registration_api")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "registration_api")
 @lcc.suite("Negative testing of method 'register_account'", rank=3)
 class NegativeTesting(BaseTest):
 
@@ -219,7 +218,6 @@ class NegativeTesting(BaseTest):
                                         self.__registration_api_identifier)
         return self.get_response(response_id, negative=True)
 
-    @lcc.prop("type", "method")
     @lcc.test("Empty account name")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def empty_account_name(self, get_random_integer):
@@ -233,7 +231,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Account name length longer than 63")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def account_name_length_longer_than_63(self, get_random_integer):
@@ -247,7 +244,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Account name start with digit")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def account_name_start_with_digit(self, get_random_integer):
@@ -261,7 +257,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Account name is digits")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def account_name_is_digits(self, get_random_integer):
@@ -275,7 +270,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Account name with a special character, not hyphen")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def account_name_with_special_character(self, get_random_integer, get_random_character):
@@ -291,7 +285,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Account name end with a special character")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def account_name_end_with_special_character(self, get_random_integer, get_random_character):
@@ -305,7 +298,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Account name is uppercase")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def account_name_is_uppercase(self, get_random_integer):
@@ -319,7 +311,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Registration with wrong public keys")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def registration_with_wrong_public_keys(self, get_random_valid_account_name, get_random_integer,
@@ -345,7 +336,6 @@ class NegativeTesting(BaseTest):
             "'register_account' return error message with invalid echorand key: '{}'".format(invalid_public_key),
             response, has_entry("error"), quiet=True)
 
-    @lcc.prop("type", "method")
     @lcc.test("Registration with wrong params")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def registration_with_with_wrong_params(self, get_random_integer, get_random_valid_account_name,
@@ -375,7 +365,6 @@ class NegativeTesting(BaseTest):
                     response, has_entry("error"), quiet=True)
             params = registration_params.copy()
 
-    @lcc.prop("type", "method")
     @lcc.test("Registration with wrong amount of params")
     @lcc.depends_on("RegistrationApi.RegistrationApi.connection_to_registration_api")
     def registration_with_wrong_count_of_params(self, get_random_integer, get_random_valid_account_name):

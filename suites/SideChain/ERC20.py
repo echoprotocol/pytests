@@ -11,8 +11,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("sidechain_erc20", "sidechain")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "sidechain", "sidechain_erc20")
 @lcc.suite("Check scenario 'ERC20ToEcho and ERC20FromEchoToEth'")
 class ERC20(BaseTest):
 
@@ -58,7 +58,6 @@ class ERC20(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario checks the main parts before testing the ERC20 sidechain functionality")
     def erc20_sidechain_pre_run_scenario(self, get_random_valid_account_name, get_random_string,
                                          get_random_valid_asset_name):
@@ -110,7 +109,6 @@ class ERC20(BaseTest):
         self.erc20_contract_id = self.get_response(response_id)["result"]["contract"]
         lcc.log_info("ERC20 token has id '{}' and contract_id '{}'".format(self.erc20_token_id, self.erc20_contract_id))
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario entering erc20 tokens to the echo account")
     @lcc.depends_on("SideChain.ERC20.ERC20.erc20_sidechain_pre_run_scenario")
     def erc20_in_scenario(self):
@@ -177,7 +175,6 @@ class ERC20(BaseTest):
         self.in_echo_erc20_balance = in_echo_erc20_balance
         self.in_ethereum_erc20_balance = final_in_ethereum_erc20_balance
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario withdrawing erc20 tokens from the echo account")
     @lcc.depends_on("SideChain.ERC20.ERC20.erc20_in_scenario")
     def erc20_out_scenario(self):

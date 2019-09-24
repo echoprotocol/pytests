@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("erc20_contract_fee_pool", "sidechain")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "sidechain", "sidechain_erc20", "erc20_contract_fee_pool")
 @lcc.suite("Check scenario 'ERC20 contract fee pool'")
 class ERC20ContractFeePool(BaseTest):
 
@@ -43,7 +43,6 @@ class ERC20ContractFeePool(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario checks ERC20 contract fee pool after creation")
     def erc20_contract_fee_pool_scenario(self, get_random_string, get_random_valid_asset_name, get_random_integer):
         name = "erc20" + get_random_string

@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("fees_collected_in_processed_transaction")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "fees_collected_in_processed_transaction")
 @lcc.suite("Check scenario 'fees_collected_in_processed_transaction'")
 class FeesCollectedInProcessedTransaction(BaseTest):
 
@@ -40,7 +40,6 @@ class FeesCollectedInProcessedTransaction(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("Scenario 'fees_collected_in_processed_transaction'")
     def fees_collected_in_processed_transaction(self):
         lcc.set_step("Collect first 'transfer_operation' operation")

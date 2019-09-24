@@ -9,9 +9,10 @@ SUITE = {
     "description": "Check for updating the list of active committee members"
 }
 
+
 # todo: test fails at second time running
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("change_active_committee_member", "sidechain")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "sidechain", "sidechain_ethereum", "change_active_committee_member")
 @lcc.suite("Check scenario 'Change active committee members'")
 class ChangeActiveCommitteeMember(BaseTest):
 
@@ -72,7 +73,6 @@ class ChangeActiveCommitteeMember(BaseTest):
             self._disconnect_to_echopy_lib()
             super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the mechanism of updating the list of active addresses of committee members")
     def change_committee_eth_address_scenario(self):
         if not ROPSTEN:

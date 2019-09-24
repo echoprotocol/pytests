@@ -9,10 +9,10 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_asset_holders_count")
+@lcc.prop("main", "type")
+@lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "asset_api", "get_asset_holders_count")
 @lcc.suite("Check work of method 'get_asset_holders_count'", rank=1)
 class GetAssetHoldersCount(BaseTest):
 
@@ -27,7 +27,6 @@ class GetAssetHoldersCount(BaseTest):
         lcc.log_info(
             "Asset API identifiers is '{}'".format(self.__asset_api_identifier))
 
-    @lcc.prop("type", "method")
     @lcc.test("Simple work of method 'get_asset_holders_count'")
     def method_main_check(self):
         lcc.set_step("Get holders count of ECHO asset")
@@ -43,8 +42,8 @@ class GetAssetHoldersCount(BaseTest):
         )
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("asset_api", "get_asset_holders_count")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "asset_api", "get_asset_holders_count")
 @lcc.suite("Positive testing of method 'get_asset_holders_count'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -87,7 +86,6 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("Get asset holders count of new asset")
     @lcc.depends_on("AssetApi.GetAssetHoldersCount.GetAssetHoldersCount.method_main_check")
     def add_holders_to_new_asset(self, get_random_valid_asset_name):
@@ -121,8 +119,8 @@ class PositiveTesting(BaseTest):
         )
 
 
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_asset_holders_count")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "asset_api", "get_asset_holders_count")
 @lcc.suite("Negative testing of method 'get_asset_holders_count'", rank=3)
 class NegativeTesting(BaseTest):
 
@@ -148,7 +146,6 @@ class NegativeTesting(BaseTest):
         self.nonexistent_asset_id = self.utils.get_nonexistent_asset_id(self, self.__database_api_identifier)
         lcc.log_info("Nonexistent asset id is '{}'".format(self.nonexistent_asset_id))
 
-    @lcc.prop("type", "method")
     @lcc.test("Use in method call nonexistent asset_id")
     @lcc.depends_on("AssetApi.GetAssetHoldersCount.GetAssetHoldersCount.method_main_check")
     def nonexistent_asset_id_in_method_call(self):
@@ -159,7 +156,6 @@ class NegativeTesting(BaseTest):
             response["result"], is_integer(0),
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method without params")
     @lcc.depends_on("AssetApi.GetAssetHoldersCount.GetAssetHoldersCount.method_main_check")
     def call_method_without_params(self):
@@ -171,7 +167,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True,
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method with wrong params of all types")
     @lcc.depends_on("AssetApi.GetAssetHoldersCount.GetAssetHoldersCount.method_main_check")
     def call_method_wrong_with_params(self, get_all_random_types):

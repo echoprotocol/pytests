@@ -10,8 +10,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("eth_address_in_genesis")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "eth_address_in_genesis")
 @lcc.suite("Check scenario 'Committee ethereum addresses in genesis file'")
 class CommitteeEthAddressInGenesis(BaseTest):
 
@@ -25,7 +25,6 @@ class CommitteeEthAddressInGenesis(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario checks possibility to indicate the eth_address in the genesis.")
     def eth_address_in_genesis_scenario(self):
         initial_committee_candidates = GENESIS["initial_committee_candidates"]

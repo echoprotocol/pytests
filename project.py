@@ -14,10 +14,10 @@ class MyProject(Project):
 project_dir = os.path.dirname(__file__)
 sys.path.append(project_dir)
 project = MyProject(project_dir)
-project.metadata_policy.add_property_rule("type", ("method", "operation", "scenario", "other"), required=False)
-project.metadata_policy.add_property_rule("suite_run_option_1", "main", on_suite=True, required=False)
-project.metadata_policy.add_property_rule("suite_run_option_2", "positive", on_suite=True, required=False)
-project.metadata_policy.add_property_rule("suite_run_option_3", "negative", on_suite=True, required=False)
+project.metadata_policy.add_property_rule("main", "type", on_suite=True, required=False)
+project.metadata_policy.add_property_rule("positive", "type", on_suite=True, required=False)
+project.metadata_policy.add_property_rule("negative", "type", on_suite=True, required=False)
+
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
 GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), "genesis.json")))

@@ -10,10 +10,9 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("history_api", "get_account_history_operations")
+@lcc.prop("main", "type")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "history_api", "get_account_history_operations")
 @lcc.suite("Check work of method 'get_account_history_operations '", rank=1)
 class GetAccountHistoryOperations(BaseTest):
 
@@ -38,7 +37,6 @@ class GetAccountHistoryOperations(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
-    @lcc.prop("type", "method")
     @lcc.test("Simple work of method 'get_account_history_operations'")
     def method_main_check(self):
         operation_id = self.echo.config.operation_ids.ACCOUNT_CREATE
@@ -80,8 +78,8 @@ class GetAccountHistoryOperations(BaseTest):
             )
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("history_api", "get_account_history_operations")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "history_api", "get_account_history_operations")
 @lcc.suite("Positive testing of method 'get_account_history_operations'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -121,7 +119,6 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("Check new account history")
     @lcc.tags("Bug: 'ECHO-1128'")
     @lcc.disabled()
@@ -146,7 +143,6 @@ class PositiveTesting(BaseTest):
             response["result"], is_list([])
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Check operation_id parameter")
     @lcc.tags("Bug: 'ECHO-1128'")
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
@@ -194,7 +190,6 @@ class PositiveTesting(BaseTest):
                 response["result"], has_length(operation_count)
             )
 
-    @lcc.prop("type", "method")
     @lcc.test("Check limit number of operations to retrieve")
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def limit_operations_to_retrieve(self, get_random_valid_account_name):
@@ -247,7 +242,6 @@ class PositiveTesting(BaseTest):
             response["result"], has_length(max_limit)
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Check stop and start IDs of the operations in account history")
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_hundred):

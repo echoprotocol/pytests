@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("not_valid_contract_code")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "not_valid_contract_code")
 @lcc.suite("Check scenario 'Contract with not valid contract code'")
 class ContractWithNotValidCode(BaseTest):
 
@@ -37,7 +37,6 @@ class ContractWithNotValidCode(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the mechanism of creating contract with not hex format of contract code")
     def contract_with_not_valid_code_scenario(self, get_random_not_hex_string):
         not_hex_format_contract_code = get_random_not_hex_string

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import time
-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_, is_integer, is_str, check_that_in, is_true
 
@@ -11,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("hello_world")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "hello_world")
 @lcc.suite("Check scenario 'Hello World'")
 class HelloWorld(BaseTest):
 
@@ -44,7 +42,6 @@ class HelloWorld(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the mechanism of creating, deploying, "
               "and invoking a contract on the Echo network, written in Solidity.")
     def hello_world_scenario(self):

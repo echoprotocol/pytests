@@ -11,8 +11,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("gas_used")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "gas_used")
 @lcc.suite("Check scenario 'GasUsed'")
 class GasUsed(BaseTest):
 
@@ -65,7 +65,6 @@ class GasUsed(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario checks that gas_used is count correct.")
     def gas_used_scenario(self):
         lcc.set_step("Get default fee and gas_price in global properties")

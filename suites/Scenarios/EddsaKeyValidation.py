@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("eddsa_key_validation")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "eddsa_key_validation")
 @lcc.suite("Check scenario 'Eddsa key validation'")
 class EddsaKeyValidation(BaseTest):
 
@@ -34,7 +34,6 @@ class EddsaKeyValidation(BaseTest):
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario checks if the ECHO validates the keys in length.")
     def eddsa_key_validation_scenario(self, get_random_valid_account_name, get_random_integer_up_to_ten,
                                       get_random_character, get_random_integer):

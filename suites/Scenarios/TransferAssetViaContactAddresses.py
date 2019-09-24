@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("transfer_asset_via_account_address")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "transfer_asset_via_account_address")
 @lcc.suite("Check scenario 'Transfer assets via account address'")
 class TransferAssetViaContactAddresses(BaseTest):
 
@@ -37,7 +37,6 @@ class TransferAssetViaContactAddresses(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the ability to transfer assets via account address recipient")
     def transfer_asset_via_account_address(self, get_random_valid_account_name, get_random_string, get_random_integer,
                                            get_random_integer_up_to_fifty):

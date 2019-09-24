@@ -10,8 +10,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("asset_api")
+@lcc.prop("main", "type")
+@lcc.tags("api", "asset_api")
 @lcc.suite("Asset API")
 class AssetApi(object):
 

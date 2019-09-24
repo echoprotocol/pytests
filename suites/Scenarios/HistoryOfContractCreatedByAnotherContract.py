@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("history_of_contract_created_by_another_contract")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "history_of_contract_created_by_another_contract")
 @lcc.suite("Check scenario 'Contract history that was created using another contract'")
 class HistoryOfContractCreatedByAnotherContract(BaseTest):
 
@@ -44,7 +44,6 @@ class HistoryOfContractCreatedByAnotherContract(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the creation of a contract whose method creates a new contract. "
               "Getting the history of the created contract")
     @lcc.tags("Bug ECHO-812")

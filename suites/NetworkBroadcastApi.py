@@ -11,8 +11,9 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("network_broadcast_api")
+@lcc.prop("main", "type")
+# todo: use "lcc run -a network_broadcast_api" with adding "connection_to_apis" due to @lcc.depends_on(..) at line 22
+@lcc.tags("api", "network_broadcast_api")
 @lcc.suite("Network Broadcast API")
 class NetworkBroadcastApi(object):
 

@@ -10,8 +10,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("balance_obj_in_subscription")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "balance_obj_in_subscription")
 @lcc.suite("Check scenario 'Balance objects in subscription'")
 class BalanceObjectsInSubscribe(BaseTest):
 
@@ -40,7 +40,6 @@ class BalanceObjectsInSubscribe(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario comparing objects balance accounts when transfer assets")
     def compare_balance_objects_when_transfer(self, get_random_integer):
         subscription_callback_id, transfer_amount = get_random_integer, get_random_integer

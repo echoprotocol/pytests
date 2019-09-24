@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("change_delegating_account")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "change_delegating_account")
 @lcc.suite("Check scenario 'Change delegating account'")
 class ChangeDelegatingAccount(BaseTest):
 
@@ -37,7 +37,6 @@ class ChangeDelegatingAccount(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes ability to delete or change delegating account.")
     def change_delegating_account_scenario(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name

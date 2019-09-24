@@ -12,8 +12,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("echo_asset_precision")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "echo_asset_precision")
 @lcc.suite("Check scenario 'Echo asset precision'")
 class EchoAssetPrecision(BaseTest):
 
@@ -40,7 +40,6 @@ class EchoAssetPrecision(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes check asset precision")
     def echo_asset_precision_scenario(self, get_random_valid_account_name, get_random_integer):
         new_account = get_random_valid_account_name

@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("asset_int")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "asset_int")
 @lcc.suite("Check scenario 'Parameter asset is integer type'")
 class AssetInt(BaseTest):
 
@@ -39,7 +39,6 @@ class AssetInt(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the ability to pass an asset type integer, written in Solidity.")
     def asset_int_scenario(self):
         lcc.set_step("Create 'asset_int' contract in the Echo network")

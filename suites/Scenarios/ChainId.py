@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("chain_id")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "chain_id")
 @lcc.suite("Check scenario 'Chain id'")
 class ChainId(BaseTest):
 
@@ -24,7 +24,6 @@ class ChainId(BaseTest):
         self.__api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__api_identifier))
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario comparing the 'chain_id' field of all methods where they are")
     def compare_chain_id_scenario(self):
         lcc.set_step("Get chain id")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, has_length
+from lemoncheesecake.matching import check_that, has_length
 
 from common.base_test import BaseTest
 
@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("many_contracts_in_one_trx")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "many_contracts_in_one_trx")
 @lcc.suite("Check scenario 'Create many contracts in a single transaction'")
 class CreateManyContractsInOneTrx(BaseTest):
 
@@ -38,7 +38,6 @@ class CreateManyContractsInOneTrx(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes creating many contracts in a single transaction "
               "on the Echo network, written in Solidity.")
     def create_many_contracts_in_one_trx_scenario(self, get_random_integer_up_to_fifty):

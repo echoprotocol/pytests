@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("get_first_contract_history")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "get_first_contract_history")
 @lcc.suite("Check scenario 'Get history of the first contract in the network'")
 class GetHistoryOfFirstContractInNetwork(BaseTest):
 
@@ -42,7 +42,6 @@ class GetHistoryOfFirstContractInNetwork(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("Check contract history of the first contract in the network")
     def get_history_of_first_contract_scenario(self):
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))

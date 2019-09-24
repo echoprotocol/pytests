@@ -10,10 +10,10 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_all_asset_holders")
+@lcc.prop("main", "type")
+@lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "asset_api", "get_all_asset_holders")
 @lcc.suite("Check work of method 'get_all_asset_holders'", rank=1)
 class GetAllAssetHolders(BaseTest):
 
@@ -27,7 +27,6 @@ class GetAllAssetHolders(BaseTest):
         self.__asset_api_identifier = self.get_identifier("asset")
         lcc.log_info("Asset API identifier is '{}'".format(self.__asset_api_identifier))
 
-    @lcc.prop("type", "method")
     @lcc.test("Simple work of method 'get_all_asset_holders'")
     def method_main_check(self):
         lcc.set_step("Get all asset ids with the number of holders")
@@ -44,8 +43,8 @@ class GetAllAssetHolders(BaseTest):
             )
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("asset_api", "get_all_asset_holders")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "asset_api", "get_all_asset_holders")
 @lcc.suite("Positive testing of method 'get_all_asset_holders'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -83,7 +82,6 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("New asset in 'get_all_asset_holders' without holders")
     @lcc.depends_on("AssetApi.GetAllAssetHolders.GetAllAssetHolders.method_main_check")
     def new_asset_without_holders(self, get_random_valid_asset_name):
@@ -106,7 +104,6 @@ class PositiveTesting(BaseTest):
             "count", is_integer(0)
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("New asset in 'get_all_asset_holders' with holders")
     @lcc.depends_on("AssetApi.GetAllAssetHolders.PositiveTesting.new_asset_without_holders")
     def new_asset_with_holders(self):
@@ -132,8 +129,8 @@ class PositiveTesting(BaseTest):
         )
 
 
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_all_asset_holders")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "asset_api", "get_all_asset_holders")
 @lcc.suite("Negative testing of method 'get_all_asset_holders'", rank=3)
 class NegativeTesting(BaseTest):
 
@@ -147,7 +144,6 @@ class NegativeTesting(BaseTest):
         self.__asset_api_identifier = self.get_identifier("asset")
         lcc.log_info("Asset API identifier is '{}'".format(self.__asset_api_identifier))
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method with params of all types")
     @lcc.depends_on("AssetApi.GetAllAssetHolders.GetAllAssetHolders.method_main_check")
     def call_method_with_params(self, get_all_random_types):

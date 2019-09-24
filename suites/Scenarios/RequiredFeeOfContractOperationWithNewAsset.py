@@ -9,10 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("database_api", "required_fee_of_contract_operation_with_new_asset")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "required_fee_of_contract_operation_with_new_asset")
 @lcc.suite("Check scenario 'required_fee_of_contract_operation_with_new_asset'", rank=1)
 class RequiredFeeOfContractOperationWithNewAsset(BaseTest):
 
@@ -47,7 +45,6 @@ class RequiredFeeOfContractOperationWithNewAsset(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("Scenario 'check new asset in required fee of contract operation'")
     def required_fee_of_contract_operation_with_new_asset(self, get_random_valid_asset_name):
         lcc.set_step("Generate assets symbol")

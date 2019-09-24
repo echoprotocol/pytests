@@ -10,12 +10,13 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("login_api")
+@lcc.prop("main", "type")
+@lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "login_api")
 @lcc.suite("Login API", rank=1)
 class LoginApi(object):
 
-    @lcc.prop("type", "method")
     @lcc.test("Login with empty credential")
     def login_with_empty_credential(self):
         base = BaseTest()
@@ -31,12 +32,11 @@ class LoginApi(object):
         base.ws.close()
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("login_api")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "login_api")
 @lcc.suite("Positive testing of method 'login'", rank=2)
 class PositiveTesting(object):
 
-    @lcc.prop("type", "method")
     @lcc.test("Login with credential")
     @lcc.depends_on("LoginApi.LoginApi.login_with_empty_credential")
     def login_with_credential(self):
@@ -54,12 +54,11 @@ class PositiveTesting(object):
         base.ws.close()
 
 # todo: add when will be validation on login
-# @lcc.prop("suite_run_option_3", "negative")
-# @lcc.tags("login_api")
+# @lcc.prop("negative", "type")
+# @lcc.tags("api", login_api")
 # @lcc.suite("Negative testing of method 'login'")
 # class NegativeTesting(object):
 #
-# @lcc.prop("type", "method")
 # @lcc.test("Login with wrong credential", rank=3)
 # @lcc.depends_on("LoginApi.LoginApi.login_with_empty_credential")
 # def login_with_wrong_credential(self):

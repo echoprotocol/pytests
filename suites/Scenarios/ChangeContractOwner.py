@@ -9,8 +9,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.tags("change_contract_owner")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "change_contract_owner")
 @lcc.suite("Check scenario 'Change contract owner'")
 class ChangeContractOwner(BaseTest):
 
@@ -51,7 +51,6 @@ class ChangeContractOwner(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes the mechanism of changing contract owner")
     def change_contract_owner_scenario(self):
         lcc.set_step("Create contract in the Echo network and get its contract id")

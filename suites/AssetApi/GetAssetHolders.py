@@ -11,10 +11,10 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_asset_holders")
+@lcc.prop("main", "type")
+@lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "asset_api", "get_asset_holders")
 @lcc.suite("Check work of method 'get_asset_holders'", rank=1)
 class GetAssetHolders(BaseTest):
 
@@ -28,7 +28,6 @@ class GetAssetHolders(BaseTest):
         self.__asset_api_identifier = self.get_identifier("asset")
         lcc.log_info("Asset API identifier is '{}'".format(self.__asset_api_identifier))
 
-    @lcc.prop("type", "method")
     @lcc.test("Simple work of method 'get_asset_holders'")
     def method_main_check(self):
         start = 0
@@ -55,8 +54,8 @@ class GetAssetHolders(BaseTest):
             self.check_uint64_numbers(holder, "amount")
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("asset_api", "get_asset_holders")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "asset_api", "get_asset_holders")
 @lcc.suite("Positive testing of method 'get_asset_holders'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -116,7 +115,6 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("Get info about the new asset holders")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def add_holders_to_new_asset(self, get_random_valid_asset_name):
@@ -151,7 +149,6 @@ class PositiveTesting(BaseTest):
                 "amount", is_(asset_value - i)
             )
 
-    @lcc.prop("type", "method")
     @lcc.test("Check work of start and limit params")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def work_of_start_and_limit_params(self, get_random_valid_asset_name):
@@ -197,8 +194,8 @@ class PositiveTesting(BaseTest):
         self.check_start_and_limit_params(asset_id, start, limit, account_names, accounts_ids, asset_value - start)
 
 
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("asset_api", "get_asset_holders")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "asset_api", "get_asset_holders")
 @lcc.suite("Negative testing of method 'get_asset_holders'", rank=3)
 class NegativeTesting(BaseTest):
 
@@ -235,7 +232,6 @@ class NegativeTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "method")
     @lcc.test("Use in method call nonexistent asset_id")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def nonexistent_asset_id_in_method_call(self):
@@ -248,7 +244,6 @@ class NegativeTesting(BaseTest):
             response["result"], is_list([]),
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method without params")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def call_method_without_params(self):
@@ -260,7 +255,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"),
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method with wrong params of all types")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def call_method_with_wrong_params(self, get_all_random_types):
@@ -292,7 +286,6 @@ class NegativeTesting(BaseTest):
                 response, has_entry("error"), quiet=True,
             )
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method with nonstandard params")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def call_method_with_nonstandard_params(self, get_random_integer_up_to_hundred, get_random_float_up_to_hundred,
@@ -328,7 +321,6 @@ class NegativeTesting(BaseTest):
             response["result"], is_not_none(), quiet=True
         )
 
-    @lcc.prop("type", "method")
     @lcc.test("Call method with more then limit params")
     @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
     def call_method_with_more_then_limit_params(self):

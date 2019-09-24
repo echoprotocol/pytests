@@ -11,10 +11,8 @@ SUITE = {
 }
 
 
-@lcc.prop("suite_run_option_1", "main")
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("database_api", "broadcast_thousands_transactions")
+@lcc.prop("main", "type")
+@lcc.tags("scenarios", "broadcast_thousands_transactions")
 @lcc.suite("Check scenario 'broadcast_thousands_transactions'", rank=1)
 class BroadcastThousandsTransactions(BaseTest):
 
@@ -57,11 +55,10 @@ class BroadcastThousandsTransactions(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.prop("type", "scenario")
     @lcc.test("The scenario describes creating many calling contract operations in chain")
     def create_many_calling_contract_operations(self):
         number_of_transactions = self.get_random_limit_integer(2000, 3000)
-        real_broadcasted_transfers_amounts, operations = [], []
+        operations = []
         all_transactions, trx_operations = [], []
 
         lcc.set_step("Create and collect {} operations".format(number_of_transactions))
@@ -75,9 +72,16 @@ class BroadcastThousandsTransactions(BaseTest):
 
         lcc.set_step("Broadcast transactions")
         for transaction_num in range(number_of_transactions):
-            collected_operation = self.collect_operations(operations[transaction_num], self.__database_api_identifier)
-            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, broadcast_with_callback=True,
-                                    log_broadcast=False)
+            collected_operation = self.collect_operations(
+                operations[transaction_num],
+                self.__database_api_identifier
+            )
+            self.echo_ops.broadcast(
+                echo=self.echo,
+                list_operations=collected_operation,
+                broadcast_with_callback=True,
+                log_broadcast=False
+            )
         end_broadcast_block = self.get_head_block_num()
 
         while True:
@@ -106,5 +110,8 @@ class BroadcastThousandsTransactions(BaseTest):
         for i, operation in enumerate(operations):
             if operation[:2] in trx_operations:
                 operation_count += 1
-        require_that("'all operations in blocks transactions'", operation_count == number_of_transactions, is_true(),
-                     quiet=False)
+        require_that(
+            "'all operations in blocks transactions'",
+            operation_count == number_of_transactions, is_true(),
+            quiet=False
+        )
