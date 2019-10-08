@@ -17,7 +17,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "registration_api")
+@lcc.tags("api", "notice", "registration_api")
 @lcc.suite("Registration API", rank=1)
 class RegistrationApi(object):
 
@@ -64,7 +64,7 @@ class RegistrationApi(object):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "registration_api")
+@lcc.tags("api", "notice", "registration_api")
 @lcc.suite("Positive testing of method 'register_account'", rank=2)
 class PositiveTesting(BaseTest):
 

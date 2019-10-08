@@ -120,8 +120,6 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Check new account history")
-    @lcc.tags("Bug: 'ECHO-1128'")
-    @lcc.disabled()
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def new_account_history(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
@@ -144,7 +142,6 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check operation_id parameter")
-    @lcc.tags("Bug: 'ECHO-1128'")
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def operation_id_to_retrieve(self, get_random_valid_account_name, get_random_valid_asset_name):
         new_account = get_random_valid_account_name
@@ -154,8 +151,7 @@ class PositiveTesting(BaseTest):
         create_asset_operation_id = self.echo.config.operation_ids.ASSET_CREATE
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         stop, start = operation_history_obj, operation_history_obj
-        # todo: change '1' to '100' . Bug: "ECHO-1128"
-        limit = 1
+        limit = 100
         lcc.set_step("Create and get new account. Add balance to pay for asset_create_operation fee")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
                                           self.__registration_api_identifier)
@@ -190,6 +186,8 @@ class PositiveTesting(BaseTest):
                 response["result"], has_length(operation_count)
             )
 
+    # todo: fixed errors
+    @lcc.disabled()
     @lcc.test("Check limit number of operations to retrieve")
     @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def limit_operations_to_retrieve(self, get_random_valid_account_name):

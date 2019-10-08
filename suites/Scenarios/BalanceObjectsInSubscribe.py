@@ -11,7 +11,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "balance_obj_in_subscription")
+@lcc.tags("scenarios", "notice", "balance_obj_in_subscription")
 @lcc.suite("Check scenario 'Balance objects in subscription'")
 class BalanceObjectsInSubscribe(BaseTest):
 

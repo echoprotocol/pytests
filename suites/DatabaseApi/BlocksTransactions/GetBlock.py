@@ -128,12 +128,11 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Broadcast transaction and check info about it in block")
-    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.BlocksTransactions.GetBlock.GetBlock.method_main_check")
     def check_transaction_info_in_block(self):
         lcc.set_step("Collect 'get_transaction' operation")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1)
+                                                                  to_account_id=self.echo_acc1, amount=5)
         lcc.log_info("Transfer operation: '{}'".format(str(transfer_operation)))
 
         lcc.set_step("Broadcast transaction that contains simple transfer operation to the ECHO network")
@@ -154,14 +153,18 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Compare transaction objects (broadcast_result, 'get_block' method)")
         transaction_from_broadcast_result = broadcast_result["trx"]
-        transaction_from_api_method = response["result"]["transactions"][0]
+        transactions_from_api_method = response["result"]["transactions"]
+        for tx in transactions_from_api_method:
+            if tx['signatures'] == transaction_from_broadcast_result["signatures"]:
+                transaction_from_api_method = tx
+                break
 
         require_that(
             "'transaction from broadcast result'",
-            transaction_from_broadcast_result, has_length(8)
+            transaction_from_broadcast_result, has_length(9)
         )
         require_that(
             "'transaction from 'get_block' method result'",
-            transaction_from_api_method, has_length(8)
+            transaction_from_api_method, has_length(9)
         )
         self.compare_objects(transaction_from_broadcast_result, transaction_from_api_method)

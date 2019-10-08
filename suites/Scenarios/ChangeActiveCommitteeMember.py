@@ -24,7 +24,7 @@ class ChangeActiveCommitteeMember(BaseTest):
 
     def get_active_committee_members_ids(self):
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        return self.get_response(response_id)["result"]["active_committee_members"]
+        return self.get_response(response_id, log_response=True)["result"]["active_committee_members"]
 
     def get_active_committee_members_eth_addresses(self, active_committee_members_ids=None, print_log=True):
         if active_committee_members_ids is not None:

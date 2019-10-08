@@ -12,7 +12,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "sidechain", "sidechain_ethereum")
+@lcc.tags("scenarios", "sidechain", "sidechain_ethereum", "scenarios_ethereum")
 @lcc.suite("Check scenario 'EthToEcho and EchoToEth'")
 class Ethereum(BaseTest):
 

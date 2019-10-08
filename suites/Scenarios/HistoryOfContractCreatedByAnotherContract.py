@@ -10,6 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
+@lcc.tags("Bug ECHO-812")
 @lcc.tags("scenarios", "history_of_contract_created_by_another_contract")
 @lcc.suite("Check scenario 'Contract history that was created using another contract'")
 class HistoryOfContractCreatedByAnotherContract(BaseTest):
@@ -46,7 +47,6 @@ class HistoryOfContractCreatedByAnotherContract(BaseTest):
 
     @lcc.test("The scenario describes the creation of a contract whose method creates a new contract. "
               "Getting the history of the created contract")
-    @lcc.tags("Bug ECHO-812")
     def history_of_contract_created_by_another_contract(self):
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         operations = []
@@ -111,7 +111,7 @@ class HistoryOfContractCreatedByAnotherContract(BaseTest):
         lcc.set_step("Get contract balance and store")
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         check_that_in(
             response["result"][0],
             "amount", is_integer(value_amount),

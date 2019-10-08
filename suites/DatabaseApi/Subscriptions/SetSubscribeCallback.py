@@ -185,6 +185,7 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check notices of created contract")
+    @lcc.tags("Manual testing using wsdimp.py")
     @lcc.disabled()
     @lcc.depends_on("DatabaseApi.Subscriptions.SetSubscribeCallback.SetSubscribeCallback.method_main_check")
     def check_contract_notices(self, get_random_integer):
@@ -207,6 +208,7 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check notice about created contract")
         del contract_id.get("broadcast_result")["trx"]["operation_results"]
+        del contract_id.get("broadcast_result")["trx"]["fees_collected"]
         check_that("'received notice'", contract_id.get("broadcast_result").get("trx"),
                    equal_to(notice_about_created_contract.get("trx")), quiet=True)
 
@@ -226,5 +228,6 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check notice about call contract")
         del broadcast_result.get("trx")["operation_results"]
+        del broadcast_result.get("trx")["fees_collected"]
         check_that("'received notice'", broadcast_result.get("trx"),
                    equal_to(notice_about_contract_call.get("trx")), quiet=True)

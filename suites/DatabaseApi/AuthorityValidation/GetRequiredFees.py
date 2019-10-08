@@ -350,10 +350,10 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Nonexistent method byte code")
     @lcc.depends_on("DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
-    def nonexistent_method_byte_code(self, get_random_hex_string):
+    def nonexistent_method_byte_code(self, get_random_eth_address):
         lcc.set_step("Get required fee for 'contract_call_operation' with nonexistent method byte code")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=get_random_hex_string,
+                                                              bytecode=get_random_eth_address,
                                                               callee=self.valid_contract_id)
         response = self.get_required_fees(operation, self.echo_asset, negative=True)
         check_that(

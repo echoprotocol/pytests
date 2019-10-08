@@ -70,9 +70,11 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Register a new account and make it a new committee member in the network")
     @lcc.depends_on("DatabaseApi.CommitteeMembers.GetCommitteeCount.GetCommitteeCount.method_main_check")
-    def add_new_committee_member_in_the_network(self, get_random_valid_account_name, get_random_hex_string):
+    def add_new_committee_member_in_the_network(self, get_random_valid_account_name, get_random_eth_address,
+                                                get_random_btc_public_key):
         new_account = get_random_valid_account_name
-        eth_account_address = get_random_hex_string
+        eth_account_address = get_random_eth_address
+        btc_public_key = get_random_btc_public_key
 
         lcc.set_step("Get the current number of committee members in the ECHO network")
         response_id = self.send_request(self.get_request("get_committee_count"), self.__database_api_identifier)
@@ -85,7 +87,7 @@ class PositiveTesting(BaseTest):
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account_id))
 
         lcc.set_step("Create created account new committee member in the ECHO network")
-        self.utils.perform_committee_member_create_operation(self, new_account_id, eth_account_address,
+        self.utils.perform_committee_member_create_operation(self, new_account_id, eth_account_address, btc_public_key,
                                                              self.__database_api_identifier)
         lcc.log_info("Successfully created a new committee member")
 

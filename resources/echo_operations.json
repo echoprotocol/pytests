@@ -67,7 +67,7 @@
         }
     ],
     "asset_create_operation": [
-        5,
+        4,
         {
             "fee": {
                 "amount": 0,
@@ -99,7 +99,7 @@
         }
     ],
     "asset_issue_operation": [
-        9,
+        8,
         {
             "fee": {
                 "amount": 0,
@@ -115,7 +115,7 @@
         }
     ],
     "proposal_create_operation":[
-        13,
+        12,
         {
             "fee": {
                 "amount": 0,
@@ -129,7 +129,7 @@
         }
     ],
     "committee_member_create_operation": [
-        16,
+        15,
         {
             "fee": {
                 "amount": 0,
@@ -138,11 +138,12 @@
             "committee_member_account": "1.2.0",
             "url": "http://example.com/",
             "eth_address": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
+            "btc_public_key": "039eeae9c2c707b95f024cf012c35c7784356a069a909af05e585a86348897f0c1",
             "extensions": []
         }
     ],
     "committee_member_update_operation": [
-        17,
+        16,
         {
             "fee": {
                 "amount": 0,
@@ -152,11 +153,12 @@
             "committee_member_account": "1.2.0",
             "new_url": "http://example.com",
             "new_eth_address": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
+            "new_btc_public_key": "039eeae9c2c707b95f024cf012c35c7784356a069a909af05e585a86348897f0c1",
             "extensions": []
         }
     ],
     "vesting_balance_create_operation": [
-        19,
+        18,
         {
             "fee": {
                 "amount": 0,
@@ -180,7 +182,7 @@
         }
     ],
     "vesting_balance_withdraw_operation": [
-        20,
+        19,
         {
             "fee": {
                 "amount": 0,
@@ -195,7 +197,7 @@
         }
     ],
     "balance_claim_operation": [
-        21,
+        20,
         {
             "fee": {
                 "amount": 0,
@@ -408,7 +410,7 @@
         }
     ],
     "contract_update_operation": [
-        43,
+        27,
         {
             "fee": {
                 "amount": 0,

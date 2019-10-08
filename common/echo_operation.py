@@ -185,9 +185,9 @@ class EchoOperations(object):
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
-    def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, fee_amount=0,
-                                              fee_asset_id="1.3.0", url="", extensions=None, signer=None,
-                                              debug_mode=False):
+    def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, btc_public_key,
+                                              fee_amount=0, fee_asset_id="1.3.0", url="", extensions=None,
+                                              signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_CREATE
@@ -195,7 +195,7 @@ class EchoOperations(object):
         committee_member_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         committee_member_create_props.update(
             {"committee_member_account": committee_member_account, "url": url, "eth_address": eth_address,
-             "extensions": extensions})
+             "btc_public_key": btc_public_key, "extensions": extensions})
         if debug_mode:
             lcc.log_debug("Committee member create operation: \n{}".format(
                 json.dumps([operation_id, committee_member_create_props], indent=4)))
@@ -203,10 +203,9 @@ class EchoOperations(object):
             return [operation_id, committee_member_create_props, committee_member_account]
         return [operation_id, committee_member_create_props, signer]
 
-
     def get_committee_member_update_operation(self, echo, committee_member, committee_member_account,
-                                              new_eth_address=None, new_url=None, fee_amount=0, fee_asset_id="1.3.0",
-                                              extensions=None, signer=None, debug_mode=False):
+                                              new_eth_address=None, new_btc_public_key=None, new_url=None, fee_amount=0,
+                                              fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_UPDATE
@@ -219,6 +218,10 @@ class EchoOperations(object):
             committee_member_update_props.update({"new_eth_address": new_eth_address})
         else:
             del committee_member_update_props["new_eth_address"]
+        if new_btc_public_key is not None:
+            committee_member_update_props.update({"new_btc_public_key": new_btc_public_key})
+        else:
+            del committee_member_update_props["new_btc_public_key"]
         if new_url is not None:
             committee_member_update_props.update({"new_url": new_url})
         else:
@@ -484,7 +487,7 @@ class EchoOperations(object):
         return [operation_id, contract_update_props, signer]
 
     def broadcast(self, echo, list_operations, return_operations=False, expiration=None, no_broadcast=False,
-                  get_signed_tx=False, log_broadcast=True, debug_mode=False, broadcast_with_callback=False):
+                  get_signed_tx=False, log_broadcast=False, debug_mode=False, broadcast_with_callback=False):
         tx = echo.create_transaction()
         if debug_mode:
             lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))

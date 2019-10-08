@@ -24,7 +24,10 @@ class Utils(object):
             transfer_amount = operation_count * transfer_amount
         if get_only_fee:
             transfer_amount = 0
-        amount = operation_count * base_test.get_required_fee(operation, database_api_id)[0]["amount"] + transfer_amount
+        fee_amount = base_test.get_required_fee(operation, database_api_id)[0]["amount"]
+        if type(fee_amount) is str:
+            fee_amount = int(fee_amount)
+        amount = operation_count * fee_amount + transfer_amount
         transfer_amount_for_pay_fee_op = base_test.echo_ops.get_transfer_operation(echo=base_test.echo,
                                                                                    from_account_id=base_test.echo_acc0,
                                                                                    to_account_id=account, amount=amount)
@@ -129,8 +132,8 @@ class Utils(object):
             return base_test.get_contract_id(contract_id_16)
         return {"contract_id": base_test.get_contract_id(contract_id_16), "broadcast_result": broadcast_result}
 
-    def perform_contract_transfer_operation(self, base_test, registrar, method_bytecode, database_api_id,
-                                            contract_id, operation_count=1, get_only_fee=False, log_broadcast=False):
+    def perform_contract_call_operation(self, base_test, registrar, method_bytecode, database_api_id,
+                                        contract_id, operation_count=1, get_only_fee=False, log_broadcast=False):
         operation = base_test.echo_ops.get_contract_call_operation(echo=base_test.echo, registrar=registrar,
                                                                    bytecode=method_bytecode, callee=contract_id)
         if registrar != base_test.echo_acc0:
@@ -576,11 +579,13 @@ class Utils(object):
                 "Error: fund pool from '{}' account is not performed, response:\n{}".format(sender, broadcast_result))
         return broadcast_result
 
-    def perform_committee_member_create_operation(self, base_test, account_id, eth_address, database_api_id, url="",
-                                                  log_broadcast=False):
+    def perform_committee_member_create_operation(self, base_test, account_id, eth_address, btc_public_key,
+                                                  database_api_id, url="", log_broadcast=False):
         operation = base_test.echo_ops.get_committee_member_create_operation(echo=base_test.echo,
                                                                              committee_member_account=account_id,
-                                                                             eth_address=eth_address, url=url)
+                                                                             eth_address=eth_address,
+                                                                             btc_public_key=btc_public_key, url=url,
+                                                                             debug_mode=True)
         if account_id != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             broadcast_result = self.add_balance_for_operations(base_test, account_id, temp_operation, database_api_id,
@@ -597,13 +602,14 @@ class Utils(object):
         return broadcast_result
 
     def perform_committee_member_update_operation(self, base_test, committee_member, committee_member_account,
-                                                  database_api_id, new_eth_address=None, new_url=None,
-                                                  log_broadcast=False):
+                                                  database_api_id, new_eth_address=None, new_btc_public_key=None,
+                                                  new_url=None, log_broadcast=False):
         operation = \
             base_test.echo_ops.get_committee_member_update_operation(echo=base_test.echo,
                                                                      committee_member=committee_member,
                                                                      committee_member_account=committee_member_account,
                                                                      new_eth_address=new_eth_address,
+                                                                     new_btc_public_key=new_btc_public_key,
                                                                      new_url=new_url)
         if committee_member_account != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
@@ -732,11 +738,9 @@ class Utils(object):
                                              database_api_id)
         response = base_test.get_response(response_id)
         if response["result"] and response["result"] != previous_account_withdrawals:
-            # todo: uncomment. Bug ECHO-1212
-            # if False not in [False for withdrawal in response["result"] if not withdrawal["is_approved"]]:
-            #     return response
+            if False not in [False for withdrawal in response["result"] if not withdrawal["is_approved"]]:
+                return response
             lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
-            return response
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
             wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)

@@ -44,11 +44,7 @@ class GetCommitteeMembers(BaseTest):
         lcc.set_step("Check method 'get_committee_members' result")
         for i, committee_member in enumerate(committee_members):
             lcc.set_step("Get active committee member #'{}'".format(i))
-            # todo: leave only  has_length to (7), after field "pay_vb" will be removed from committee members object
-            if "pay_vb" in committee_member:
-                require_that("'committee member'", committee_member, has_length(8))
-            else:
-                require_that("'committee member'", committee_member, has_length(7))
+            require_that("'committee member'", committee_member, has_length(8))
             if not self.validator.is_committee_member_id(committee_member["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(committee_member["id"]))
             else:
@@ -63,9 +59,14 @@ class GetCommitteeMembers(BaseTest):
                     committee_member["vote_id"]))
             else:
                 lcc.log_info("'vote_id' has correct format: vote_id_type")
-            if not self.validator.is_hex(committee_member["eth_address"]):
+            if not self.validator.is_eth_address(committee_member["eth_address"]):
                 lcc.log_error(
                     "Wrong format of 'eth_address', got: {}".format(committee_member["eth_address"]))
+            else:
+                lcc.log_info("'eth_address' has correct format: hex")
+            if not self.validator.is_btc_public_key(committee_member["btc_public_key"]):
+                lcc.log_error(
+                    "Wrong format of 'btc_public_key', got: {}".format(committee_member["btc_public_key"]))
             else:
                 lcc.log_info("'eth_address' has correct format: hex")
             self.check_uint256_numbers(committee_member, "total_votes", quiet=True)
@@ -109,10 +110,12 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Create new committee member")
     @lcc.depends_on("DatabaseApi.CommitteeMembers.GetCommitteeMembers.GetCommitteeMembers.method_main_check")
-    def create_committee_member(self, get_random_valid_account_name, get_random_url, get_random_hex_string):
+    def create_committee_member(self, get_random_valid_account_name, get_random_url, get_random_eth_address,
+                                get_random_btc_public_key):
         new_account = get_random_valid_account_name
         url = get_random_url
-        eth_account_address = get_random_hex_string
+        eth_account_address = get_random_eth_address
+        btc_public_key = get_random_btc_public_key
 
         lcc.set_step("Create and get new account")
         self.new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
@@ -121,7 +124,7 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Create committee member of new account in the ECHO network")
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
-                                                                                eth_account_address,
+                                                                                eth_account_address, btc_public_key,
                                                                                 self.__database_api_identifier, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
@@ -135,21 +138,22 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check created committee member in the ECHO network")
         for committee_member in result:
-            require_that("'committee member object'", committee_member, has_length(7))
+            require_that("'committee member object'", committee_member, has_length(8))
             check_that_in(
                 committee_member,
                 "id", equal_to(self.committee_member_id),
                 "committee_member_account", equal_to(self.new_account_id),
                 "url", equal_to(url)
             )
-            check_that("'eth_address'", committee_member["eth_address"].lower(),
-                       equal_to(eth_account_address))
+            check_that("'eth_address'", committee_member["eth_address"].lower(), equal_to(eth_account_address))
+            check_that("'btc_public_key'", committee_member["btc_public_key"].lower(), equal_to(btc_public_key))
 
     @lcc.test("Update committee member")
     @lcc.depends_on("DatabaseApi.CommitteeMembers.GetCommitteeMembers.PositiveTesting.create_committee_member")
-    def update_committee_member(self, get_random_url, get_random_hex_string):
+    def update_committee_member(self, get_random_url, get_random_eth_address, get_random_btc_public_key):
         new_url = get_random_url
-        new_eth_address = get_random_hex_string
+        new_eth_address = get_random_eth_address
+        new_btc_public_key = get_random_btc_public_key
 
         lcc.set_step("Get committee member before update")
         param = [self.committee_member_id]
@@ -161,7 +165,9 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Perform committee member update operation")
         self.utils.perform_committee_member_update_operation(self, self.committee_member_id, self.new_account_id,
                                                              self.__database_api_identifier,
-                                                             new_eth_address=new_eth_address, new_url=new_url)
+                                                             new_eth_address=new_eth_address,
+                                                             new_btc_public_key=new_btc_public_key,
+                                                             new_url=new_url)
         lcc.log_info("Update committee member completed successfully")
 
         lcc.set_step("Get committee member after update")
@@ -181,15 +187,20 @@ class PositiveTesting(BaseTest):
             "url", not_equal_to(committee_member_before_update["url"]),
             "url", equal_to(new_url),
             "eth_address", not_equal_to(committee_member_before_update["eth_address"]),
+            "btc_public_key", not_equal_to(committee_member_before_update["btc_public_key"]),
         )
         check_that("'new_eth_address'", committee_member_after_update["eth_address"].lower(), equal_to(new_eth_address))
+        check_that("'new_btc_public_key'", committee_member_after_update["btc_public_key"].lower(),
+                   equal_to(new_btc_public_key))
 
     @lcc.test("Create committee member and compare response from 'get_committee_members' and 'get_objects'")
     @lcc.depends_on("DatabaseApi.CommitteeMembers.GetCommitteeMembers.GetCommitteeMembers.method_main_check")
-    def compare_with_method_get_objects(self, get_random_valid_account_name, get_random_url, get_random_hex_string):
+    def compare_with_method_get_objects(self, get_random_valid_account_name, get_random_url, get_random_eth_address,
+                                        get_random_btc_public_key):
         new_account = get_random_valid_account_name
         url = get_random_url
-        eth_account_address = get_random_hex_string
+        eth_account_address = get_random_eth_address
+        btc_public_key = get_random_btc_public_key
 
         lcc.set_step("Create and get new account")
         self.new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
@@ -199,6 +210,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Create committee member of new account in the ECHO network")
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
                                                                                 eth_account_address,
+                                                                                btc_public_key,
                                                                                 self.__database_api_identifier, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))

@@ -10,7 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "database_api", "database_api_subscriptions", "set_block_applied_callback")
+@lcc.tags("api", "notice", "database_api", "database_api_subscriptions", "set_block_applied_callback")
 @lcc.suite("Check work of method 'set_block_applied_callback'", rank=1)
 class SetBlockAppliedCallback(BaseTest):
 

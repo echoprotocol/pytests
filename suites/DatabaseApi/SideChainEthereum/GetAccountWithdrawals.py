@@ -106,7 +106,7 @@ class GetAccountWithdrawals(BaseTest):
         lcc.log_info("First withdraw operation stored")
 
         lcc.set_step("Get account history operations")
-        operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_BURN
+        operation_id = self.echo.config.operation_ids.SIDECHAIN_BURN
         results = self.utils.get_account_history_operations(self, new_account, operation_id,
                                                             self.__history_api_identifier,
                                                             self.__database_api_identifier,
@@ -150,7 +150,7 @@ class GetAccountWithdrawals(BaseTest):
         lcc.log_info("Second withdraw operation stored")
 
         lcc.set_step("Get account history operations")
-        operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_BURN
+        operation_id = self.echo.config.operation_ids.SIDECHAIN_BURN
         results = self.utils.get_account_history_operations(self, new_account, operation_id,
                                                             self.__history_api_identifier,
                                                             self.__database_api_identifier,

@@ -40,7 +40,7 @@ class GetERC20AccountDeposits(BaseTest):
         require_that("'account deposits count'", deposits, has_length(len(erc20_deposit_amounts)))
         for i, deposit in enumerate(deposits):
             lcc.set_step("Check work of method 'get_erc20_account_deposits', deposit #'{}'".format(i))
-            check_that("'length of erc20 account deposit'", deposit, has_length(7))
+            check_that("'length of erc20 account deposit'", deposit, has_length(8))
             if not self.validator.is_deposit_erc20_id(deposit["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
             else:
@@ -56,6 +56,7 @@ class GetERC20AccountDeposits(BaseTest):
                 "value", equal_to(str(erc20_deposit_amounts[i])),
                 "is_approved", is_true(),
                 "approves", is_list(),
+                "extensions", is_list(),
                 quiet=True
             )
 

@@ -12,7 +12,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_keys", "get_key_references")
+@lcc.tags("api", "notice", "database_api", "database_api_keys", "get_key_references")
 @lcc.suite("Check work of method 'get_key_references'", rank=1)
 class GetKeyReferences(BaseTest):
 
@@ -53,7 +53,7 @@ class GetKeyReferences(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_keys", "get_key_references")
+@lcc.tags("api", "notice", "database_api", "database_api_keys", "get_key_references")
 @lcc.suite("Positive testing of method 'get_key_references'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -156,7 +156,7 @@ class PositiveTesting(BaseTest):
 
 
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_keys", "get_key_references")
+@lcc.tags("api", "notice", "database_api", "database_api_keys", "get_key_references")
 @lcc.suite("Negative testing of method 'get_key_references'", rank=3)
 class NegativeTesting(BaseTest):
 

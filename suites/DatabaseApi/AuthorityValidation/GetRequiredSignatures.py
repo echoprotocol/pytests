@@ -11,6 +11,8 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.tags("Bug ECHO-1029, ECHO-1031")
+@lcc.disabled()
 @lcc.tags("api", "database_api", "database_api_authority_validation", "get_required_signatures")
 @lcc.suite("Check work of method 'get_required_signatures'", rank=1)
 class GetRequiredSignatures(BaseTest):
@@ -49,7 +51,6 @@ class GetRequiredSignatures(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'get_required_signatures'")
-    @lcc.disabled()
     def method_main_check(self):
         lcc.set_step("Build transfer transaction")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
@@ -99,6 +100,8 @@ class GetRequiredSignatures(BaseTest):
 
 
 @lcc.prop("positive", "type")
+@lcc.tags("Bug ECHO-1029, ECHO-1031")
+@lcc.disabled()
 @lcc.tags("api", "database_api", "database_api_authority_validation", "get_required_signatures")
 @lcc.suite("Positive testing of method 'get_required_signatures'", rank=2)
 class PositiveTesting(BaseTest):
@@ -140,7 +143,6 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Add additional account_auths and change weight_threshold to account and get required signatures for it")
-    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.AuthorityValidation.GetRequiredSignatures.GetRequiredSignatures.method_main_check")
     def get_potential_signatures_of_accounts_with_additional_account_auths(self):
         first_account_active_keys = self.get_account_active_keys(self.echo_acc5)

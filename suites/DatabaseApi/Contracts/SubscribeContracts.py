@@ -12,7 +12,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_contracts", "subscribe_contracts")
+@lcc.tags("api", "notice", "database_api", "database_api_contracts", "subscribe_contracts")
 @lcc.suite("Check work of method 'subscribe_contracts'", rank=1)
 class SubscribeContracts(BaseTest):
 
@@ -124,7 +124,7 @@ class SubscribeContracts(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_contracts", "subscribe_contracts")
+@lcc.tags("api", "notice", "database_api", "database_api_contracts", "subscribe_contracts")
 @lcc.suite("Positive testing of method 'subscribe_contracts'", rank=2)
 class PositiveTesting(BaseTest):
 

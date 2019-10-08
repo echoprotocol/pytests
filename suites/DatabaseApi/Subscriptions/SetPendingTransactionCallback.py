@@ -13,7 +13,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_subscriptions", "set_pending_transaction_callback")
+@lcc.tags("api", "notice", "database_api", "database_api_subscriptions", "set_pending_transaction_callback")
 @lcc.suite("Check work of method 'set_pending_transaction_callback'", rank=1)
 class SetPendingTransactionCallback(BaseTest):
     def __init__(self):
@@ -82,7 +82,7 @@ class SetPendingTransactionCallback(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_subscriptions", "set_pending_transaction_callback")
+@lcc.tags("api", "notice", "database_api", "database_api_subscriptions", "set_pending_transaction_callback")
 @lcc.suite("Positive testing of method 'set_pending_transaction_callback'", rank=2)
 class PositiveTesting(BaseTest):
     def __init__(self):

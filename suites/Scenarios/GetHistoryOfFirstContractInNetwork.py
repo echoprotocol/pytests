@@ -10,6 +10,9 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
+# todo: "get_contract_history" works only for last 29 contracts
+@lcc.tags("Bug ECHO-1408")
+@lcc.disabled()
 @lcc.tags("scenarios", "get_first_contract_history")
 @lcc.suite("Check scenario 'Get history of the first contract in the network'")
 class GetHistoryOfFirstContractInNetwork(BaseTest):

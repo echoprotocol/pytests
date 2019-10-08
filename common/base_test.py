@@ -369,7 +369,7 @@ class BaseTest(object):
             return contract_id
 
     @staticmethod
-    def get_contract_log_data(response, output_type, log_format=None, debug_mode=False):
+    def get_contract_log_data(response, output_type, log_format=None, debug_mode=False, data_dict=False):
         if debug_mode:
             lcc.log_info("Logs are '{}'".format(json.dumps(response, indent=4)))
         if log_format:
@@ -388,10 +388,16 @@ class BaseTest(object):
         contract_log_data = []
         for i, log_data in enumerate(contract_logs):
             if output_type[i] == str:
-                log_data = (log_data.get("data")[128:])[:int(log_data.get("data")[127]) * 2]
+                if data_dict:
+                    log_data = (log_data.get("data")[128:])[:int(log_data.get("data")[127]) * 2]
+                else:
+                    log_data = (log_data[1].get("data")[128:])[:int(log_data[1].get("data")[127]) * 2]
                 contract_log_data.append(str(codecs.decode(log_data, "hex").decode('utf-8')))
             if output_type[i] == int:
-                contract_log_data.append(int(log_data.get("data"), 16))
+                if data_dict:
+                    contract_log_data.append(int(log_data.get("data"), 16))
+                else:
+                    contract_log_data.append(int(log_data[1].get("data"), 16))
         return contract_log_data
 
     @staticmethod

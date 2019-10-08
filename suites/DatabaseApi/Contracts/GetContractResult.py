@@ -2,7 +2,7 @@
 import re
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, equal_to, is_integer, is_list, is_dict, is_str, ends_with, \
+from lemoncheesecake.matching import check_that_in, equal_to, is_list, is_dict, is_str, ends_with, \
     check_that, require_that, greater_than, has_length, require_that_in, is_true
 
 from common.base_test import BaseTest
@@ -63,7 +63,7 @@ class GetContractResult(BaseTest):
         lcc.set_step("Get contract result of created contract")
         response_id = self.send_request(self.get_request("get_contract_result", [contract_result_id]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         contract_result = response["result"][1]
         lcc.log_info("Call method 'get_contract_result' with contract_result_id='{}' param".format(contract_result_id))
 
@@ -76,7 +76,7 @@ class GetContractResult(BaseTest):
                 quiet=True
             )
             exec_res = contract_result["exec_res"]
-            if check_that("exec_res", exec_res, has_length(7)):
+            if check_that("exec_res", exec_res, has_length(6)):
                 require_that_in(
                     exec_res,
                     "excepted", equal_to("None"),
@@ -96,8 +96,6 @@ class GetContractResult(BaseTest):
                 contract_output_bytecode_length = len(contract_output_in_hex)
                 check_that_in(
                     exec_res,
-                    # todo: 'gas_refunded' will removed. Improvement ECHO-1015
-                    "gas_refunded", is_integer(),
                     "gas_for_deposit", greater_than(0),
                     "deposit_size", equal_to(contract_output_bytecode_length // 2),
                     quiet=True
@@ -140,13 +138,11 @@ class GetContractResult(BaseTest):
         lcc.set_step("Check contract call result")
         if check_that("contract_call_result", contract_call_result, has_length(2)):
             exec_res = contract_call_result["exec_res"]
-            if check_that("exec_res", exec_res, has_length(7)):
+            if check_that("exec_res", exec_res, has_length(6)):
                 require_that_in(
                     exec_res,
                     "excepted", equal_to("None"),
                     "code_deposit", equal_to("None"),
-                    # todo: 'gas_refunded' will removed. Improvement ECHO-1015
-                    "gas_refunded", equal_to(0),
                     "gas_for_deposit", equal_to(0),
                     "deposit_size", equal_to(0),
                     quiet=True
@@ -335,7 +331,9 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract result log data")
         call_contract_params = [int_param, string_param]
         output_types = [int, str]
-        log_data = self.get_contract_log_data(response, output_type=output_types)
+        log_data = self.get_contract_log_data(dynamic_fields_contract_call_logs, output_type=output_types,
+                                              log_format=True, data_dict = True)
+        lcc.log_debug(str(dynamic_fields_contract_call_logs))
         for i, data in enumerate(log_data):
             lcc.log_info("Check data#'{}'".format(i))
             check_that("'converted 'data' from hex'", data, equal_to(call_contract_params[i]))

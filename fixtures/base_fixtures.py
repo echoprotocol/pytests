@@ -8,7 +8,8 @@ NUM_RANGE_1 = 100
 NUM_RANGE_2 = 1000
 RANGE_OF_STR = 7
 RANGE_OF_LENGTH = 5
-RANGE_OF_STR_FOR_HEX = 20
+RANGE_OF_STR_FOR_ETH_ADDRESS = 20
+RANGE_OF_STR_FOR_BTC_PUBLIC_KEY = 33
 
 
 @lcc.fixture(scope="test")
@@ -128,9 +129,19 @@ def get_random_valid_asset_name():
 
 
 @lcc.fixture(scope="test")
-def get_random_hex_string():
+def get_random_eth_address():
     random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_HEX))
+        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_ETH_ADDRESS))
+    random_hex_string = ''.join(hex(ord(x))[2:] for x in random_string)
+    lcc.log_info("Generated random hex string: {}".format(random_hex_string))
+    return random_hex_string
+
+
+@lcc.fixture(scope="test")
+def get_random_btc_public_key():
+    random_string = ''.join(
+        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in
+        range(RANGE_OF_STR_FOR_BTC_PUBLIC_KEY))
     random_hex_string = ''.join(hex(ord(x))[2:] for x in random_string)
     lcc.log_info("Generated random hex string: {}".format(random_hex_string))
     return random_hex_string
@@ -143,7 +154,7 @@ def get_random_not_hex_string():
         if ord("F") < ord(letter) <= ord("Z") or ord("f") < ord(letter) <= ord("z"):
             not_hex_letters = not_hex_letters + letter
     random_not_hex_string = ''.join(
-        random.SystemRandom().choice(not_hex_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_HEX))
+        random.SystemRandom().choice(not_hex_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_ETH_ADDRESS))
     lcc.log_info("Generated random not hex string: {}".format(random_not_hex_string))
     return random_not_hex_string
 

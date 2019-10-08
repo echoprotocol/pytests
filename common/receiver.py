@@ -115,7 +115,7 @@ class Receiver(object):
             return notice_params
         if isinstance(notice_params, list):
             for notice_param in notice_params:
-                if (notice_param["address"]) and (self.validator.is_hex(notice_param["log"][0])):
+                if (notice_param[1]["address"]) and (self.validator.is_hex(notice_param[1]["log"][0])):
                     if print_log:
                         lcc.log_info(
                             "Received notice about new contract logs:\n{}".format(json.dumps(response, indent=4)))

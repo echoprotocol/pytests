@@ -72,18 +72,19 @@ class GetContractLogs(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(logs), is_true(), quiet=True)
         for log in logs:
-            if check_that("contract_log", log, has_length(3)):
-                contract_id_that_called = self.get_contract_id(log["address"], address_format=True,
+            lcc.log_debug(str(log))
+            if check_that("contract_log", log[1], has_length(3)):
+                contract_id_that_called = self.get_contract_id(log[1]["address"], address_format=True,
                                                                new_contract=False)
                 require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-                log_values = log["log"]
+                log_values = log[1]["log"]
                 for log_value in log_values:
                     if not self.validator.is_hex(log_value):
                         lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                     else:
                         lcc.log_info("'log_value' has correct format: hex")
                 check_that_in(
-                    log, "data", is_str(), quiet=True
+                    log[1], "data", is_str(), quiet=True
                 )
 
 
@@ -243,9 +244,9 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(contract_logs), is_true(), quiet=True)
         for log in contract_logs:
-            if check_that("contract_logs", log, has_length(3)):
+            if check_that("contract_logs", log[1], has_length(3)):
                 for key in contract_log_keys:
-                    require_that("contract_logs", log, has_entry(key), quiet=True)
+                    require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
     @lcc.test("Check contract logs from 'current_block'")
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
@@ -276,9 +277,9 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(contract_logs), is_true(), quiet=True)
         for log in contract_logs:
-            if check_that("contract_logs", log, has_length(3)):
+            if check_that("contract_logs", log[1], has_length(3)):
                 for key in contract_log_keys:
-                    require_that("contract_logs", log, has_entry(key), quiet=True)
+                    require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
     @lcc.test("Check work of the method outside the block in which the logs of the contract were recorded'")
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")

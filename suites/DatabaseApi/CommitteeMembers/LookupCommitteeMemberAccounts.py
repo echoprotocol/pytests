@@ -3,7 +3,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import require_that, equal_to, has_length, is_true, check_that
 
 from common.base_test import BaseTest
-from fixtures.base_fixtures import get_random_hex_string
+from fixtures.base_fixtures import get_random_eth_address, get_random_btc_public_key
 
 SUITE = {
     "description": "Method 'lookup_committee_member_accounts'"
@@ -110,9 +110,11 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Lookup new committee member accounts")
-    @lcc.depends_on("DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
     def lookup_info_about_created_committee_members(self, get_random_valid_account_name):
-        eth_account_addresses = [get_random_hex_string(), get_random_hex_string()]
+        eth_account_addresses = [get_random_eth_address(), get_random_eth_address()]
+        btc_public_key = [get_random_btc_public_key(), get_random_btc_public_key()]
         valid_account_name = get_random_valid_account_name
         account_count = 2
         committee_member_ids, account_ids = [], []
@@ -132,6 +134,7 @@ class PositiveTesting(BaseTest):
             lcc.set_step("Create committee member of new account in the ECHO network")
             broadcast_result = self.utils.perform_committee_member_create_operation(self, accounts_id,
                                                                                     eth_account_addresses[i],
+                                                                                    btc_public_key[i],
                                                                                     self.__database_api_identifier)
             committee_member_id = self.get_operation_results_ids(broadcast_result)
             committee_member_ids.append(committee_member_id)
@@ -152,7 +155,8 @@ class PositiveTesting(BaseTest):
             check_that("committee member account", committee_member[1], equal_to(committee_member_ids[i]))
 
     @lcc.test("Lookup nonexistent committee member accounts")
-    @lcc.depends_on("DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
     def lookup_more_accounts_than_exists(self):
         lcc.set_step("Get parameters, for lookup committee member accounts more than exists")
         lower_bound_name, limit = self.utils.get_nonexistent_account_name(self, self.__database_api_identifier,
@@ -175,7 +179,8 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check alphabet order in full committee member accounts lookup info")
-    @lcc.depends_on("DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
     def check_alphabet_order_in_full_committee_members_lookup_info(self):
         lower_bound_name, limit = "", 1000
 
@@ -194,7 +199,8 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check alphabet order in cut committee member accounts lookup info")
-    @lcc.depends_on("DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
     def check_alphabet_order_in_cut_committee_members_accounts_lookup_info(self, get_random_valid_account_name):
         valid_account_name = get_random_valid_account_name
         limit = 1000

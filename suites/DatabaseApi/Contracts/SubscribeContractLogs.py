@@ -13,7 +13,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_contracts", "subscribe_contract_logs")
+@lcc.tags("api", "notice", "database_api", "database_api_contracts", "subscribe_contract_logs")
 @lcc.suite("Check work of method 'subscribe_contract_logs'", rank=1)
 class SubscribeContractLogs(BaseTest):
 
@@ -37,19 +37,12 @@ class SubscribeContractLogs(BaseTest):
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-
-    def setup_test(self, test):
-        lcc.set_step("Setup for '{}'".format(str(test).split(".")[-1]))
         self.utils.cancel_all_subscriptions(self, self.__database_api_identifier)
         lcc.log_info("Canceled all subscriptions successfully")
-
-    def teardown_test(self, test, status):
-        lcc.set_step("Teardown for '{}'".format(str(test).split(".")[-1]))
-        self.utils.cancel_all_subscriptions(self, self.__database_api_identifier)
-        lcc.log_info("Canceled all subscriptions successfully")
-        lcc.log_info("Test {}".format(status))
 
     def teardown_suite(self):
+        self.utils.cancel_all_subscriptions(self, self.__database_api_identifier)
+        lcc.log_info("Canceled all subscriptions successfully")
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
@@ -79,27 +72,27 @@ class SubscribeContractLogs(BaseTest):
         lcc.log_info("Method 'getPennie' performed successfully")
 
         lcc.set_step("Get notices about updates of created contract")
-        contract_logs_notice = self.get_notice(subscription_callback_id)
+        contract_logs_notice = self.get_notice(subscription_callback_id, debug_mode=True)["params"][1][0]
 
         lcc.set_step("Check subscribe contracts log")
         for log in contract_logs_notice:
-            if check_that("contract_log", log, has_length(3)):
-                contract_id_that_called = self.get_contract_id(log["address"], address_format=True,
+            if check_that("contract_log", log[1], has_length(3)):
+                contract_id_that_called = self.get_contract_id(log[1]["address"], address_format=True,
                                                                new_contract=False)
                 require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-                log_values = log["log"]
+                log_values = log[1]["log"]
                 for log_value in log_values:
                     if not self.validator.is_hex(log_value):
                         lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                     else:
                         lcc.log_info("'log_value' has correct format: hex")
                 check_that_in(
-                    log, "data", is_str(), quiet=True
+                    log[1], "data", is_str(), quiet=True
                 )
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_contracts", "subscribe_contract_logs")
+@lcc.tags("api", "notice", "database_api", "database_api_contracts", "subscribe_contract_logs")
 @lcc.suite("Positive testing of method 'subscribe_contract_logs'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -218,40 +211,41 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Method 'set_all_values' performed successfully")
 
         lcc.set_step("Get notices about updates of created contract")
-        contract_logs_notice = self.get_notice(subscription_callback_id)
+        contract_logs_notice_params = self.get_notice(subscription_callback_id)
 
         lcc.set_step("Check contract logs in notice with several logs")
-        for i, log in enumerate(contract_logs_notice):
+        for i, log in enumerate(contract_logs_notice_params):
             lcc.log_info("Check log#'{}'".format(i))
-            contract_id_that_called = self.get_contract_id(log["address"], address_format=True, new_contract=False)
+            contract_id_that_called = self.get_contract_id(log[1]["address"], address_format=True, new_contract=False)
             require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
-            log_values = log["log"]
+            log_values = log[1]["log"]
             for log_value in log_values:
                 if not self.validator.is_hex(log_value):
                     lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                 else:
                     lcc.log_info("'log_value' has correct format: hex")
-            if not self.validator.is_hex(log["data"]):
-                lcc.log_error("Wrong format of 'data', got: {}".format(log["data"]))
+            if not self.validator.is_hex(log[1]["data"]):
+                lcc.log_error("Wrong format of 'data', got: {}".format(log[1]["data"]))
             else:
                 lcc.log_info("'data' has correct format: hex")
-        for i in range(len(contract_logs_notice))[:-1]:
+        for i in range(len(contract_logs_notice_params))[:-1]:
             check_that(
                 "'addresses in contract call result are the same'",
-                contract_logs_notice[i]["address"] == contract_logs_notice[i + 1]["address"],
+                contract_logs_notice_params[i][1]["address"] == contract_logs_notice_params[i + 1][1]["address"],
                 is_true()
             )
 
         lcc.set_step("Check contract log value in notice")
         method_names_in_keccak_std = [self.get_keccak_standard_value(self.setUint256_method_name),
                                       self.get_keccak_standard_value(self.setString_method_name)]
-        for i, log in enumerate(contract_logs_notice):
-            check_that("'log value'", log["log"][0], equal_to(method_names_in_keccak_std[i]), quiet=True)
+        for i, log in enumerate(contract_logs_notice_params):
+            check_that("'log value'", log[1]["log"][0], equal_to(method_names_in_keccak_std[i]), quiet=True)
 
         lcc.set_step("Check contract log data in notice")
         call_contract_params = [int_param, string_param]
         output_types = [int, str]
-        log_data = self.get_contract_log_data(contract_logs_notice, output_types, log_format=True)
+        log_data = self.get_contract_log_data(contract_logs_notice_params, output_types, log_format=True,
+                                              debug_mode=True)
         for i, data in enumerate(log_data):
             lcc.log_info("Check data#'{}'".format(i))
             check_that("'converted 'data' from hex'", data, equal_to(call_contract_params[i]))

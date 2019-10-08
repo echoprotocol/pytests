@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, has_length, check_that_in, is_str, is_integer, equal_to
+from lemoncheesecake.matching import require_that, has_length, check_that_in, is_str, is_integer, equal_to, is_list
 
 from common.base_test import BaseTest
 
@@ -70,12 +70,12 @@ class GetERC20Token(BaseTest):
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
         response_id = self.send_request(self.get_request("get_erc20_token", [erc20_contract.address[2:]]),
                                         self.__database_api_identifier)
-        result = self.get_response(response_id)["result"]
+        result = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call method 'get_erc20_token' with eth_erc20_contract_address='{}' parameter".format(
             erc20_contract.address[2:]))
 
         lcc.set_step("Check simple work of method 'get_erc20_token'")
-        require_that("'length of ERC20 object'", result, has_length(7))
+        require_that("'length of ERC20 object'", result, has_length(8))
 
         if not self.validator.is_erc20_object_id(result["id"]):
             lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
@@ -98,6 +98,7 @@ class GetERC20Token(BaseTest):
             "name", is_str(),
             "symbol", is_str(),
             "decimals", is_integer(),
+            "extensions", is_list(),
             quiet=True
         )
 

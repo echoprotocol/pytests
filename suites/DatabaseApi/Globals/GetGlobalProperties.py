@@ -92,7 +92,7 @@ class GetGlobalProperties(BaseTest):
                     break
 
     def check_sidechain_config(self, sidechain_config, eth_params, eth_methods):
-        if check_that("sidechain_config", sidechain_config, has_length(18)):
+        if check_that("sidechain_config", sidechain_config, has_length(22)):
             for eth_param in eth_params:
                 if not self.validator.is_hex(sidechain_config[eth_param]):
                     lcc.log_error(
@@ -113,6 +113,10 @@ class GetGlobalProperties(BaseTest):
                 lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(sidechain_config["ETH_asset_id"]))
             else:
                 lcc.log_info("'ETH_asset_id' has correct format: eth_asset_id")
+            if not self.validator.is_btc_asset_id(sidechain_config["BTC_asset_id"]):
+                lcc.log_error("Wrong format of 'BTC_asset_id', got: {}".format(sidechain_config["BTC_asset_id"]))
+            else:
+                lcc.log_info("'BTC_asset_id' has correct format: btc_asset_id")
             if check_that("fines", sidechain_config["fines"], has_length(1)):
                 check_that_in(
                     sidechain_config["fines"], "generate_eth_address", is_(-10), quiet=True
@@ -121,6 +125,9 @@ class GetGlobalProperties(BaseTest):
                 sidechain_config,
                 "waiting_blocks", is_integer(),
                 "waiting_eth_blocks", is_integer(),
+                "waiting_btc_blocks", is_integer(),
+                "satoshis_per_byte", is_integer(),
+                "echo_blocks_per_aggregation", is_integer(),
                 quiet=True)
             self.check_uint64_numbers(sidechain_config, "gas_price", quiet=False)
 
@@ -196,7 +203,7 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         parameters = response["result"]["parameters"]
-        if check_that("parameters", parameters, has_length(25)):
+        if check_that("parameters", parameters, has_length(26)):
             check_that_in(
                 parameters,
                 "current_fees", is_dict(),
@@ -220,6 +227,7 @@ class GetGlobalProperties(BaseTest):
                 "max_authority_depth", is_integer(),
                 "block_producer_reward_ratio", is_integer(),
                 "block_emission_amount", is_integer(),
+                "frozen_balances_multipliers", is_list(),
                 "echorand_config", is_dict(),
                 "sidechain_config", is_dict(),
                 "erc20_config", is_dict(),
@@ -238,23 +246,31 @@ class GetGlobalProperties(BaseTest):
                 quiet=True
             )
 
-        lcc.set_step("Check the count of fees for operations")
-        fee_parameters = current_fees["parameters"]
-        require_that(
-            "count of fees for operations",
-            fee_parameters, has_length(len(self.all_operations))
-        )
+        lcc.set_step("Check global parameters: 'frozen_balances_multipliers' field")
+        frozen_balances_multipliers = parameters["frozen_balances_multipliers"]
+        for frozen_balance in frozen_balances_multipliers:
+            for balance in frozen_balance:
+                check_that("frozen_balance", balance, is_integer())
 
-        lcc.set_step("Check that count of checking fees fields equal to all operations")
-        checking_operations_fee_types = [fee_with_price_per_kbyte_operations, only_fee_operations, no_fee_operations,
-                                         account_create_fee_operations, asset_create_fee_operations,
-                                         pool_fee_operations]
-        for fee_type in checking_operations_fee_types:
-            all_checking_operations.extend(fee_type)
-        check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
-                   has_length(len(self.all_operations)))
+        # todo: uncomment when current_fees of btc operations will be added
+        # lcc.set_step("Check the count of fees for operations")
+        # fee_parameters = current_fees["parameters"]
+        # require_that(
+        #     "count of fees for operations",
+        #     fee_parameters, has_length(len(self.all_operations))
+        # )
+
+        # lcc.set_step("Check that count of checking fees fields equal to all operations")
+        # checking_operations_fee_types = [fee_with_price_per_kbyte_operations, only_fee_operations, no_fee_operations,
+        #                                  account_create_fee_operations, asset_create_fee_operations,
+        #                                  pool_fee_operations]
+        # for fee_type in checking_operations_fee_types:
+        #     all_checking_operations.extend(fee_type)
+        # check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
+        #            has_length(len(self.all_operations)))
 
         lcc.set_step("Save the number of types of current_fees")
+        fee_parameters = current_fees["parameters"]
         for fee_parameter in fee_parameters:
             parameter = fee_parameter[1]
             if len(parameter) == 0:

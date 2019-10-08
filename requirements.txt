@@ -8,5 +8,5 @@ six
 termcolor
 terminaltables
 websocket-client
-echopy-lib==0.1.35
+echopy-lib
 web3

@@ -96,7 +96,7 @@ class GetAccountDeposits(BaseTest):
         lcc.log_info("First deposit operation stored")
 
         lcc.set_step("Get account history operations")
-        operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_ISSUE
+        operation_id = self.echo.config.operation_ids.SIDECHAIN_ISSUE
         results = self.utils.get_account_history_operations(self, new_account, operation_id,
                                                             self.__history_api_identifier,
                                                             self.__database_api_identifier,
@@ -135,7 +135,7 @@ class GetAccountDeposits(BaseTest):
         lcc.log_info("Second deposit operation stored")
 
         lcc.set_step("Get account history operations")
-        operation_id = self.echo.config.operation_ids.SIDECHAIN_ETH_ISSUE
+        operation_id = self.echo.config.operation_ids.SIDECHAIN_ISSUE
         results = self.utils.get_account_history_operations(self, new_account, operation_id,
                                                             self.__history_api_identifier,
                                                             self.__database_api_identifier,
