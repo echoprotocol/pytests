@@ -3,7 +3,7 @@ import json
 
 from project import ECHO_INITIAL_BALANCE, NATHAN_PK, INITIAL_ACCOUNTS_COUNT, INITIAL_ACCOUNTS_NAMES, \
     ACCOUNT_PREFIX, DEFAULT_ACCOUNTS_COUNT, MAIN_TEST_ACCOUNT_COUNT, WALLETS, INITIAL_COMMITTEE_ETH_ADDRESSES, \
-    ROPSTEN
+    ROPSTEN, FALLBACK
 
 BALANCE_TO_ACCOUNT = ECHO_INITIAL_BALANCE / (INITIAL_ACCOUNTS_COUNT + MAIN_TEST_ACCOUNT_COUNT)
 
@@ -128,12 +128,13 @@ def pre_deploy_echo(base_test, database_api, lcc):
         if not distribute_balance_between_main_accounts(base_test, nathan_id, database_api):
             raise Exception("Balance is not distributed")
         lcc.log_info("Balance distributed between main accounts successfully")
-    if not register_default_accounts(base_test, database_api):
-        raise Exception("Default accounts are not created")
-    lcc.log_info("Default accounts created successfully. Accounts count: '{}'".format(DEFAULT_ACCOUNTS_COUNT))
-    if not add_balance_to_main_test_account(base_test, nathan_id, database_api):
-        raise Exception("Balance to main test account is not credited")
-    lcc.log_info("Balance added to main test account ({}) successfully".format(base_test.accounts[0]))
-    if not make_all_default_accounts_echo_holders(base_test, nathan_id, database_api):
-        raise Exception("Default accounts did not become asset echo holders")
-    lcc.log_info("All default accounts became echo holders successfully")
+    if not FALLBACK:
+        if not register_default_accounts(base_test, database_api):
+            raise Exception("Default accounts are not created")
+        lcc.log_info("Default accounts created successfully. Accounts count: '{}'".format(DEFAULT_ACCOUNTS_COUNT))
+        if not add_balance_to_main_test_account(base_test, nathan_id, database_api):
+            raise Exception("Balance to main test account is not credited")
+        lcc.log_info("Balance added to main test account ({}) successfully".format(base_test.accounts[0]))
+        if not make_all_default_accounts_echo_holders(base_test, nathan_id, database_api):
+            raise Exception("Default accounts did not become asset echo holders")
+        lcc.log_info("All default accounts became echo holders successfully")

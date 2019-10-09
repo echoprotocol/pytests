@@ -86,3 +86,5 @@ with open(".env") as env_file:
     GANACHE_PK = (env_file.readline().split('RPC_ACCOUNT=')[1]).split(",")[0]
 with open(".env") as env_file:
     ROPSTEN_PK = env_file.readlines()[-1].split('ROPSTEN_PRIVATE_KEY=')[1]
+
+FALLBACK = True if 'FALLBACK' in os.environ else False

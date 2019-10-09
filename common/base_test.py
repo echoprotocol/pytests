@@ -20,7 +20,7 @@ from common.validation import Validator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG
+    GANACHE_PK, DEBUG, FALLBACK
 
 
 class BaseTest(object):
@@ -631,10 +631,11 @@ class BaseTest(object):
         self._connect_to_echopy_lib()
         lcc.set_step("Pre-deploy setup")
         lcc.log_info("Empty node. Start pre-deploy setup...")
-        if os.path.exists(WALLETS):
-            os.remove(WALLETS)
-        if os.path.exists(UTILS):
-            os.remove(UTILS)
+        if not FALLBACK:
+            if os.path.exists(WALLETS):
+                os.remove(WALLETS)
+            if os.path.exists(UTILS):
+                os.remove(UTILS)
         pre_deploy_echo(self, database_api_identifier, lcc)
         lcc.log_info("Pre-deploy setup completed successfully")
         self._disconnect_to_echopy_lib()
