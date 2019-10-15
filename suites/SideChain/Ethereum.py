@@ -45,8 +45,8 @@ class Ethereum(BaseTest):
         lcc.log_info("Ethereum address has '{}' balance in ethereum".format(eth_address_balance))
 
         lcc.set_step("Withdraw eth to ethereum address")
-        self.utils.perform_sidechain_eth_withdraw_operation(self, from_account, self.eth_address, withdraw_amount,
-                                                            self.__database_api_identifier, log_broadcast=True)
+        self.utils.perform_sidechain_eth_withdraw_operation(self, from_account, self.eth_address,
+                                                            withdraw_amount, self.__database_api_identifier)
 
         lcc.set_step("Get updated address balance in ethereum network")
         eth_address_balance_after_withdraw = \

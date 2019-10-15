@@ -292,6 +292,23 @@ class EchoOperations(object):
             return [operation_id, balance_claim_operation_props, balance_owner_private_key]
         return [operation_id, balance_claim_operation_props, signer]
 
+    def get_balance_freeze_operation(self, echo, account, value_amount, fee_amount=0, fee_asset_id="1.3.0", duration=0,
+                                     value_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.BALANCE_FREEZE
+        balance_freeze_operation_props = self.get_operation_json("balance_freeze_operation")
+        balance_freeze_operation_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        balance_freeze_operation_props["amount"].update({"amount": value_amount, "asset_id": value_asset_id})
+        balance_freeze_operation_props.update({"account": account, "duration": duration,
+                                               "extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Balance claim operation: \n{}".format(
+                json.dumps([operation_id, balance_freeze_operation_props], indent=4)))
+        if signer is None:
+            return [operation_id, balance_freeze_operation_props, account]
+        return [operation_id, balance_freeze_operation_props, signer]
+
     def get_contract_create_operation(self, echo, registrar, bytecode, fee_amount=0, fee_asset_id="1.3.0",
                                       value_amount=0, value_asset_id="1.3.0", supported_asset_id=None,
                                       eth_accuracy=False, extensions=None, signer=None, debug_mode=False):
@@ -496,6 +513,7 @@ class EchoOperations(object):
         if len(list_operations) > 1:
             list_operations = [item for sublist in list_operations for item in sublist]
         for operation in list_operations:
+            lcc.log_debug(str(operation))
             tx.add_operation(name=operation[0], props=operation[1])
         if return_operations:
             return tx.operations

@@ -145,9 +145,7 @@
                 ],
                 [
                     22,
-                    {
-                        "fee": 2000
-                    }
+                    {}
                 ],
                 [
                     23,
@@ -298,7 +296,7 @@
         "accounts_per_fee_scale": 1000,
         "account_fee_scale_bitshifts": 4,
         "max_authority_depth": 2,
-        "block_emission_amount": 2,
+        "block_emission_amount": 0,
         "block_producer_reward_ratio": 5000,
         "frozen_balances_multipliers": [
             [

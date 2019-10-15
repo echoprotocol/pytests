@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-
+from common.validation import Validator
 from project import ECHO_INITIAL_BALANCE, NATHAN_PK, INITIAL_ACCOUNTS_COUNT, INITIAL_ACCOUNTS_NAMES, \
     ACCOUNT_PREFIX, DEFAULT_ACCOUNTS_COUNT, MAIN_TEST_ACCOUNT_COUNT, WALLETS, INITIAL_COMMITTEE_ETH_ADDRESSES, \
     ROPSTEN
@@ -92,17 +92,24 @@ def distribute_balance_between_committee_addresses(base_test):
 
 
 def get_public_key(account):
-    return account["result"]["active"]["key_auths"][0][0]
+    return account["active"]["key_auths"][0][0]
 
 
 def get_account_id(account):
-    return account["result"]["id"]
+    return account["id"]
 
 
 def get_account(base_test, account_name, database_api):
-    response_id = base_test.send_request(base_test.get_request("get_account_by_name", [account_name]),
-                                         database_api)
-    return base_test.get_response(response_id)
+    validator = Validator()
+    if validator.is_account_name(account_name):
+        response_id = base_test.send_request(base_test.get_request("get_account_by_name", [account_name]),
+                                             database_api)
+        result = base_test.get_response(response_id)["result"]
+    elif validator.is_account_id(account_name):
+        response_id = base_test.send_request(base_test.get_request("get_accounts", [[account_name]]),
+                                             database_api)
+        result = base_test.get_response(response_id)["result"][0]
+    return result
 
 
 def import_balance_to_nathan(base_test, nathan_id, nathan_public_key, database_api):

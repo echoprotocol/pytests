@@ -18,6 +18,7 @@ class Validator(object):
     operation_history_id_regex = re.compile(r"^1\.6\.(0|[1-9]\d*)$")
     vesting_balance_id_regex = re.compile(r"^1\.7\.(0|[1-9]\d*)$")
     balance_id_regex = re.compile(r"^1\.8\.(0|[1-9]\d*)$")
+    frozen_balance_id_regex = re.compile(r"^1\.9\.(0|[1-9]\d*)$")
     contract_id_regex = re.compile(r"^1\.10\.(0|[1-9]\d*)$")
     contract_result_id_regex = re.compile(r"^1\.11\.(0|[1-9]\d*)$")
     block_id_regex = re.compile(r"^1\.12\.(0|[1-9]\d*)$")
@@ -136,6 +137,10 @@ class Validator(object):
     def is_balance_id(self, value):
         if self.is_string(value):
             return bool(self.balance_id_regex.match(value))
+
+    def is_frozen_balance_id(self, value):
+        if self.is_string(value):
+            return bool(self.frozen_balance_id_regex.match(value))
 
     def is_contract_id(self, value):
         if self.is_string(value):

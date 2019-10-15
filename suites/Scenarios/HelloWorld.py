@@ -94,6 +94,12 @@ class HelloWorld(BaseTest):
         )
         owner_balance = response["result"][0]["amount"]
 
+        lcc.set_step("Get account accumulated reward before call 'getPennie' method ")
+        params = [self.echo_acc0]
+        response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
+        accumulated_reward_before = self.get_response(response_id)["result"][0]["accumulated_reward"]
+        lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accumulated_reward_before))
+
         lcc.set_step("Call 'getPennie' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.get_pennie, callee=contract_id)
@@ -115,6 +121,12 @@ class HelloWorld(BaseTest):
             "asset_id", is_str(self.echo_asset)
         )
 
+        lcc.set_step("Get account accumulated reward after call 'getPennie' method ")
+        params = [self.echo_acc0]
+        response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
+        accumulated_reward_after = self.get_response(response_id)["result"][0]["accumulated_reward"]
+        lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accumulated_reward_after))
+
         lcc.set_step("Get owner balance. Amount should be reduced by fee and increase by one.")
         params = [self.echo_acc0, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
@@ -124,11 +136,22 @@ class HelloWorld(BaseTest):
         if isinstance(owner_balance, str):
             actual_balance = int(actual_balance)
             owner_balance = int(owner_balance)
-        check_that(
-            "'owner balance'",
-            actual_balance,
-            is_(owner_balance - fee[0].get("amount") + 1 + reward[0])
-        )
+        if accumulated_reward_after == 0:
+            check_that(
+                "'owner balance'",
+                actual_balance,
+                is_(owner_balance - fee[0].get("amount") + 1 + reward)
+            )
+        else:
+            check_that(
+                "'owner balance'",
+                actual_balance,
+                is_(owner_balance - fee[0].get("amount") + 1)
+            )
+            check_that(
+                "'accumulated reward'",
+                accumulated_reward_after,
+                is_(accumulated_reward_before + reward))
 
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,

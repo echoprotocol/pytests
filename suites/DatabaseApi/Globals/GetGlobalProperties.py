@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_integer, check_that_in, check_that, is_list, require_that, is_, has_length, \
+from lemoncheesecake.matching import is_integer, check_that_in, check_that, is_list, is_, has_length, \
     is_dict, has_entry
 
 from common.base_test import BaseTest
@@ -165,26 +165,25 @@ class GetGlobalProperties(BaseTest):
         all_checking_operations = []
         fee_with_price_per_kbyte_operations = ["account_update", "asset_update", "proposal_create", "proposal_update",
                                                "account_address_create"]
-        only_fee_operations = ["transfer", "account_whitelist", "account_transfer", "asset_update_bitasset",
+        only_fee_operations = ["transfer", "account_whitelist", "asset_update_bitasset", "balance_freeze",
                                "asset_update_feed_producers", "asset_issue", "asset_reserve", "asset_fund_fee_pool",
                                "asset_publish_feed", "proposal_delete", "committee_member_create",
                                "committee_member_update", "committee_member_update_global_parameters",
                                "vesting_balance_create", "vesting_balance_withdraw", "override_transfer",
                                "asset_claim_fees", "contract_create", "contract_call", "contract_transfer",
-                               "sidechain_change_config", "transfer_to_address", "generate_eth_address_operation",
+                               "transfer_to_address", "generate_eth_address_operation", "contract_update",
                                "sidechain_eth_create_address", "sidechain_eth_deposit", "sidechain_eth_withdraw",
                                "sidechain_eth_approve_withdraw", "contract_fund_pool", "contract_whitelist",
                                "sidechain_eth_issue", " sidechain_eth_burn", "sidechain_erc20_deposit_token",
-                               "sidechain_erc20_withdraw_token", "sidechain_erc20_approve_token_withdraw",
-                               "contract_update"]
-        no_fee_operations = ["balance_claim"]
+                               "sidechain_erc20_withdraw_token", "sidechain_erc20_approve_token_withdraw"]
+        no_fee_operations = ["balance_claim", "balance_unfreeze"]
         account_create_fee_operations = ["account_create"]
         asset_create_fee_operations = ["asset_create"]
         pool_fee_operations = ["sidechain_erc20_register_token"]
 
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         lcc.log_info("Call method 'get_global_properties'")
 
         lcc.set_step("Check main fields")
@@ -273,7 +272,11 @@ class GetGlobalProperties(BaseTest):
         fee_parameters = current_fees["parameters"]
         for fee_parameter in fee_parameters:
             parameter = fee_parameter[1]
+            lcc.log_debug(("parameter:"))
+            lcc.log_debug(str(parameter))
             if len(parameter) == 0:
+                lcc.log_debug(("fee_parameters:".format(fee_parameters)))
+                lcc.log_debug(("parameter:".format(parameter)))
                 self.no_fee_count += 1
                 continue
             if len(parameter) == 1 and "fee" in parameter:
@@ -306,10 +309,12 @@ class GetGlobalProperties(BaseTest):
                                              self.fee_with_price_per_kbyte)
 
         lcc.set_step("Check 'only_fee' for operations")
+        # todo: uncomment. BUG: node's wrong parsing genesis.json
         check_that("'only_fee' operation count", only_fee_operations, has_length(self.only_fee_count))
         self.check_default_fee_for_operation(fee_parameters, only_fee_operations, self.only_fee)
 
         lcc.set_step("Check 'no_fee' for operations")
+        # todo: uncomment. BUG: node's wrong parsing genesis.json
         check_that("'no_fee' operation count", no_fee_operations, has_length(self.no_fee_count))
         self.check_default_fee_for_operation(fee_parameters, no_fee_operations, self.no_fee)
 

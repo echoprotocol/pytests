@@ -48,7 +48,7 @@ class GetAccounts(BaseTest):
 
         for i, account_info in enumerate(results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            if check_that("account_info", account_info, has_length(15)):
+            if check_that("account_info", account_info, has_length(16)):
                 check_that_in(
                     account_info,
                     "id", is_str(params[i]),
@@ -62,6 +62,7 @@ class GetAccounts(BaseTest):
                     "blacklisted_accounts", is_list(),
                     "active_special_authority", is_list(),
                     "top_n_control_flags", is_integer(),
+                    "accumulated_reward", is_integer(),
                     "extensions", is_list(),
                     quiet=True
                 )

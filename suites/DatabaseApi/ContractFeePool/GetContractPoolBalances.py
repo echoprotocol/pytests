@@ -3,7 +3,7 @@ import random
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-from lemoncheesecake.matching import check_that_in, check_that, has_length, equal_to, require_that_in
+from lemoncheesecake.matching import check_that_in, check_that, has_length, equal_to, require_that_in, is_
 
 from common.base_test import BaseTest
 
@@ -186,6 +186,7 @@ class PositiveTesting(BaseTest):
         needed_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account, self.__database_api_identifier,
                                                transfer_amount=needed_fee)
+        lcc.log_info("'{}' echo assets added to new_account".format(needed_fee))
 
         lcc.set_step("Second: add fee pool using not contract owner to perform the call contract 'get_pennie' method")
         self.utils.perform_contract_fund_pool_operation(self, new_account, contract_id, needed_fee,
@@ -244,6 +245,12 @@ class PositiveTesting(BaseTest):
         account_balance = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("'{}' account has '{}' '{}' assets".format(self.echo_acc0, account_balance, self.echo_asset))
 
+        lcc.set_step("Get account accumulated reward before call 'breakPiggy' method ")
+        params = [self.echo_acc0]
+        response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
+        accum_reward_before_breakpiggy = self.get_response(response_id)["result"][0]["accumulated_reward"]
+        lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accum_reward_before_breakpiggy))
+
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
@@ -264,8 +271,20 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
-        check_that("'account balance'", int(updated_account_balance),
-                   equal_to(int(account_balance) + fee_pool_balance + reward[0] - needed_fee))
+
+        lcc.set_step("Get account accumulated reward after call 'breakPiggy' method ")
+        params = [self.echo_acc0]
+        response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
+        accum_reward_after_breakpiggy = self.get_response(response_id)["result"][0]["accumulated_reward"]
+        lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accum_reward_after_breakpiggy))
+        if accum_reward_after_breakpiggy == 0:
+            check_that("'account balance'", int(updated_account_balance),
+                       equal_to(int(account_balance) + fee_pool_balance + accum_reward_after_breakpiggy - needed_fee))
+        else:
+            check_that("'account balance'", int(updated_account_balance),
+                       equal_to(int(account_balance) + fee_pool_balance - needed_fee))
+            check_that("'accumulated reward'", accum_reward_after_breakpiggy,
+                       is_(accum_reward_before_breakpiggy + reward))
 
     @lcc.test("Add insufficient fee pool to contract to call contract method")
     @lcc.depends_on("DatabaseApi.ContractFeePool.GetContractPoolBalances.GetContractPoolBalances.method_main_check")
@@ -299,6 +318,12 @@ class PositiveTesting(BaseTest):
         account_balance = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("'{}' account has '{}' '{}' assets".format(self.echo_acc0, account_balance, self.echo_asset))
 
+        lcc.set_step("Get account accumulated reward before call 'greet' method ")
+        params = [self.echo_acc0]
+        response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
+        accum_reward_before_greet = self.get_response(response_id)["result"][0]["accumulated_reward"]
+        lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accum_reward_before_greet))
+
         lcc.set_step("Call 'greet' method using new account, that don't have any balance")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
@@ -312,8 +337,20 @@ class PositiveTesting(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
-        check_that("'account balance'", int(updated_account_balance),
-                   equal_to(int(account_balance) - (needed_fee - value_to_pool) + reward[0]))
+
+        lcc.set_step("Get account accumulated reward after call 'greet' method ")
+        params = [self.echo_acc0]
+        response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
+        accum_reward_after_greet = self.get_response(response_id)["result"][0]["accumulated_reward"]
+        lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accum_reward_after_greet))
+        if accum_reward_after_greet == 0:
+            check_that("'account balance'", int(updated_account_balance),
+                       equal_to(int(account_balance) + fee_pool_balance + accum_reward_before_greet - needed_fee))
+        else:
+            check_that("'account balance'", int(updated_account_balance),
+                       equal_to(int(account_balance) - (needed_fee - value_to_pool)))
+            check_that("'accumulated reward'", accum_reward_after_greet,
+                       is_(accum_reward_before_greet + reward))
 
         lcc.set_step("Get a contract's fee pool balance after contract call")
         response_id = self.send_request(self.get_request("get_contract_pool_balance", [contract_id]),

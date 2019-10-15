@@ -88,7 +88,8 @@ For more information about filters see `test_runner.py` script.
 - [x] [get_account_balances](https://echo-dev.io/developers/apis/database-api/#get_account_balancesid-assets)
 - [x] get_account_addresses
 - [x] get_account_by_address
-- [x] [get_named_account_balances](https://echo-dev.io/developers/apis/database-api/#get_named_account_balancesname-assets)
+- [x] [get_account_balances](https://echo-dev.io/developers/apis/database-api/#get_named_account_balancesname-assets)
+- [x] [get_frozen_balances](https://echo-dev.io/developers/apis/database-api/#get_frozen_balances)
 - [x] [get_balance_objects](https://echo-dev.io/developers/apis/database-api/#get_balance_objectsaddrs)
 - [x] [get_vested_balances](https://echo-dev.io/developers/apis/database-api/#parameters_16)
 - [x] [get_vesting_balances](https://echo-dev.io/developers/apis/database-api/#get_vesting_balancesaccount_id)

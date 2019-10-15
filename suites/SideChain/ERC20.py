@@ -2,7 +2,9 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, equal_to, greater_than, has_length, check_that_in, is_true
+from lemoncheesecake.matching import require_that, equal_to, greater_than, has_length, check_that_in, is_true, \
+    is_list, \
+    check_that, is_
 
 from common.base_test import BaseTest
 
@@ -45,6 +47,7 @@ class ERC20(BaseTest):
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
+        self.__history_api_identifier = self.get_identifier("history")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
@@ -175,6 +178,39 @@ class ERC20(BaseTest):
         self.in_echo_erc20_balance = in_echo_erc20_balance
         self.in_ethereum_erc20_balance = final_in_ethereum_erc20_balance
 
+        lcc.set_step("Get ERC20 tokens of 'sidechain_erc20_issue_operation'")
+        operation_id = self.echo.config.operation_ids.SIDECHAIN_ERC20_ISSUE
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
+        limit = 100
+        params = [self.new_account, operation_id, start, stop, limit]
+        response_id = self.send_request(self.get_request("get_account_history_operations", params),
+                                        self.__history_api_identifier)
+        history_operations = self.get_response(response_id, log_response=True)["result"]
+        lcc.log_info(
+            "Call method 'get_account_history' with: account='{}', operation_id='{}', stop='{}', limit='{}', "
+            "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start))
+
+        lcc.tags("Bug ECHO-1423")
+        lcc.set_step("Check ERC20 tokens of 'sidechain_erc20_issue_operation'")
+        deposits.reverse()
+        for i, history_operation in enumerate(history_operations):
+            sidechain_erc20_issue_operation = history_operation["op"]
+            if check_that("'sidechain_erc20_issue_operation'", sidechain_erc20_issue_operation[1], has_length(5)):
+                check_that_in(
+                    sidechain_erc20_issue_operation[1],
+                    "deposit", is_(deposits[i]["id"]),
+                    "account", is_(deposits[i]["account"]),
+                    "amount", is_(deposits[i]["value"]),
+                    "extensions", is_list(),
+                    quite=True
+                )
+                if not self.validator.is_erc20_object_id(sidechain_erc20_issue_operation[1]["token"]):
+                    lcc.log_error(
+                        "Wrong format of 'token', got: {}".format(sidechain_erc20_issue_operation[1]["token"]))
+                else:
+                    lcc.log_info("'operation_id' has correct format: erc20_token_object_type")
+
     @lcc.test("The scenario withdrawing erc20 tokens from the echo account")
     @lcc.depends_on("SideChain.ERC20.ERC20.erc20_in_scenario")
     def erc20_out_scenario(self):
@@ -272,3 +308,36 @@ class ERC20(BaseTest):
                      equal_to(updated_in_ethereum_erc20_balance + int(erc20_withdraw_amounts[1])))
         require_that("'final balance equal to start balance'",
                      final_in_ethereum_erc20_balance == self.in_ethereum_start_erc20_balance, is_true())
+
+        lcc.set_step("Get ERC20 burn token")
+        operation_id = self.echo.config.operation_ids.SIDECHAIN_ERC20_BURN
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
+        limit = 100
+        params = [self.new_account, operation_id, start, stop, limit]
+        response_id = self.send_request(self.get_request("get_account_history_operations", params),
+                                        self.__history_api_identifier)
+        history_operations = self.get_response(response_id)["result"]
+        lcc.log_info(
+            "Call method 'get_account_history' with: account='{}', operation_id='{}', stop='{}', limit='{}', "
+            "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start))
+
+        lcc.tags("Bug ECHO-1423")
+        lcc.set_step("Check ERC20 tokens of 'sidechain_erc20_burn_operation'")
+        withdrawals.reverse()
+        for i, history_operation in enumerate(history_operations):
+            sidechain_erc20_burn_operation = history_operation["op"]
+            if check_that("'sidechain_erc20_issue_operation'", sidechain_erc20_burn_operation[1], has_length(5)):
+                check_that_in(
+                    sidechain_erc20_burn_operation[1],
+                    "withdraw", is_(withdrawals[i]["id"]),
+                    "account", is_(withdrawals[i]["account"]),
+                    "amount", is_(withdrawals[i]["value"]),
+                    "extensions", is_list(),
+                    quite=True
+                )
+                if not self.validator.is_erc20_object_id(sidechain_erc20_burn_operation[1]["token"]):
+                    lcc.log_error(
+                        "Wrong format of 'token', got: {}".format(sidechain_erc20_burn_operation[1]["token"]))
+                else:
+                    lcc.log_info("'operation_id' has correct format: erc20_token_object_type")

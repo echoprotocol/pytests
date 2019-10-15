@@ -63,7 +63,7 @@ class GetContractResult(BaseTest):
         lcc.set_step("Get contract result of created contract")
         response_id = self.send_request(self.get_request("get_contract_result", [contract_result_id]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         contract_result = response["result"][1]
         lcc.log_info("Call method 'get_contract_result' with contract_result_id='{}' param".format(contract_result_id))
 
