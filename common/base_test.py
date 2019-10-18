@@ -17,6 +17,7 @@ from common.ethereum_transaction import EthereumTransactions
 from common.receiver import Receiver
 from common.utils import Utils
 from common.type_validation import TypeValidator
+from common.object_validation import ObjectValidator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
@@ -36,6 +37,7 @@ class BaseTest(object):
         self.eth_trx = EthereumTransactions()
         self.__id = 0
         self.type_validator = TypeValidator()
+        self.object_validator = ObjectValidator()
         self.echo_asset = "1.3.0"
         self.eth_asset = ETH_ASSET_ID
         # Declare all default accounts

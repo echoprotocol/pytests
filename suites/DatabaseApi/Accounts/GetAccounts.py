@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, check_that, has_length, is_integer, is_str, is_dict, is_list, \
-    require_that, equal_to
+from lemoncheesecake.matching import check_that_in, has_length, require_that, equal_to
 
 from common.base_test import BaseTest
 
@@ -48,64 +47,7 @@ class GetAccounts(BaseTest):
 
         for i, account_info in enumerate(results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            if check_that("account_info", account_info, has_length(16)):
-                check_that_in(
-                    account_info,
-                    "id", is_str(params[i]),
-                    "network_fee_percentage", is_integer(),
-                    "active", is_dict(),
-                    "options", is_dict(),
-                    "whitelisting_accounts", is_list(),
-                    "whitelisting_accounts", is_list(),
-                    "blacklisting_accounts", is_list(),
-                    "whitelisted_accounts", is_list(),
-                    "blacklisted_accounts", is_list(),
-                    "active_special_authority", is_list(),
-                    "top_n_control_flags", is_integer(),
-                    "accumulated_reward", is_integer(),
-                    "extensions", is_list(),
-                    quiet=True
-                )
-                if not self.type_validator.is_account_id(account_info["registrar"]):
-                    lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
-                else:
-                    lcc.log_info("'registrar' has correct format: account_object_type")
-                if not self.type_validator.is_account_name(account_info["name"]):
-                    lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
-                else:
-                    lcc.log_info("'name' has correct format: account_name")
-                if not self.type_validator.is_echorand_key(account_info["echorand_key"]):
-                    lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
-                else:
-                    lcc.log_info("'echorand_key' has correct format: echo_rand_key")
-                if not self.type_validator.is_account_statistics_id(account_info["statistics"]):
-                    lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
-                else:
-                    lcc.log_info("'statistics' has correct format: account_statistics_object_type")
-
-                lcc.set_step("Check 'active' field")
-                if check_that("active", account_info["active"], has_length(3)):
-                    check_that_in(
-                        account_info["active"],
-                        "weight_threshold", is_integer(),
-                        "account_auths", is_list(),
-                        "key_auths", is_list(),
-                        quiet=True
-                    )
-
-                lcc.set_step("Check 'options' field")
-                if check_that("active", account_info["options"], has_length(6)):
-                    account_ids_format = ["voting_account", "delegating_account"]
-                    for account_id_format in account_ids_format:
-                        self.check_fields_account_ids_format(account_info["options"], account_id_format)
-                    check_that_in(
-                        account_info["options"],
-                        "delegate_share", is_integer(),
-                        "num_committee", is_integer(),
-                        "votes", is_list(),
-                        "extensions", is_list(),
-                        quiet=True
-                    )
+            self.object_validator.validate_account_structure(self, account_info)
 
 
 @lcc.prop("positive", "type")
