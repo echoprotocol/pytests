@@ -205,7 +205,7 @@ class ERC20(BaseTest):
                     "extensions", is_list(),
                     quite=True
                 )
-                if not self.validator.is_erc20_object_id(sidechain_erc20_issue_operation[1]["token"]):
+                if not self.type_validator.is_erc20_object_id(sidechain_erc20_issue_operation[1]["token"]):
                     lcc.log_error(
                         "Wrong format of 'token', got: {}".format(sidechain_erc20_issue_operation[1]["token"]))
                 else:
@@ -336,7 +336,7 @@ class ERC20(BaseTest):
                     "extensions", is_list(),
                     quite=True
                 )
-                if not self.validator.is_erc20_object_id(sidechain_erc20_burn_operation[1]["token"]):
+                if not self.type_validator.is_erc20_object_id(sidechain_erc20_burn_operation[1]["token"]):
                     lcc.log_error(
                         "Wrong format of 'token', got: {}".format(sidechain_erc20_burn_operation[1]["token"]))
                 else:

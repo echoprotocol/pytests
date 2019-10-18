@@ -173,7 +173,7 @@ class GetAccountDeposits(BaseTest):
                 "'first deposit of created account'",
                 deposit, has_length(7)
             )
-            if not self.validator.is_deposit_eth_id(deposit["id"]):
+            if not self.type_validator.is_deposit_eth_id(deposit["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
             else:
                 lcc.log_info("'id' has correct format: deposit_eth_object_type")

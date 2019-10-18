@@ -21,7 +21,7 @@ class LookupAccountNames(BaseTest):
         self.__database_api_identifier = None
 
     def check_fields_account_ids_format(self, response, field):
-        if not self.validator.is_account_id(response[field]):
+        if not self.type_validator.is_account_id(response[field]):
             lcc.log_error("Wrong format of '{}', got: {}".format(field, response[field]))
         else:
             lcc.log_info("'{}' has correct format: account_object_type".format(field))
@@ -44,24 +44,24 @@ class LookupAccountNames(BaseTest):
                 quiet=True
             )
             self.check_fields_account_ids_format(account_info, "id")
-            if not self.validator.is_account_id(account_info["registrar"]):
+            if not self.type_validator.is_account_id(account_info["registrar"]):
                 lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
             else:
                 lcc.log_info("'registrar' has correct format: account_object_type")
-            if not self.validator.is_account_name(account_info["name"]):
+            if not self.type_validator.is_account_name(account_info["name"]):
                 lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
             else:
                 lcc.log_info("'name' has correct format: account_name")
-            if not self.validator.is_echorand_key(account_info["echorand_key"]):
+            if not self.type_validator.is_echorand_key(account_info["echorand_key"]):
                 lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
             else:
                 lcc.log_info("'echorand_key' has correct format: echo_rand_key")
-            if not self.validator.is_account_statistics_id(account_info["statistics"]):
+            if not self.type_validator.is_account_statistics_id(account_info["statistics"]):
                 lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
             else:
                 lcc.log_info("'statistics' has correct format: account_statistics_object_type")
             if len(account_info) == 21:
-                if not self.validator.is_vesting_balance_id(account_info["cashback_vb"]):
+                if not self.type_validator.is_vesting_balance_id(account_info["cashback_vb"]):
                     lcc.log_error("Wrong format of 'cashback_vb', got: {}".format(account_info["cashback_vb"]))
                 else:
                     lcc.log_info("'cashback_vb' has correct format: vesting_balance_object_type")
@@ -111,7 +111,7 @@ class LookupAccountNames(BaseTest):
 
         for account_num, account_info in enumerate(response["result"]):
             lcc.set_step("Checking account #{} - '{}'".format(account_num, params[account_num]))
-            self.check_account_structure(account_info)
+            self.check_account_structure(self, account_info)
 
 
 @lcc.prop("positive", "type")

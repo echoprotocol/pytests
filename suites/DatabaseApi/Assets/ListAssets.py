@@ -34,28 +34,28 @@ class ListAssets(BaseTest):
         for key in core_exchange_rate:
             core_exchange_rate_part = core_exchange_rate[key]
             self.check_uint64_numbers(core_exchange_rate_part, "amount", quiet=True)
-            if not self.validator.is_asset_id(core_exchange_rate_part["asset_id"]):
+            if not self.type_validator.is_asset_id(core_exchange_rate_part["asset_id"]):
                 lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
                     key, core_exchange_rate_part["asset_id"]))
             else:
                 lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
 
     def check_asset_structure(self, asset):
-        if not self.validator.is_asset_id(asset["id"]):
+        if not self.type_validator.is_asset_id(asset["id"]):
             lcc.log_error("Wrong format of 'id', got: {}".format(asset["id"]))
         else:
             lcc.log_info("'id' has correct format: asset_id")
-        if not self.validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
+        if not self.type_validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
             lcc.log_error("Wrong format of 'dynamic_asset_data_id', got: {}".format(
                 asset["dynamic_asset_data_id"]))
         else:
             lcc.log_info("'dynamic_asset_data_id' has correct format: dynamic_asset_data_id")
 
-        if not self.validator.is_account_id(asset["issuer"]):
+        if not self.type_validator.is_account_id(asset["issuer"]):
             lcc.log_error("Wrong format of 'issuer', got: {}".format(asset["issuer"]))
         else:
             lcc.log_info("'issuer' has correct format: account_id")
-        if not self.validator.is_asset_name(asset["symbol"]):
+        if not self.type_validator.is_asset_name(asset["symbol"]):
             lcc.log_error("Wrong format of 'symbol', got: {}".format(asset["symbol"]))
         else:
             lcc.log_info("'symbol' has correct format: asset_name")

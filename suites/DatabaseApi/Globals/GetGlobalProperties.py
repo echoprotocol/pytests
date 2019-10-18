@@ -94,14 +94,14 @@ class GetGlobalProperties(BaseTest):
     def check_sidechain_config(self, sidechain_config, eth_params, eth_methods):
         if check_that("sidechain_config", sidechain_config, has_length(22)):
             for eth_param in eth_params:
-                if not self.validator.is_hex(sidechain_config[eth_param]):
+                if not self.type_validator.is_hex(sidechain_config[eth_param]):
                     lcc.log_error(
                         "Wrong format of '{}', got: {}".format(eth_param, sidechain_config[eth_param]))
                 else:
                     lcc.log_info("'{}' has correct format: hex".format(eth_param))
             for eth_method in eth_methods:
                 if check_that("eth_method", sidechain_config[eth_method], has_length(2)):
-                    if not self.validator.is_hex(sidechain_config[eth_method]["method"]):
+                    if not self.type_validator.is_hex(sidechain_config[eth_method]["method"]):
                         lcc.log_error(
                             "Wrong format of '{}', got: {}".format(eth_method, sidechain_config[eth_method]))
                     else:
@@ -109,11 +109,11 @@ class GetGlobalProperties(BaseTest):
                     check_that_in(
                         sidechain_config[eth_method], "gas", is_integer(), quiet=True
                     )
-            if not self.validator.is_eth_asset_id(sidechain_config["ETH_asset_id"]):
+            if not self.type_validator.is_eth_asset_id(sidechain_config["ETH_asset_id"]):
                 lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(sidechain_config["ETH_asset_id"]))
             else:
                 lcc.log_info("'ETH_asset_id' has correct format: eth_asset_id")
-            if not self.validator.is_btc_asset_id(sidechain_config["BTC_asset_id"]):
+            if not self.type_validator.is_btc_asset_id(sidechain_config["BTC_asset_id"]):
                 lcc.log_error("Wrong format of 'BTC_asset_id', got: {}".format(sidechain_config["BTC_asset_id"]))
             else:
                 lcc.log_info("'BTC_asset_id' has correct format: btc_asset_id")
@@ -133,11 +133,11 @@ class GetGlobalProperties(BaseTest):
 
     def check_erc20_config(self, erc20_config, erc20_methods):
         if check_that("erc20_config", erc20_config, has_length(6)):
-            if not self.validator.is_hex(erc20_config["contract_code"]):
+            if not self.type_validator.is_hex(erc20_config["contract_code"]):
                 lcc.log_error("Wrong format of 'contract_code', got: {}".format(erc20_config["contract_code"]))
             else:
                 lcc.log_info("'contract_code' has correct format: hex")
-            if not self.validator.is_hex(erc20_config["transfer_topic"]):
+            if not self.type_validator.is_hex(erc20_config["transfer_topic"]):
                 lcc.log_error("Wrong format of 'transfer_topic', got: {}".format(erc20_config["transfer_topic"]))
             else:
                 lcc.log_info("'transfer_topic' has correct format: hex")
@@ -146,7 +146,7 @@ class GetGlobalProperties(BaseTest):
             )
             for erc20_method in erc20_methods:
                 if check_that("erc20_method", erc20_config[erc20_method], has_length(2)):
-                    if not self.validator.is_hex(erc20_config[erc20_method]["method"]):
+                    if not self.type_validator.is_hex(erc20_config[erc20_method]["method"]):
                         lcc.log_error("Wrong format of '{}', got: {}".format(erc20_method, erc20_config[erc20_method]))
                     else:
                         lcc.log_info("'{}' has correct format: hex".format(erc20_method))
@@ -188,7 +188,7 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check main fields")
         if check_that("global_properties", response["result"], has_length(4)):
-            if not self.validator.is_global_object_id(response["result"]["id"]):
+            if not self.type_validator.is_global_object_id(response["result"]["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
             else:
                 lcc.log_info("'id' has correct format: global_property_object_type")

@@ -20,7 +20,7 @@ class GetFullAccounts(BaseTest):
         self.__database_api_identifier = None
 
     def check_fields_account_ids_format(self, response, field):
-        if not self.validator.is_account_id(response[field]):
+        if not self.type_validator.is_account_id(response[field]):
             lcc.log_error("Wrong format of '{}', got: {}".format(field, response[field]))
         else:
             lcc.log_info("'{}' has correct format: account_object_type".format(field))
@@ -69,20 +69,20 @@ class GetFullAccounts(BaseTest):
                         "extensions", is_list(),
                         quiet=True
                     )
-                    if not self.validator.is_account_id(account_info["registrar"]):
+                    if not self.type_validator.is_account_id(account_info["registrar"]):
                         lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
                     else:
                         lcc.log_info("'registrar' has correct format: account_object_type")
-                    if not self.validator.is_account_name(account_info["name"]):
+                    if not self.type_validator.is_account_name(account_info["name"]):
                         lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
                     else:
                         lcc.log_info("'name' has correct format: account_name")
-                    if not self.validator.is_echorand_key(account_info["echorand_key"]):
+                    if not self.type_validator.is_echorand_key(account_info["echorand_key"]):
                         lcc.log_error(
                             "Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
                     else:
                         lcc.log_info("'echorand_key' has correct format: echo_rand_key")
-                    if not self.validator.is_account_statistics_id(account_info["statistics"]):
+                    if not self.type_validator.is_account_statistics_id(account_info["statistics"]):
                         lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
                     else:
                         lcc.log_info("'statistics' has correct format: account_statistics_object_type")
@@ -114,11 +114,11 @@ class GetFullAccounts(BaseTest):
                 lcc.set_step("Check 'statistics' field")
                 account_statistics = full_account_info.get("statistics")
                 if check_that("account_statistics", account_statistics, has_length(10)):
-                    if not self.validator.is_account_statistics_id(account_statistics["id"]):
+                    if not self.type_validator.is_account_statistics_id(account_statistics["id"]):
                         lcc.log_error("Wrong format of 'id', got: {}".format(account_statistics["id"]))
                     else:
                         lcc.log_info("'id' has correct format: account_statistics_object_type")
-                    if not self.validator.is_account_transaction_history_id(account_statistics["most_recent_op"]):
+                    if not self.type_validator.is_account_transaction_history_id(account_statistics["most_recent_op"]):
                         lcc.log_error("Wrong format of 'most_recent_op', got: {}".format(
                             account_statistics["most_recent_op"]))
                     else:
@@ -137,7 +137,7 @@ class GetFullAccounts(BaseTest):
                     )
 
                 lcc.set_step("Check 'registrar_name' field")
-                if not self.validator.is_account_name(full_account_info["registrar_name"]):
+                if not self.type_validator.is_account_name(full_account_info["registrar_name"]):
                     lcc.log_error(
                         "Wrong format of 'registrar_name', got: {}".format(full_account_info["registrar_name"]))
                 else:
@@ -155,13 +155,13 @@ class GetFullAccounts(BaseTest):
                     for j, balance in enumerate(balances):
                         lcc.set_step("Check 'balance #{}' field".format(j))
                         if check_that("account_balances", balance, has_length(5)):
-                            if not self.validator.is_account_balance_id(balance["id"]):
+                            if not self.type_validator.is_account_balance_id(balance["id"]):
                                 lcc.log_error(
                                     "Wrong format of 'id', got: {}".format(balance["id"]))
                             else:
                                 lcc.log_info("'id' has correct format: account_balance_object_type")
                             self.check_fields_account_ids_format(balance, "owner")
-                            if not self.validator.is_asset_id(balance["asset_type"]):
+                            if not self.type_validator.is_asset_id(balance["asset_type"]):
                                 lcc.log_error(
                                     "Wrong format of 'asset_type', got: {}".format(balance["asset_type"]))
                             else:

@@ -96,19 +96,19 @@ class SubscribeContracts(BaseTest):
 
         lcc.set_step("Check notice 'subscribe_contracts'")
         if check_that("global_properties", notice, has_length(6)):
-            if not self.validator.is_contract_history_id(notice["id"]):
+            if not self.type_validator.is_contract_history_id(notice["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(notice["id"]))
             else:
                 lcc.log_info("'id' has correct format: contract_history_object_type")
-            if not self.validator.is_contract_id(notice["contract"]):
+            if not self.type_validator.is_contract_id(notice["contract"]):
                 lcc.log_error("Wrong format of 'contract', got: {}".format(notice["contract"]))
             else:
                 lcc.log_info("'contract' has correct format: contract_id")
-            if not self.validator.is_operation_history_id(notice["operation_id"]):
+            if not self.type_validator.is_operation_history_id(notice["operation_id"]):
                 lcc.log_error("Wrong format of 'operation_id', got: {}".format(notice["operation_id"]))
             else:
                 lcc.log_info("'operation_id' has correct format: operation_history_id")
-            if not self.validator.is_contract_history_id(notice["next"]):
+            if not self.type_validator.is_contract_history_id(notice["next"]):
                 lcc.log_error("Wrong format of 'next', got: {}".format(notice["next"]))
             else:
                 lcc.log_info("'next' has correct format: contract_history_object_type")

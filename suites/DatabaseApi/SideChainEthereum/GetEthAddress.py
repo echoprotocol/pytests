@@ -75,15 +75,15 @@ class GetEthAddress(BaseTest):
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
         if check_that("account_eth_address", result, has_length(6)):
-            if not self.validator.is_eth_address_id(result["id"]):
+            if not self.type_validator.is_eth_address_id(result["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'id' has correct format: eth_address_object_type")
-            if not self.validator.is_account_id(result["account"]):
+            if not self.type_validator.is_account_id(result["account"]):
                 lcc.log_error("Wrong format of 'account', got: {}".format(result["account"]))
             else:
                 lcc.log_info("'account' has correct format: account_object_type")
-            if not self.validator.is_hex(result["eth_addr"]):
+            if not self.type_validator.is_hex(result["eth_addr"]):
                 lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
             else:
                 lcc.log_info("'eth_addr' has correct format: hex")

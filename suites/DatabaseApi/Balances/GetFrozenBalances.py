@@ -84,11 +84,11 @@ class GetFrozenBalances(BaseTest):
                     "asset_id", is_(self.echo_asset),
                     quiet=True
                 )
-            if not self.validator.is_frozen_balance_id(result[-1]["id"]):
+            if not self.type_validator.is_frozen_balance_id(result[-1]["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'id' has correct format: frozen_balance_type")
-            if not self.validator.is_iso8601(result[-1]["unfreeze_time"]):
+            if not self.type_validator.is_iso8601(result[-1]["unfreeze_time"]):
                 lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(result["unfreeze_time"]))
             else:
                 lcc.log_info("'unfreeze_time' has correct format: iso8601")

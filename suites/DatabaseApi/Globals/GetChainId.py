@@ -33,7 +33,7 @@ class GetChainId(BaseTest):
         lcc.log_info("Call method 'get_chain_id'")
 
         lcc.set_step("Check main fields")
-        if not self.validator.is_hex(response["result"]):
+        if not self.type_validator.is_hex(response["result"]):
             lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]))
         else:
             lcc.log_info("'chain_id' has correct format: hex")

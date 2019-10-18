@@ -41,11 +41,11 @@ class GetERC20AccountDeposits(BaseTest):
         for i, deposit in enumerate(deposits):
             lcc.set_step("Check work of method 'get_erc20_account_deposits', deposit #'{}'".format(i))
             check_that("'length of erc20 account deposit'", deposit, has_length(8))
-            if not self.validator.is_deposit_erc20_id(deposit["id"]):
+            if not self.type_validator.is_deposit_erc20_id(deposit["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
             else:
                 lcc.log_info("'id' has correct format: deposit_erc20_token_object")
-            if not self.validator.is_hex(deposit["transaction_hash"]):
+            if not self.type_validator.is_hex(deposit["transaction_hash"]):
                 lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(deposit["transaction_hash"]))
             else:
                 lcc.log_info("'transaction_hash' has correct format: hex")

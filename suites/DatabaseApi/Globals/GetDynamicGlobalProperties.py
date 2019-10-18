@@ -40,7 +40,7 @@ class GetDynamicGlobalProperties(BaseTest):
         dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
         result = response["result"]
         if check_that("dynamic global properties", result, has_length(12)):
-            if not self.validator.is_dynamic_global_object_id(result["id"]):
+            if not self.type_validator.is_dynamic_global_object_id(result["id"]):
                 lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
             else:
                 lcc.log_info("'id' has correct format: dynamic_global_object_id")
@@ -48,17 +48,17 @@ class GetDynamicGlobalProperties(BaseTest):
                 self.check_uint64_numbers(result, propertie, quiet=True)
                 value = int(result[propertie])
                 check_that(propertie, value, greater_than_or_equal_to(0), quiet=True)
-            if not self.validator.is_hex(result["head_block_id"]):
+            if not self.type_validator.is_hex(result["head_block_id"]):
                 lcc.log_error("Wrong format of 'head_block_id', got: {}".format(result))
             else:
                 lcc.log_info("'head_block_id' has correct format: hex")
-            if not self.validator.is_hex(result["last_rand_quantity"]):
+            if not self.type_validator.is_hex(result["last_rand_quantity"]):
                 lcc.log_error("Wrong format of 'last_rand_quantity', got: {}".format(result))
             else:
                 lcc.log_info("'last_rand_quantity' has correct format: hex")
 
             for time_propertie in dynamic_global_properties_time:
-                if not self.validator.is_iso8601(result[time_propertie]):
+                if not self.type_validator.is_iso8601(result[time_propertie]):
                     lcc.log_error(
                         "Wrong format of '{}', got: {}".format(time_propertie, result[time_propertie]))
                 else:

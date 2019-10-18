@@ -72,17 +72,17 @@ class GetBalanceObjects(BaseTest):
                                                 self.__database_api_identifier)
                 result = self.get_response(response_id)["result"][0]
                 if check_that("balance_object", result, has_length(5)):
-                    if not self.validator.is_balance_id(result["id"]):
+                    if not self.type_validator.is_balance_id(result["id"]):
                         lcc.log_error("Wrong format of 'balance_id', got: {}".format(result["id"]))
                     else:
                         lcc.log_info("'balance_id' has correct format: balance_id")
-                    if not self.validator.is_iso8601(result["last_claim_date"]):
+                    if not self.type_validator.is_iso8601(result["last_claim_date"]):
                         lcc.log_error(
                             "Wrong format of 'last_claim_date', got: {}".format(result["last_claim_date"]))
                     else:
                         lcc.log_info("'last_claim_date' has correct format: iso8601")
                     self.check_uint256_numbers(result["balance"], "amount", quiet=True)
-                    if not self.validator.is_asset_id(result["balance"]["asset_id"]):
+                    if not self.type_validator.is_asset_id(result["balance"]["asset_id"]):
                         lcc.log_error(
                             "Wrong format of 'asset_id', got: {}".format(result["balance"]["asset_id"]))
                     else:

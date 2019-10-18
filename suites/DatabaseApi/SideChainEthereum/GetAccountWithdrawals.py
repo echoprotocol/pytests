@@ -188,11 +188,11 @@ class GetAccountWithdrawals(BaseTest):
                 "'first deposit of created account'",
                 withdraw, has_length(8)
             )
-            if not self.validator.is_withdraw_eth_id(withdraw["id"]):
+            if not self.type_validator.is_withdraw_eth_id(withdraw["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(withdraw["id"]))
             else:
                 lcc.log_info("'id' has correct format: withdraw_eth_object_type")
-            if not self.validator.is_eth_address(withdraw["eth_addr"]):
+            if not self.type_validator.is_eth_address(withdraw["eth_addr"]):
                 lcc.log_error("Wrong format of 'eth_addr', got: {}".format(withdraw["eth_addr"]))
             else:
                 lcc.log_info("'eth_addr' has correct format: ethereum_address_type")

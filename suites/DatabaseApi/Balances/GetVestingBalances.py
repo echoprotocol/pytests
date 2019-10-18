@@ -62,7 +62,7 @@ class GetVestingBalances(BaseTest):
 
         lcc.set_step("Check simple work of method 'get_vesting_balances'")
         if check_that("balance_object", result, has_length(5)):
-            if not self.validator.is_vesting_balance_id(result["id"]):
+            if not self.type_validator.is_vesting_balance_id(result["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'id' has correct format: vesting_balance_object_type")
@@ -80,7 +80,7 @@ class GetVestingBalances(BaseTest):
                     balance,
                     "amount", is_(value_amount), quiet=True
                 )
-                if not self.validator.is_asset_id(balance["asset_id"]):
+                if not self.type_validator.is_asset_id(balance["asset_id"]):
                     lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
                 else:
                     lcc.log_info("'asset_id' has correct format: asset_object_type")
@@ -90,7 +90,7 @@ class GetVestingBalances(BaseTest):
                 second_element = policy[1]
                 # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
                 check_that("first element", first_element, is_(0), quiet=True)
-                if not self.validator.is_iso8601(second_element["begin_timestamp"]):
+                if not self.type_validator.is_iso8601(second_element["begin_timestamp"]):
                     lcc.log_error(
                         "Wrong format of 'begin_timestamp', got: {}".format(second_element["begin_timestamp"]))
                 else:

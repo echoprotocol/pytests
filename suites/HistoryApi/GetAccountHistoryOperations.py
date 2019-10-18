@@ -62,7 +62,7 @@ class GetAccountHistoryOperations(BaseTest):
                 "'operation id'",
                 result["op"][0], is_(operation_id)
             )
-            if not self.validator.is_operation_history_id(result["id"]):
+            if not self.type_validator.is_operation_history_id(result["id"]):
                 lcc.log_error("Wrong format of 'operation id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'operation_id' has correct format: operation_history_id")

@@ -51,15 +51,15 @@ class GetBlockHeader(BaseTest):
             "extensions", is_list(),
             quiet=True
         )
-        if not self.validator.is_iso8601(block_header["timestamp"]):
+        if not self.type_validator.is_iso8601(block_header["timestamp"]):
             lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
         else:
             lcc.log_info("'timestamp' has correct format: iso8601")
-        if not self.validator.is_account_id(block_header["account"]):
+        if not self.type_validator.is_account_id(block_header["account"]):
             lcc.log_error("Wrong format of 'account id', got: {}".format(block_header["account"]))
         else:
             lcc.log_info("'id' has correct format: account_id")
-        if not self.validator.is_account_id(block_header["delegate"]):
+        if not self.type_validator.is_account_id(block_header["delegate"]):
             lcc.log_error("Wrong format of 'delegate', got: {}".format(block_header["delegate"]))
         else:
             lcc.log_info("'delegate' has correct format: account_id")

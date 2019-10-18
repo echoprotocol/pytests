@@ -77,19 +77,19 @@ class GetERC20Token(BaseTest):
         lcc.set_step("Check simple work of method 'get_erc20_token'")
         require_that("'length of ERC20 object'", result, has_length(8))
 
-        if not self.validator.is_erc20_object_id(result["id"]):
+        if not self.type_validator.is_erc20_object_id(result["id"]):
             lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
         else:
             lcc.log_info("'id' has correct format: erc20_token_object_type")
-        if not self.validator.is_account_id(result["owner"]):
+        if not self.type_validator.is_account_id(result["owner"]):
             lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
         else:
             lcc.log_info("'owner' has correct format: account_id_object_type")
-        if not self.validator.is_eth_address(result["eth_addr"]):
+        if not self.type_validator.is_eth_address(result["eth_addr"]):
             lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
         else:
             lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
-        if not self.validator.is_contract_id(result["contract"]):
+        if not self.type_validator.is_contract_id(result["contract"]):
             lcc.log_error("Wrong format of 'contract', got: {}".format(result["contract"]))
         else:
             lcc.log_info("'contract' has correct format: contract_object_type")

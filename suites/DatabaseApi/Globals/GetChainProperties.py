@@ -34,11 +34,11 @@ class GetChainProperties(BaseTest):
 
         lcc.set_step("Check main fields")
         if check_that("chain_properties", response["result"], has_length(4)):
-            if not self.validator.is_chain_property_object_id(response["result"]["id"]):
+            if not self.type_validator.is_chain_property_object_id(response["result"]["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
             else:
                 lcc.log_info("'id' has correct format: chain_property_object_type")
-            if not self.validator.is_hex(response["result"]["chain_id"]):
+            if not self.type_validator.is_hex(response["result"]["chain_id"]):
                 lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]["chain_id"]))
             else:
                 lcc.log_info("'chain_id' has correct format: hex")

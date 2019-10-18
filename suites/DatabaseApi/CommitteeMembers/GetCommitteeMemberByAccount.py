@@ -56,26 +56,26 @@ class GetCommitteeMemberByAccount(BaseTest):
 
             lcc.set_step("Check method 'get_committee_members_by_account' result")
             require_that("'committee member'", committee_member, has_length(8))
-            if not self.validator.is_committee_member_id(committee_member["id"]):
+            if not self.type_validator.is_committee_member_id(committee_member["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(committee_member["id"]))
             else:
                 lcc.log_info("'id' has correct format: committee_member_object_type")
-            if not self.validator.is_account_id(committee_member["committee_member_account"]):
+            if not self.type_validator.is_account_id(committee_member["committee_member_account"]):
                 lcc.log_error("Wrong format of 'committee_member_account', got: {}".format(
                     committee_member["committee_member_account"]))
             else:
                 lcc.log_info("'committee_member_account' has correct format: account_object_type")
-            if not self.validator.is_vote_id(committee_member["vote_id"]):
+            if not self.type_validator.is_vote_id(committee_member["vote_id"]):
                 lcc.log_error("Wrong format of 'vote_id', got: {}".format(
                     committee_member["vote_id"]))
             else:
                 lcc.log_info("'vote_id' has correct format: vote_id_type")
-            if not self.validator.is_eth_address(committee_member["eth_address"]):
+            if not self.type_validator.is_eth_address(committee_member["eth_address"]):
                 lcc.log_error(
                     "Wrong format of 'eth_address', got: {}".format(committee_member["eth_address"]))
             else:
                 lcc.log_info("'eth_address' has correct format: hex")
-            if not self.validator.is_btc_public_key(committee_member["btc_public_key"]):
+            if not self.type_validator.is_btc_public_key(committee_member["btc_public_key"]):
                 lcc.log_error(
                     "Wrong format of 'btc_public_key', got: {}".format(committee_member["btc_public_key"]))
             else:

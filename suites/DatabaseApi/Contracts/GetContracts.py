@@ -56,11 +56,11 @@ class GetContracts(BaseTest):
         lcc.set_step("Check simple work of method 'get_contracts'")
         result = response["result"][0]
         if check_that("contract", result, has_length(7)):
-            if not self.validator.is_contract_id(result["id"]):
+            if not self.type_validator.is_contract_id(result["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'id' has correct format: contract_object_type")
-            if not self.validator.is_contract_statistics_id(result["statistics"]):
+            if not self.type_validator.is_contract_statistics_id(result["statistics"]):
                 lcc.log_error("Wrong format of 'statistics', got: {}".format(result["statistics"]))
             else:
                 lcc.log_info("'statistics' has correct format: contract_statistics_object_type")

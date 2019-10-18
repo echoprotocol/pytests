@@ -79,7 +79,7 @@ class GetContractLogs(BaseTest):
                 require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
                 log_values = log[1]["log"]
                 for log_value in log_values:
-                    if not self.validator.is_hex(log_value):
+                    if not self.type_validator.is_hex(log_value):
                         lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                     else:
                         lcc.log_info("'log_value' has correct format: hex")

@@ -82,15 +82,15 @@ class GetAccountAddresses(BaseTest):
         lcc.set_step("Check new account address object in method 'get_account_addresses'")
         result = response["result"][0]
         if check_that("account_addresses", result, has_length(5)):
-            if not self.validator.is_account_address_id(result["id"]):
+            if not self.type_validator.is_account_address_id(result["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'id' has correct format: account_address_object_type")
-            if not self.validator.is_account_id(result["owner"]):
+            if not self.type_validator.is_account_id(result["owner"]):
                 lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
             else:
                 lcc.log_info("'owner' has correct format: account_object_type")
-            if not self.validator.is_hex(result["address"]):
+            if not self.type_validator.is_hex(result["address"]):
                 lcc.log_error("Wrong format of 'address', got: {}".format(result["owner"]))
             else:
                 lcc.log_info("'address' has correct format: hex")

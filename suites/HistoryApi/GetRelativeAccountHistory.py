@@ -55,7 +55,7 @@ class GetRelativeAccountHistory(BaseTest):
             results, has_length(limit)
         )
         for result in results:
-            if not self.validator.is_operation_history_id(result["id"]):
+            if not self.type_validator.is_operation_history_id(result["id"]):
                 lcc.log_error("Wrong format of 'operation id', got: {}".format(result["id"]))
             else:
                 lcc.log_info("'operation_id' has correct format: operation_history_id")

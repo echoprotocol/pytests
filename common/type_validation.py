@@ -7,7 +7,7 @@ NAME_MIN_LENGTH = 1
 NAME_MAX_LENGTH = 63
 
 
-class Validator(object):
+class TypeValidator(object):
     id_regex = re.compile(r"^(0|([1-9]\d*\.)){2}(0|([1-9]\d*))$")
     account_id_regex = re.compile(r"^1\.2\.(0|[1-9]\d*)$")
     asset_id_regex = re.compile(r"^1\.3\.(0|[1-9]\d*)$")

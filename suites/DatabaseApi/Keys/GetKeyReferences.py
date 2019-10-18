@@ -128,7 +128,7 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Get response from 'get_key_references' using private and public key")
 
         lcc.set_step("Check method work with the given public key")
-        if not self.validator.is_account_id(response):
+        if not self.type_validator.is_account_id(response):
             lcc.log_error("Wrong format of 'id', got: {}".format(response))
         else:
             lcc.log_info("'id' has correct format using 'public key': account_id")
