@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, is_dict, equal_to, \
-    check_that, is_none, has_length
+from lemoncheesecake.matching import check_that_in, equal_to, check_that, is_none
 
 from common.base_test import BaseTest
 from project import ECHO_ASSET_SYMBOL
@@ -22,69 +21,6 @@ class LookupAssetSymbols(BaseTest):
         self.__database_api_identifier = None
         self.echo_symbol = ECHO_ASSET_SYMBOL
 
-    def check_core_exchange_rate_structure(self, core_exchange_rate):
-        check_that_in(
-            core_exchange_rate,
-            "base", is_dict(),
-            "quote", is_dict(),
-            quiet=True
-        )
-        for key in core_exchange_rate:
-            core_exchange_rate_part = core_exchange_rate[key]
-            self.check_uint64_numbers(core_exchange_rate_part, "amount", quiet=True)
-            if not self.type_validator.is_asset_id(core_exchange_rate_part["asset_id"]):
-                lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
-                    key, core_exchange_rate_part["asset_id"]))
-            else:
-                lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
-
-    def check_asset_structure(self, asset):
-        if not self.type_validator.is_asset_id(asset["id"]):
-            lcc.log_error("Wrong format of 'id', got: {}".format(asset["id"]))
-        else:
-            lcc.log_info("'id' has correct format: asset_id")
-        if not self.type_validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
-            lcc.log_error("Wrong format of 'dynamic_asset_data_id', got: {}".format(
-                asset["dynamic_asset_data_id"]))
-        else:
-            lcc.log_info("'dynamic_asset_data_id' has correct format: dynamic_asset_data_id")
-
-        if not self.type_validator.is_account_id(asset["issuer"]):
-            lcc.log_error("Wrong format of 'issuer', got: {}".format(asset["issuer"]))
-        else:
-            lcc.log_info("'issuer' has correct format: account_id")
-        if not self.type_validator.is_asset_name(asset["symbol"]):
-            lcc.log_error("Wrong format of 'symbol', got: {}".format(asset["symbol"]))
-        else:
-            lcc.log_info("'symbol' has correct format: asset_name")
-        check_that_in(
-            asset,
-            "options", is_dict(),
-            "extensions", is_list(),
-            "precision", is_integer(8),
-            quiet=True
-        )
-        options = asset["options"]
-        require_that("'options'", options, has_length(8))
-        check_that_in(
-            options,
-            "blacklist_authorities", is_list(),
-            "core_exchange_rate", is_dict(),
-            "description", is_str(),
-            "extensions", is_list(),
-            "flags", is_integer(),
-            "issuer_permissions", is_integer(),
-            "whitelist_authorities", is_list(),
-            quiet=True
-        )
-        core_exchange_rate = options["core_exchange_rate"]
-        require_that(
-            "'core_exchange_rate'",
-            core_exchange_rate, has_length(2)
-        )
-        self.check_core_exchange_rate_structure(core_exchange_rate)
-        self.check_uint64_numbers(options, "max_supply", quiet=True)
-
     def setup_suite(self):
         super().setup_suite()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
@@ -102,12 +38,7 @@ class LookupAssetSymbols(BaseTest):
 
         lcc.set_step("Check simple work of method 'lookup_asset_symbols'")
         asset_by_symbol = response["result"][0]
-
-        require_that(
-            "'length of asset got by symbol'",
-            asset_by_symbol, has_length(7)
-        )
-        self.check_asset_structure(asset_by_symbol)
+        self.object_validator.validate_asset_structure(self, asset_by_symbol)
 
         lcc.set_step("Lookup default asset of the chain using it asset_id")
         symbols_or_ids = [self.echo_asset]
@@ -117,11 +48,7 @@ class LookupAssetSymbols(BaseTest):
         lcc.log_info("Call method method 'lookup_asset_symbols' with symbols_or_ids='{}' parameter".format(
             symbols_or_ids))
         asset_by_id = response["result"][0]
-        require_that(
-            "'length of asset got by id'",
-            asset_by_symbol, has_length(7)
-        )
-        self.check_asset_structure(asset_by_id)
+        self.object_validator.validate_asset_structure(self, asset_by_id)
         lcc.set_step("Compare 'lookup_asset_symbols' method calls results with different type of input params")
 
 
