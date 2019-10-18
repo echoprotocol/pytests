@@ -38,7 +38,7 @@ class LookupAssetSymbols(BaseTest):
 
         lcc.set_step("Check simple work of method 'lookup_asset_symbols'")
         asset_by_symbol = response["result"][0]
-        self.object_validator.validate_asset_structure(self, asset_by_symbol)
+        self.object_validator.validate_asset_object(self, asset_by_symbol)
 
         lcc.set_step("Lookup default asset of the chain using it asset_id")
         symbols_or_ids = [self.echo_asset]
@@ -48,7 +48,7 @@ class LookupAssetSymbols(BaseTest):
         lcc.log_info("Call method method 'lookup_asset_symbols' with symbols_or_ids='{}' parameter".format(
             symbols_or_ids))
         asset_by_id = response["result"][0]
-        self.object_validator.validate_asset_structure(self, asset_by_id)
+        self.object_validator.validate_asset_object(self, asset_by_id)
         lcc.set_step("Compare 'lookup_asset_symbols' method calls results with different type of input params")
 
 

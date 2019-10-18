@@ -47,7 +47,7 @@ class GetAccounts(BaseTest):
 
         for i, account_info in enumerate(results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            self.object_validator.validate_account_structure(self, account_info)
+            self.object_validator.validate_account_object(self, account_info)
 
 
 @lcc.prop("positive", "type")

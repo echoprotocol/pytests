@@ -40,7 +40,7 @@ class GetAccountObjects(BaseTest):
 
         for i, account_info in enumerate(results):
             lcc.set_step("Checking account object #{} - '{}'".format(i, params[i]))
-            self.object_validator.validate_account_structure(self, account_info)
+            self.object_validator.validate_account_object(self, account_info)
 
         lcc.set_step("Get info about default accounts")
         response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)

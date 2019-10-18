@@ -5,14 +5,14 @@ from lemoncheesecake.matching import has_length, require_that, equal_to
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_objects' (asset object)"
+    "description": "Method 'get_objects' (committee member object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.tags("api", "database_api", "database_api_objects", "get_objects")
-@lcc.suite("Check work of method 'get_objects' (asset object)", rank=1)
-class GetAssetObjects(BaseTest):
+@lcc.suite("Check work of method 'get_objects' (committee member object)", rank=1)
+class GetCommitteeMemberObjects(BaseTest):
 
     def __init__(self):
         super().__init__()
@@ -24,10 +24,10 @@ class GetAssetObjects(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of method 'get_objects' (asset object)")
+    @lcc.test("Simple work of method 'get_objects' (committee member object)")
     def method_main_check(self):
-        lcc.set_step("Get asset object")
-        params = ["1.3.0"]
+        lcc.set_step("Get committee member object")
+        params = ["1.4.0"]
         response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
         results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
@@ -39,15 +39,18 @@ class GetAssetObjects(BaseTest):
         )
 
         for i, asset_info in enumerate(results):
-            lcc.set_step("Checking asset object #{} - '{}'".format(i, params[i]))
-            self.object_validator.validate_asset_object(self, asset_info)
+            lcc.set_step("Checking committee member object #{} - '{}'".format(i, params[i]))
+            self.object_validator.validate_committee_member_object(self, asset_info)
 
-        lcc.set_step("Get info about default asset")
-        response_id = self.send_request(self.get_request("get_assets", [params]), self.__database_api_identifier)
+        lcc.set_step("Get info about default committee member")
+        response_id = self.send_request(
+            self.get_request("get_committee_members", [params]),
+            self.__database_api_identifier
+        )
         get_assets_results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_assets' with params: {}".format(params))
+        lcc.log_info("Call method 'get_committee_members' with params: {}".format(params))
 
-        lcc.set_step("Check the identity of returned results of api-methods: 'get_assets', 'get_objects'")
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_committee_members', 'get_objects'")
         require_that(
             'results',
             results, equal_to(get_assets_results),

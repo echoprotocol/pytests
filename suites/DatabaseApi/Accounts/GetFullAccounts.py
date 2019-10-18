@@ -52,7 +52,7 @@ class GetFullAccounts(BaseTest):
             full_account_info = result[1]
             if check_that("full_account_info", full_account_info, has_length(8)):
                 account_info = full_account_info.get("account")
-                self.object_validator.validate_account_structure(self, account_info)
+                self.object_validator.validate_account_object(self, account_info)
 
                 lcc.set_step("Check 'statistics' field")
                 account_statistics = full_account_info.get("statistics")

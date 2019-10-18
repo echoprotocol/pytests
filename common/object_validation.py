@@ -7,7 +7,7 @@ from lemoncheesecake.matching import has_length, is_integer, check_that_in, chec
 class ObjectValidator(object):
 
     @staticmethod
-    def validate_account_structure(base_test, account_info):
+    def validate_account_object(base_test, account_info):
 
         def validate_fields_account_ids_format(base_test, response, field):
             if not base_test.type_validator.is_account_id(response[field]):
@@ -77,7 +77,7 @@ class ObjectValidator(object):
                 )
 
     @staticmethod
-    def validate_asset_structure(base_test, asset):
+    def validate_asset_object(base_test, asset):
 
         def validate_core_exchange_rate_structure(base_test, core_exchange_rate):
             check_that_in(
@@ -145,3 +145,38 @@ class ObjectValidator(object):
         )
         validate_core_exchange_rate_structure(base_test, core_exchange_rate)
         base_test.check_uint64_numbers(options, "max_supply", quiet=True)
+
+    @staticmethod
+    def validate_committee_member_object(base_test, committee_member):
+        require_that("'committee member'", committee_member, has_length(8))
+        if not base_test.type_validator.is_committee_member_id(committee_member["id"]):
+            lcc.log_error("Wrong format of 'id', got: {}".format(committee_member["id"]))
+        else:
+            lcc.log_info("'id' has correct format: committee_member_object_type")
+        if not base_test.type_validator.is_account_id(committee_member["committee_member_account"]):
+            lcc.log_error("Wrong format of 'committee_member_account', got: {}".format(
+                committee_member["committee_member_account"]))
+        else:
+            lcc.log_info("'committee_member_account' has correct format: account_object_type")
+        if not base_test.type_validator.is_vote_id(committee_member["vote_id"]):
+            lcc.log_error("Wrong format of 'vote_id', got: {}".format(
+                committee_member["vote_id"]))
+        else:
+            lcc.log_info("'vote_id' has correct format: vote_id_type")
+        if not base_test.type_validator.is_eth_address(committee_member["eth_address"]):
+            lcc.log_error(
+                "Wrong format of 'eth_address', got: {}".format(committee_member["eth_address"]))
+        else:
+            lcc.log_info("'eth_address' has correct format: hex")
+        if not base_test.type_validator.is_btc_public_key(committee_member["btc_public_key"]):
+            lcc.log_error(
+                "Wrong format of 'btc_public_key', got: {}".format(committee_member["btc_public_key"]))
+        else:
+            lcc.log_info("'eth_address' has correct format: hex")
+        base_test.check_uint256_numbers(committee_member, "total_votes", quiet=True)
+        check_that_in(
+            committee_member,
+            "url", is_str(),
+            "extensions", is_list(),
+            quiet=True
+        )

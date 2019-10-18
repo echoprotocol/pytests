@@ -37,7 +37,7 @@ class GetAssets(BaseTest):
         lcc.set_step("Check simple work of method 'get_assets'")
         asset = response["result"][0]
 
-        self.object_validator.validate_asset_structure(self, asset)
+        self.object_validator.validate_asset_object(self, asset)
 
 
 @lcc.prop("positive", "type")

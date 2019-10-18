@@ -42,7 +42,7 @@ class GetAccountByName(BaseTest):
 
         lcc.set_step("Checking committee-account")
         account_info = response["result"]
-        self.object_validator.validate_account_structure(self, account_info)
+        self.object_validator.validate_account_object(self, account_info)
 
 
 @lcc.prop("positive", "type")

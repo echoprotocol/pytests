@@ -42,7 +42,7 @@ class LookupAccountNames(BaseTest):
 
         for account_num, account_info in enumerate(response["result"]):
             lcc.set_step("Checking account #{} - '{}'".format(account_num, params[account_num]))
-            self.object_validator.validate_account_structure(self, account_info)
+            self.object_validator.validate_account_object(self, account_info)
 
 
 @lcc.prop("positive", "type")
