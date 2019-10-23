@@ -184,7 +184,7 @@ class PositiveTesting(BaseTest):
             notice,
             "head_block_number", not_equal_to(response["head_block_number"]),
             "head_block_id", not_equal_to(response["head_block_id"]),
-            "time", not_equal_to(response["time"]),
+            "time", greater_than_or_equal_to(response["time"]),
             "last_irreversible_block_num", irreversible_matcher,
         )
 
