@@ -90,7 +90,7 @@ Globals:
 
 Keys:
 - [x] [get_key_references](https://echo-dev.io/developers/apis/database-api/#get_key_referenceskeys)
-- [ ] [is_public_key_registered](https://echo-dev.io/developers/apis/database-api/#is_public_key_registered)
+- [x] [is_public_key_registered](https://echo-dev.io/developers/apis/database-api/#is_public_key_registered)
 
 Accounts:
 - [x] [get_accounts](https://echo-dev.io/developers/apis/database-api/#get_accountsaccount_ids)
