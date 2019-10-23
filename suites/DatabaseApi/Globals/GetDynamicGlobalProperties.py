@@ -31,7 +31,7 @@ class GetDynamicGlobalProperties(BaseTest):
         lcc.set_step("Get dynamic global properties")
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         lcc.log_info("Call method 'get_dynamic_global_properties'")
 
         lcc.set_step("Check main fields")
@@ -39,7 +39,7 @@ class GetDynamicGlobalProperties(BaseTest):
                                      "dynamic_flags", "last_irreversible_block_num"]
         dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
         result = response["result"]
-        if check_that("dynamic global properties", result, has_length(12)):
+        if check_that("dynamic global properties", result, has_length(11)):
             if not self.validator.is_dynamic_global_object_id(result["id"]):
                 lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
             else:
@@ -52,10 +52,6 @@ class GetDynamicGlobalProperties(BaseTest):
                 lcc.log_error("Wrong format of 'head_block_id', got: {}".format(result))
             else:
                 lcc.log_info("'head_block_id' has correct format: hex")
-            if not self.validator.is_hex(result["last_rand_quantity"]):
-                lcc.log_error("Wrong format of 'last_rand_quantity', got: {}".format(result))
-            else:
-                lcc.log_info("'last_rand_quantity' has correct format: hex")
 
             for time_propertie in dynamic_global_properties_time:
                 if not self.validator.is_iso8601(result[time_propertie]):

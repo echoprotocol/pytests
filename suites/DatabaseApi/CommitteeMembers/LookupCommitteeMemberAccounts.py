@@ -40,21 +40,24 @@ class LookupCommitteeMemberAccounts(BaseTest):
 
     @lcc.test("Simple work of method 'lookup_committee_member_accounts'")
     def method_main_check(self):
-        committee_member_accounts, account_names = [], []
+        active_committee_members_ids, committee_member_accounts, account_names = [], [], []
         limit = 1
 
         lcc.set_step("Get list of active committee member ids")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_member_ids = self.get_response(response_id)["result"]["active_committee_members"]
-        lcc.log_info("Active committee members: '{}'".format(active_committee_member_ids))
+        active_committee_members = self.get_response(response_id, log_response=True)["result"][
+            "active_committee_members"]
+        for member in active_committee_members:
+            active_committee_members_ids.append(member[0])
+        lcc.log_info("Active committee members ids: '{}'".format(active_committee_members_ids))
 
         lcc.set_step("Get active committee members")
-        response_id = self.send_request(self.get_request("get_objects", [active_committee_member_ids]),
+        response_id = self.send_request(self.get_request("get_objects", [active_committee_members_ids]),
                                         self.__database_api_identifier)
         committee_members = self.get_response(response_id)["result"]
         for committee_member in committee_members:
             committee_member_accounts.append(committee_member["committee_member_account"])
-        lcc.log_info("Call method 'get_objects' with params='{}'".format(active_committee_member_ids))
+        lcc.log_info("Call method 'get_objects' with params='{}'".format(active_committee_members_ids))
 
         lcc.set_step("Get info about default accounts")
         response_id = self.send_request(self.get_request("get_accounts", [committee_member_accounts]),
@@ -135,7 +138,8 @@ class PositiveTesting(BaseTest):
             broadcast_result = self.utils.perform_committee_member_create_operation(self, accounts_id,
                                                                                     eth_account_addresses[i],
                                                                                     btc_public_key[i],
-                                                                                    self.__database_api_identifier)
+                                                                                    self.__database_api_identifier,
+                                                                                    deposit_amount=0)
             committee_member_id = self.get_operation_results_ids(broadcast_result)
             committee_member_ids.append(committee_member_id)
             lcc.log_info("Successfully created a new committee member, id: '{}'".format(committee_member_id))

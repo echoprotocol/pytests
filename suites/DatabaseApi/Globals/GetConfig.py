@@ -30,7 +30,7 @@ class GetConfig(BaseTest):
     def method_main_check(self):
         lcc.set_step("Get config")
         response_id = self.send_request(self.get_request("get_config"), self.__database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         lcc.log_info("Call method 'get_config'")
 
         lcc.set_step("Check main fields")
@@ -54,10 +54,10 @@ class GetConfig(BaseTest):
                         "ECHO_DEFAULT_ACCOUNTS_PER_FEE_SCALE", "ECHO_DEFAULT_ACCOUNT_FEE_SCALE_BITSHIFTS",
                         "ECHO_MAX_URL_LENGTH", "ECHO_DEFAULT_COMMITTEE_PAY_VESTING_SECONDS",
                         "ECHO_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT", "ECHO_DEFAULT_MINIMUM_FEEDS",
-                        "ECHO_REVERSIBLE_BLOCKS_COUNT"]
+                        "ECHO_REVERSIBLE_BLOCKS_COUNT", "ECHO_DEFAULT_COMMITTEE_FREEZE_DURATION_SECONDS"]
         echo_config_accounts = ["ECHO_COMMITTEE_ACCOUNT", "ECHO_RELAXED_COMMITTEE_ACCOUNT", "ECHO_NULL_ACCOUNT",
                                 "ECHO_TEMP_ACCOUNT", "ECHO_NULL_AUTHORITY_ACCOUNT", "ECHO_PROXY_TO_SELF_ACCOUNT"]
-        if check_that("config", response["result"], has_length(54)):
+        if check_that("config", response["result"], has_length(55)):
             for echo_config_symbol in echo_config_symbols:
                 check_that_in(
                     response["result"],

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_str, has_length, require_that, is_true, \
-    has_entry
+    has_entry, is_
 
 from common.base_test import BaseTest
 
@@ -56,7 +56,7 @@ class SubscribeContractLogs(BaseTest):
                                                  value_amount=value_amount)
 
         lcc.set_step("Subscribe to created contract")
-        params = [subscription_callback_id, contract_id]
+        params = [subscription_callback_id, [[contract_id, []]]]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -68,7 +68,8 @@ class SubscribeContractLogs(BaseTest):
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.getPennie, callee=contract_id)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        block_num = broadcast_result["block_num"]
         lcc.log_info("Method 'getPennie' performed successfully")
 
         lcc.set_step("Get notices about updates of created contract")
@@ -76,7 +77,7 @@ class SubscribeContractLogs(BaseTest):
 
         lcc.set_step("Check subscribe contracts log")
         for log in contract_logs_notice:
-            if check_that("contract_log", log[1], has_length(3)):
+            if check_that("contract_log", log[1], has_length(6)):
                 contract_id_that_called = self.get_contract_id(log[1]["address"], address_format=True,
                                                                new_contract=False)
                 require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
@@ -87,7 +88,11 @@ class SubscribeContractLogs(BaseTest):
                     else:
                         lcc.log_info("'log_value' has correct format: hex")
                 check_that_in(
-                    log[1], "data", is_str(), quiet=True
+                    log[1], "data", is_str(),
+                    "block_num", is_(block_num),
+                    "trx_num", is_(0),
+                    "op_num", is_(0),
+                    quiet=True
                 )
 
 
@@ -103,6 +108,7 @@ class PositiveTesting(BaseTest):
         self.echo_acc0 = None
         self.piggy_contract = self.get_byte_code("piggy", "code")
         self.getPennie = self.get_byte_code("piggy", "pennieReturned()")
+        self.greet = self.get_byte_code("piggy", "greet()")
         self.setAllValues_method_name = "setAllValues(uint256,string)"
         self.setString_method_name = "onStringChanged(string)"
         self.setUint256_method_name = "onUint256Changed(uint256)"
@@ -110,7 +116,7 @@ class PositiveTesting(BaseTest):
         self.set_all_values = self.get_byte_code("dynamic_fields", self.setAllValues_method_name)
 
     def subscribe_contract_logs(self, callback, contract_id):
-        params = [callback, contract_id]
+        params = [callback, [[contract_id, []]]]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -146,6 +152,34 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    # todo: uncomment and add checks. BUG -1473
+    # @lcc.test("Check contract logs in notice with two transactions")
+    @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
+    def check_contract_logs_in_notices_with_two_transactions(self, get_random_integer):
+        subscription_callback_id = value_amount = get_random_integer
+
+        lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
+        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
+                                                 self.__database_api_identifier, value_amount=value_amount)
+
+        lcc.set_step("Subscribe to created contract")
+        self.subscribe_contract_logs(subscription_callback_id, contract_id)
+
+        lcc.set_step("Perform twice calling contract method getPennie")
+        operation_getpennie = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
+                                                                        bytecode=self.getPennie, callee=contract_id)
+        operation_greet = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
+                                                                    bytecode=self.greet, callee=contract_id)
+        for operation in [operation_getpennie, operation_greet]:
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True,
+                                    broadcast_with_callback=True)
+        lcc.log_info("Method 'getPennie' performed successfully")
+
+        lcc.set_step("First: Get notices about updates of created contract")
+        notice = self.get_notice(subscription_callback_id)
+        notice = self.get_notice(subscription_callback_id)
+
     @lcc.test("Check contract logs in notices two identical contract calls")
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notices_two_identical_contract_calls(self, get_random_integer):
@@ -167,6 +201,8 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("First: Get notices about updates of created contract")
         contract_logs_notice_1 = self.get_notice(subscription_callback_id)
+        id_notice_1 = contract_logs_notice_1[0][0]
+        data_notice_1 = contract_logs_notice_1[0][1]
 
         lcc.set_step("Call contract method getPennie")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -177,13 +213,14 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Second: Get notices about updates of created contract")
         contract_logs_notice_2 = self.get_notice(subscription_callback_id)
+        id_notice_2 = contract_logs_notice_2[0][0]
+        data_notice_2 = contract_logs_notice_2[0][1]
 
         lcc.set_step("Check that first and second notices are the same")
-        check_that(
-            "'notices are the same'",
-            contract_logs_notice_1 == contract_logs_notice_2,
-            is_true()
-        )
+        check_that("'notices id'", id_notice_1, equal_to(id_notice_2))
+        check_that("'notices address'", data_notice_1["address"], equal_to(data_notice_2["address"]))
+        check_that("'notices log'", data_notice_1["log"], equal_to(data_notice_2["log"]))
+        check_that("'notices data'", data_notice_1["data"], equal_to(data_notice_2["data"]))
 
     @lcc.test("Check contract logs in notices contract call that make two different logs")
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")

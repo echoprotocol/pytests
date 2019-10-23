@@ -9,7 +9,8 @@ SUITE = {
     "description": "Method 'lookup_vote_ids'"
 }
 
-
+# todo: method was deleted echo
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_votes", "lookup_vote_ids")
@@ -86,7 +87,8 @@ class LookupVoteIds(BaseTest):
                 quiet=True
             )
 
-
+# todo: method was deleted echo
+@lcc.disabled()
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_votes", "lookup_vote_ids")
 @lcc.suite("Positive testing of method 'lookup_vote_ids'", rank=2)
@@ -135,7 +137,8 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Create committee member of new account in the ECHO network")
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
                                                                                 eth_account_address, btc_public_key,
-                                                                                self.__database_api_identifier, url=url)
+                                                                                self.__database_api_identifier,
+                                                                                deposit_amount=0, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 

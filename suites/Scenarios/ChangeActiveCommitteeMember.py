@@ -11,6 +11,8 @@ SUITE = {
 
 
 # todo: test fails at second time running
+@lcc.tags("Task ECHO-1320")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_ethereum", "change_active_committee_member")
 @lcc.suite("Check scenario 'Change active committee members'")
@@ -24,7 +26,8 @@ class ChangeActiveCommitteeMember(BaseTest):
 
     def get_active_committee_members_ids(self):
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        return self.get_response(response_id, log_response=True)["result"]["active_committee_members"]
+        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
+        return [member[0] for member in active_committee_members]
 
     def get_active_committee_members_eth_addresses(self, active_committee_members_ids=None, print_log=True):
         if active_committee_members_ids is not None:
@@ -83,7 +86,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             active_committee_members_ids = active_committee_members["ids"]
 
             lcc.set_step("Get all committee members statuses. Store active committee members")
-            for eth_address in active_committee_members["eth_addresses"]:
+            for eth_address in active_committee_members["eth_addresses"][:-1]:
                 committee_member_status = self.eth_trx.get_status_of_committee_member(self, self.web3, eth_address)
                 if not committee_member_status:
                     raise Exception("Active committee member with '{}' eth_address in the ECHO network "

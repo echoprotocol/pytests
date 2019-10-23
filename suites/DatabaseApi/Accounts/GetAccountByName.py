@@ -85,15 +85,15 @@ class GetAccountByName(BaseTest):
                 )
 
             lcc.set_step("Check 'options' field")
-            if check_that("active", account_info["options"], has_length(6)):
-                account_ids_format = ["voting_account", "delegating_account"]
-                for account_id_format in account_ids_format:
-                    self.check_fields_account_ids_format(account_info["options"], account_id_format)
+            if check_that("active", account_info["options"], has_length(3)):
+                delegating_account = account_info["options"]["delegating_account"]
+                if not self.validator.is_account_id(delegating_account):
+                    lcc.log_error("Wrong format of 'delegating_account'got: {}".format(delegating_account))
+                else:
+                    lcc.log_info("'{}' has correct format: account_object_type".format(delegating_account))
                 check_that_in(
                     account_info["options"],
                     "delegate_share", is_integer(),
-                    "num_committee", is_integer(),
-                    "votes", is_list(),
                     "extensions", is_list(),
                     quiet=True
                 )
