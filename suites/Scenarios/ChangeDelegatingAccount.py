@@ -54,7 +54,7 @@ class ChangeDelegatingAccount(BaseTest):
         lcc.log_info("Current delegating account of '{}' is '{}'".format(new_account, current_delegating_account))
 
         lcc.set_step("Add assets to a new account to pay a fee")
-        operation = self.echo_ops.get_account_update_operation(echo=self.echo, account=new_account, new_options=True,
+        operation = self.echo_ops.get_account_update_operation(echo=self.echo, account=new_account,
                                                                delegating_account=self.echo_acc0)
 
         fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")

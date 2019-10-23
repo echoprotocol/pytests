@@ -83,9 +83,8 @@ class EchoOperations(object):
         return [operation_id, account_create_props, signer]
 
     def get_account_update_operation(self, echo, account, weight_threshold=None, account_auths=None, key_auths=None,
-                                     echorand_key=None, delegate_share=2000, delegating_account=None, fee_amount=0,
-                                     fee_asset_id="1.3.0", extensions=None, signer=None, new_options=None,
-                                     debug_mode=False):
+                                     echorand_key=None, delegate_share=0, delegating_account=None, fee_amount=0,
+                                     fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.ACCOUNT_UPDATE
@@ -101,9 +100,9 @@ class EchoOperations(object):
             account_update_props.update({"echorand_key": echorand_key})
         else:
             del account_update_props["echorand_key"]
-        if new_options is not None:
-            account_update_props["new_options"].update({"delegating_account": delegating_account,
-                                                        "delegate_share": delegate_share})
+        if delegating_account is not None:
+            account_update_props["new_options"].update(
+                {"delegating_account": delegating_account, "delegate_share": delegate_share})
         else:
             del account_update_props["new_options"]
         if debug_mode:
