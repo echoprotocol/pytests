@@ -121,12 +121,12 @@ class Receiver(object):
                             "Received notice about new contract logs:\n{}".format(json.dumps(response, indent=4)))
                     return notice_params
         if notice_params.get("block_num"):
-            if self.validator.is_hex(notice_params.get("tx_id")):
+            if self.type_validator.is_hex(notice_params.get("tx_id")):
                 if print_log:
                     lcc.log_info("Received notice about successful creation of new account:\n{}".format(
                         json.dumps(response, indent=4)))
                 return notice_params
-            if self.validator.is_hex(notice_params.get("id")):
+            if self.type_validator.is_hex(notice_params.get("id")):
                 if print_log:
                     lcc.log_info(
                         "Received notice about broadcast transaction:\n{}".format(json.dumps(response, indent=4)))
