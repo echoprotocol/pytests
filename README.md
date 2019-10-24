@@ -73,9 +73,9 @@ Subscriptions:
 
 Blocks and transactions:
 - [x] [get_block_header](https://echo-dev.io/developers/apis/database-api/#get_block_headerblock_num)
-- [ ] [get_block_header_batch](https://echo-dev.io/developers/apis/database-api/#get_block_header_batchblock_num)
+- [x] [get_block_header_batch](https://echo-dev.io/developers/apis/database-api/#get_block_header_batchblock_num)
 - [x] [get_block](https://echo-dev.io/developers/apis/database-api/#get_blockblock_num)
-- [ ] [get_block_tx_number](https://echo-dev.io/developers/apis/database-api/#get_block_tx_number)
+- [x] [get_block_tx_number](https://echo-dev.io/developers/apis/database-api/#get_block_tx_number)
 - [ ] [get_block_virtual_ops](https://echo-dev.io/developers/apis/database-api/#get_block_virtual_ops)
 - [x] [get_transaction](https://echo-dev.io/developers/apis/database-api/#get_transactionblock_num-trx_in_block)
 - [x] [get_recent_transaction_by_id](https://echo-dev.io/developers/apis/database-api/#get_recent_transaction_by_idid)
@@ -90,7 +90,7 @@ Globals:
 
 Keys:
 - [x] [get_key_references](https://echo-dev.io/developers/apis/database-api/#get_key_referenceskeys)
-- [ ] [is_public_key_registered](https://echo-dev.io/developers/apis/database-api/#is_public_key_registered)
+- [x] [is_public_key_registered](https://echo-dev.io/developers/apis/database-api/#is_public_key_registered)
 
 Accounts:
 - [x] [get_accounts](https://echo-dev.io/developers/apis/database-api/#get_accountsaccount_ids)
