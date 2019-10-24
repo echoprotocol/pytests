@@ -73,7 +73,7 @@ Subscriptions:
 
 Blocks and transactions:
 - [x] [get_block_header](https://echo-dev.io/developers/apis/database-api/#get_block_headerblock_num)
-- [ ] [get_block_header_batch](https://echo-dev.io/developers/apis/database-api/#get_block_header_batchblock_num)
+- [x] [get_block_header_batch](https://echo-dev.io/developers/apis/database-api/#get_block_header_batchblock_num)
 - [x] [get_block](https://echo-dev.io/developers/apis/database-api/#get_blockblock_num)
 - [x] [get_block_tx_number](https://echo-dev.io/developers/apis/database-api/#get_block_tx_number)
 - [ ] [get_block_virtual_ops](https://echo-dev.io/developers/apis/database-api/#get_block_virtual_ops)
