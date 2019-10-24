@@ -30,13 +30,17 @@ class GetCommitteeMembers(BaseTest):
 
     @lcc.test("Simple work of method 'get_committee_members'")
     def method_main_check(self):
+        active_committee_members_ids = []
+
         lcc.set_step("Get list of active committee members")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        lcc.log_info("Active committee members: '{}'".format(active_committee_members))
+        for member in active_committee_members:
+            active_committee_members_ids.append(member[0])
+        lcc.log_info("Active committee members ids: '{}'".format(active_committee_members_ids))
 
         lcc.set_step("Call method 'get_committee_members'")
-        response_id = self.send_request(self.get_request("get_committee_members", [active_committee_members]),
+        response_id = self.send_request(self.get_request("get_committee_members", [active_committee_members_ids]),
                                         self.__database_api_identifier)
         committee_members = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_committee_members' with params='{}'".format(active_committee_members))
@@ -45,7 +49,6 @@ class GetCommitteeMembers(BaseTest):
         for i, committee_member in enumerate(committee_members):
             lcc.set_step("Get active committee member #'{}'".format(i))
             self.object_validator.validate_committee_member_object(self, committee_member)
-
 
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_members")
@@ -94,7 +97,8 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Create committee member of new account in the ECHO network")
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
                                                                                 eth_account_address, btc_public_key,
-                                                                                self.__database_api_identifier, url=url)
+                                                                                self.__database_api_identifier,
+                                                                                deposit_amount=0, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 
@@ -107,7 +111,7 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check created committee member in the ECHO network")
         for committee_member in result:
-            require_that("'committee member object'", committee_member, has_length(8))
+            require_that("'committee member object'", committee_member, has_length(6))
             check_that_in(
                 committee_member,
                 "id", equal_to(self.committee_member_id),
@@ -180,7 +184,8 @@ class PositiveTesting(BaseTest):
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
                                                                                 eth_account_address,
                                                                                 btc_public_key,
-                                                                                self.__database_api_identifier, url=url)
+                                                                                self.__database_api_identifier,
+                                                                                deposit_amount=0, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 

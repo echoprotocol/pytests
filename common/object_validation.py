@@ -9,18 +9,14 @@ class ObjectValidator(object):
     @staticmethod
     def validate_account_object(base_test, account_info):
 
-        def validate_fields_account_ids_format(base_test, response, field):
-            if not base_test.type_validator.is_account_id(response[field]):
-                lcc.log_error("Wrong format of '{}', got: {}".format(field, response[field]))
-            else:
-                lcc.log_info("'{}' has correct format: account_object_type".format(field))
-
         if check_that("account_info", account_info, has_length(16)):
             check_that_in(
                 account_info,
+                "id", is_str(),
                 "network_fee_percentage", is_integer(),
                 "active", is_dict(),
                 "options", is_dict(),
+                "whitelisting_accounts", is_list(),
                 "whitelisting_accounts", is_list(),
                 "blacklisting_accounts", is_list(),
                 "whitelisted_accounts", is_list(),
@@ -31,7 +27,6 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
-            validate_fields_account_ids_format(base_test, account_info, "id")
             if not base_test.type_validator.is_account_id(account_info["registrar"]):
                 lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
             else:
@@ -53,7 +48,8 @@ class ObjectValidator(object):
                     lcc.log_error("Wrong format of 'cashback_vb', got: {}".format(account_info["cashback_vb"]))
                 else:
                     lcc.log_info("'cashback_vb' has correct format: vesting_balance_object_type")
-            lcc.set_step("Check 'options' field")
+
+            lcc.set_step("Check 'active' field")
             if check_that("active", account_info["active"], has_length(3)):
                 check_that_in(
                     account_info["active"],
@@ -62,16 +58,17 @@ class ObjectValidator(object):
                     "key_auths", is_list(),
                     quiet=True
                 )
+
             lcc.set_step("Check 'options' field")
-            if check_that("active", account_info["options"], has_length(6)):
-                account_ids_format = ["voting_account", "delegating_account"]
-                for account_id_format in account_ids_format:
-                    validate_fields_account_ids_format(base_test, account_info["options"], account_id_format)
+            if check_that("options", account_info["options"], has_length(3)):
+                delegating_account = account_info["options"]["delegating_account"]
+                if not base_test.type_validator.is_account_id(delegating_account):
+                    lcc.log_error("Wrong format of 'delegating_account', got: {}".format(delegating_account))
+                else:
+                    lcc.log_info("'{}' has correct format: account_object_type".format(delegating_account))
                 check_that_in(
                     account_info["options"],
                     "delegate_share", is_integer(),
-                    "num_committee", is_integer(),
-                    "votes", is_list(),
                     "extensions", is_list(),
                     quiet=True
                 )
@@ -148,7 +145,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_committee_member_object(base_test, committee_member):
-        require_that("'committee member'", committee_member, has_length(8))
+        require_that("'committee member'", committee_member, has_length(6))
         if not base_test.type_validator.is_committee_member_id(committee_member["id"]):
             lcc.log_error("Wrong format of 'id', got: {}".format(committee_member["id"]))
         else:
@@ -158,11 +155,6 @@ class ObjectValidator(object):
                 committee_member["committee_member_account"]))
         else:
             lcc.log_info("'committee_member_account' has correct format: account_object_type")
-        if not base_test.type_validator.is_vote_id(committee_member["vote_id"]):
-            lcc.log_error("Wrong format of 'vote_id', got: {}".format(
-                committee_member["vote_id"]))
-        else:
-            lcc.log_info("'vote_id' has correct format: vote_id_type")
         if not base_test.type_validator.is_eth_address(committee_member["eth_address"]):
             lcc.log_error(
                 "Wrong format of 'eth_address', got: {}".format(committee_member["eth_address"]))
@@ -173,7 +165,6 @@ class ObjectValidator(object):
                 "Wrong format of 'btc_public_key', got: {}".format(committee_member["btc_public_key"]))
         else:
             lcc.log_info("'eth_address' has correct format: hex")
-        base_test.check_uint256_numbers(committee_member, "total_votes", quiet=True)
         check_that_in(
             committee_member,
             "url", is_str(),

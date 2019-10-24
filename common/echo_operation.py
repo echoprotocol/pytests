@@ -55,16 +55,12 @@ class EchoOperations(object):
 
     def get_account_create_operation(self, echo, name, active_key_auths, echorand_key, fee_amount=0,
                                      fee_asset_id="1.3.0", registrar="1.2.12", active_weight_threshold=1,
-                                     active_account_auths=None, options_voting_account="1.2.5",
-                                     options_delegating_account="1.2.12", delegate_share=0, options_num_committee=0,
-                                     options_votes=None, options_extensions=None, extensions=None, signer=None,
-                                     debug_mode=False):
+                                     active_account_auths=None, options_delegating_account="1.2.12", delegate_share=0,
+                                     options_extensions=None, extensions=None, signer=None, debug_mode=False):
         if isinstance(active_key_auths, str):
             active_key_auths = [[active_key_auths, 1]]
         if active_account_auths is None:
             active_account_auths = []
-        if options_votes is None:
-            options_votes = []
         if options_extensions is None:
             options_extensions = []
         if extensions is None:
@@ -78,9 +74,8 @@ class EchoOperations(object):
             {"weight_threshold": active_weight_threshold, "account_auths": active_account_auths,
              "key_auths": active_key_auths})
         account_create_props["options"].update(
-            {"voting_account": options_voting_account, "delegating_account": options_delegating_account,
-             "delegate_share": delegate_share, "num_committee": options_num_committee,
-             "votes": options_votes, "extensions": options_extensions})
+            {"delegating_account": options_delegating_account, "delegate_share": delegate_share,
+             "extensions": options_extensions})
         if debug_mode:
             lcc.log_debug("Create account operation: \n{}".format(json.dumps(account_create_props, indent=4)))
         if signer is None:
@@ -88,9 +83,8 @@ class EchoOperations(object):
         return [operation_id, account_create_props, signer]
 
     def get_account_update_operation(self, echo, account, weight_threshold=None, account_auths=None, key_auths=None,
-                                     echorand_key=None, delegate_share=0, voting_account=None, delegating_account=None,
-                                     num_committee=None, votes=None, fee_amount=0, fee_asset_id="1.3.0",
-                                     extensions=None, signer=None, debug_mode=False):
+                                     echorand_key=None, delegate_share=0, delegating_account=None, fee_amount=0,
+                                     fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.ACCOUNT_UPDATE
@@ -106,10 +100,9 @@ class EchoOperations(object):
             account_update_props.update({"echorand_key": echorand_key})
         else:
             del account_update_props["echorand_key"]
-        if voting_account is not None:
+        if delegating_account is not None:
             account_update_props["new_options"].update(
-                {"voting_account": voting_account, "delegating_account": delegating_account,
-                 "delegate_share": delegate_share, "num_committee": num_committee, "votes": votes})
+                {"delegating_account": delegating_account, "delegate_share": delegate_share})
         else:
             del account_update_props["new_options"]
         if debug_mode:
@@ -186,13 +179,14 @@ class EchoOperations(object):
         return [operation_id, proposal_create_props, signer]
 
     def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, btc_public_key,
-                                              fee_amount=0, fee_asset_id="1.3.0", url="", extensions=None,
-                                              signer=None, debug_mode=False):
+                                              deposit_amount, fee_amount=0, fee_asset_id="1.3.0", url="",
+                                              deposit_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_CREATE
         committee_member_create_props = self.get_operation_json("committee_member_create_operation")
         committee_member_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_create_props["deposit"].update({"amount": deposit_amount, "asset_id": deposit_asset_id})
         committee_member_create_props.update(
             {"committee_member_account": committee_member_account, "url": url, "eth_address": eth_address,
              "btc_public_key": btc_public_key, "extensions": extensions})
@@ -348,7 +342,7 @@ class EchoOperations(object):
             return [operation_id, contract_call_props, registrar]
         return [operation_id, contract_call_props, signer]
 
-    def get_account_address_create_operation(self, echo, owner, label, fee_amount=0, fee_asset_id="1.3.0",
+    def get_account_address_create_operation(self, echo, owner, label, fee_amount=1, fee_asset_id="1.3.0",
                                              extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
@@ -513,7 +507,6 @@ class EchoOperations(object):
         if len(list_operations) > 1:
             list_operations = [item for sublist in list_operations for item in sublist]
         for operation in list_operations:
-            lcc.log_debug(str(operation))
             tx.add_operation(name=operation[0], props=operation[1])
         if return_operations:
             return tx.operations

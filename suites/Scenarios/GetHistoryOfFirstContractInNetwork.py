@@ -10,9 +10,6 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-# todo: "get_contract_history" works only for last 29 contracts
-@lcc.tags("Bug ECHO-1408")
-@lcc.disabled()
 @lcc.tags("scenarios", "get_first_contract_history")
 @lcc.suite("Check scenario 'Get history of the first contract in the network'")
 class GetHistoryOfFirstContractInNetwork(BaseTest):
@@ -55,7 +52,7 @@ class GetHistoryOfFirstContractInNetwork(BaseTest):
         response_id = self.send_request(self.get_request("get_objects", [[self.contract_id]]),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
-        if response["result"] == [None]:
+        if "result" in response:
             lcc.set_step("Perform create contract operation".format(self.contract_id))
             self.contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
                                                           self.__database_api_identifier)

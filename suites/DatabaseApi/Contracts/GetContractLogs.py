@@ -3,7 +3,7 @@ import random
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, equal_to, is_str, check_that, has_entry, has_length, require_that, \
-    is_true
+    is_true, is_integer
 
 from common.base_test import BaseTest
 
@@ -63,7 +63,7 @@ class GetContractLogs(BaseTest):
         lcc.log_info("Method 'getPennie' performed successfully, block_num: '{}'".format(block_num))
 
         lcc.set_step("Get contract logs from '{}' block to max_limit '{}'".format(_from, max_limit))
-        params = [contract_id, _from, max_limit]
+        params = [contract_id, [], _from, max_limit]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         response = self.get_response(response_id)
         logs = response["result"]
@@ -72,8 +72,7 @@ class GetContractLogs(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(logs), is_true(), quiet=True)
         for log in logs:
-            lcc.log_debug(str(log))
-            if check_that("contract_log", log[1], has_length(3)):
+            if check_that("contract_log", log[1], has_length(6)):
                 contract_id_that_called = self.get_contract_id(log[1]["address"], address_format=True,
                                                                new_contract=False)
                 require_that("contract_id", contract_id_that_called, equal_to(contract_id), quiet=True)
@@ -84,7 +83,12 @@ class GetContractLogs(BaseTest):
                     else:
                         lcc.log_info("'log_value' has correct format: hex")
                 check_that_in(
-                    log[1], "data", is_str(), quiet=True
+                    log[1],
+                    "data", is_str(),
+                    "block_num", is_integer(),
+                    "trx_num", is_integer(),
+                    "op_num", is_integer(),
+                    quiet=True
                 )
 
 
@@ -117,9 +121,9 @@ class PositiveTesting(BaseTest):
         lcc.log_info("head block number: {}".format(head_block_number))
         return head_block_number
 
-    def get_contract_logs(self, contract_id=None, _from=None, limit=100, params=None):
+    def get_contract_logs(self, contract_id=None, _list=[], _from=None, limit=100, params=None):
         if params is None:
-            params = [contract_id, _from, limit]
+            params = [contract_id, _list, _from, limit]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         return self.get_response(response_id)["result"]
 
@@ -162,18 +166,21 @@ class PositiveTesting(BaseTest):
             lcc.log_info("Method #'{}' 'getPennie' performed successfully, block_num: '{}'".format(i, block_num))
 
         lcc.set_step("Get contract logs after two identical contract calls")
-        params = [contract_id, _from, max_limit]
+        params = [contract_id, [], _from, max_limit]
         get_contract_logs_results = self.get_contract_logs(params=params)
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
 
         lcc.set_step("Check contract logs two identical contract calls")
         require_that("'log has value'", bool(get_contract_logs_results), is_true(), quiet=True)
         for i in range(len(get_contract_logs_results))[:-1]:
-            check_that(
-                "'contract logs two identical contract calls are the same'",
-                get_contract_logs_results[i] == get_contract_logs_results[i + 1],
-                is_true()
-            )
+            check_that("'contract logs two identical contract calls are the same'",
+                       get_contract_logs_results[i][1]["address"] == get_contract_logs_results[i + 1][1]["address"],
+                       is_true())
+            check_that("'contract logs two identical contract calls are the same'",
+                       get_contract_logs_results[i][1]["log"] == get_contract_logs_results[i + 1][1]["log"], is_true())
+            check_that("'contract logs two identical contract calls are the same'",
+                       get_contract_logs_results[i][1]["data"] == get_contract_logs_results[i + 1][1]["data"],
+                       is_true())
 
     @lcc.test("Check contract logs contract call that make two different logs")
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
@@ -201,7 +208,7 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Method 'set_all_values' performed successfully, block_num: '{}'".format(block_num))
 
         lcc.set_step("Get contract logs after two different contract calls")
-        params = [contract_id, _from, max_limit]
+        params = [contract_id, [], _from, max_limit]
         get_contract_logs_results = self.get_contract_logs(params=params)
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
 
@@ -219,7 +226,7 @@ class PositiveTesting(BaseTest):
     def check_contract_logs_from_random_valid_params(self, get_random_integer):
         value_amount = get_random_integer
         max_limit = 100
-        contract_log_keys = ["address", "log", "data"]
+        contract_log_keys = ["address", "log", "data", "block_num", "trx_num", "op_num"]
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
@@ -244,7 +251,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(contract_logs), is_true(), quiet=True)
         for log in contract_logs:
-            if check_that("contract_logs", log[1], has_length(3)):
+            if check_that("contract_logs", log[1], has_length(6)):
                 for key in contract_log_keys:
                     require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
@@ -253,7 +260,7 @@ class PositiveTesting(BaseTest):
     def check_contract_logs_from_current_block(self, get_random_integer):
         value_amount = get_random_integer
         max_limit = 100
-        contract_log_keys = ["address", "log", "data"]
+        contract_log_keys = ["address", "log", "data", "block_num", "trx_num", "op_num"]
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
@@ -277,7 +284,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(contract_logs), is_true(), quiet=True)
         for log in contract_logs:
-            if check_that("contract_logs", log[1], has_length(3)):
+            if check_that("contract_logs", log[1], has_length(6)):
                 for key in contract_log_keys:
                     require_that("contract_logs", log[1], has_entry(key), quiet=True)
 

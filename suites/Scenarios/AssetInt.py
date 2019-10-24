@@ -8,7 +8,6 @@ SUITE = {
     "description": "Pass asset parameter to solidity, asset integer type"
 }
 
-
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "asset_int")
 @lcc.suite("Check scenario 'Parameter asset is integer type'")

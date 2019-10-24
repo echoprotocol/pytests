@@ -37,7 +37,7 @@ class GetFullAccounts(BaseTest):
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_full_accounts", [params, False]),
                                         self.__database_api_identifier)
-        results = self.get_response(response_id)["result"]
+        results = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call method 'get_full_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
@@ -50,7 +50,7 @@ class GetFullAccounts(BaseTest):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
             check_that("account_id", result[0], equal_to(params[i]))
             full_account_info = result[1]
-            if check_that("full_account_info", full_account_info, has_length(8)):
+            if check_that("full_account_info", full_account_info, has_length(7)):
                 account_info = full_account_info.get("account")
                 self.object_validator.validate_account_object(self, account_info)
 
@@ -85,10 +85,6 @@ class GetFullAccounts(BaseTest):
                         "Wrong format of 'registrar_name', got: {}".format(full_account_info["registrar_name"]))
                 else:
                     lcc.log_info("'registrar_name' has correct format: account_name")
-                lcc.set_step("Check 'votes' field")
-                check_that_in(
-                    full_account_info, "votes", is_list(), quiet=True
-                )
                 lcc.set_step("Check 'balances' field")
                 check_that_in(
                     full_account_info, "balances", is_list(), quiet=True

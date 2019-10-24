@@ -19,12 +19,6 @@ class GetAccounts(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
 
-    def check_fields_account_ids_format(self, response, field):
-        if not self.type_validator.is_account_id(response[field]):
-            lcc.log_error("Wrong format of '{}', got: {}".format(field, response[field]))
-        else:
-            lcc.log_info("'{}' has correct format: account_object_type".format(field))
-
     def setup_suite(self):
         super().setup_suite()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))

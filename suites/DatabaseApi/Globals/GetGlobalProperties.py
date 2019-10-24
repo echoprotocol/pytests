@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import is_integer, check_that_in, check_that, is_list, is_, has_length, \
-    is_dict, has_entry
+    is_dict, has_entry, is_str
 
 from common.base_test import BaseTest
 
@@ -91,8 +91,28 @@ class GetGlobalProperties(BaseTest):
                     check_kind(fee[1])
                     break
 
+    def show_wrong_fee_operations(self, current_operations_ids, operations_for_checking):
+        all_operations_names = [key for key in self.all_operations.keys()]
+        all_operations_ids = [value for value in self.all_operations.values()]
+        ids, operations, added_operations, wrong_fee_operations = [], [], [], []
+        for current_operation_id in current_operations_ids:
+            if current_operation_id in all_operations_ids:
+                ids.append(current_operation_id)
+        for id in ids:
+            operations.append(all_operations_names[id].lower())
+        for operation in operations:
+            if operation not in operations_for_checking:
+                added_operations.append(operation)
+        if len(added_operations) > 1:
+            lcc.log_info("Added operations: {}".format(added_operations))
+        for operation in operations_for_checking:
+            if operation not in operations:
+                wrong_fee_operations.append(operation)
+        if len(wrong_fee_operations) > 1:
+            lcc.log_info("Wrong fee operations: {}".format(wrong_fee_operations))
+
     def check_sidechain_config(self, sidechain_config, eth_params, eth_methods):
-        if check_that("sidechain_config", sidechain_config, has_length(22)):
+        if check_that("sidechain_config", sidechain_config, has_length(19)):
             for eth_param in eth_params:
                 if not self.type_validator.is_hex(sidechain_config[eth_param]):
                     lcc.log_error(
@@ -123,11 +143,8 @@ class GetGlobalProperties(BaseTest):
                 )
             check_that_in(
                 sidechain_config,
-                "waiting_blocks", is_integer(),
-                "waiting_eth_blocks", is_integer(),
-                "waiting_btc_blocks", is_integer(),
                 "satoshis_per_byte", is_integer(),
-                "echo_blocks_per_aggregation", is_integer(),
+                "coefficient_waiting_blocks", is_integer(),
                 quiet=True)
             self.check_uint64_numbers(sidechain_config, "gas_price", quiet=False)
 
@@ -162,7 +179,6 @@ class GetGlobalProperties(BaseTest):
 
     @lcc.test("Check all fields in global properties")
     def method_main_check(self):
-        all_checking_operations = []
         fee_with_price_per_kbyte_operations = ["account_update", "asset_update", "proposal_create", "proposal_update",
                                                "account_address_create"]
         only_fee_operations = ["transfer", "account_whitelist", "asset_update_bitasset", "balance_freeze",
@@ -170,20 +186,28 @@ class GetGlobalProperties(BaseTest):
                                "asset_publish_feed", "proposal_delete", "committee_member_create",
                                "committee_member_update", "committee_member_update_global_parameters",
                                "vesting_balance_create", "vesting_balance_withdraw", "override_transfer",
-                               "asset_claim_fees", "contract_create", "contract_call", "contract_transfer",
-                               "transfer_to_address", "generate_eth_address_operation", "contract_update",
+                               "asset_claim_fees", "contract_create", "contract_call",
+                               "transfer_to_address", "contract_update",
                                "sidechain_eth_create_address", "sidechain_eth_deposit", "sidechain_eth_withdraw",
                                "sidechain_eth_approve_withdraw", "contract_fund_pool", "contract_whitelist",
-                               "sidechain_eth_issue", " sidechain_eth_burn", "sidechain_erc20_deposit_token",
-                               "sidechain_erc20_withdraw_token", "sidechain_erc20_approve_token_withdraw"]
-        no_fee_operations = ["balance_claim", "balance_unfreeze"]
+                               "sidechain_erc20_deposit_token", "sidechain_erc20_withdraw_token",
+                               "sidechain_erc20_approve_token_withdraw",
+                               'committee_member_activate', 'committee_member_deactivate',
+                               'committee_frozen_balance_deposit', 'committee_frozen_balance_withdraw',
+                               'sidechain_eth_approve_address', 'sidechain_issue', 'sidechain_burn',
+                               'sidechain_erc20_issue', 'sidechain_erc20_burn', 'sidechain_btc_create_address',
+                               'sidechain_btc_create_intermediate_deposit', 'sidechain_btc_intermediate_deposit',
+                               'sidechain_btc_deposit', 'sidechain_btc_withdraw', 'sidechain_btc_approve_withdraw',
+                               'sidechain_btc_aggregate']
+        no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create', 'contract_internal_call',
+                             'contract_selfdestruct', 'block_reward']
         account_create_fee_operations = ["account_create"]
         asset_create_fee_operations = ["asset_create"]
         pool_fee_operations = ["sidechain_erc20_register_token"]
 
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         lcc.log_info("Call method 'get_global_properties'")
 
         lcc.set_step("Check main fields")
@@ -202,7 +226,7 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         parameters = response["result"]["parameters"]
-        if check_that("parameters", parameters, has_length(26)):
+        if check_that("parameters", parameters, has_length(29)):
             check_that_in(
                 parameters,
                 "current_fees", is_dict(),
@@ -227,6 +251,9 @@ class GetGlobalProperties(BaseTest):
                 "block_producer_reward_ratio", is_integer(),
                 "block_emission_amount", is_integer(),
                 "frozen_balances_multipliers", is_list(),
+                "committee_frozen_balance_to_activate", is_str(),
+                "committee_maintenance_intervals_to_deposit", is_integer(),
+                "committee_freeze_duration_seconds", is_integer(),
                 "echorand_config", is_dict(),
                 "sidechain_config", is_dict(),
                 "erc20_config", is_dict(),
@@ -268,34 +295,41 @@ class GetGlobalProperties(BaseTest):
         # check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
         #            has_length(len(self.all_operations)))
 
+        fee_with_price_per_kbyte_operations_ids, only_fee_operations_ids, no_fee_operations_ids, \
+        account_create_fee_operations_ids, asset_create_fee_operations_ids, pool_fee_operations_ids = [], [], [], [], \
+                                                                                                      [], []
+
         lcc.set_step("Save the number of types of current_fees")
         fee_parameters = current_fees["parameters"]
         for fee_parameter in fee_parameters:
             parameter = fee_parameter[1]
-            lcc.log_debug(("parameter:"))
-            lcc.log_debug(str(parameter))
             if len(parameter) == 0:
-                lcc.log_debug(("fee_parameters:".format(fee_parameters)))
-                lcc.log_debug(("parameter:".format(parameter)))
+                no_fee_operations_ids.append(fee_parameter[0])
                 self.no_fee_count += 1
                 continue
             if len(parameter) == 1 and "fee" in parameter:
                 self.only_fee_count += 1
+                only_fee_operations_ids.append(fee_parameter[0])
                 continue
             if len(parameter) == 2 and ("fee" and "price_per_kbyte") in parameter:
+                fee_with_price_per_kbyte_operations_ids.append(fee_parameter[0])
                 self.fee_with_price_per_kbyte_count += 1
                 continue
             if len(parameter) == 2 and ("membership_annual_fee" and "membership_lifetime_fee") in parameter:
+                only_fee_operations_ids.append(fee_parameter[0])
                 self.account_update_fee_count += 1
                 continue
             if len(parameter) == 2 and ("fee" and "pool_fee") in parameter:
+                account_create_fee_operations_ids.append(fee_parameter[0])
                 self.pool_fee_count += 1
                 continue
             if len(parameter) == 3 and ("basic_fee" and "premium_fee" and "price_per_kbyte") in parameter:
+                account_create_fee_operations_ids.append(fee_parameter[0])
                 self.account_create_fee_count += 1
                 continue
             if len(parameter) == 4 and (
                     "symbol3" and "symbol4" and "long_symbol" and "price_per_kbyte") in parameter:
+                asset_create_fee_operations_ids.append(fee_parameter[0])
                 self.asset_create_count += 1
                 continue
             else:
@@ -307,31 +341,36 @@ class GetGlobalProperties(BaseTest):
                    has_length(self.fee_with_price_per_kbyte_count))
         self.check_default_fee_for_operation(fee_parameters, fee_with_price_per_kbyte_operations,
                                              self.fee_with_price_per_kbyte)
+        self.show_wrong_fee_operations(fee_with_price_per_kbyte_operations_ids, fee_with_price_per_kbyte_operations)
 
         lcc.set_step("Check 'only_fee' for operations")
-        # todo: uncomment. BUG: node's wrong parsing genesis.json
         check_that("'only_fee' operation count", only_fee_operations, has_length(self.only_fee_count))
         self.check_default_fee_for_operation(fee_parameters, only_fee_operations, self.only_fee)
+        self.show_wrong_fee_operations(only_fee_operations_ids, only_fee_operations)
 
         lcc.set_step("Check 'no_fee' for operations")
-        # todo: uncomment. BUG: node's wrong parsing genesis.json
         check_that("'no_fee' operation count", no_fee_operations, has_length(self.no_fee_count))
         self.check_default_fee_for_operation(fee_parameters, no_fee_operations, self.no_fee)
+        self.show_wrong_fee_operations(no_fee_operations_ids, no_fee_operations)
 
         lcc.set_step("Check 'account_create_fee' for operations")
         check_that("'account_create_fee' operation count", account_create_fee_operations,
                    has_length(self.account_create_fee_count))
-        self.check_default_fee_for_operation(fee_parameters, account_create_fee_operations, self.account_create_fee)
+        self.check_default_fee_for_operation(fee_parameters, account_create_fee_operations,
+                                             self.account_create_fee)
+        self.show_wrong_fee_operations(account_create_fee_operations_ids, account_create_fee_operations)
 
         lcc.set_step("Check 'asset_create_fee' for operations")
         check_that("'asset_create_fee' operation count", asset_create_fee_operations,
                    has_length(self.asset_create_count))
         self.check_default_fee_for_operation(fee_parameters, asset_create_fee_operations, self.asset_create_fee)
+        self.show_wrong_fee_operations(asset_create_fee_operations_ids, asset_create_fee_operations)
 
         lcc.set_step("Check 'pool_fee' for operations")
         check_that("'pool_fee' operation count", pool_fee_operations,
                    has_length(self.pool_fee_count))
-        self.check_default_fee_for_operation(fee_parameters, pool_fee_operations, self.pool_fee)
+        if not self.check_default_fee_for_operation(fee_parameters, pool_fee_operations, self.pool_fee):
+            self.show_wrong_fee_operations(pool_fee_operations_ids, pool_fee_operations)
 
         lcc.set_step("Check global parameters: 'echorand_config' field")
         echorand_config = parameters["echorand_config"]

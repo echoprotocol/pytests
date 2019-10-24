@@ -31,7 +31,7 @@ class LookupAccountNames(BaseTest):
         params = [self.accounts[0], self.accounts[1], self.accounts[2]]
         response_id = self.send_request(self.get_request("lookup_account_names", [params]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         lcc.log_info("Call method 'lookup_account_names' with param: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
