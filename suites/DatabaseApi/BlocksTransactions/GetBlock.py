@@ -26,6 +26,10 @@ class GetBlock(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
     @lcc.test("Simple work of method 'get_block'")
     def method_main_check(self):
         lcc.set_step("Get the full first block in the chain")
