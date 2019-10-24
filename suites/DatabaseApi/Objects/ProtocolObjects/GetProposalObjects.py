@@ -1,69 +1,23 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_list, is_true, check_that, equal_to
+from lemoncheesecake.matching import require_that, equal_to, is_true, is_list, check_that
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_proposed_transactions'"
+    "description": "Method 'get_objects' (proposal object)"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_proposed_transactions", "get_proposed_transactions")
-@lcc.suite("Check work of method 'get_proposed_transactions'", rank=1)
-class GetProposedTransactions(BaseTest):
+@lcc.tags("api", "database_api", "database_api_objects", "get_objects", 'aaa')
+@lcc.suite("Check work of method 'get_objects' (proposal object)", rank=1)
+class GetProposalObjects(BaseTest):
 
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
-        self.__registration_api_identifier = None
-        self.echo_acc0 = None
-
-    def setup_suite(self):
-        super().setup_suite()
-        self._connect_to_echopy_lib()
-        lcc.set_step("Setup for {}".format(self.__class__.__name__))
-        self.__database_api_identifier = self.get_identifier("database")
-        self.__registration_api_identifier = self.get_identifier("registration")
-        lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        lcc.log_info("Echo accounts are: #1='{}'".format(self.echo_acc0))
-
-    def teardown_suite(self):
-        self._disconnect_to_echopy_lib()
-        super().teardown_suite()
-
-    @lcc.test("Simple work of method 'get_proposed_transactions'")
-    def method_main_check(self):
-        lcc.set_step("Get proposed transactions for '{}' account".format(self.echo_acc0))
-        response_id = self.send_request(self.get_request("get_proposed_transactions", [self.echo_acc0]),
-                                        self.__database_api_identifier)
-        response = self.get_response(response_id)
-        lcc.log_info("Call 'get_proposed_transactions' with id='{}' parameter".format(self.echo_acc0))
-
-        lcc.set_step("Check 'get_proposed_transactions' method result")
-        require_that(
-            "proposed transactions",
-            response["result"], is_list([])
-        )
-
-
-@lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_proposed_transactions", "get_proposed_transactions")
-@lcc.suite("Positive testing of method 'get_proposed_transactions'", rank=2)
-class PositiveTesting(BaseTest):
-
-    def __init__(self):
-        super().__init__()
-        self.__database_api_identifier = None
-        self.__registration_api_identifier = None
-        self.echo_acc0 = None
-        self.echo_acc1 = None
 
     def get_expiration_time(self, seconds):
         pattern = "%Y-%m-%dT%H:%M:%S"
@@ -85,13 +39,8 @@ class PositiveTesting(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
-    def teardown_suite(self):
-        self._disconnect_to_echopy_lib()
-        super().teardown_suite()
-
-    @lcc.test("Propose transaction using proposal_create operation and get info about it")
-    @lcc.depends_on("DatabaseApi.ProposedTransactions.GetProposedTransactions.GetProposedTransactions.method_main_check")
-    def get_info_about_proposed_transaction(self):
+    @lcc.test("Simple work of method 'get_objects' (proposal object)")
+    def method_main_check(self):
         lcc.set_step("Collect 'get_proposed_transactions' operation")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
                                                                   from_account_id=self.echo_acc1,
@@ -120,11 +69,12 @@ class PositiveTesting(BaseTest):
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
         broadcasted_proposed_operation = broadcast_result["trx"]["operations"][0][1]["proposed_ops"][0]["op"]
 
-        lcc.set_step("Get proposed transactions for '{}' account".format(self.echo_acc1))
-        response_id = self.send_request(self.get_request("get_proposed_transactions", [self.echo_acc1]),
+        lcc.set_step("Get proposal object")
+        params = [proposal_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        proposal_objects = self.get_response(response_id)["result"]
-        lcc.log_info("Call 'get_proposed_transactions' with id='{}' parameter".format(self.echo_acc1))
+        proposal_objects = self.get_response(response_id, log_response=True)["result"]
+        lcc.log_info("Call 'get_objects' with params='{}'".format(params))
 
         lcc.set_step("Check 'get_proposed_transactions' method result")
         for proposal_object in proposal_objects:
@@ -148,5 +98,22 @@ class PositiveTesting(BaseTest):
             "'required active approval'",
             proposal_object["required_active_approvals"],
             is_list([self.echo_acc1]),
+            quiet=True
+        )
+
+        lcc.set_step("Get proposed transactions for '{}' account".format(self.echo_acc1))
+        response_id = self.send_request(self.get_request("get_proposed_transactions", [self.echo_acc1]),
+                                        self.__database_api_identifier)
+        proposal_objects = self.get_response(response_id)["result"]
+        lcc.log_info("Call 'get_proposed_transactions' with id='{}' parameter".format(self.echo_acc1))
+
+        for get_proposed_transactions_result in proposal_objects:
+            if get_proposed_transactions_result["id"] == proposal_id:
+                break
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_proposed_transactions', 'get_objects'")
+        require_that(
+            'proposal object',
+            proposal_object, equal_to(get_proposed_transactions_result),
             quiet=True
         )

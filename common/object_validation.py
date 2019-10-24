@@ -171,3 +171,39 @@ class ObjectValidator(object):
             "extensions", is_list(),
             quiet=True
         )
+
+    @staticmethod
+    def validate_proposal_object(base_test, proposal_object):
+        require_that("'proposal object'", proposal_object, has_length(7), quiet=True)
+        if not base_test.type_validator.is_proposal_id(proposal_object["id"]):
+            lcc.log_error("Wrong format of 'id', got: {}".format(proposal_object["id"]))
+        else:
+            lcc.log_info("'id' has correct format: proposal_object_type")
+        if not base_test.type_validator.is_iso8601(proposal_object["expiration_time"]):
+            lcc.log_error("Wrong format of 'expiration_time', got: {}".format(proposal_object["expiration_time"]))
+        else:
+            lcc.log_info("'expiration_time' has correct format: iso8601")
+        proposed_transaction = proposal_object["proposed_transaction"]
+        check_that("'proposed transaction'", proposed_transaction, has_length(5), quiet=True)
+        if not base_test.type_validator.is_iso8601(proposed_transaction["expiration"]):
+            lcc.log_error("Wrong format of 'expiration', got: {}".format(proposed_transaction["expiration"]))
+        else:
+            lcc.log_info("'expiration' has correct format: iso8601")
+
+        check_that_in(
+            proposed_transaction,
+            "ref_block_num", is_integer(0),
+            "ref_block_prefix", is_integer(0),
+            "operations", is_list(),
+            "extensions", is_list(),
+            quiet=True
+        )
+
+        check_that_in(
+            proposal_object,
+            "required_active_approvals", is_list(),
+            "available_active_approvals", is_list(),
+            "available_key_approvals", is_list(),
+            "extensions", is_list(),
+            quiet=True
+        )
