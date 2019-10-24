@@ -92,6 +92,7 @@ services:
       - ./genesis.json:/echo/genesis.json
     depends_on:
       - ganache
+    restart: always
 
 
 volumes:
