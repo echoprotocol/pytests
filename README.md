@@ -1,30 +1,53 @@
 # Automated Tests for Echo 
-The project is intended for testing Echo. Includes testing:
-* [Api](https://echo-dev.io/developers/apis/)
-* [Operations](https://echo-dev.io/developers/operations/)
+The project is intended for testing Echo project. Includes testing:
+* [**Echo Node API**](https://docs.echo.org/api-reference/echo-node-api)
+* [**Echo Operations**](https://docs.echo.org/api-reference/echo-operations)
 * Testing according to specified scenarios
 
 ## Installation
-
-### Manual installation:
-
+### Windows
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
     $ virtualenv venv
     $ .\venv\Scripts\activate
     $ pip install -r requirements.txt
 
-## Usage
+### Linux
+    $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
+    $ cd pytests
+    $ virtualenv venv
+    $ source .\venv\bin\activate
+    $ pip install -r requirements.txt
+    
+### Mac OS
+*please see Linux installation*
 
+## Usage
 ### Note:
-Before running the tests, you can specify a environment variables, examples: *BASE_URL*, *NATHAN_PK*. 
-For this you need, example:
+##### Before running the tests, you should specify a environment variables: 
+- *BASE_URL* - URL on which tests will be connected to the Echo node
+- *ETHEREUM_URL* - URL on which tests will be connected to the Ethereum node
+- *NATHAN_PK* - private key of "nathan" account
+- *INIT0_PK* - private key of "init0" initial account
+
+##### Optional:
+- *ROPSTEN* - flag to run tests in the ropsten network (bool type)
+- *DEBUG* - run tests with debug mode that log all in\out communication messages with Echo node (bool type)
+
+##### for this you need, example:
 * Linux OS: export BASE_URL=_[needed_url]()_
 * Windows OS: set BASE_URL=_[needed_url]()_
 
-After that you can use following commands:
+### You can docker to run tests on the Echo and Ethereum nodes locally:
+    $ cd pytests
+    $ docker-compose pull
+    $ docker-compose up build --no-cache
+    $ docker-compose up migrate
+    $ docker-compose up pytests
+
+### To run tests you can use following commands in console:
     
-Filter                       | lcc commands
+Filter                           | lcc commands
 ---------------------------------|----------------------
 Run all tests                    | `$ lcc run`
 Run tests with special tag       | `$ lcc run -a tag_name`
@@ -40,15 +63,69 @@ Run tests from special report    | `$ lcc run --from-report path_to_report`
 
 _note:_ can combine run options, for example - `$ lcc run --failed --from-report reports/report-2`
 
-Using `test_runner.py` script to run tests, you can specify a environment variable *PYTESTS_FILTERS* for filtering run command.
-
-Example: export PYTESTS_FILTERS=main:database_api
-
-For more information about filters see `test_runner.py` script.
+## Project tree:
+```
+├── common
+│   ├── base_test.py
+│   ├── echo_operation.py
+│   ├── ethereum_transaction.py
+│   ├── receiver.py
+│   ├── utils.py
+│   └── validation.py
+├── fixtures
+│   └── base_fixtures.py
+├── pre_run_scripts
+│   └── pre_deploy.py
+├── resources
+│   ├── echo_contracts.json
+│   ├── echo_operations.json
+│   ├── ethereum_contracts.json
+│   ├── ethereum_transactions.json
+│   ├── private_keys.json (optional)
+│   ├── urls.json
+│   └── wallets.json (optional)
+├── suites
+│   ├── AssetApi
+│   │   ├── GetAllAssetHolders.py
+│   │   ├── GetAssetHolders.py
+│   │   └── ...
+│   ├── DatabaseApi
+│   │   ├── CallContractNoChangingState.py
+│   │   ├── CheckERC20Token.py
+│   │   └── ...
+│   ├── HistoryApi
+│   │   ├── GetAccountHistory.py
+│   │   ├── GetAccountHistoryOperations.py
+│   │   └── ...
+│   ├── Scenarios
+│   │   ├── AssetInt.py
+│   │   ├── BalanceObjectsInSubscribe.py
+│   │   └── ...
+│   ├── SideChain
+│   │   ├── ERC20.py
+│   │   └── Ethereum.py
+│   ├── AssetApi.py
+│   ├── DatabaseApi.py
+│   ├── HistoryApi.py
+│   ├── LoginApi.py
+│   ├── NetworkBroadcastApi.py
+│   ├── RegistrationApi.py
+│   ├── Scenarios.py
+│   └── SideChain.py
+├── .env
+├── .flake8
+├── .gitignore
+├── .gitlab-ci.yml
+├── docker-compose.yml
+├── Dockerfile
+├── genesis.json
+├── project.py
+├── README.md
+├── requirements.txt
+└── test_runner.py
+```
 
 ## To Do Lists
-
-### Apis:
 
 #### [Login API](https://echo-dev.io/developers/apis/login-api/#login-api)
 
@@ -66,120 +143,118 @@ Objects:
 - [ ] [get_objects](https://echo-dev.io/developers/apis/database-api/#get_objectsarray-ids)  
 
 Subscriptions:
-- [x] [set_subscribe_callback](https://echo-dev.io/developers/apis/database-api/#set_subscribe_callbackcallback-notify_remove_create)
-- [x] [set_pending_transaction_callback](https://echo-dev.io/developers/apis/database-api/#set_pending_transaction_callbackcallback)
-- [x] [set_block_applied_callback ](https://echo-dev.io/developers/apis/database-api/#set_block_applied_callbackcallback)
-- [x] [cancel_all_subscriptions](https://echo-dev.io/developers/apis/database-api/#cancel_all_subscriptions)
+- [x] [set_subscribe_callback](https://docs.echo.org/api-reference/echo-node-api/database-api#subscribe_contracts-contracts_ids)
+- [x] [set_pending_transaction_callback](https://docs.echo.org/api-reference/echo-node-api/database-api#set_pending_transaction_callback-callback)
+- [x] [set_block_applied_callback ](https://docs.echo.org/api-reference/echo-node-api/database-api#set_block_applied_callback-callback)
+- [x] [cancel_all_subscriptions](https://docs.echo.org/api-reference/echo-node-api/database-api#set_block_applied_callback-callback)
 
 Blocks and transactions:
-- [x] [get_block_header](https://echo-dev.io/developers/apis/database-api/#get_block_headerblock_num)
-- [x] [get_block_header_batch](https://echo-dev.io/developers/apis/database-api/#get_block_header_batchblock_num)
-- [x] [get_block](https://echo-dev.io/developers/apis/database-api/#get_blockblock_num)
-- [x] [get_block_tx_number](https://echo-dev.io/developers/apis/database-api/#get_block_tx_number)
-- [x] [get_block_virtual_ops](https://echo-dev.io/developers/apis/database-api/#get_block_virtual_ops)
-- [x] [get_transaction](https://echo-dev.io/developers/apis/database-api/#get_transactionblock_num-trx_in_block)
-- [x] [get_recent_transaction_by_id](https://echo-dev.io/developers/apis/database-api/#get_recent_transaction_by_idid)
+- [x] [get_block_header](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_header-block_num)
+- [x] [get_block_header_batch](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_header_batch-block_nums)
+- [x] [get_block](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block-block_num)
+- [x] [get_block_tx_number](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_tx_number-id)
+- [x] [get_block_virtual_ops](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_virtual_ops-block_num)
+- [x] [get_transaction](https://docs.echo.org/api-reference/echo-node-api/database-api#get_transaction-block_num-trx_in_block)
+- [x] [get_recent_transaction_by_id](https://docs.echo.org/api-reference/echo-node-api/database-api#get_recent_transaction_by_id-id)
 
 Globals:
-- [x] [get_chain_properties](https://echo-dev.io/developers/apis/database-api/#get_chain_properties)
-- [x] [get_global_properties](https://echo-dev.io/developers/apis/database-api/#get_global_properties)
-- [x] [get_config](https://echo-dev.io/developers/apis/database-api/#get_config)
-- [x] [get_chain_id](https://echo-dev.io/developers/apis/database-api/#get_chain_id)
-- [x] [get_dynamic_global_properties](https://echo-dev.io/developers/apis/database-api/#get_dynamic_global_properties)
-
+- [x] [get_chain_properties](https://docs.echo.org/api-reference/echo-node-api/database-api#get_chain_properties)
+- [x] [get_global_properties](https://docs.echo.org/api-reference/echo-node-api/database-api#get_global_properties)
+- [x] [get_config](https://docs.echo.org/api-reference/echo-node-api/database-api#get_config)
+- [x] [get_chain_id](https://docs.echo.org/api-reference/echo-node-api/database-api#get_chain_id)
+- [x] [get_dynamic_global_properties](https://docs.echo.org/api-reference/echo-node-api/database-api#get_dynamic_global_properties)
 
 Keys:
-- [x] [get_key_references](https://echo-dev.io/developers/apis/database-api/#get_key_referenceskeys)
-- [x] [is_public_key_registered](https://echo-dev.io/developers/apis/database-api/#is_public_key_registered)
+- [x] [get_key_references](https://docs.echo.org/api-reference/echo-node-api/database-api#get_key_references-keys)
+- [x] [is_public_key_registered](https://docs.echo.org/api-reference/echo-node-api/database-api#is_public_key_registered-public_key)
 
 Accounts:
-- [x] [get_accounts](https://echo-dev.io/developers/apis/database-api/#get_accountsaccount_ids)
-- [x] [get_full_accounts](https://echo-dev.io/developers/apis/database-api/#get_full_accountsnames_or_ids-subscribe)
-- [x] [get_account_by_name](https://echo-dev.io/developers/apis/database-api/#get_account_by_namename)
-- [x] [get_account_references](https://echo-dev.io/developers/apis/database-api/#get_account_referencesaccount_id)
-- [x] [lookup_account_names](https://echo-dev.io/developers/apis/database-api/#lookup_account_namesaccount_names)
-- [x] [lookup_accounts](https://echo-dev.io/developers/apis/database-api/#lookup_accountslower_bound_name-limit)
-- [x] [get_account_addresses](https://echo-dev.io/developers/apis/database-api/#get_account_addresses)
-- [x] [get_account_by_address](https://echo-dev.io/developers/apis/database-api/#get_account_by_address)
-- [x] [get_account_count](https://echo-dev.io/developers/apis/database-api/#get_account_count)
+- [x] [get_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#get_accounts-account_ids)
+- [x] [get_full_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#get_full_accounts-names_or_ids-subscribe)
+- [x] [get_account_by_name](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_by_name-name)
+- [x] [get_account_references](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_references-account_id)
+- [x] [lookup_account_names](https://docs.echo.org/api-reference/echo-node-api/database-api#lookup_account_names-account_names)
+- [x] [lookup_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#lookup_accounts-lower_bound_name-limit)
+- [x] [get_account_addresses](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_addresses-account_id-from-limit)
+- [x] [get_account_by_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_by_address-address)
+- [x] [get_account_count](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_count)
 
 Contracts:
-- [x] [get_contract](https://echo-dev.io/developers/apis/database-api/#get_contractcontract_id)
-- [x] [get_contracts](https://echo-dev.io/developers/apis/database-api/#get_contractscontract_ids)
-- [x] [get_contract_logs](https://echo-dev.io/developers/apis/database-api/#get_contract_logscontract_id-from-to)
-- [x] [subscribe_contracts](https://echo-dev.io/developers/apis/database-api/#subscribe_contracts)
-- [x] [subscribe_contract_logs](https://echo-dev.io/developers/apis/database-api/#subscribe_contract_logscallback-contract_id-from-to)
-- [x] [get_contract_result](https://echo-dev.io/developers/apis/database-api/#get_contract_resultresult_contract_id)
-- [x] [call_contract_no_changing_state](https://echo-dev.io/developers/apis/database-api/#call_contract_no_changing_statecontract_id-registrar_account-asset_type-code)
+- [x] [get_contract](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract-contract_id)
+- [x] [get_contracts](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contracts-contract_ids)
+- [x] [get_contract_logs](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_logs-contract_id-from-to)
+- [x] [subscribe_contracts](https://docs.echo.org/api-reference/echo-node-api/database-api#subscribe_contracts-contracts_ids)
+- [x] [subscribe_contract_logs](https://docs.echo.org/api-reference/echo-node-api/database-api#subscribe_contract_logs-callback-contract_id)
+- [x] [get_contract_result](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_result-id)
+- [x] [call_contract_no_changing_state](https://docs.echo.org/api-reference/echo-node-api/database-api#call_contract_no_changing_state-contract_id-registrar_account-asset_type-code)
 
 Balances:
-- [x] [get_account_balances](https://echo-dev.io/developers/apis/database-api/#get_account_balancesid-assets)
-- [x] [get_contract_balances](https://echo-dev.io/developers/apis/database-api/#get_contract_balances-contract_id)
-- [x] [get_named_account_balances](https://echo-dev.io/developers/apis/database-api/#get_named_account_balancesname-assets)
-- [x] [get_balance_objects](https://echo-dev.io/developers/apis/database-api/#get_balance_objectsaddrs)
-- [x] [get_vested_balances](https://echo-dev.io/developers/apis/database-api/#parameters_16)
-- [x] [get_vesting_balances](https://echo-dev.io/developers/apis/database-api/#get_vesting_balancesaccount_id)
-- [x] [get_frozen_balances](https://echo-dev.io/developers/apis/database-api/#get_frozen_balances)
-- [ ] [get_committee_frozen_balance](https://echo-dev.io/developers/apis/database-api/#get_committee_frozen_balance)
+- [x] [get_account_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_balances-id-assets)
+- [x] [get_contract_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_balances-contract_id)
+- [x] [get_named_account_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_named_account_balances-name-assets)
+- [x] [get_balance_objects](https://docs.echo.org/api-reference/echo-node-api/database-api#get_balance_objects-keys)
+- [x] [get_vested_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_vested_balances-objs)
+- [x] [get_vesting_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_vesting_balances-account_id)
+- [x] [get_frozen_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_frozen_balances-account_id)
+- [ ] [get_committee_frozen_balance]()
 
 Assets:
-- [x] [get_assets](https://echo-dev.io/developers/apis/database-api/#get_assetsasset_ids)
-- [x] [list_assets](https://echo-dev.io/developers/apis/database-api/#list_assetslower_bound_symbol-limit)
-- [x] [lookup_asset_symbols](https://echo-dev.io/developers/apis/database-api/#lookup_asset_symbolssymbols_or_ids)
+- [x] [get_assets](https://docs.echo.org/v/feature%252Fwhtiepaper/api-reference/echo-node-api/asset-api#get_asset_holders_count-asset_id)
+- [x] [list_assets](https://docs.echo.org/api-reference/echo-node-api/database-api#list_assets-lower_bound_symbol-limit)
+- [x] [lookup_asset_symbols](https://docs.echo.org/api-reference/echo-node-api/database-api#list_assets-lower_bound_symbol-limit)
 
 Committee members:
-- [x] [get_committee_members](https://echo-dev.io/developers/apis/database-api/#get_committee_memberscommittee_member_ids)
-- [x] [get_committee_member_by_account](https://echo-dev.io/developers/apis/database-api/#get_committee_member_by_accountaccount)
-- [x] [lookup_committee_member_accounts](https://echo-dev.io/developers/apis/database-api/#lookup_committee_member_accountslower_bound_name-limit)
-- [x] [get_committee_count](https://echo-dev.io/developers/apis/database-api/#get_committee_count)
+- [x] [get_committee_members](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_members-committee_member_ids)
+- [x] [get_committee_member_by_account](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_member_by_account-account)
+- [x] [lookup_committee_member_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#lookup_committee_member_accounts-lower_bound_name-limit)
+- [x] [get_committee_count](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_count)
 
 Authority / validation:
-- [x] [get_transaction_hex](https://echo-dev.io/developers/apis/database-api/#get_transaction_hextrx)
-- [x] [get_required_signatures](https://echo-dev.io/developers/apis/database-api/#get_required_signaturestrx-available_keys)
-- [x] [get_potential_signatures](https://echo-dev.io/developers/apis/database-api/#get_potential_signaturestrx)
-- [x] [verify_authority](https://echo-dev.io/developers/apis/database-api/#verify_authoritytrx)
-- [x] [verify_account_authority](https://echo-dev.io/developers/apis/database-api/#verify_account_authorityname_or_id-signers)
-- [x] [validate_transaction](https://echo-dev.io/developers/apis/database-api/#validate_transactiontrx)
-- [x] [get_required_fees](https://echo-dev.io/developers/apis/database-api/#get_required_feesops-id)
+- [x] [get_transaction_hex](https://docs.echo.org/api-reference/echo-node-api/database-api#get_transaction_hex-trx)
+- [x] [get_required_signatures](https://docs.echo.org/api-reference/echo-node-api/database-api#get_required_signatures-ctrx-available_keys)
+- [x] [get_potential_signatures](https://docs.echo.org/api-reference/echo-node-api/database-api#get_potential_signatures-ctrx)
+- [x] [verify_authority](https://docs.echo.org/api-reference/echo-node-api/database-api#verify_authority-trx)
+- [x] [verify_account_authority](https://docs.echo.org/api-reference/echo-node-api/database-api#verify_account_authority-name_or_id-signers)
+- [x] [validate_transaction](https://docs.echo.org/api-reference/echo-node-api/database-api#validate_transaction-trx)
+- [x] [get_required_fees](https://docs.echo.org/api-reference/echo-node-api/database-api#get_required_fees-ops-id)
 
 Proposed transactions:
-- [x] [get_proposed_transactions](https://echo-dev.io/developers/apis/database-api/#get_proposed_transactionsid)
+- [x] [get_proposed_transactions](https://docs.echo.org/api-reference/echo-node-api/database-api#get_proposed_transactions-id)
 
 Sidechain:
-- [x] get_eth_address
-- [x] get_account_deposits
-- [x] get_account_withdrawals
+- [x] [get_eth_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_eth_address-account)
+- [x] [get_account_deposits](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_deposits-account)
+- [x] [get_account_withdrawals](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_withdrawals-account)
 
 Sidechain ERC20:
-- [x] get_erc20_token
-- [x] get_erc20_account_deposits
-- [x] get_erc20_account_withdrawals
+- [x] [get_erc20_token](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_token-eth_addr)
+- [x] [get_erc20_account_deposits](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_account_deposits-account)
+- [x] [get_erc20_account_withdrawals](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_account_withdrawals-account)
 - [x] check_erc20_token
 
 Contract Feepool:
-- [x] get_contract_pool_balance
-- [x] get_contract_pool_whitelist
+- [x] [get_contract_pool_balance](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_pool_balance-id)
+- [x] [get_contract_pool_whitelist](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_pool_whitelist-id)
 
 #### [History API](https://echo-dev.io/developers/apis/history-api/#history-api)
 
-- [x] [get_account_history](https://echo-dev.io/developers/apis/history-api/#get_account_historyaccount-stop-limit-100-start)
-- [x] [get_relative_account_history](https://echo-dev.io/developers/apis/history-api/#get_relative_account_historyaccount-stop-0-limit-100-start-0)
-- [x] [get_account_history_operations](https://echo-dev.io/developers/apis/history-api/#get_account_history_operations-account-operation_id-start-stop-limit-100)
-- [x] [get_contract_history](https://echo-dev.io/developers/apis/history-api/#get_contract_history-account-stop-limit-start)
+- [x] [get_account_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_account_history-account-stop-limit-start)
+- [x] [get_account_history_operations](https://docs.echo.org/api-reference/echo-node-api/history-api#get_account_history_operations-account-operation_id-start-stop-limit)
+- [x] [get_relative_account_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_relative_account_history-account-stop-limit-start)
+- [x] [get_contract_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_contract_history-contract-stop-limit-start)
 
 #### [Network broadcast API](https://echo-dev.io/developers/apis/network-broadcast-api/#network-broadcast-api)
-
-- [ ] [broadcast_transaction](https://echo-dev.io/developers/apis/network-broadcast-api/#broadcast_transactionsigned_transaction)
+- [ ] [broadcast_transaction](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction-trx)
 - [ ] [broadcast_block](https://echo-dev.io/developers/apis/network-broadcast-api/#broadcast_block)
-- [ ] [broadcast_transaction_with_callback](https://echo-dev.io/developers/apis/network-broadcast-api/#broadcast_transaction_with_callbackcallback-trx)
-- [ ] [broadcast_transaction_synchronous ](https://echo-dev.io/developers/apis/network-broadcast-api/#broadcast_transaction_synchronous-trx)
+- [ ] [broadcast_transaction_with_callback](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_with_callback-cb-trx)
+- [ ] [broadcast_transaction_synchronous ](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_synchronous-trx)
+- [ ] [broadcast_block](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_block-signed_block)
 
 #### [Registration API](https://echo-dev.io/developers/apis/registration-api/#registration-api)
 
-- [x] [register_account](https://echo-dev.io/developers/apis/registration-api/#register_accountname-owner_key-active_key-memo_key-echorand_key)
-- [ ] [request_registration_task](https://echo-dev.io/developers/apis/registration-api/#request_registration_task)
-- [ ] [register_account](https://echo-dev.io/developers/apis/registration-api/#submit_registration_solution)
-- [ ] [register_account](https://echo-dev.io/developers/apis/registration-api/#get_registrar)
+- [ ] [request_registration_task](https://docs.echo.org/api-reference/echo-node-api/registration-api#request_registration_task)
+- [ ] [submit_registration_solution](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
+- [ ] [get_registrar](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
 
 
 ### Operations:
