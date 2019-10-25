@@ -76,6 +76,9 @@ class BaseTest(object):
         else:
             check_that_in(response, key, is_integer(), quiet=quiet)
 
+    def solve_registration_task(self, block_id, rand_num, difficulty):
+        return self.echo.solve_registration_task(block_id, rand_num, difficulty)
+
     @staticmethod
     def get_time(global_time=False):
         if global_time:
