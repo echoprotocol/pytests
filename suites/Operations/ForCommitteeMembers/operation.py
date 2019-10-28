@@ -1,1 +1,0 @@
-# todo: add operation Committee Members
