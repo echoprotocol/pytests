@@ -11,8 +11,6 @@ SUITE = {
 
 
 # todo: test fails at second time running
-@lcc.tags("Task ECHO-1320")
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_ethereum", "change_active_committee_member")
 @lcc.suite("Check scenario 'Change active committee members'")
