@@ -45,22 +45,23 @@ class GetAccountHistoryOperations(BaseTest):
     @lcc.test("Simple work of method 'get_account_history_operations'")
     def method_main_check(self):
 
+        value_amount = 1
+
         lcc.set_step("Perform balance freeze operation")
         operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
-                                                               value_amount=1, duration=90)
+                                                               value_amount=value_amount, duration=90)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
 
         lcc.set_step("Get account history operations")
-        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)
-        operation_id = self.echo.config.operation_ids.ACCOUNT_CREATE
+        operation_id = self.echo.config.operation_ids.BALANCE_FREEZE
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         stop, start = operation_history_obj, operation_history_obj
         limit = 1
         params = [self.echo_acc0, operation_id, start, stop, limit]
         response_id = self.send_request(self.get_request("get_account_history_operations", params),
                                         self.__history_api_identifier)
-        results = self.get_response(response_id)["result"]
+        results = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info(
             "Call method 'get_account_history_operations' with: account='{}', operation_id='{}', stop='{}', start='{}',"
             " limit='{}' parameters".format(self.echo_acc0, operation_id, stop, start, limit))
@@ -133,7 +134,6 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Check new account history")
-    @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def new_account_history(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         operation_id = 0
@@ -155,7 +155,6 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check operation_id parameter")
-    @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def operation_id_to_retrieve(self, get_random_valid_account_name, get_random_valid_asset_name):
         new_account = get_random_valid_account_name
         new_asset_name = get_random_valid_asset_name
@@ -202,7 +201,6 @@ class PositiveTesting(BaseTest):
     # todo: fixed errors
     @lcc.disabled()
     @lcc.test("Check limit number of operations to retrieve")
-    @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def limit_operations_to_retrieve(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         operation_id = 0
@@ -254,7 +252,6 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check stop and start IDs of the operations in account history")
-    @lcc.depends_on("HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_hundred):
         transfer_amount_1 = get_random_integer
         transfer_amount_2 = get_random_integer_up_to_hundred
