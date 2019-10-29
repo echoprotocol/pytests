@@ -162,7 +162,8 @@ def get_random_not_hex_string():
 @lcc.fixture(scope="test")
 def get_random_valid_account_name():
     random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR))
+        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)) + str(
+        get_random_integer_up_to_ten())
     lcc.log_info("Generated random account_name: {}".format(random_string))
     return random_string
 

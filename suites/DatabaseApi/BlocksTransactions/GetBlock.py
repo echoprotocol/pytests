@@ -78,12 +78,15 @@ class GetBlock(BaseTest):
                 certificate,
                 "_step", is_integer(),
                 "_value", is_integer(),
-                "_leader", is_integer(),
                 "_producer", is_integer(),
                 "_delegate", is_integer(),
                 "_fallback", is_integer(),
                 quiet=False
             )
+        if not self.validator.is_digit(certificate["_leader"]):
+            lcc.log_error("Wrong format of '_leader', got: {}".format(certificate["_leader"]))
+        else:
+            lcc.log_info("'_leader' has correct format: int")
 
 
 @lcc.prop("positive", "type")

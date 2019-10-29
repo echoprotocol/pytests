@@ -441,9 +441,16 @@ class BaseTest(object):
         public_key = self.store_new_account(account_name)
         self.__id += 1
         callback = self.__id
-        account_params = [callback, account_name, public_key, public_key]
-        response_id = self.send_request(self.get_request("register_account", account_params),
-                                        registration_api_identifier, debug_mode=debug_mode)
+
+        response_id = self.send_request(self.get_request("request_registration_task"),
+                                        registration_api_identifier)
+        pow_algorithm_data = self.get_response(response_id)["result"]
+        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
+                                                pow_algorithm_data["rand_num"],
+                                                pow_algorithm_data["difficulty"])
+        account_params = [callback, account_name, public_key, public_key, solution, pow_algorithm_data["rand_num"]]
+        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
+                                        registration_api_identifier)
         response = self.get_response(response_id, debug_mode=debug_mode)
         if response.get("error"):
             lcc.log_error(
@@ -487,7 +494,7 @@ class BaseTest(object):
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
                                         database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
         if response.get("result")[0].get("fee"):
