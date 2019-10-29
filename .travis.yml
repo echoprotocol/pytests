@@ -1,11 +1,7 @@
 language: python
 python:
   - "3.7"
-# if: type = pull_request
-# branches:
-#   only:
-#     - master
-#     - develop
+if: type = push
 cache: pip
 
 env:
