@@ -178,6 +178,44 @@ class EchoOperations(object):
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
+    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
+                                      active_approvals_to_remove, key_approvals_to_add, key_approvals_to_remove,
+                                      owner_approvals_to_remove=None, fee_amount=0, fee_asset_id="1.3.0",
+                                      extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.PROPOSAL_UPDATE
+        proposal_update_props = self.get_operation_json("proposal_update_operation")
+        proposal_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposal_update_props.update({"fee_paying_account": fee_paying_account, "proposal": proposal})
+        proposal_update_props.update({"active_approvals_to_add": active_approvals_to_add,
+                                      "active_approvals_to_remove": active_approvals_to_remove,
+                                      "key_approvals_to_add": key_approvals_to_add,
+                                      "key_approvals_to_remove": key_approvals_to_remove})
+        if owner_approvals_to_remove is None:
+            del proposal_update_props["owner_approvals_to_remove"]
+        else:
+            proposal_update_props.update({"owner_approvals_to_remove": owner_approvals_to_remove})
+        if debug_mode:
+            lcc.log_debug("Proposal update operation: \n{}".format(json.dumps(proposal_update_props, indent=4)))
+        if signer is None:
+            return [operation_id, proposal_update_props, fee_paying_account]
+        return [operation_id, proposal_update_props, signer]
+
+    def get_proposal_delete_operation(self, echo, fee_paying_account, using_owner_authority, proposal,
+                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.PROPOSAL_DELETE
+        proposal_delete_props = self.get_operation_json("proposal_delete_operation")
+        proposal_delete_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposal_delete_props.update({"fee_paying_account": fee_paying_account,
+                                      "using_owner_authority": using_owner_authority, "proposal": proposal})
+        if debug_mode:
+            lcc.log_debug("Proposal delete operation: \n{}".format(json.dumps(proposal_delete_props, indent=4)))
+        if signer is None:
+            return [operation_id, proposal_delete_props, fee_paying_account]
+        return [operation_id, proposal_delete_props, signer]
     def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, btc_public_key,
                                               deposit_amount, fee_amount=0, fee_asset_id="1.3.0", url="",
                                               deposit_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):

@@ -150,6 +150,36 @@
             "extensions": []
         }
     ],
+    "proposal_update_operation":[
+        17,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "fee_paying_account": "1.2.0",
+            "proposal": "1.5.0",
+            "active_approvals_to_add": [],
+            "active_approvals_to_remove": [],
+            "owner_approvals_to_remove": [],
+            "key_approvals_to_add": [],
+            "key_approvals_to_remove": [],
+            "extensions": []
+        }
+    ],
+    "proposal_delete_operation":[
+        18,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "fee_paying_account": "1.2.0",
+            "using_owner_authority": false,
+            "proposal": "1.5.0",
+            "extensions": []
+        }
+    ],
     "committee_member_create_operation": [
         19,
         {
