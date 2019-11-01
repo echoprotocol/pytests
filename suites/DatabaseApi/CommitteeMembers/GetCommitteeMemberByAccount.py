@@ -134,14 +134,14 @@ class PositiveTesting(BaseTest):
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
                                                                                 eth_account_address, btc_public_key,
                                                                                 self.__database_api_identifier,
-                                                                                deposit_amount=0, url=url,
+                                                                                deposit_amount=100000000000, url=url,
                                                                                 log_broadcast=True)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 
         lcc.set_step("Get created committee member")
         response_id = self.send_request(self.get_request("get_committee_member_by_account", [self.new_account_id]),
-                                        self.__database_api_identifier,debug_mode=True)
+                                        self.__database_api_identifier, debug_mode=True)
         committee_member = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call method 'get_committee_member_by_account' with param='{}'".format(self.new_account_id))
 

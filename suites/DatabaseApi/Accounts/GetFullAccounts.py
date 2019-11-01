@@ -37,7 +37,7 @@ class GetFullAccounts(BaseTest):
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_full_accounts", [params, False]),
                                         self.__database_api_identifier)
-        results = self.get_response(response_id, log_response=True)["result"]
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_full_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
@@ -53,12 +53,13 @@ class GetFullAccounts(BaseTest):
             full_account_info = result[1]
             if check_that("full_account_info", full_account_info, has_length(7)):
                 account_info = full_account_info.get("account")
-                if check_that("account_info", account_info, has_length(16)):
+                if check_that("account_info", account_info, has_length(17)):
                     check_that_in(
                         account_info,
                         "id", is_str(params[i]),
                         "network_fee_percentage", is_integer(),
                         "active", is_dict(),
+                        "active_delegate_share", is_integer(),
                         "options", is_dict(),
                         "whitelisting_accounts", is_list(),
                         "blacklisting_accounts", is_list(),

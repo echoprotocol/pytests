@@ -44,7 +44,6 @@ class GetAccountHistoryOperations(BaseTest):
 
     @lcc.test("Simple work of method 'get_account_history_operations'")
     def method_main_check(self):
-
         value_amount = 1
 
         lcc.set_step("Perform balance freeze operation")

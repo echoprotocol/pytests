@@ -18,8 +18,8 @@ class Utils(object):
         self.waiting_time_result = 0
 
     @staticmethod
-    def add_balance_for_operations(base_test, account, operation, database_api_id, operation_count=1, transfer_amount=0,
-                                   only_in_history=False, get_only_fee=False, log_broadcast=False):
+    def add_balance_for_operations(base_test, account, operation, database_api_id, deposit_amount=0, operation_count=1,
+                                   transfer_amount=0, only_in_history=False, get_only_fee=False, log_broadcast=False):
         if only_in_history:
             transfer_amount = operation_count * transfer_amount
         if get_only_fee:
@@ -27,7 +27,7 @@ class Utils(object):
         fee_amount = base_test.get_required_fee(operation, database_api_id)[0]["amount"]
         if type(fee_amount) is str:
             fee_amount = int(fee_amount)
-        amount = operation_count * fee_amount + transfer_amount
+        amount = operation_count * fee_amount + transfer_amount + deposit_amount
         transfer_amount_for_pay_fee_op = base_test.echo_ops.get_transfer_operation(echo=base_test.echo,
                                                                                    from_account_id=base_test.echo_acc0,
                                                                                    to_account_id=account, amount=amount)
@@ -596,9 +596,13 @@ class Utils(object):
         if account_id != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             broadcast_result = self.add_balance_for_operations(base_test, account_id, temp_operation, database_api_id,
-                                                               log_broadcast=log_broadcast)
+                                                               deposit_amount, log_broadcast=log_broadcast)
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
+        params = [account_id, [base_test.echo_asset]]
+        response_id = base_test.send_request(base_test.get_request("get_account_balances", params), database_api_id)
+        updated_response = base_test.get_response(response_id, log_response=True)
+
         collected_operation = base_test.collect_operations(operation, database_api_id)
         broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
                                                         log_broadcast=log_broadcast)

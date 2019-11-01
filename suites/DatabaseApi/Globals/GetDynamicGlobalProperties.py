@@ -31,7 +31,7 @@ class GetDynamicGlobalProperties(BaseTest):
         lcc.set_step("Get dynamic global properties")
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         lcc.log_info("Call method 'get_dynamic_global_properties'")
 
         lcc.set_step("Check main fields")

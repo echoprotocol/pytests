@@ -27,11 +27,12 @@ class LookupAccountNames(BaseTest):
             lcc.log_info("'{}' has correct format: account_object_type".format(field))
 
     def check_account_structure(self, account_info):
-        if check_that("account_info", account_info, has_length(16)):
+        if check_that("account_info", account_info, has_length(17)):
             check_that_in(
                 account_info,
                 "network_fee_percentage", is_integer(),
                 "active", is_dict(),
+                "active_delegate_share", is_integer(),
                 "options", is_dict(),
                 "whitelisting_accounts", is_list(),
                 "blacklisting_accounts", is_list(),

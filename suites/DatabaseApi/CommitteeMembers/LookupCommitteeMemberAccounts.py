@@ -139,7 +139,7 @@ class PositiveTesting(BaseTest):
                                                                                     eth_account_addresses[i],
                                                                                     btc_public_key[i],
                                                                                     self.__database_api_identifier,
-                                                                                    deposit_amount=0)
+                                                                                    deposit_amount=100000000000)
             committee_member_id = self.get_operation_results_ids(broadcast_result)
             committee_member_ids.append(committee_member_id)
             lcc.log_info("Successfully created a new committee member, id: '{}'".format(committee_member_id))
