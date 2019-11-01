@@ -138,7 +138,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
 
-            lcc.set_step("Make voting of new active committee member")
+            lcc.set_step("Make voting for new active committee member")
             operation = self.echo_ops.get_proposal_update_operation(
                 echo=self.echo,
                 fee_paying_account="1.2.6",
@@ -205,7 +205,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
 
-            lcc.set_step("Make voting of deactivating new account")
+            lcc.set_step("Make voting for deactivating new account")
             operation = self.echo_ops.get_proposal_update_operation(
                 echo=self.echo,
                 fee_paying_account="1.2.6",
