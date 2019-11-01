@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, not_equal_to, equal_to
+from lemoncheesecake.matching import require_that, not_equal_to, equal_to, check_that, is_true, is_false
 
 from common.base_test import BaseTest
 from project import ROPSTEN
@@ -12,7 +12,6 @@ SUITE = {
 }
 
 
-# todo: test fails at second time running
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_ethereum", "change_active_committee_member")
 @lcc.suite("Check scenario 'Change active committee members'")
@@ -96,6 +95,14 @@ class ChangeActiveCommitteeMember(BaseTest):
             active_committee_members = self.get_active_committee_members()
             active_committee_members_ids = active_committee_members["ids"]
 
+            lcc.set_step("Get all committee members statuses. Store active committee members")
+            for eth_address in active_committee_members["eth_addresses"][:-1]:
+                committee_member_status = self.eth_trx.get_status_of_committee_member(self, self.web3, eth_address)
+                if not committee_member_status:
+                    raise Exception("Active committee member with '{}' eth_address in the ECHO network "
+                                    "do not compare with members in the Ethereum network".format(eth_address))
+                lcc.log_info("Address '{}' is active: '{}'".format(eth_address, committee_member_status))
+
             lcc.set_step("Register new account in the ECHO network")
             new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
                                                  self.__registration_api_identifier)
@@ -168,10 +175,18 @@ class ChangeActiveCommitteeMember(BaseTest):
                 set(active_committee_members_ids)).pop()
             require_that("'new committee member'", new_member_id, equal_to(committee_member_id))
 
+            lcc.set_step("Check that new committee member became active committee member.")
+            new_member_address = self.get_active_committee_members_eth_addresses(new_member_id, print_log=False)
+            lcc.log_info("'{}' new committee member address: '{}'".format(new_member_id, new_member_address))
+            new_committee_member_status = self.eth_trx.get_status_of_committee_member(self, self.web3,
+                                                                                      new_member_address)
+            check_that("'status of new committee member '{}''".format(new_member_address), new_committee_member_status,
+                       is_true())
+
             lcc.set_step("Collect 'committee_member_deactivate_operation'")
             operation = \
                 self.echo_ops.get_committee_member_deactivate_operation(echo=self.echo,
-                                                                        committee_member_account = new_member_id,
+                                                                        committee_member_account=new_member_id,
                                                                         committee_to_deactivate=committee_member_id,
                                                                         signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE")
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
@@ -187,8 +202,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                 signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                       log_broadcast=True)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
 
             lcc.set_step("Make voting of deactivating new account")
@@ -209,11 +223,11 @@ class ChangeActiveCommitteeMember(BaseTest):
                         "5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw"]
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            lcc.log_debug(str(collected_operation))
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
             import time
             time.sleep(25)
+            lcc.log_info("Voting finished.")
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
             active_committee_members_ids = updated_active_committee_members_ids
@@ -226,4 +240,15 @@ class ChangeActiveCommitteeMember(BaseTest):
             deleted_member_id = set(active_committee_members_ids).difference(
                 set(updated_active_committee_members_ids)).pop()
             require_that("'deleted committee member'", new_member_id, equal_to(deleted_member_id))
+
+            new_committee_member_status = self.eth_trx.get_status_of_committee_member(self, self.web3,
+                                                                                      new_member_address)
+            check_that("'status of new committee member '{}''".format(new_member_address),
+                       new_committee_member_status, is_false())
+
+        else:
+            lcc.log_warning(
+                "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
+
+
 
