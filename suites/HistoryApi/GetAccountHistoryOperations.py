@@ -50,7 +50,7 @@ class GetAccountHistoryOperations(BaseTest):
         operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
                                                                value_amount=value_amount, duration=90)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get account history operations")
         operation_id = self.echo.config.operation_ids.BALANCE_FREEZE
