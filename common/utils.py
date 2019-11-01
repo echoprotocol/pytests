@@ -599,10 +599,6 @@ class Utils(object):
                                                                deposit_amount, log_broadcast=log_broadcast)
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
-        params = [account_id, [base_test.echo_asset]]
-        response_id = base_test.send_request(base_test.get_request("get_account_balances", params), database_api_id)
-        updated_response = base_test.get_response(response_id, log_response=True)
-
         collected_operation = base_test.collect_operations(operation, database_api_id)
         broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
                                                         log_broadcast=log_broadcast)
@@ -634,6 +630,21 @@ class Utils(object):
         if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
             raise Exception("Error: '{}' committee member did not updated, response:\n{}"
                             "".format(committee_member_account, broadcast_result))
+        return broadcast_result
+
+    def perform_committee_member_activate_operation(self, base_test, committee_member, committee_member_account,
+                                                    database_api_id, signer=None, log_broadcast=False):
+        operation = \
+            base_test.echo_ops.get_committee_member_activate_operation(echo=base_test.echo,
+                                                                       committee_member=committee_member,
+                                                                       committee_member_account=committee_member_account,
+                                                                       signer=signer)
+        collected_operation = base_test.collect_operations(operation, database_api_id)
+        broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
+                                                        log_broadcast=log_broadcast)
+        if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
+            raise Exception("Error: '{}' committee member did not activate, response:\n{}"
+                            "".format(committee_member, broadcast_result))
         return broadcast_result
 
     def perform_account_update_operation(self, base_test, account_id, account_info, database_api_id,
