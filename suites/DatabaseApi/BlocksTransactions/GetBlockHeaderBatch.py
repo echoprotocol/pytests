@@ -157,12 +157,15 @@ class PositiveTesting(BaseTest):
                         prev_signature,
                         "_step", is_integer(),
                         "_value", is_integer(),
-                        "_leader", is_integer(),
                         "_producer", is_integer(),
                         "_delegate", is_integer(),
                         "_fallback", is_integer(),
                         quiet=True
                     )
+                    if not self.validator.is_digit(prev_signature["_leader"]):
+                        lcc.log_error("Wrong format of '_leader', got: {}".format(prev_signature["_leader"]))
+                    else:
+                        lcc.log_info("'_leader' has correct format: int")
                     if not self.validator.is_hex(prev_signature["_bba_sign"]):
                         lcc.log_error("Wrong format of '_bba_sign', got: {}".format(prev_signature["_bba_sign"]))
                     else:

@@ -16,7 +16,7 @@ The project is intended for testing Echo project. Includes testing:
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
     $ virtualenv venv
-    $ source .\venv\bin\activate
+    $ source venv/bin/activate
     $ pip install -r requirements.txt
     
 ### Mac OS
@@ -62,6 +62,9 @@ Run only enabled tests           | `$ lcc run --enabled`
 Run tests from special report    | `$ lcc run --from-report path_to_report`
 
 _note:_ can combine run options, for example - `$ lcc run --failed --from-report reports/report-2`
+Using `test_runner.py` script to run tests, you can specify a environment variable *PYTESTS_FILTERS* for filtering run command.
+Example: export PYTESTS_FILTERS=main:database_api
+For more information about filters see `test_runner.py` script.
 
 ## Project tree:
 ```
@@ -252,9 +255,9 @@ Contract Feepool:
 
 #### [Registration API](https://echo-dev.io/developers/apis/registration-api/#registration-api)
 
-- [ ] [request_registration_task](https://docs.echo.org/api-reference/echo-node-api/registration-api#request_registration_task)
-- [ ] [submit_registration_solution](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
-- [ ] [get_registrar](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
+- [x] [request_registration_task](https://docs.echo.org/api-reference/echo-node-api/registration-api#request_registration_task)
+- [x] [submit_registration_solution](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
+- [x] [get_registrar](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
 
 
 ### Operations:

@@ -207,7 +207,7 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         lcc.log_info("Call method 'get_global_properties'")
 
         lcc.set_step("Check main fields")

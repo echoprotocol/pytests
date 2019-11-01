@@ -88,7 +88,7 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Create created account new committee member in the ECHO network")
         self.utils.perform_committee_member_create_operation(self, new_account_id, eth_account_address, btc_public_key,
-                                                             self.__database_api_identifier, deposit_amount=0)
+                                                             self.__database_api_identifier, deposit_amount=100000000000)
         lcc.log_info("Successfully created a new committee member")
 
         lcc.set_step("Get the updated number of committee members in the ECHO network")
