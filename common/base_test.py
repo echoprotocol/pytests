@@ -491,22 +491,24 @@ class BaseTest(object):
                                                    registration_api_identifier))
         return account_ids
 
-    def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
+    def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", proposal=False, debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
-                                        database_api_identifier)
+                                        database_api_identifier, debug_mode=True)
         response = self.get_response(response_id, log_response=True)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
-        if response.get("result")[0].get("fee"):
+        if proposal:
+            return [response.get("result")[0][0]]
+        elif response.get("result")[0].get("fee"):
             return [response.get("result")[0].get("fee")]
         return response.get("result")
 
     def add_fee_to_operation(self, operation, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
-                             debug_mode=False):
+                             proposal=False, debug_mode=False):
         try:
             if fee_amount is None:
-                fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id,
-                                            debug_mode=debug_mode)
+                fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id, proposal=proposal,
+                                            debug_mode=True)
                 operation[1].update({"fee": fee[0]})
                 return fee
             operation[1]["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
@@ -517,13 +519,15 @@ class BaseTest(object):
             lcc.log_error("Add fee: This index does not exist: '{}'".format(index))
 
     def collect_operations(self, list_operations, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
-                           debug_mode=False):
+                           proposal=False, debug_mode=False):
         if debug_mode:
             lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))
         if type(list_operations) is list:
             list_operations = [list_operations.copy()]
         for operation in list_operations:
-            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, debug_mode)
+            lcc.log_info("operation: {}".format(operation))
+            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, proposal,
+                                      debug_mode)
         return list_operations
 
     def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):

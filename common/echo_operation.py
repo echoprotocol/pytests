@@ -16,8 +16,10 @@ class EchoOperations(object):
 
     def get_signer(self, signer):
         """
-        :param signer: name, id or wif key
+        :param signer: list, name, id, or wif key
         """
+        if type(signer) is list:
+            return signer
         if self.validator.is_wif(signer):
             return signer
         wallets = json.load(open(WALLETS))
@@ -216,6 +218,30 @@ class EchoOperations(object):
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
+    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
+                                      active_approvals_to_remove, owner_approvals_to_remove,
+                                      key_approvals_to_add, key_approvals_to_remove,
+                                      fee_amount=0, fee_asset_id="1.3.0",
+                                      extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.PROPOSAL_UPDATE
+        proposal_update_props = self.get_operation_json("proposal_update_operation")
+        proposal_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposal_update_props.update(
+            {"fee_paying_account": fee_paying_account, "proposal": proposal,
+             "active_approvals_to_add": active_approvals_to_add,
+             "active_approvals_to_remove": active_approvals_to_remove,
+             "owner_approvals_to_remove": owner_approvals_to_remove,
+             "key_approvals_to_add": key_approvals_to_add,
+             "key_approvals_to_remove": key_approvals_to_remove,
+             "extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Proposal update operation: \n{}".format(json.dumps(proposal_update_props, indent=4)))
+        if signer is None:
+            return [operation_id, proposal_update_props, fee_paying_account]
+        return [operation_id, proposal_update_props, signer]
+
     def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, btc_public_key,
                                               deposit_amount, fee_amount=0, fee_asset_id="1.3.0", url="",
                                               deposit_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
@@ -283,6 +309,182 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, committee_frozen_balance_deposit_props, committee_member_account]
         return [operation_id, committee_frozen_balance_deposit_props, signer]
+
+    def get_committee_frozen_balance_withdraw_operation(self, echo, committee_member_account, amount=0, asset_id="1.3.0",
+                                                        fee_amount=0, fee_asset_id="1.3.0", extensions=None,
+                                                        signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_FROZEN_BALANCE_WITHDRAW
+        committee_frozen_balance_withdraw_props = deepcopy(
+            self.get_operation_json("committee_frozen_balance_deposit_operation"))
+        committee_frozen_balance_withdraw_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_frozen_balance_withdraw_props.update({"committee_member_account": committee_member_account})
+        committee_frozen_balance_withdraw_props["amount"].update({"amount": amount, "asset_id": asset_id})
+        if debug_mode:
+            lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
+                json.dumps([operation_id, committee_frozen_balance_withdraw_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_frozen_balance_withdraw_props, committee_member_account]
+        return [operation_id, committee_frozen_balance_withdraw_props, signer]
+
+    def get_committee_member_update_global_parameters_operation(
+        self, echo, fee_amount=0, fee_asset_id="1.3.0", maintenance_interval=86400,
+        maintenance_duration_seconds=10, committee_proposal_review_period=1209600, maximum_transaction_size=2097152,
+        maximum_block_size=5242880, maximum_time_until_expiration=86400, maximum_proposal_lifetime=2419200,
+        maximum_asset_whitelist_authorities=10, maximum_asset_feed_publishers=10,
+        maximum_committee_count=1001, maximum_authority_membership=10, reserve_percent_of_fee=2000,
+        network_percent_of_fee=2000, committee_pay_vesting_seconds=86400, max_predicate_opcode=1, accounts_per_fee_scale=1000,
+        account_fee_scale_bitshifts=4, max_authority_depth=2, block_emission_amount=0, block_producer_reward_ratio=5000,
+        committee_frozen_balance_to_activate="100000000000", committee_maintenance_intervals_to_deposit=10,
+        committee_freeze_duration_seconds=2592000, current_fees_parameters=[],
+        current_fees_scale=10000, frozen_balances_multipliers=[[90, 13000], [180, 14000], [3600, 18000]],
+        _time_generate=0, _time_net_1mb=0, _time_net_256b=0, _creator_count=0,
+        _verifier_count=0, _ok_threshold=0, _max_bba_steps=0, _gc1_delay=0,
+        eth_contract_address="0000000000000000000000000000000000000000",
+        eth_committee_updated_topic="0000000000000000000000000000000000000000000000000000000000000000",
+        eth_gen_address_topic="0000000000000000000000000000000000000000000000000000000000000000",
+        eth_deposit_topic="0000000000000000000000000000000000000000000000000000000000000000",
+        eth_withdraw_topic="0000000000000000000000000000000000000000000000000000000000000000",
+        erc20_deposit_topic="0000000000000000000000000000000000000000000000000000000000000000",
+        erc20_withdraw_topic="0000000000000000000000000000000000000000000000000000000000000000",
+        ETH_asset_id="1.3.0", gas_price=0, BTC_asset_id="1.3.0", satoshis_per_byte=1,
+        coefficient_waiting_blocks=0, committee_update_method="", committee_update_gas=0, gen_address_method="",
+        gen_address_gas=0, withdraw_method="", withdraw_gas=0, update_addr_method="",
+        update_addr_gas=0, withdraw_token_method="", withdraw_token_gas=0, collect_tokens_method="",
+        collect_tokens_gas=0, generate_eth_address=0, contract_code="", create_token_fee=0,
+        transfer_topic="0000000000000000000000000000000000000000000000000000000000000000", check_balance_method="",
+        check_balance_gas=0, burn_method="", burn_gas=0, issue_method="", issue_gas=0, price=1,
+        gas_amount=1000, extensions=None, options_extensions=None, debug_mode=False, signer=None
+    ):
+        if extensions is None:
+            extensions = []
+        if options_extensions is None:
+            options_extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_UPDATE_GLOBAL_PARAMETERS
+        committee_member_update_global_parameters_props = self.get_operation_json("committee_member_update_global_parameters_operation")
+        committee_member_update_global_parameters_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_update_global_parameters_props["new_parameters"].update(
+            {"maintenance_interval": maintenance_interval,
+             "maintenance_duration_seconds": maintenance_duration_seconds,
+             "committee_proposal_review_period": committee_proposal_review_period,
+             "maximum_transaction_size": maximum_transaction_size,
+             "maximum_block_size": maximum_block_size,
+             "maximum_time_until_expiration": maximum_time_until_expiration,
+             "maximum_proposal_lifetime": maximum_proposal_lifetime,
+             "maximum_asset_whitelist_authorities": maximum_asset_whitelist_authorities,
+             "maximum_asset_feed_publishers": maximum_asset_feed_publishers,
+             "maximum_committee_count": maximum_committee_count,
+             "maximum_authority_membership": maximum_authority_membership,
+             "reserve_percent_of_fee": reserve_percent_of_fee,
+             "network_percent_of_fee": network_percent_of_fee,
+             "committee_pay_vesting_seconds": committee_pay_vesting_seconds,
+             "max_predicate_opcode": max_predicate_opcode,
+             "accounts_per_fee_scale": accounts_per_fee_scale,
+             "account_fee_scale_bitshifts": account_fee_scale_bitshifts,
+             "max_authority_depth": max_authority_depth,
+             "block_emission_amount": block_emission_amount,
+             "block_producer_reward_ratio": block_producer_reward_ratio,
+             "committee_frozen_balance_to_activate": committee_frozen_balance_to_activate,
+             "committee_maintenance_intervals_to_deposit": committee_maintenance_intervals_to_deposit,
+             "committee_freeze_duration_seconds": committee_freeze_duration_seconds,
+
+             "extensions": options_extensions}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["current_fees"].update(
+            {"parameters": current_fees_parameters, "scale": current_fees_scale}
+        )
+        if frozen_balances_multipliers == []:
+            frozen_balances_multipliers = [[90, 13000], [180, 14000], [3600, 18000]]
+        committee_member_update_global_parameters_props["new_parameters"].update(
+            {"frozen_balances_multipliers": frozen_balances_multipliers})
+        committee_member_update_global_parameters_props["new_parameters"]["echorand_config"].update(
+            {"_time_generate": _time_generate, "_time_net_1mb": _time_net_1mb, "_time_net_256b": _time_net_256b,
+             "_creator_count": _creator_count, "_verifier_count": _verifier_count, "_ok_threshold": _ok_threshold,
+             "_max_bba_steps": _max_bba_steps, "_gc1_delay": _gc1_delay}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"].update(
+            {"eth_contract_address": eth_contract_address, "eth_committee_updated_topic": eth_committee_updated_topic,
+             "eth_gen_address_topic": eth_gen_address_topic, "eth_deposit_topic": eth_deposit_topic,
+             "eth_withdraw_topic": eth_withdraw_topic, "erc20_deposit_topic": erc20_deposit_topic,
+             "ETH_asset_id": ETH_asset_id, "gas_price": gas_price, "satoshis_per_byte": satoshis_per_byte,
+             "coefficient_waiting_blocks": coefficient_waiting_blocks}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["eth_committee_update_method"].update(
+            {"method": committee_update_method, "gas": committee_update_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["eth_gen_address_method"].update(
+            {"method": gen_address_method, "gas": gen_address_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["eth_withdraw_method"].update(
+            {"method": withdraw_method, "gas": withdraw_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["eth_update_addr_method"].update(
+            {"method": update_addr_method, "gas": update_addr_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["eth_withdraw_token_method"].update(
+            {"method": withdraw_token_method, "gas": withdraw_token_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["eth_collect_tokens_method"].update(
+            {"method": collect_tokens_method, "gas": collect_tokens_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["sidechain_config"]["fines"].update(
+            {"generate_eth_address": generate_eth_address})
+        committee_member_update_global_parameters_props["new_parameters"]["erc20_config"].update(
+            {"contract_code": contract_code, "create_token_fee": create_token_fee, "transfer_topic": transfer_topic}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["erc20_config"]["check_balance_method"].update(
+            {"method": check_balance_method, "gas": check_balance_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["erc20_config"]["burn_method"].update(
+            {"method": burn_method, "gas": burn_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["erc20_config"]["issue_method"].update(
+            {"method": issue_method, "gas": issue_gas}
+        )
+        committee_member_update_global_parameters_props["new_parameters"]["gas_price"].update(
+            {"price": price, "gas_amount": gas_amount}
+        )
+        committee_member_update_global_parameters_props.update({"extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Committee member update global parameters operation: \n{}".format(
+                json.dumps([operation_id, committee_member_update_global_parameters_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_update_global_parameters_props]
+        return [operation_id, committee_member_update_global_parameters_props, signer]
+
+    def get_committee_member_activate_operation(self, echo, committee_to_activate, committee_member_activate, fee_amount=0, fee_asset_id="1.3.0",
+                                                extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_ACTIVATE
+        committee_member_activate_props = deepcopy(self.get_operation_json("committee_member_activate_operation"))
+        committee_member_activate_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_activate_props.update({"committee_to_activate": committee_to_activate})
+        if debug_mode:
+            lcc.log_debug("Committee member activate operation: \n{}".format(
+                json.dumps([operation_id, committee_member_activate_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_activate_props, committee_member_activate]
+        return [operation_id, committee_member_activate_props, signer]
+
+    def get_committee_member_deactivate_operation(self, echo, committee_to_deactivate, committee_member_account,
+                                                  fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                                  debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_DEACTIVATE
+        committee_member_deactivate_props = deepcopy(
+            self.get_operation_json("committee_member_deactivate_operation"))
+        committee_member_deactivate_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_deactivate_props.update({"committee_to_deactivate": committee_to_deactivate})
+        committee_member_deactivate_props.update({"extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Committee member deactivate operation: \n{}".format(
+                json.dumps([operation_id, committee_member_deactivate_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_deactivate_props, committee_member_account]
+        return [operation_id, committee_member_deactivate_props, signer]
 
     def get_vesting_balance_create_operation(self, echo, creator, owner, fee_amount=0, fee_asset_id="1.3.0", amount=1,
                                              amount_asset_id="1.3.0", begin_timestamp="1970-01-01T00:00:00",
@@ -568,7 +770,11 @@ class EchoOperations(object):
         if return_operations:
             return tx.operations
         for operation in list_operations:
-            tx.add_signer(self.get_signer(signer=operation[2]))
+            if type(operation[2]) is list:
+                for i, op in enumerate(operation[2]):
+                    tx.add_signer(self.get_signer(signer=operation[2][i]))
+            else:
+                tx.add_signer(self.get_signer(signer=operation[2]))
         if expiration:
             tx.expiration = expiration
         tx.sign()

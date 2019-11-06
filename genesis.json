@@ -359,7 +359,7 @@
         },
         "maintenance_interval": 4000,
         "maintenance_duration_seconds": 10,
-        "committee_proposal_review_period": 3600,
+        "committee_proposal_review_period": 10,
         "maximum_transaction_size": 2097152,
         "maximum_block_size": 5242880,
         "maximum_time_until_expiration": 86400,
@@ -377,6 +377,8 @@
         "max_authority_depth": 2,
         "block_emission_amount": 0,
         "block_producer_reward_ratio": 5000,
+        "committee_frozen_balance_to_activate": "1",
+        "committee_freeze_duration_seconds": 1,
         "frozen_balances_multipliers": [
             [
                 90,
