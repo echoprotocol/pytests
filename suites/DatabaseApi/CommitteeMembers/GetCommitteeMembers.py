@@ -124,7 +124,7 @@ class PositiveTesting(BaseTest):
         broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
                                                                                 eth_account_address, btc_public_key,
                                                                                 self.__database_api_identifier,
-                                                                                deposit_amount=0, url=url)
+                                                                                deposit_amount=100000000000, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 
@@ -211,7 +211,7 @@ class PositiveTesting(BaseTest):
                                                                                 eth_account_address,
                                                                                 btc_public_key,
                                                                                 self.__database_api_identifier,
-                                                                                deposit_amount=0, url=url)
+                                                                                deposit_amount=100000000000, url=url)
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 

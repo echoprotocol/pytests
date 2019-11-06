@@ -338,3 +338,13 @@ class Validator(object):
             return False
         if len(value) == 66:
             return True
+
+    def is_digit(self, value):
+        if type(value) is int:
+            return True
+        elif type(value) is str:
+            boolean = value.isdigit()
+            return boolean
+        else:
+            return False
+

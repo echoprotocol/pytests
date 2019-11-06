@@ -50,7 +50,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.12.0-rc.2
+    image: echoprotocol/echo:0.12.1-rc.3
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
