@@ -16,8 +16,10 @@ class EchoOperations(object):
 
     def get_signer(self, signer):
         """
-        :param signer: name, id or wif key
+        :param signer: list, name, id, or wif key
         """
+        if type(signer) is list:
+            return signer
         if self.validator.is_wif(signer):
             return signer
         wallets = json.load(open(WALLETS))
@@ -30,6 +32,7 @@ class EchoOperations(object):
                     return wallets[wallets_keys[key]]["private_key"]
         lcc.log_error("Try to get invalid signer, get: '{}'".format(signer))
         raise Exception("Try to get invalid signer")
+
 
     @staticmethod
     def get_operation_json(variable_name, example=False):
@@ -606,7 +609,11 @@ class EchoOperations(object):
         if return_operations:
             return tx.operations
         for operation in list_operations:
-            tx.add_signer(self.get_signer(signer=operation[2]))
+            if type(operation[2]) is list:
+                for i, op in enumerate(operation[2]):
+                    tx.add_signer(self.get_signer(signer=operation[2][i]))
+            else:
+                tx.add_signer(self.get_signer(signer=operation[2]))
         if expiration:
             tx.expiration = expiration
         tx.sign()

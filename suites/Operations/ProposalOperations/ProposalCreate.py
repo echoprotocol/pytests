@@ -53,21 +53,20 @@ class ProposalCreate(BaseTest):
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
                                                                   from_account_id=self.echo_acc1,
                                                                   to_account_id=self.echo_acc0)
-        lcc.set_step("Broadcast proposal transaction that contains simple transfer operation to the ECHO network")
+        lcc.set_step("Collect transfer operation")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        operations = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                             return_operations=True)
-        for op_num, op in enumerate(operations):
-            operations[op_num][1] = op[1].json()
-        proposal_create_operation = self.echo_ops.get_proposal_create_operation(
+
+        lcc.set_step("Make proposal of new active committee member")
+        operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
             fee_paying_account=self.echo_acc0,
-            proposed_ops=operations,
-            expiration_time=self.get_expiration_time(60)
+            proposed_ops=[{"op": collected_operation[0]}],
+            expiration_time=self.get_expiration_time(15),
+            review_period_seconds=10
         )
-        del proposal_create_operation[1]['fee']
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=proposal_create_operation,
-                                                   log_broadcast=False)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+
         require_that(
             "broadcast transaction complete successfully",
             self.is_operation_completed(broadcast_result, 1), is_true()
