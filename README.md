@@ -247,10 +247,10 @@ Contract Feepool:
 - [x] [get_contract_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_contract_history-contract-stop-limit-start)
 
 #### [Network broadcast API](https://echo-dev.io/developers/apis/network-broadcast-api/#network-broadcast-api)
-- [ ] [broadcast_transaction](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction-trx)
-- [ ] [broadcast_block](https://echo-dev.io/developers/apis/network-broadcast-api/#broadcast_block)
-- [ ] [broadcast_transaction_with_callback](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_with_callback-cb-trx)
-- [ ] [broadcast_transaction_synchronous ](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_synchronous-trx)
+
+- [x] [broadcast_transaction](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction-trx)
+- [x] [broadcast_transaction_with_callback](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_with_callback-cb-trx)
+- [x] [broadcast_transaction_synchronous](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_synchronous-trx)
 - [ ] [broadcast_block](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_block-signed_block)
 
 #### [Registration API](https://echo-dev.io/developers/apis/registration-api/#registration-api)

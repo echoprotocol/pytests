@@ -180,6 +180,45 @@ class EchoOperations(object):
             return [operation_id, asset_update_props, issuer]
         return [operation_id, asset_update_props, signer]
 
+    def get_asset_update_bitasset_operation(self, echo, issuer, asset_to_update, fee_amount=0, fee_asset_id="1.3.0",
+                                            feed_lifetime_sec=86400, minimum_feeds=1,short_backing_asset="1.3.0",
+                                            extensions=None, options_extensions=None,signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        if options_extensions is None:
+            options_extensions = []
+        operation_id = echo.config.operation_ids.ASSET_UPDATE_BITASSET
+        asset_update_bitasset_props = self.get_operation_json("asset_update_bitasset_operation")
+        asset_update_bitasset_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        asset_update_bitasset_props.update(
+            {"issuer": issuer, "asset_to_update": asset_to_update, "extensions": extensions}
+        )
+        asset_update_bitasset_props["new_options"].update(
+            {"feed_lifetime_sec": feed_lifetime_sec, "minimum_feeds": minimum_feeds,
+             "short_backing_asset": short_backing_asset, "extensions": extensions})
+        if debug_mode:
+                lcc.log_debug("Create asset update bitasset operation: \n{}".format(json.dumps(asset_update_bitasset_props, indent=4)))
+        if signer is None:
+            return [operation_id, asset_update_bitasset_props, issuer]
+        return [operation_id, asset_update_bitasset_props, signer]
+
+    def get_asset_update_feed_producers_operation(self, echo, issuer, asset_to_update, new_feed_producers, fee_amount=0,
+                                                  fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.ASSET_UPDATE_FEED_PRODUCERS
+        asset_update_feed_producers_props = self.get_operation_json("asset_update_feed_producers_operation")
+        asset_update_feed_producers_props["fee"].update({"amount":fee_amount, "asset_id": fee_asset_id})
+        asset_update_feed_producers_props.update(
+            {"issuer": issuer, "asset_to_update": asset_to_update, "new_feed_producers": new_feed_producers,
+             "extensions": extensions}
+        )
+        if debug_mode:
+            lcc.log_debug("Create update feed producers operation: \n{}".format(json.dumps(asset_update_feed_producers_props, indent=4)))
+        if signer is None:
+            return [operation_id, asset_update_feed_producers_props, issuer]
+        return [operation_id, asset_update_feed_producers_props, signer]
+
     def get_asset_issue_operation(self, echo, issuer, value_amount, value_asset_id, issue_to_account, fee_amount=0,
                                   fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
         if extensions is None:

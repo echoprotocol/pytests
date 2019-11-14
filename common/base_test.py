@@ -3,6 +3,7 @@ import codecs
 import json
 import os
 import time
+from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from Crypto.Hash import keccak
@@ -90,6 +91,12 @@ class BaseTest(object):
         if global_datetime:
             return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+
+    @staticmethod
+    def subtract_from_datetime(str_datetime, days=0, hours=0, minutes=0, seconds=0):
+        formated_datetime = datetime.strptime(str_datetime, "%Y-%m-%dT%H:%M:%S")
+        formated_datetime = formated_datetime - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        return formated_datetime.strftime("%Y-%m-%dT%H:%M:%S")
 
     def set_timeout_wait(self, seconds=None, print_log=True):
         if print_log:
