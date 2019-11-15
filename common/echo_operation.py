@@ -127,6 +127,23 @@ class EchoOperations(object):
             return [operation_id, account_update_props, account]
         return [operation_id, account_update_props, signer]
 
+    def get_account_whitelist_operation(self, echo, authorizing_account, account_to_list=None, new_listing=None,
+                                        fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                        debug_mode=False):
+
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.ACCOUNT_WHITELIST
+        account_whitelist_props = self.get_operation_json("account_update_operation")
+        account_whitelist_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        account_whitelist_props.update({"authorizing_account": authorizing_account, "account_to_list": account_to_list,
+                                        "new_listing": new_listing})
+        if debug_mode:
+            lcc.log_debug("account whitelist operation: \n{}".format(json.dumps(account_whitelist_props, indent=4)))
+        if signer is None:
+            return [operation_id, account_whitelist_props, authorizing_account]
+        return [operation_id, account_whitelist_props, signer]
+
     def get_asset_create_operation(self, echo, issuer, symbol, precision=0, fee_amount=0, fee_asset_id="1.3.0",
                                    max_supply="1000000000000000", issuer_permissions=0, flags=0, base_amount=1,
                                    base_asset_id="1.3.0", quote_amount=1, quote_asset_id="1.3.1",

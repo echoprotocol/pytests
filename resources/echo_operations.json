@@ -143,6 +143,19 @@
             "extensions": []
         }
     ],
+    "account_whitelist": [
+       5,
+       {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "authorizing_account": "1.2.0",
+            "account_to_list": "1.2.0",
+            "new_listing": 0,
+            "extensions": []
+        }
+    ],
     "asset_update_operation": [
         5,
         {
