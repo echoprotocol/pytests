@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    require_that, is_str
+    require_that, is_str, is_
 
 
 class ObjectValidator(object):
@@ -207,3 +207,91 @@ class ObjectValidator(object):
             "extensions", is_list(),
             quiet=True
         )
+
+    @staticmethod
+    def validate_vesting_balance_object(base_test, vesting_balance_object):
+        if check_that("balance_object", vesting_balance_object, has_length(5)):
+            if not base_test.type_validator.is_vesting_balance_id(vesting_balance_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(vesting_balance_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: vesting_balance_object_type")
+            balance = vesting_balance_object["balance"]
+            if check_that("balance", balance, has_length(2)):
+                base_test.check_uint256_numbers(balance, "amount", quiet=True)
+                if not base_test.type_validator.is_asset_id(balance["asset_id"]):
+                    lcc.log_error("Wrong format of 'asset_id', got: {}".format(vesting_balance_object["asset_id"]))
+                else:
+                    lcc.log_info("'asset_id' has correct format: asset_object_type")
+            policy = vesting_balance_object["policy"]
+            if check_that("policy", policy, has_length(2)):
+                first_element = policy[0]
+                second_element = policy[1]
+                # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
+                check_that("first element", first_element, is_(0), quiet=True)
+                if not base_test.type_validator.is_iso8601(second_element["begin_timestamp"]):
+                    lcc.log_error(
+                        "Wrong format of 'begin_timestamp', got: {}".format(second_element["begin_timestamp"]))
+                else:
+                    lcc.log_info("'begin_timestamp' has correct format: iso8601")
+                check_that_in(
+                    second_element,
+                    "vesting_cliff_seconds", is_integer(),
+                    "vesting_duration_seconds", is_integer(),
+                    "begin_balance", is_integer(),
+                    quiet=True
+                )
+                base_test.check_uint256_numbers(second_element, "begin_balance", quiet=True)
+
+    @staticmethod
+    def validate_balance_object(base_test, balance_object):
+        if check_that("balance_object", balance_object, has_length(5)):
+            if not base_test.type_validator.is_balance_id(balance_object["id"]):
+                lcc.log_error("Wrong format of 'balance_id', got: {}".format(balance_object["id"]))
+            else:
+                lcc.log_info("'balance_id' has correct format: balance_id")
+            if not base_test.type_validator.is_iso8601(balance_object["last_claim_date"]):
+                lcc.log_error(
+                    "Wrong format of 'last_claim_date', got: {}".format(balance_object["last_claim_date"]))
+            else:
+                lcc.log_info("'last_claim_date' has correct format: iso8601")
+            base_test.check_uint256_numbers(balance_object["balance"], "amount", quiet=True)
+            if not base_test.type_validator.is_asset_id(balance_object["balance"]["asset_id"]):
+                lcc.log_error(
+                    "Wrong format of 'asset_id', got: {}".format(balance_object["balance"]["asset_id"]))
+            else:
+                lcc.log_info("'asset_id' has correct format: asset_object_type")
+            check_that_in(
+                balance_object,
+                "extensions", is_list()
+            )
+
+    @staticmethod
+    def validate_frozen_balance_object(self, frozen_balance):
+        if check_that("frozen_balance", frozen_balance, has_length(6)):
+            check_that_in(
+                frozen_balance,
+                "owner", is_(self.echo_acc0),
+                "balance", is_dict(),
+                "multiplier", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
+            balance = frozen_balance["balance"]
+            if check_that("balance", balance, has_length(2)):
+                check_that_in(
+                    balance,
+                    "amount", is_integer(),
+                    quiet=True
+                )
+            if not self.type_validator.is_asset_id(balance["asset_id"]):
+                lcc.log_error("Wrong format of 'asset_id', got: {}".format(balance["asset_id"]))
+            else:
+                lcc.log_info("'asset_id' has correct format")
+            if not self.type_validator.is_frozen_balance_id(frozen_balance["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(frozen_balance["id"]))
+            else:
+                lcc.log_info("'id' has correct format: frozen_balance_type")
+            if not self.type_validator.is_iso8601(frozen_balance["unfreeze_time"]):
+                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(frozen_balance["unfreeze_time"]))
+            else:
+                lcc.log_info("'unfreeze_time' has correct format: iso8601")
