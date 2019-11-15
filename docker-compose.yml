@@ -2,6 +2,12 @@ version: '3'
 
 services:
 
+  bitcoin:
+    image: ruimarinho/bitcoin-core:0.18
+    command: "-printtoconsole -regtest=1 -rpcbind=0.0.0.0 -rpcallowip=0.0.0.0/0 -rpcuser=test -rpcpassword=test -deprecatedrpc=generate"
+    ports:
+      - '18443:18443'
+
   ganache:
     image: trufflesuite/ganache-cli:latest
     container_name: '631.echo.ganache.${ENV}'
@@ -40,8 +46,14 @@ services:
       - DEBUG=False
       - BASE_URL=ws://echo:6311/ws
       - ETHEREUM_URL=http://ganache:8545
+      - BITCOIN_URL=http://bitcoin:18443
       - NATHAN_PK=5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
       - INIT0_PK=5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
+      - INIT1_PK=5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
+      - INIT2_PK=5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH
+      - INIT3_PK=5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz
+      - INIT4_PK=5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
+      - INIT5_PK=5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw
     build: .
     command: ["python3", "test_runner.py"]
     container_name: '631.echo.pytests.${ENV}'
@@ -81,10 +93,10 @@ services:
       --sidechain-btc-committeeman=[\"1.2.8\",\"cMfvqZL27R5o7bhCRop3QBMezeUyL6h7KhUcpT2cmVW8Ftjo1Aup\"]
       --sidechain-btc-committeeman=[\"1.2.9\",\"cSBuEeeysRAMkXt1A8aubynVPaP14VGAW6iULYWSUFpGXBj3Byg3\"]
       --sidechain-btc-committeeman=[\"1.2.10\",\"cVqYxKMybncNeQ2YQ4wyyUi6PzD5ttJHUuATB8XUvb3AjdAJnNEp\"]
-      --btc-rpc-ip=127.0.0.1
       --btc-rpc-port=18443
-      --btc-rpc-user=1
-      --btc-rpc-password=1
+      --btc-rpc-ip=bitcoin
+      --btc-rpc-user=test
+      --btc-rpc-password=test
 '
     ports:
       - 56451:6311

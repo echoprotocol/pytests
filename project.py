@@ -2,13 +2,18 @@
 import json
 import os.path
 import sys
+import yaml
 
 from lemoncheesecake.project import Project
 
 
 class MyProject(Project):
     def build_report_title(self):
-        return "ECHO tests (ECHO v. 0.10.0)"
+        with open(os.path.join(os.path.dirname(__file__), "docker-compose.yml")) as compose_file:
+            compose = yaml.load(compose_file, Loader=yaml.FullLoader)
+        echo_image_name = compose["services"]["echo"]["image"]
+        echo_image_version = echo_image_name.replace("echoprotocol/echo:", "")
+        return "ECHO tests (ECHO v. {})".format(echo_image_version)
 
 
 project_dir = os.path.dirname(__file__)
@@ -51,6 +56,31 @@ if "INIT0_PK" not in os.environ:
     INIT0_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT0_PK"]
 else:
     INIT0_PK = os.environ["INIT0_PK"]
+
+if "INIT1_PK" not in os.environ:
+    INIT1_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT1_PK"]
+else:
+    INIT1_PK = os.environ["INIT1_PK"]
+
+if "INIT2_PK" not in os.environ:
+    INIT2_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT2_PK"]
+else:
+    INIT2_PK = os.environ["INIT2_PK"]
+
+if "INIT3_PK" not in os.environ:
+    INIT3_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT3_PK"]
+else:
+    INIT3_PK = os.environ["INIT3_PK"]
+
+if "INIT4_PK" not in os.environ:
+    INIT4_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT4_PK"]
+else:
+    INIT4_PK = os.environ["INIT4_PK"]
+
+if "INIT5_PK" not in os.environ:
+    INIT5_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT5_PK"]
+else:
+    INIT5_PK = os.environ["INIT5_PK"]
 
 ECHO_OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "echo_operations.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
