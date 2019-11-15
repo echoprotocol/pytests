@@ -6,15 +6,15 @@ from lemoncheesecake.matching import check_that, equal_to
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_frozen_balances'"
+    "description": "Method 'get_objects' (frozen balances object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_balances", "get_objects")
-@lcc.suite("Check work of method 'get_frozen_balances'", rank=1)
-class GetFrozenBalances(BaseTest):
+@lcc.suite("Check work of method 'get_objects' (frozen balances object)", rank=1)
+class GetFrozenBalancesObject(BaseTest):
 
     def __init__(self):
         super().__init__()
@@ -37,7 +37,7 @@ class GetFrozenBalances(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_frozen_balances'")
+    @lcc.test("Simple work of method 'get_objects' (frozen balances object)")
     def method_main_check(self, get_random_integer):
         value_amount = get_random_integer
 
