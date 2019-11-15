@@ -163,6 +163,11 @@ class ChangeActiveCommitteeMember(BaseTest):
 
             import time
             time.sleep(25)
+            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
+                                                                      to_account_id="1.2.12", amount=5)
+            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                       log_broadcast=False)
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
             updated_active_committee_members = self.get_active_committee_members()
@@ -227,6 +232,11 @@ class ChangeActiveCommitteeMember(BaseTest):
 
             import time
             time.sleep(25)
+            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
+                                                                      to_account_id="1.2.12", amount=1)
+            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                       log_broadcast=False)
             lcc.log_info("Voting finished.")
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
@@ -249,6 +259,3 @@ class ChangeActiveCommitteeMember(BaseTest):
         else:
             lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
-
-
-
