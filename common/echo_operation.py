@@ -53,6 +53,22 @@ class EchoOperations(object):
             return [operation_id, transfer_props, from_account_id]
         return [operation_id, transfer_props, signer]
 
+    def get_override_transfer_operation(self, echo, issuer, from_account_id, to_account_id, amount=0, amount_asset_id='1.3.0',
+                                        fee_amount=0, fee_asset_id='1.3.0', extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.OVERRIDE_TRANSFER
+        override_transfer_props = self.get_operation_json("override_transfer_operation")
+        override_transfer_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        override_transfer_props.update({"issuer": issuer, "from": from_account_id, "to": to_account_id,
+                                        "extensions": extensions})
+        override_transfer_props["amount"].update({"amount": amount, "asset_id": amount_asset_id})
+        if debug_mode:
+            lcc.log_debug("Override transfer operation: \n{}".format(json.dumps(override_transfer_props, indent=4)))
+        if signer is None:
+            return [operation_id, override_transfer_props, issuer]
+        return [operation_id, override_transfer_props, signer]
+
     def get_account_create_operation(self, echo, name, active_key_auths, echorand_key, fee_amount=0,
                                      fee_asset_id="1.3.0", registrar="1.2.12", active_weight_threshold=1,
                                      active_account_auths=None, options_delegating_account="1.2.12", delegate_share=0,
@@ -187,7 +203,6 @@ class EchoOperations(object):
             return [operation_id, asset_update_props, issuer]
         return [operation_id, asset_update_props, signer]
 
-
     def get_asset_update_bitasset_operation(self, echo, issuer, asset_to_update, feed_lifetime_sec=None,
                                             minimum_feeds=None, short_backing_asset=None, fee_amount=0,
                                             fee_asset_id="1.3.0", new_options_extensions=None, extensions=None,
@@ -211,20 +226,19 @@ class EchoOperations(object):
             return [operation_id, asset_update_bitasset_props, issuer]
         return [operation_id, asset_update_bitasset_props, signer]
 
-    def get_asset_update_feed_producers_operation(self, echo, issuer, asset_to_update, new_feed_producers=[],
-                                                  fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
-                                                  debug_mode=False):
+    def get_asset_update_feed_producers_operation(self, echo, issuer, asset_to_update, new_feed_producers, fee_amount=0,
+                                                  fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
-
         operation_id = echo.config.operation_ids.ASSET_UPDATE_FEED_PRODUCERS
         asset_update_feed_producers_props = self.get_operation_json("asset_update_feed_producers_operation")
-        asset_update_feed_producers_props["fee"].update({"fee_amount": fee_amount, "fee_asset_id": fee_asset_id})
-        asset_update_feed_producers_props.update({"issuer": issuer, "asset_to_update": asset_to_update,
-                                                  "new_feed_producers": new_feed_producers, "extensions": extensions})
+        asset_update_feed_producers_props["fee"].update({"amount":fee_amount, "asset_id": fee_asset_id})
+        asset_update_feed_producers_props.update(
+            {"issuer": issuer, "asset_to_update": asset_to_update, "new_feed_producers": new_feed_producers,
+             "extensions": extensions}
+        )
         if debug_mode:
-            lcc.log_debug("Asset update feed producers operation: \n{}".format(json.dumps([operation_id,
-                                                                                           asset_update_feed_producers_props], indent=4)))
+            lcc.log_debug("Create update feed producers operation: \n{}".format(json.dumps(asset_update_feed_producers_props, indent=4)))
         if signer is None:
             return [operation_id, asset_update_feed_producers_props, issuer]
         return [operation_id, asset_update_feed_producers_props, signer]

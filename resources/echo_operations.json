@@ -15,8 +15,41 @@
             "extensions": []
         }
     ],
-    "account_create_operation": [
+    "transfer_to_address_operation": [
         1,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "from": "1.2.0",
+            "to": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
+            "amount": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "extensions": []
+        }
+    ],
+    "override_transfer_operation": [
+        2,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "issuer": "1.2.0",
+            "from": "1.2.0",
+            "to": "1.2.0",
+            "amount": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "extensions": []
+        }
+    ],
+    "account_create_operation": [
+        3,
         {
             "fee": {
                 "amount": 0,
@@ -39,7 +72,7 @@
         }
     ],
     "account_update_operation": [
-        2,
+        4,
         {
             "fee": {
                 "amount": 0,
@@ -60,8 +93,20 @@
             "extensions": []
         }
     ],
+    "account_address_create_operation": [
+        6,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "owner": "1.2.0",
+            "label": "",
+            "extensions": []
+        }
+    ],
     "asset_create_operation": [
-        4,
+        7,
         {
             "fee": {
                 "amount": 0,
@@ -242,7 +287,7 @@
         }
     ],
     "asset_issue_operation": [
-        8,
+        11,
         {
             "fee": {
                 "amount": 0,
@@ -258,7 +303,7 @@
         }
     ],
     "proposal_create_operation": [
-        12,
+        16,
         {
             "fee": {
                 "amount": 0,
@@ -290,7 +335,7 @@
         }
     ],
     "committee_member_update_operation": [
-        16,
+        20,
         {
             "fee": {
                 "amount": 0,
@@ -305,7 +350,7 @@
         }
     ],
     "vesting_balance_create_operation": [
-        18,
+        26,
         {
             "fee": {
                 "amount": 0,
@@ -329,7 +374,7 @@
         }
     ],
     "vesting_balance_withdraw_operation": [
-        19,
+        27,
         {
             "fee": {
                 "amount": 0,
@@ -344,7 +389,7 @@
         }
     ],
     "balance_claim_operation": [
-        20,
+        28,
         {
             "fee": {
                 "amount": 0,
@@ -361,7 +406,7 @@
         }
     ],
     "balance_freeze_operation": [
-        21,
+        29,
         {
             "fee": {
                 "amount": 0,
@@ -393,7 +438,7 @@
         }
     ],
     "contract_create_operation": [
-        24,
+        31,
         {
             "fee": {
                 "amount": 0,
@@ -427,76 +472,21 @@
             "extensions": []
         }
     ],
-    "contract_transfer_operation": [
-        27,
+    "contract_update_operation": [
+        36,
         {
             "fee": {
                 "amount": 0,
                 "asset_id": "1.3.0"
             },
-            "from": "1.9.0",
-            "to": "0.0.0",
-            "amount": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "extensions": []
-        }
-    ],
-    "account_address_create_operation": [
-        28,
-        {
-            "fee": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "owner": "1.2.0",
-            "label": "",
-            "extensions": []
-        }
-    ],
-    "transfer_to_address_operation": [
-        29,
-        {
-            "fee": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "from": "1.2.0",
-            "to": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
-            "amount": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "extensions": []
-        }
-    ],
-    "sidechain_eth_create_address_operation": [
-        30,
-        {
-            "fee": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "account": "1.2.0",
-            "extensions": []
-        }
-    ],
-    "sidechain_eth_withdraw_operation": [
-        34,
-        {
-            "fee": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "account": "1.2.0",
-            "eth_addr": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
-            "value": 0,
+            "sender": "1.2.0",
+            "contract": "1.9.0",
+            "new_owner": "1.2.0",
             "extensions": []
         }
     ],
     "contract_fund_pool_operation": [
-        36,
+        37,
         {
             "fee": {
                 "amount": 0,
@@ -512,7 +502,7 @@
         }
     ],
     "contract_whitelist_operation": [
-        37,
+        38,
         {
             "fee": {
                 "amount": 0,
@@ -527,8 +517,32 @@
             "extensions": []
         }
     ],
-    "sidechain_eth_issue_operation": [
-        38,
+    "sidechain_eth_create_address_operation": [
+        39,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "account": "1.2.0",
+            "extensions": []
+        }
+    ],
+    "sidechain_eth_withdraw_operation": [
+        42,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "account": "1.2.0",
+            "eth_addr": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
+            "value": 0,
+            "extensions": []
+        }
+    ],
+    "sidechain_issue_operation": [
+        44,
         {
             "fee": {
                 "amount": 0,
@@ -543,8 +557,8 @@
             "extensions": []
         }
     ],
-    "sidechain_eth_burn_operation": [
-        39,
+    "sidechain_burn_operation": [
+        45,
         {
             "fee": {
                 "amount": 0,
@@ -560,7 +574,7 @@
         }
     ],
     "sidechain_erc20_register_token_operation": [
-        40,
+        46,
         {
             "fee": {
                 "amount": 0,
@@ -575,7 +589,7 @@
         }
     ],
     "sidechain_erc20_withdraw_token_operation": [
-        41,
+        48,
         {
             "fee": {
                 "amount": 0,
@@ -585,19 +599,6 @@
             "to": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
             "erc20_token": "1.15.0",
             "value": "1",
-            "extensions": []
-        }
-    ],
-    "contract_update_operation": [
-        27,
-        {
-            "fee": {
-                "amount": 0,
-                "asset_id": "1.3.0"
-            },
-            "sender": "1.2.0",
-            "contract": "1.9.0",
-            "new_owner": "1.2.0",
             "extensions": []
         }
     ]

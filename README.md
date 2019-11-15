@@ -301,9 +301,14 @@ Contract Feepool:
     
 #### [List of Contract Operations](https://echo-dev.io/developers/operations/#contract-operations)
 
-- [ ] [contract_create_operation](https://echo-dev.io/developers/operations/contracts/_create_contract_operation/)
-- [ ] [contract_call_operation](https://echo-dev.io/developers/operations/contracts/_call_contract_operation/)
-- [ ] [contract_transfer_operation [VIRTUAL]](https://echo-dev.io/developers/operations/contracts/_contract_transfer_operation/)
+- [x] [contract_create_operation](https://echo-dev.io/developers/operations/contracts/_create_contract_operation/)
+- [x] [contract_call_operation](https://echo-dev.io/developers/operations/contracts/_call_contract_operation/)
+- [ ] [contract_internal_create_operation [VIRTUAL]](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_internal_create_operation)
+- [ ] [contract_internal_call_operation [VIRTUAL]](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_internal_call_operation)
+- [ ] [contract_selfdestruct_operation [VIRTUAL]](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_selfdestruct_operation)
+- [x] [contract_update_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_update_operation)
+- [x] [contract_fund_pool_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_fund_pool_operation)
+- [x] [contract_whitelist_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_whitelist_operation)
     
 #### [List of Custom Extension Operations](https://echo-dev.io/developers/operations/#custom-extension)
 
@@ -326,13 +331,14 @@ Contract Feepool:
 
 #### [List of Asset Transfer Operations](https://echo-dev.io/developers/operations/#asset-transfer)
 
-- [ ] [transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_transfer_operation/)
-- [ ] [override_transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_override_transfer_operation/)
-    
+- [x] [transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_transfer_operation/)
+- [x] [override_transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_override_transfer_operation/)
+- [x] [transfer_to_address_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/asset-transfer#transfer_to_address_operation)
+
 #### [List of Vesting Balances Operations](https://echo-dev.io/developers/operations/#vesting-balances)
 
-- [ ] [vesting_balance_create_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_create_operation/)
-- [ ] [vesting_balance_withdraw_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_withdraw_operation/)
+- [x] [vesting_balance_create_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_create_operation/)
+- [x] [vesting_balance_withdraw_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_withdraw_operation/)
     
 #### [List of Withdrawal Permissions Operations](https://echo-dev.io/developers/operations/#withdrawal-permissions)
 
