@@ -199,13 +199,12 @@ class EchoOperations(object):
         return [operation_id, asset_issue_props, signer]
 
     def get_proposal_create_operation(self, echo, fee_paying_account, expiration_time, proposed_ops,
-                                      review_period_seconds=None, fee_amount=0, fee_asset_id="1.3.0",
-                                      extensions=None, signer=None, debug_mode=False):
+                                      review_period_seconds=None, extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_CREATE
         proposal_create_props = self.get_operation_json("proposal_create_operation")
-        proposal_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposed_ops = [op[:2] for op in proposed_ops]
         proposal_create_props.update(
             {"fee_paying_account": fee_paying_account, "expiration_time": expiration_time, "proposed_ops": proposed_ops,
              "extensions": extensions})
@@ -215,6 +214,7 @@ class EchoOperations(object):
             proposal_create_props.update({"review_period_seconds": review_period_seconds})
         if debug_mode:
             lcc.log_debug("Proposal create operation: \n{}".format(json.dumps(proposal_create_props, indent=4)))
+        del proposal_create_props["fee"]
         if signer is None:
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]

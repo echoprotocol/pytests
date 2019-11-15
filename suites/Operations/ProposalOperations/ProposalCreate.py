@@ -60,12 +60,11 @@ class ProposalCreate(BaseTest):
         operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
             fee_paying_account=self.echo_acc0,
-            proposed_ops=[{"op": collected_operation[0]}],
+            proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(15),
             review_period_seconds=10
         )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
 
         require_that(
             "broadcast transaction complete successfully",
