@@ -88,20 +88,24 @@ class GetERC20AccountDeposits(BaseTest):
         erc20_symbol = get_random_valid_asset_name
         erc20_deposit_amounts = []
 
+        print("step 1")
         lcc.set_step("Create and get new account")
         new_account_id = self.get_account_id(new_account_name, self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account_id))
 
+        print("step 2")
         lcc.set_step("Generate ethereum address for new account")
         self.utils.perform_sidechain_eth_create_address_operation(self, new_account_id, self.__database_api_identifier)
         lcc.log_info("Ethereum address generated successfully")
 
+        print("step 3")
         lcc.set_step("Get ethereum address of created account in the ECHO network")
         eth_account_address = self.utils.get_eth_address(self, new_account_id,
                                                          self.__database_api_identifier)["result"]["eth_addr"]
         lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account_id, eth_account_address))
 
+        print("step 4")
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
         erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
                                                                           eth_address=self.eth_account.address,
@@ -109,6 +113,8 @@ class GetERC20AccountDeposits(BaseTest):
                                                                           contract_bytecode=self.erc20_contract_code)
         lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(erc20_contract.address))
 
+
+        print("step 5")
         lcc.set_step("Get ethereum ERC20 tokens balance in the Ethereum network")
         in_ethereum_start_erc20_balance = self.eth_trx.get_balance_of(erc20_contract, self.eth_account.address)
         require_that("'in ethereum erc20 contact balance'", in_ethereum_start_erc20_balance, greater_than(0))

@@ -30,7 +30,7 @@ class GetConfig(BaseTest):
     def method_main_check(self):
         lcc.set_step("Get config")
         response_id = self.send_request(self.get_request("get_config"), self.__database_api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         lcc.log_info("Call method 'get_config'")
 
         lcc.set_step("Check main fields")
@@ -48,16 +48,13 @@ class GetConfig(BaseTest):
                         "ECHO_DEFAULT_MAX_ASSET_WHITELIST_AUTHORITIES", "ECHO_DEFAULT_MAX_ASSET_FEED_PUBLISHERS",
                         "ECHO_COLLATERAL_RATIO_DENOM", "ECHO_MIN_COLLATERAL_RATIO", "ECHO_MAX_COLLATERAL_RATIO",
                         "ECHO_DEFAULT_MAINTENANCE_COLLATERAL_RATIO", "ECHO_DEFAULT_MAX_SHORT_SQUEEZE_RATIO",
-                        "ECHO_DEFAULT_MAX_COMMITTEE", "ECHO_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC",
-                        "ECHO_DEFAULT_COMMITTEE_PROPOSAL_REVIEW_PERIOD_SEC", "ECHO_DEFAULT_NETWORK_PERCENT_OF_FEE",
-                        "ECHO_DEFAULT_BURN_PERCENT_OF_FEE", "ECHO_DEFAULT_MAX_ASSERT_OPCODE",
-                        "ECHO_DEFAULT_ACCOUNTS_PER_FEE_SCALE", "ECHO_DEFAULT_ACCOUNT_FEE_SCALE_BITSHIFTS",
-                        "ECHO_MAX_URL_LENGTH", "ECHO_DEFAULT_COMMITTEE_PAY_VESTING_SECONDS",
+                        "ECHO_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC",
+                        "ECHO_DEFAULT_COMMITTEE_PROPOSAL_REVIEW_PERIOD_SEC", "ECHO_MAX_URL_LENGTH",
                         "ECHO_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT", "ECHO_DEFAULT_MINIMUM_FEEDS",
                         "ECHO_REVERSIBLE_BLOCKS_COUNT", "ECHO_DEFAULT_COMMITTEE_FREEZE_DURATION_SECONDS"]
         echo_config_accounts = ["ECHO_COMMITTEE_ACCOUNT", "ECHO_RELAXED_COMMITTEE_ACCOUNT", "ECHO_NULL_ACCOUNT",
                                 "ECHO_TEMP_ACCOUNT", "ECHO_NULL_AUTHORITY_ACCOUNT", "ECHO_PROXY_TO_SELF_ACCOUNT"]
-        if check_that("config", response["result"], has_length(55)):
+        if check_that("config", response["result"], has_length(49)):
             for echo_config_symbol in echo_config_symbols:
                 check_that_in(
                     response["result"],

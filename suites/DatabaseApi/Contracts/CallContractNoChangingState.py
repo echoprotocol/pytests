@@ -46,7 +46,7 @@ class CallContractNoChangingState(BaseTest):
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier)
 
         lcc.set_step("Get call contract operation no changing state")
-        params = [contract_id, self.echo_acc0, self.echo_asset, self.greet]
+        params = [contract_id, {"amount": 100, "asset_id": self.echo_acc0}, self.echo_asset, self.greet]
         response_id = self.send_request(self.get_request("call_contract_no_changing_state", params),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]

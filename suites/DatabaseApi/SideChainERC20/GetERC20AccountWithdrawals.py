@@ -104,11 +104,13 @@ class GetERC20AccountWithdrawals(BaseTest):
         self.utils.perform_sidechain_eth_create_address_operation(self, new_account_id, self.__database_api_identifier)
         lcc.log_info("Ethereum address generated successfully")
 
+        print("step 1")
         lcc.set_step("Get ethereum address of created account in the ECHO network")
         eth_account_address = self.utils.get_eth_address(self, new_account_id,
                                                          self.__database_api_identifier)["result"]["eth_addr"]
         lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account_id, eth_account_address))
 
+        print("step 2")
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
         erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
                                                                           eth_address=self.eth_account.address,

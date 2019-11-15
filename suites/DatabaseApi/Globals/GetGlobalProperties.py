@@ -207,11 +207,11 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         lcc.log_info("Call method 'get_global_properties'")
 
         lcc.set_step("Check main fields")
-        if check_that("global_properties", response["result"], has_length(4)):
+        if check_that("global_properties", response["result"], has_length(3)):
             if not self.validator.is_global_object_id(response["result"]["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
             else:
@@ -219,7 +219,6 @@ class GetGlobalProperties(BaseTest):
             check_that_in(
                 response["result"],
                 "parameters", is_dict(),
-                "next_available_vote_id", is_integer(),
                 "active_committee_members", is_list(),
                 quiet=True
             )

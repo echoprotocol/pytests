@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, has_length
 
@@ -9,7 +10,8 @@ SUITE = {
     "description": "Method 'get_block_tx_number'"
 }
 
-
+@lcc.tags("not working on echo 0.13")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_tx_number")

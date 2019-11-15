@@ -12,6 +12,8 @@ SUITE = {
 }
 
 
+@lcc.tags("not working on echo 0.13")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_recent_transaction_by_id")
 @lcc.suite("Check work of method 'get_recent_transaction_by_id'", rank=1)
@@ -85,7 +87,7 @@ class GetRecentTransactionById(BaseTest):
         lcc.set_step("Broadcast transaction that contains simple transfer operation to the ECHO network")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
 
-        expiration = self.get_expiration_time(30)
+        expiration = self.get_expiration_time(1)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    expiration=expiration, log_broadcast=False)
         require_that(
@@ -125,6 +127,7 @@ class GetRecentTransactionById(BaseTest):
 
         lcc.set_step("Get recent transaction by id (after it expire)")
         while True:
+            print("1")
             last_block_time = self.get_last_block_time()
             if self.compare_datetimes(last_block_time, expiration):
                 lcc.log_info("Call method 'get_recent_transaction_by_id' with transaction_id='{}'".format(
@@ -132,7 +135,6 @@ class GetRecentTransactionById(BaseTest):
                 response_id = self.send_request(self.get_request("get_recent_transaction_by_id", params),
                                                 self.__database_api_identifier)
                 response = self.get_response(response_id)
-
                 lcc.set_step("Check 'get_recent_transaction_by_id' method result for expired transaction")
                 require_that(
                     "'expired transaction result'",
@@ -140,4 +142,14 @@ class GetRecentTransactionById(BaseTest):
                 )
 
                 break
-            self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)
+            # self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)
+            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
+                                                                      from_account_id=self.echo_acc0,
+                                                                      to_account_id=self.echo_acc1)
+
+            lcc.log_info("Transfer operation: '{}'".format(str(transfer_operation)))
+
+            lcc.set_step("Broadcast transaction that contains simple transfer operation to the ECHO network")
+            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                       log_broadcast=False)

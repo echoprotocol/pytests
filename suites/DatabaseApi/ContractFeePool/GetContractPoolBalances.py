@@ -214,6 +214,8 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Check that contract pool balance became empty")
         check_that("'contract pool balance'", updated_fee_pool_balance, equal_to(fee_pool_balance - needed_fee))
 
+    @lcc.tags("not working on echo 0.13")
+    @lcc.disabled()
     @lcc.test("Add fee pool and destroy contract")
     @lcc.depends_on("DatabaseApi.ContractFeePool.GetContractPoolBalances.GetContractPoolBalances.method_main_check")
     def add_fee_pool_and_destroy_contract(self, get_random_integer_up_to_ten):
@@ -286,6 +288,8 @@ class PositiveTesting(BaseTest):
             check_that("'accumulated reward'", accum_reward_after_breakpiggy,
                        is_(accum_reward_before_breakpiggy + reward))
 
+    @lcc.tags("not working on echo 0.13")
+    @lcc.disabled()
     @lcc.test("Add insufficient fee pool to contract to call contract method")
     @lcc.depends_on("DatabaseApi.ContractFeePool.GetContractPoolBalances.GetContractPoolBalances.method_main_check")
     def add_insufficient_fee_pool_to_call_contract(self):

@@ -8,7 +8,8 @@ SUITE = {
     "description": "Method 'get_block_virtual_ops'"
 }
 
-
+@lcc.tags("not working on echo 0.13")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_virtual_ops")
