@@ -69,7 +69,7 @@ for i, initial_committee_candidate in enumerate(INITIAL_COMMITTEE_CANDIDATES):
     if initial_committee_candidate["owner_name"] == INITIAL_ACCOUNTS_NAMES[i]:
         INITIAL_COMMITTEE_ETH_ADDRESSES.append(initial_committee_candidate["eth_address"])
 ACCOUNT_PREFIX = "account"
-DEFAULT_ACCOUNTS_COUNT = 1000
+DEFAULT_ACCOUNTS_COUNT = 5
 MAIN_TEST_ACCOUNT_COUNT = 1
 #todo: delete. Block_interval =5
 BLOCK_RELEASE_INTERVAL = 5

@@ -63,7 +63,7 @@ class GetBlockTxNumber(BaseTest):
     @lcc.test("Simple work of method 'get_block_tx_number'")
     def method_main_check(self):
         subscription_callback_id, trx_to_broadcast = get_random_integer(), \
-                                                     100
+                                                     1000
         signed_trx = []
 
         lcc.set_step("Prepare transfer's operations to broadcast")
@@ -80,10 +80,14 @@ class GetBlockTxNumber(BaseTest):
 
         lcc.set_step("Broadcast transaction to the next block")
         current_block = self.get_head_block_num()
+        params = [subscription_callback_id, signed_trx[0]]
+        response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
+                                        self.__network_broadcast_identifier)
+        self.get_response(response_id)
         while True:
             expected_block = self.get_head_block_num()
             if expected_block != current_block:
-                for signed_tx in signed_trx:
+                for signed_tx in signed_trx[1:]:
                     params = [subscription_callback_id, signed_tx]
                     response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
                                                     self.__network_broadcast_identifier)
