@@ -19,16 +19,16 @@ class TypeValidator(object):
     vesting_balance_id_regex = re.compile(r"^1\.7\.(0|[1-9]\d*)$")
     balance_id_regex = re.compile(r"^1\.8\.(0|[1-9]\d*)$")
     frozen_balance_id_regex = re.compile(r"^1\.9\.(0|[1-9]\d*)$")
-    committee_frozen_balance_id_regex = re.compile(r"^1\.9\.(0|[1-9]\d*)$")
+    committee_frozen_balance_id_regex = re.compile(r"^1\.10\.(0|[1-9]\d*)$")
     contract_id_regex = re.compile(r"^1\.11\.(0|[1-9]\d*)$")
     contract_result_id_regex = re.compile(r"^1\.12\.(0|[1-9]\d*)$")
     block_id_regex = re.compile(r"^1\.13\.(0|[1-9]\d*)$")
-    eth_address_id_regex = re.compile(r"^1\.14\.(0|[1-9]\d*)$")
-    deposit_eth_id_regex = re.compile(r"^1\.15\.(0|[1-9]\d*)$")
-    withdraw_eth_id_regex = re.compile(r"^1\.16\.(0|[1-9]\d*)$")
-    erc20_object_id_regex = re.compile(r"^1\.17\.(0|[1-9]\d*)$")
-    deposit_erc20_id_regex = re.compile(r"^1\.18\.(0|[1-9]\d*)$")
-    withdraw_erc20_id_regex = re.compile(r"^1\.19\.(0|[1-9]\d*)$")
+    eth_address_id_regex = re.compile(r"^1\.13\.(0|[1-9]\d*)$")
+    deposit_eth_id_regex = re.compile(r"^1\.14\.(0|[1-9]\d*)$")
+    withdraw_eth_id_regex = re.compile(r"^1\.15\.(0|[1-9]\d*)$")
+    erc20_object_id_regex = re.compile(r"^1\.16\.(0|[1-9]\d*)$")
+    deposit_erc20_id_regex = re.compile(r"^1\.17\.(0|[1-9]\d*)$")
+    withdraw_erc20_id_regex = re.compile(r"^1\.18\.(0|[1-9]\d*)$")
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")
@@ -142,6 +142,10 @@ class TypeValidator(object):
     def is_frozen_balance_id(self, value):
         if self.is_string(value):
             return bool(self.frozen_balance_id_regex.match(value))
+
+    def is_committee_frozen_balance_id(self, value):
+        if self.is_string(value):
+            return bool(self.committee_frozen_balance_id_regex.match(value))
 
     def is_contract_id(self, value):
         if self.is_string(value):

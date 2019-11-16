@@ -266,17 +266,17 @@ class ObjectValidator(object):
             )
 
     @staticmethod
-    def validate_frozen_balance_object(self, frozen_balance):
-        if check_that("frozen_balance", frozen_balance, has_length(6)):
+    def validate_frozen_balance_object(self, frozen_balance_object):
+        if check_that("frozen_balance_object", frozen_balance_object, has_length(6)):
             check_that_in(
-                frozen_balance,
+                frozen_balance_object,
                 "owner", is_(self.echo_acc0),
                 "balance", is_dict(),
                 "multiplier", is_integer(),
                 "extensions", is_list(),
                 quiet=True
             )
-            balance = frozen_balance["balance"]
+            balance = frozen_balance_object["balance"]
             if check_that("balance", balance, has_length(2)):
                 check_that_in(
                     balance,
@@ -287,11 +287,33 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'asset_id', got: {}".format(balance["asset_id"]))
             else:
                 lcc.log_info("'asset_id' has correct format")
-            if not self.type_validator.is_frozen_balance_id(frozen_balance["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(frozen_balance["id"]))
+            if not self.type_validator.is_frozen_balance_id(frozen_balance_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(frozen_balance_object["id"]))
             else:
                 lcc.log_info("'id' has correct format: frozen_balance_type")
-            if not self.type_validator.is_iso8601(frozen_balance["unfreeze_time"]):
-                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(frozen_balance["unfreeze_time"]))
+            if not self.type_validator.is_iso8601(frozen_balance_object["unfreeze_time"]):
+                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(frozen_balance_object["unfreeze_time"]))
             else:
                 lcc.log_info("'unfreeze_time' has correct format: iso8601")
+
+    @staticmethod
+    def validate_committee_frozen_balance_object(self, committee_frozen_balance_object):
+        if check_that("committee_frozen_balance_object", committee_frozen_balance_object, has_length(4)):
+            balance = committee_frozen_balance_object["balance"]
+            check_that("committee_frozen_balance_object", balance["amount"], is_integer(), quiet=True)
+            if not self.type_validator.is_asset_id(balance["asset_id"]):
+                lcc.log_error("Wrong format of 'asset_id', got: {}".format(
+                              committee_frozen_balance_object["asset_id"]))
+            else:
+                lcc.log_info("'asset_id' has correct format")
+            if not self.type_validator.is_committee_frozen_balance_id(committee_frozen_balance_object["id"]):
+                lcc.log_error("Wrong format of 'committee_frozen_balance_id', got: {}".format(
+                              committee_frozen_balance_object["asset_id"]))
+            else:
+                lcc.log_info("'committee_frozen_balance_id' has correct format")
+            if not self.type_validator.is_committee_member_id(committee_frozen_balance_object["owner"]):
+                lcc.log_error("Wrong format of 'committee_member_id', got: {}".format(
+                              committee_frozen_balance_object["asset_id"]))
+            else:
+                lcc.log_info("'committee_member_id' has correct format")
+

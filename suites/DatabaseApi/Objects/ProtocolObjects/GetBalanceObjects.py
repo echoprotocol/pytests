@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to
+from lemoncheesecake.matching import check_that, equal_to, require_that, has_length
 
 from common.base_test import BaseTest
 
@@ -10,7 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "database_api", "database_api_objects", "get_objects")
+@lcc.tags("api", "database_api", "database_api_objects", "get_objects", "asd")
 @lcc.suite("Check work of method 'get_objects' (balance objects)", rank=1)
 class GetBalanceObjects(BaseTest):
 
@@ -47,15 +47,23 @@ class GetBalanceObjects(BaseTest):
         lcc.log_info("Call method 'get_balance_objects' with params: {}".format(self.public_key))
         balance_id = get_balance_objects_result["id"]
 
+        params = [balance_id]
         lcc.set_step("Get balance object")
-        response_id = self.send_request(self.get_request("get_objects", [[balance_id]]),
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        get_object_result = self.get_response(response_id)["result"][0]
-        lcc.log_info("Call method 'get_objects' with params: {}".format(balance_id))
+        results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
-        lcc.set_step("Checking balance object")
-        self.object_validator.validate_balance_object(self, get_object_result)
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            results, has_length(len(params))
+        )
 
-        lcc.set_step("Check the identity of returned results of api-methods: 'get_balance_objects', 'get_objects'")
-        check_that("get_object result of vesting_balance", get_object_result, equal_to(get_balance_objects_result),
-                   quiet=True)
+        for i, balance_info in enumerate(results):
+            lcc.set_step("Checking balance object #{} - '{}'".format(i, params[i]))
+            self.object_validator.validate_balance_object(self, balance_info)
+
+            lcc.set_step("Check the identity of returned results of api-methods: 'get_balance_objects', 'get_objects'")
+            check_that("get_object result of vesting_balance", balance_info, equal_to(get_balance_objects_result),
+                       quiet=True)

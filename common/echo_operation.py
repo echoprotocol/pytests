@@ -227,6 +227,25 @@ class EchoOperations(object):
             return [operation_id, committee_member_update_props, committee_member_account]
         return [operation_id, committee_member_update_props, signer]
 
+    def get_committee_frozen_balance_deposit_operation(self, echo, committee_member, committee_member_account,
+                                                       amount=0, asset_id="1.3.0", fee_amount=0, fee_asset_id="1.3.0",
+                                                       extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_FROZEN_BALANCE_DEPOSIT
+        committee_frozen_balance_deposit_props = deepcopy(
+            self.get_operation_json("committee_frozen_balance_deposit_operation"))
+        committee_frozen_balance_deposit_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_frozen_balance_deposit_props.update({"committee_member": committee_member})
+        committee_frozen_balance_deposit_props.update({"committee_member_account": committee_member_account})
+        committee_frozen_balance_deposit_props["amount"].update({"amount": amount, "asset_id": asset_id})
+        if debug_mode:
+            lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
+                json.dumps([operation_id, committee_frozen_balance_deposit_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_frozen_balance_deposit_props, committee_member_account]
+        return [operation_id, committee_frozen_balance_deposit_props, signer]
+
     def get_vesting_balance_create_operation(self, echo, creator, owner, fee_amount=0, fee_asset_id="1.3.0", amount=1,
                                              amount_asset_id="1.3.0", begin_timestamp="1970-01-01T00:00:00",
                                              vesting_cliff_seconds=0, vesting_duration_seconds=0, extensions=None,
