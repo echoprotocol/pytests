@@ -43,7 +43,7 @@ class GetFrozenBalancesObject(BaseTest):
 
         lcc.set_step("Perform balance freeze operation")
         operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
-                                                               value_amount=value_amount, duration=1)
+                                                               value_amount=value_amount, duration=90)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Balance freezeed")
