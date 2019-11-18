@@ -482,3 +482,30 @@ class ObjectValidator(object):
                     lcc.log_error("Wrong format of 'contract_id', got: {}".format(contract_id))
                 else:
                     lcc.log_info("'contract_id' has correct format: contract_object_type")
+
+    @staticmethod
+    def validate_eth_address_object(base_test, eth_address_object):
+        if require_that(
+            "account_eth_address",
+            eth_address_object, has_length(6),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_eth_address_id(eth_address_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(eth_address_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: eth_address_object_type")
+            if not base_test.type_validator.is_account_id(eth_address_object["account"]):
+                lcc.log_error("Wrong format of 'account', got: {}".format(eth_address_object["account"]))
+            else:
+                lcc.log_info("'account' has correct format: account_object_type")
+            if not base_test.type_validator.is_hex(eth_address_object["eth_addr"]):
+                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(eth_address_object["eth_addr"]))
+            else:
+                lcc.log_info("'eth_addr' has correct format: hex")
+            check_that_in(
+                eth_address_object,
+                "is_approved", is_bool(),
+                "approves", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )
