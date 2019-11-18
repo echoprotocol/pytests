@@ -11,8 +11,8 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.tags("api", "database_api", "database_api_objects", "get_objects")
-@lcc.suite("Check work of method 'committee frozen balance object'", rank=1)
-class GetCommitteeFrozenBalanceObject(BaseTest):
+@lcc.suite("Check work of method 'get_objects' (committee frozen balance object)", rank=1)
+class GetCommitteeFrozenBalanceObjects(BaseTest):
 
     def __init__(self):
         super().__init__()

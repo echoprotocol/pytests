@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_str, is_false, check_that, has_length, require_that, \
-    require_that_in, is_true, is_, not_equal_to, is_list
+from lemoncheesecake.matching import is_str, is_false, check_that, has_length, require_that, \
+    require_that_in, is_true, not_equal_to, equal_to
 
 from common.base_test import BaseTest
 
@@ -50,28 +50,20 @@ class GetContracts(BaseTest):
         lcc.set_step("Get info about created contract")
         response_id = self.send_request(self.get_request("get_contracts", [[contract_id]]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_contracts' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check simple work of method 'get_contracts'")
-        result = response["result"][0]
-        if check_that("contract", result, has_length(7)):
-            if not self.type_validator.is_contract_id(result["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'id' has correct format: contract_object_type")
-            if not self.type_validator.is_contract_statistics_id(result["statistics"]):
-                lcc.log_error("Wrong format of 'statistics', got: {}".format(result["statistics"]))
-            else:
-                lcc.log_info("'statistics' has correct format: contract_statistics_object_type")
-            check_that_in(
-                result,
-                "destroyed", is_false(),
-                "type", is_str("evm"),
-                "supported_asset_id", is_str(self.echo_asset),
-                "owner", is_(self.echo_acc0),
-                "extensions", is_list()
-            )
+        result = results[0]
+        self.object_validator.validate_contract_object(self, result)
+        require_that_in(
+            result,
+            "destroyed", is_false(),
+            "type", equal_to("evm"),
+            "supported_asset_id", equal_to(self.echo_asset),
+            "owner", equal_to(self.echo_acc0),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")

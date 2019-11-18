@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    require_that, is_str, is_
+    require_that, is_str, is_, is_bool
 
 
 class ObjectValidator(object):
@@ -426,3 +426,34 @@ class ObjectValidator(object):
                               committee_frozen_balance_object["asset_id"]))
             else:
                 lcc.log_info("'committee_member_id' has correct format")
+
+    @staticmethod
+    def validate_contract_object(base_test, contract_object):
+        if require_that(
+            "contract",
+            contract_object, has_length(7),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_contract_id(contract_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(contract_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_object_type")
+            if not base_test.type_validator.is_contract_statistics_id(contract_object["statistics"]):
+                lcc.log_error("Wrong format of 'statistics', got: {}".format(contract_object["statistics"]))
+            else:
+                lcc.log_info("'statistics' has correct format: contract_statistics_object_type")
+            if not base_test.type_validator.is_asset_id(contract_object["supported_asset_id"]):
+                lcc.log_error("Wrong format of 'supported_asset_id', got {}".format(contract_object["supported_asset_id"]))
+            else:
+                lcc.log_info("'supported_asset_id' has correct format")
+            if not base_test.type_validator.is_account_id(contract_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got {}".format(contract_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: account id")
+            check_that_in(
+                contract_object,
+                "destroyed", is_bool(),
+                "type", is_str(),
+                "extensions", is_list(),
+                quiet=True
+            )

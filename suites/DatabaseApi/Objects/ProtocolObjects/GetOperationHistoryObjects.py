@@ -11,8 +11,8 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.tags("api", "database_api", "database_api_objects", "get_objects")
-@lcc.suite("Check work of method 'get_account_history_operations '", rank=1)
-class GetAccountHistoryOperations(BaseTest):
+@lcc.suite("Check work of method 'get_objects' (operation history object)", rank=1)
+class GetOperationHistoryObjects(BaseTest):
 
     def __init__(self):
         super().__init__()

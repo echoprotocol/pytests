@@ -13,7 +13,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("api", "database_api", "database_api_objects", "get_objects")
 @lcc.suite("Check work of method 'get_objects' (frozen balances object)", rank=1)
-class GetFrozenBalancesObject(BaseTest):
+class GetFrozenBalancesObjects(BaseTest):
 
     def __init__(self):
         super().__init__()
