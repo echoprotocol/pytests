@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_false, has_length, require_that, \
-    require_that_in, equal_to
+from lemoncheesecake.matching import has_length, require_that, require_that_in, equal_to
 
 from common.base_test import BaseTest
 SUITE = {
-    "description": "Method 'get_objects' (contract object)"
+    "description": "Method 'get_objects' (contract result object)"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "database_api", "database_api_objects", "get_objects")
-@lcc.suite("Check work of method 'get_objects' (contract object)", rank=1)
-class GetContractObjects(BaseTest):
+@lcc.tags("api", "database_api", "database_api_objects", "get_objects", "aaa")
+@lcc.suite("Check work of method 'get_objects' (contract result object)", rank=1)
+class GetContractResultObjects(BaseTest):
 
     def __init__(self):
         super().__init__()
@@ -38,23 +37,20 @@ class GetContractObjects(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_objects' (contract objects)")
+    @lcc.test("Simple work of method 'get_objects' (contract result object)")
     def method_main_check(self):
         lcc.set_step("Create contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
-                                                 supported_asset_id=self.echo_asset)
+        contract_info = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
+                                                   supported_asset_id=self.echo_asset, need_broadcast_result=True)
+        contract_id = contract_info["contract_id"]
+        contract_result_id = contract_info["broadcast_result"]["trx"]["operation_results"][0][1]
 
-        lcc.set_step("Get info about created contract")
-        response_id = self.send_request(self.get_request("get_contracts", [[contract_id]]),
+        lcc.set_step("Get contract result object")
+        params = [contract_result_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        get_contracts_results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_contracts' with param: '{}'".format(contract_id))
-
-        lcc.set_step("Get contract object")
-        params = [contract_id]
-        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
         results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+        lcc.log_info("Call method 'get_objects' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check length of received objects")
         require_that(
@@ -65,19 +61,12 @@ class GetContractObjects(BaseTest):
         )
 
         for i, result in enumerate(results):
-            lcc.set_step("Checking contract object #{} - '{}'".format(i, params[i]))
-            self.object_validator.validate_contract_object(self, result)
+            lcc.set_step("Checking contract result object #{} - '{}'".format(i, params[i]))
+            self.object_validator.validate_contract_result_object(self, result)
             require_that_in(
                 result,
-                "destroyed", is_false(),
+                "id", equal_to(contract_result_id),
                 "type", equal_to("evm"),
-                "supported_asset_id", equal_to(self.echo_asset),
-                "owner", equal_to(self.echo_acc0),
+                "contracts_id", equal_to([contract_id]),
                 quiet=True
             )
-        lcc.set_step("Check the identity of returned results of api-methods: 'get_contracts', 'get_objects'")
-        require_that(
-            'results',
-            results, equal_to(get_contracts_results),
-            quiet=True
-        )

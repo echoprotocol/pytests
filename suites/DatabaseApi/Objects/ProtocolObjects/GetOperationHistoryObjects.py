@@ -35,7 +35,7 @@ class GetOperationHistoryObjects(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
-    @lcc.test("Simple work of method 'get_account_history_operations'")
+    @lcc.test("Simple work of method 'get_objects' (account history object)")
     def method_main_check(self):
         operation_id = self.echo.config.operation_ids.ACCOUNT_CREATE
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))

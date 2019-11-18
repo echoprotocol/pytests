@@ -457,3 +457,28 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    @staticmethod
+    def validate_contract_result_object(base_test, contract_result_object):
+        if require_that(
+            "contract result",
+            contract_result_object, has_length(4),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_contract_result_id(contract_result_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(contract_result_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_result_object_type")
+            check_that_in(
+                contract_result_object,
+                "type", is_str(),
+                "contracts_id", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )
+            contracts_id = contract_result_object["contracts_id"]
+            for contract_id in contracts_id:
+                if not base_test.type_validator.is_contract_id(contract_id):
+                    lcc.log_error("Wrong format of 'contract_id', got: {}".format(contract_id))
+                else:
+                    lcc.log_info("'contract_id' has correct format: contract_object_type")
