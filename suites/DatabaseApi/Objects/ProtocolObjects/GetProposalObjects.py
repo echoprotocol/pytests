@@ -64,7 +64,8 @@ class GetProposalObjects(BaseTest):
                                                    log_broadcast=False)
         require_that(
             "broadcast transaction complete successfully",
-            self.is_operation_completed(broadcast_result, 1), is_true(), quiet=True
+            self.is_operation_completed(broadcast_result, 1), is_true(),
+            quiet=True
         )
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
         broadcasted_proposed_operation = broadcast_result["trx"]["operations"][0][1]["proposed_ops"][0]["op"]
@@ -84,20 +85,17 @@ class GetProposalObjects(BaseTest):
         self.object_validator.validate_proposal_object(self, proposal_object)
         check_that(
             "'proposed operation'",
-            proposal_object["proposed_transaction"]["operations"][0],
-            is_list(broadcasted_proposed_operation),
+            proposal_object["proposed_transaction"]["operations"][0], is_list(broadcasted_proposed_operation),
             quiet=True
         )
         check_that(
             "'proposal expiration'",
-            proposal_object["expiration_time"],
-            equal_to(proposal_expiration),
+            proposal_object["expiration_time"], equal_to(proposal_expiration),
             quiet=True
         )
         check_that(
             "'required active approval'",
-            proposal_object["required_active_approvals"],
-            is_list([self.echo_acc1]),
+            proposal_object["required_active_approvals"], is_list([self.echo_acc1]),
             quiet=True
         )
 

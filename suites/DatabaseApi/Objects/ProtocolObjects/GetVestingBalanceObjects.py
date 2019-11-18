@@ -65,5 +65,8 @@ class GetVestingBalanceObject(BaseTest):
         lcc.log_info("Call method 'get_vesting_balances' with params: {}".format(self.echo_acc0))
 
         lcc.set_step("Check the identity of returned results of api-methods: 'get_vesting_balances', 'get_objects'")
-        check_that("get_object result of vesting_balance", get_object_result, equal_to(get_vesting_balances_result),
-                   quiet=True)
+        check_that(
+            "get_object result of vesting_balance",
+            get_object_result, equal_to(get_vesting_balances_result),
+            quiet=True
+        )

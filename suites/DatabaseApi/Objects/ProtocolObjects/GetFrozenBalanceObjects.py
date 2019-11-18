@@ -11,8 +11,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_balances", "get_objects")
+@lcc.tags("api", "database_api", "database_api_objects", "get_objects")
 @lcc.suite("Check work of method 'get_objects' (frozen balances object)", rank=1)
 class GetFrozenBalancesObject(BaseTest):
 
@@ -65,5 +64,8 @@ class GetFrozenBalancesObject(BaseTest):
         self.object_validator.validate_frozen_balance_object(self, get_object_result)
 
         lcc.set_step("Check the identity of returned results of api-methods: 'get_frozen_balances', 'get_objects'")
-        check_that("'get_object' result of 'get_frozen_balances'", get_object_result,
-                   equal_to(get_frozen_balances_result), quiet=True)
+        check_that(
+            "'get_object' result of 'get_frozen_balances'",
+            get_object_result, equal_to(get_frozen_balances_result),
+            quiet=True
+        )

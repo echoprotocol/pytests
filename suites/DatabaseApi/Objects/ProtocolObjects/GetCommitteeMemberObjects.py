@@ -35,7 +35,8 @@ class GetCommitteeMemberObjects(BaseTest):
         lcc.set_step("Check length of received objects")
         require_that(
             "'list of received objects'",
-            results, has_length(len(params))
+            results, has_length(len(params)),
+            quiet=True
         )
 
         for i, asset_info in enumerate(results):
