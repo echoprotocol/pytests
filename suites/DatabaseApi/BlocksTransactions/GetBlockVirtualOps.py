@@ -8,8 +8,6 @@ SUITE = {
     "description": "Method 'get_block_virtual_ops'"
 }
 
-@lcc.tags("not working on echo 0.13")
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_virtual_ops")
@@ -37,7 +35,7 @@ class GetBlockVirtualOps(BaseTest):
     @lcc.test("Simple work of method 'get_block_virtual_ops'")
     def method_main_check(self):
         lcc.set_step("Get the full first block in the chain")
-        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)
+        self.produce_block(self.__database_api_identifier)
         block_num = self.get_head_block_num()
         response_id = self.send_request(self.get_request("get_block_virtual_ops", [block_num]),
                                         self.__database_api_identifier)

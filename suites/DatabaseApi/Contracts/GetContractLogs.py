@@ -46,7 +46,7 @@ class GetContractLogs(BaseTest):
     @lcc.test("Simple work of method 'get_contract_logs'")
     def method_main_check(self, get_random_integer_up_to_ten):
         value_amount = get_random_integer_up_to_ten
-        max_limit = 100
+        max_limit = 1000
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy, self.__database_api_identifier,
@@ -59,11 +59,11 @@ class GetContractLogs(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         block_num = broadcast_result["block_num"]
-        _from = block_num - max_limit + 1
+        _from = 1
         lcc.log_info("Method 'getPennie' performed successfully, block_num: '{}'".format(block_num))
 
         lcc.set_step("Get contract logs from '{}' block to max_limit '{}'".format(_from, max_limit))
-        params = [contract_id, [], _from, max_limit]
+        params = [{"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         response = self.get_response(response_id)
         logs = response["result"]
@@ -123,9 +123,9 @@ class PositiveTesting(BaseTest):
 
     def get_contract_logs(self, contract_id=None, _list=[], _from=None, limit=100, params=None):
         if params is None:
-            params = [contract_id, _list, _from, limit]
+            params = [{"contracts": [contract_id], "topics": _list, "from_block": _from, "to_block": limit}]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
-        return self.get_response(response_id)["result"]
+        return self.get_response(response_id, log_response=True)["result"]
 
     def setup_suite(self):
         super().setup_suite()
@@ -166,7 +166,7 @@ class PositiveTesting(BaseTest):
             lcc.log_info("Method #'{}' 'getPennie' performed successfully, block_num: '{}'".format(i, block_num))
 
         lcc.set_step("Get contract logs after two identical contract calls")
-        params = [contract_id, [], _from, max_limit]
+        params =  [{"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
         get_contract_logs_results = self.get_contract_logs(params=params)
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
 

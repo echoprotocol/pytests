@@ -382,6 +382,11 @@ class Utils(object):
         if "result" not in response or response["result"] is not None:
             raise Exception("Can't subscribe to release of blocks, got:\n{}".format(response))
         for block_count in range(wait_block_count):
+            operation = base_test.echo_ops.get_balance_freeze_operation(echo=base_test.echo,
+                                                                        account=base_test.echo_acc0,
+                                                                        value_amount=1, duration=90)
+            collected_operation = base_test.collect_operations(operation, database_api_id)
+            base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation)
             new_block = base_test.get_notice(callback, log_response=False)
             if not current_block != new_block:
                 raise Exception("Released blocks have the same hash")
@@ -401,7 +406,9 @@ class Utils(object):
             return response
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            import time
+            time.sleep(1)
+            # wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
             return self.get_eth_address(base_test, account_id, database_api_id, wait_time, temp_count=temp_count)
         raise Exception(
             "No ethereum address of '{}' account. Waiting time result='{}'".format(account_id, wait_time))
@@ -848,7 +855,7 @@ class Utils(object):
 
             lcc.set_step("Get next block after block with operation")
             next_block_num = block_number + 1
-            self.set_timeout_until_num_blocks_released(base_test, database_api_id)
+            base_test.produce_block(database_api_id)
             response_id = base_test.send_request(base_test.get_request("get_block", [next_block_num]), database_api_id)
             prev_signatures = base_test.get_response(response_id)["result"]["prev_signatures"]
 
@@ -878,7 +885,6 @@ class Utils(object):
                 delegate_reward = int(total_producer_reward * 0.2)
             producer_reward = total_producer_reward - delegate_reward
             producer_rewards[block_producer] = producer_reward
-        self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
 
         lcc.set_step("Confirm account ids rewards")
         for i, acc_id in enumerate(account_ids):

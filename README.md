@@ -4,11 +4,13 @@ The project is intended for testing Echo project. Includes testing:
 * [**Echo Operations**](https://docs.echo.org/api-reference/echo-operations)
 * Testing according to specified scenarios
 
-## Installation
+Python version: 3.7 or later 
 ### Windows
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
     $ virtualenv venv
+    $ python3 -m pip install --user virtualenv
+    $ python3 -m venv venv
     $ .\venv\Scripts\activate
     $ pip install -r requirements.txt
 
@@ -16,6 +18,7 @@ The project is intended for testing Echo project. Includes testing:
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
     $ virtualenv venv
+    $ virtualenv -p python3.7 venv
     $ source venv/bin/activate
     $ pip install -r requirements.txt
     
@@ -247,10 +250,10 @@ Contract Feepool:
 - [x] [get_contract_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_contract_history-contract-stop-limit-start)
 
 #### [Network broadcast API](https://echo-dev.io/developers/apis/network-broadcast-api/#network-broadcast-api)
-- [ ] [broadcast_transaction](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction-trx)
-- [ ] [broadcast_block](https://echo-dev.io/developers/apis/network-broadcast-api/#broadcast_block)
-- [ ] [broadcast_transaction_with_callback](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_with_callback-cb-trx)
-- [ ] [broadcast_transaction_synchronous ](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_synchronous-trx)
+
+- [x] [broadcast_transaction](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction-trx)
+- [x] [broadcast_transaction_with_callback](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_with_callback-cb-trx)
+- [x] [broadcast_transaction_synchronous](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_synchronous-trx)
 - [ ] [broadcast_block](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_block-signed_block)
 
 #### [Registration API](https://echo-dev.io/developers/apis/registration-api/#registration-api)
@@ -301,9 +304,14 @@ Contract Feepool:
     
 #### [List of Contract Operations](https://echo-dev.io/developers/operations/#contract-operations)
 
-- [ ] [contract_create_operation](https://echo-dev.io/developers/operations/contracts/_create_contract_operation/)
-- [ ] [contract_call_operation](https://echo-dev.io/developers/operations/contracts/_call_contract_operation/)
-- [ ] [contract_transfer_operation [VIRTUAL]](https://echo-dev.io/developers/operations/contracts/_contract_transfer_operation/)
+- [x] [contract_create_operation](https://echo-dev.io/developers/operations/contracts/_create_contract_operation/)
+- [x] [contract_call_operation](https://echo-dev.io/developers/operations/contracts/_call_contract_operation/)
+- [ ] [contract_internal_create_operation [VIRTUAL]](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_internal_create_operation)
+- [ ] [contract_internal_call_operation [VIRTUAL]](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_internal_call_operation)
+- [ ] [contract_selfdestruct_operation [VIRTUAL]](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_selfdestruct_operation)
+- [x] [contract_update_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_update_operation)
+- [x] [contract_fund_pool_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_fund_pool_operation)
+- [x] [contract_whitelist_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/contracts#contract_whitelist_operation)
     
 #### [List of Custom Extension Operations](https://echo-dev.io/developers/operations/#custom-extension)
 
@@ -326,13 +334,14 @@ Contract Feepool:
 
 #### [List of Asset Transfer Operations](https://echo-dev.io/developers/operations/#asset-transfer)
 
-- [ ] [transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_transfer_operation/)
-- [ ] [override_transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_override_transfer_operation/)
-    
+- [x] [transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_transfer_operation/)
+- [x] [override_transfer_operation](https://echo-dev.io/developers/operations/asset_transfer/_override_transfer_operation/)
+- [x] [transfer_to_address_operation](https://docs.echo.org/v/version-0.12/api-reference/echo-operations/asset-transfer#transfer_to_address_operation)
+
 #### [List of Vesting Balances Operations](https://echo-dev.io/developers/operations/#vesting-balances)
 
-- [ ] [vesting_balance_create_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_create_operation/)
-- [ ] [vesting_balance_withdraw_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_withdraw_operation/)
+- [x] [vesting_balance_create_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_create_operation/)
+- [x] [vesting_balance_withdraw_operation](https://echo-dev.io/developers/operations/vesting_balances/_vesting_balance_withdraw_operation/)
     
 #### [List of Withdrawal Permissions Operations](https://echo-dev.io/developers/operations/#withdrawal-permissions)
 
