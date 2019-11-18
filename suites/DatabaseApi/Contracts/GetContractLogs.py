@@ -148,7 +148,7 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_two_identical_contract_calls(self, get_random_integer):
         value_amount = get_random_integer
-        call_count, _from, max_limit = 2, 0, 100
+        call_count, _from, max_limit = 2, 1, 100
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
@@ -162,7 +162,7 @@ class PositiveTesting(BaseTest):
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                        log_broadcast=False)
             block_num = broadcast_result["block_num"]
-            _from = block_num - max_limit + 1
+            _from = 0
             lcc.log_info("Method #'{}' 'getPennie' performed successfully, block_num: '{}'".format(i, block_num))
 
         lcc.set_step("Get contract logs after two identical contract calls")
@@ -204,7 +204,7 @@ class PositiveTesting(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         block_num = broadcast_result["block_num"]
-        _from = block_num - max_limit + 1
+        _from = 1
         lcc.log_info("Method 'set_all_values' performed successfully, block_num: '{}'".format(block_num))
 
         lcc.set_step("Get contract logs after two different contract calls")
@@ -255,8 +255,9 @@ class PositiveTesting(BaseTest):
                 for key in contract_log_keys:
                     require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
+    @lcc.tags("qa")
     @lcc.test("Check contract logs from 'current_block'")
-    @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
+    # @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_from_current_block(self, get_random_integer):
         value_amount = get_random_integer
         max_limit = 100
@@ -288,8 +289,9 @@ class PositiveTesting(BaseTest):
                 for key in contract_log_keys:
                     require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
+
     @lcc.test("Check work of the method outside the block in which the logs of the contract were recorded'")
-    @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
+    # @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_outside_block_with_logs(self, get_random_integer):
         value_amount = get_random_integer
 
@@ -313,7 +315,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Get contract logs before block with logs")
         # todo: change limit to '1'. Bug: ECHO-1032
         limit = 2
-        _from = current_block_num - limit
+        _from = 1
         contract_logs = self.get_contract_logs(contract_id=contract_id, _from=_from, limit=limit)
         lcc.log_info("Call method 'get_contract_logs' with params: from='{}', limit='{}'".format(_from, limit))
 
@@ -321,7 +323,7 @@ class PositiveTesting(BaseTest):
         check_that("contract_logs", contract_logs, equal_to([]))
 
         lcc.set_step("Get contract logs after block with logs")
-        _from = head_block_number + limit
+        _from = 1
         limit = self.get_random_int(_to=100)
         contract_logs = self.get_contract_logs(contract_id=contract_id, _from=_from, limit=limit)
         lcc.log_info("Call method 'get_contract_logs' with params: from='{}', limit='{}'".format(_from, limit))
@@ -383,7 +385,7 @@ class NegativeTesting(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         block_num = broadcast_result["block_num"]
-        _from = block_num - max_limit + 1
+        _from = 1
         lcc.log_info("Method 'getPennie' performed successfully")
 
         lcc.set_step("Get negative block number")
@@ -418,7 +420,7 @@ class NegativeTesting(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         block_num = broadcast_result["block_num"]
-        _from = block_num - max_limit + 1
+        _from = 1
         lcc.log_info("Method 'getPennie' performed successfully")
 
         lcc.set_step("Get limit param more than max limit")
