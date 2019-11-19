@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    require_that, is_str, is_, is_bool, greater_than
+    require_that, is_str, is_, is_bool, greater_than, greater_than_or_equal_to
 
 
 class ObjectValidator(object):
@@ -521,7 +521,6 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'id', got: {}".format(deposit_eth_object["id"]))
             else:
                 lcc.log_info("'id' has correct format: deposit_eth_object_type")
-
             if not base_test.type_validator.is_account_id(deposit_eth_object["account"]):
                 lcc.log_error("Wrong format of 'account', got: {}".format(deposit_eth_object["account"]))
             else:
@@ -530,6 +529,34 @@ class ObjectValidator(object):
             check_that_in(
                 deposit_eth_object,
                 "deposit_id", greater_than(0),
+                "is_approved", is_bool(),
+                "approves", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    @staticmethod
+    def validate_withdraw_eth_object(base_test, withdraw_eth_object):
+        if require_that(
+            "'first deposit of created account'",
+            withdraw_eth_object, has_length(8),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_withdraw_eth_id(withdraw_eth_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(withdraw_eth_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: withdraw_eth_object_type")
+            if not base_test.type_validator.is_eth_address(withdraw_eth_object["eth_addr"]):
+                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(withdraw_eth_object["eth_addr"]))
+            else:
+                lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
+            if not base_test.type_validator.is_account_id(withdraw_eth_object["account"]):
+                lcc.log_error("Wrong format of 'account', got: {}".format(withdraw_eth_object["account"]))
+            else:
+                lcc.log_info("'account' has correct format: account_id")
+            check_that_in(
+                withdraw_eth_object,
+                "withdraw_id", greater_than_or_equal_to(0),
                 "is_approved", is_bool(),
                 "approves", is_list(),
                 "extensions", is_list(),

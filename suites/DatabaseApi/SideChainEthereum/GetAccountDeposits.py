@@ -2,8 +2,8 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_, check_that_in, greater_than, is_true, is_list, equal_to, \
-    check_that, starts_with, has_length, require_that_in
+from lemoncheesecake.matching import is_, check_that_in, is_true, equal_to, check_that, starts_with,\
+    require_that_in
 
 from common.base_test import BaseTest
 
