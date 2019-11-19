@@ -3,7 +3,7 @@ import random
 import string
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_integer, is_true, equal_to, is_false
+from lemoncheesecake.matching import check_that, is_integer, is_true, equal_to, is_false, has_item
 
 from common.base_test import BaseTest
 from fixtures.base_fixtures import RANGE_OF_STR, get_random_valid_account_name
@@ -61,9 +61,12 @@ class SubmitRegistrationSolution(BaseTest):
         block_num = self.get_notice(callback)["block_num"]
         response_id = self.send_request(self.get_request("get_block", [block_num]),
                                         self.__database_api_identifier)
-        account_name_from_block = self.get_response(response_id)["result"]["transactions"][0]["operations"][0][1][
-            "name"]
-        check_that("account name in block", account_name, equal_to(account_name_from_block))
+        block_transactions = self.get_response(response_id)["result"]["transactions"]
+        names_in_block_operations = [
+            block_transactions[trx_num]["operations"][0][1]["name"]
+            for trx_num in range(len(block_transactions))
+        ]
+        check_that("account names in block", names_in_block_operations, has_item(account_name))
 
         response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
                                         self.__database_api_identifier)
@@ -83,8 +86,10 @@ class NegativeTesting(BaseTest):
         self.__registration_api_identifier = None
 
     def get_cheap_account_name(self):
-        random_string = ''.join(
-            random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR))
+        random_string = "{}{}".format(
+            ''.join(random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)),
+            'ing'
+        )
         lcc.log_info("Generated random account_name: {}".format(random_string))
         return random_string
 
@@ -212,13 +217,14 @@ class NegativeTesting(BaseTest):
         generate_keys = self.generate_keys()
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
-        random_decimal = str(random.randint(0, 99))
-        rand_num = rand_num[:-2] + random_decimal
+        fake_rand_num = rand_num
+        while fake_rand_num == rand_num:
+            fake_rand_num = str(random.randint(0, int(rand_num)))
         expected_error_message = "Assert Exception: rand_num == task->rand_num: Active task has another rand_num. " \
                                  "Request another one"
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
-        account_params = [callback, account_name, public_key, public_key, solution, rand_num]
+        account_params = [callback, account_name, public_key, public_key, solution, fake_rand_num]
         response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         self.__registration_api_identifier)
         error = self.get_response(response_id, negative=True)["error"]
@@ -234,7 +240,7 @@ class NegativeTesting(BaseTest):
         generate_keys = self.generate_keys()
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
-        random_decimal = str(random.randint(0, 9))
+        random_decimal = str(random.randint(100, 999))
         rand_num = rand_num + random_decimal
         expected_error_message = "Parse Error: Couldn't parse uint64_t"
 

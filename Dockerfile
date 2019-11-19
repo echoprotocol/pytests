@@ -19,3 +19,4 @@ ADD ./__init__.py /home/
 ADD ./project.py /home/
 ADD ./test_runner.py /home/
 ADD ./common /home/common
+ADD ./docker-compose.yml /home/docker-compose.yml
