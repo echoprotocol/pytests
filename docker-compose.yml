@@ -60,12 +60,8 @@ services:
 
 
   echo:
-<<<<<<< HEAD
-    image: echoprotocol/echo:0.13
+    image: echoprotocol/echo:0.13.3
     container_name: '631.echo.node.${ENV}'
-=======
-    image: echoprotocol/echo:0.12.1-rc.3
->>>>>>> 776b8e7d71ecb332ecfcc2fd5602268d354e8b53
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
       --genesis-json=/echo/genesis.json

@@ -10,6 +10,8 @@ SUITE = {
 }
 
 
+@lcc.tags("TASK ECHOT-280")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_subscriptions", "set_subscribe_callback")
