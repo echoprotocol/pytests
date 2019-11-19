@@ -501,7 +501,7 @@ class BaseTest(object):
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
                                         database_api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
         if response.get("result")[0].get("fee"):
@@ -600,7 +600,7 @@ class BaseTest(object):
         operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.12",
                                                          to_account_id="1.2.1", amount=1, signer=NATHAN_PK)
         collected_operation = self.collect_operations(operation, database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
     @staticmethod
     def _login_status(response):
