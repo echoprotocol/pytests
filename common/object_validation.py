@@ -562,3 +562,35 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    @staticmethod
+    def validate_erc20_token_object(base_test, erc20_token_object):
+        if require_that(
+            "'length of ERC20 object'",
+            erc20_token_object, has_length(8),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_erc20_object_id(erc20_token_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(erc20_token_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: erc20_token_object_type")
+            if not base_test.type_validator.is_account_id(erc20_token_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(erc20_token_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: account_id_object_type")
+            if not base_test.type_validator.is_eth_address(erc20_token_object["eth_addr"]):
+                lcc.log_error("Wrong format of 'eth_addr', got: {}".format(erc20_token_object["eth_addr"]))
+            else:
+                lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
+            if not base_test.type_validator.is_contract_id(erc20_token_object["contract"]):
+                lcc.log_error("Wrong format of 'contract', got: {}".format(erc20_token_object["contract"]))
+            else:
+                lcc.log_info("'contract' has correct format: contract_object_type")
+            check_that_in(
+                erc20_token_object,
+                "name", is_str(),
+                "symbol", is_str(),
+                "decimals", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )

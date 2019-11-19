@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, has_length, check_that_in, is_str, is_integer, equal_to, is_list
+from lemoncheesecake.matching import check_that_in, equal_to
 
 from common.base_test import BaseTest
 
@@ -53,54 +53,34 @@ class GetERC20Token(BaseTest):
         erc20_symbol = get_random_valid_asset_name
 
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
-        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
-                                                                          eth_address=self.eth_account.address,
-                                                                          contract_abi=self.erc20_abi,
-                                                                          contract_bytecode=self.erc20_contract_code)
+        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(
+            self.web3,
+            eth_address=self.eth_account.address,
+            contract_abi=self.erc20_abi,
+            contract_bytecode=self.erc20_contract_code
+        )
         lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(erc20_contract.address))
 
         lcc.set_step("Perform register erc20 token operation")
-        self.utils.perform_sidechain_erc20_register_token_operation(self, account=self.echo_acc0,
-                                                                    eth_addr=erc20_contract.address,
-                                                                    name=contract_name,
-                                                                    symbol=erc20_symbol,
-                                                                    database_api_id=self.__database_api_identifier)
+        self.utils.perform_sidechain_erc20_register_token_operation(
+            self,
+            account=self.echo_acc0,
+            eth_addr=erc20_contract.address,
+            name=contract_name,
+            symbol=erc20_symbol,
+            database_api_id=self.__database_api_identifier
+        )
         lcc.log_info("Registration of ERC20 token completed successfully")
 
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
         response_id = self.send_request(self.get_request("get_erc20_token", [erc20_contract.address[2:]]),
                                         self.__database_api_identifier)
-        result = self.get_response(response_id, log_response=True)["result"]
+        result = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_erc20_token' with eth_erc20_contract_address='{}' parameter".format(
             erc20_contract.address[2:]))
 
         lcc.set_step("Check simple work of method 'get_erc20_token'")
-        require_that("'length of ERC20 object'", result, has_length(8))
-
-        if not self.type_validator.is_erc20_object_id(result["id"]):
-            lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-        else:
-            lcc.log_info("'id' has correct format: erc20_token_object_type")
-        if not self.type_validator.is_account_id(result["owner"]):
-            lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
-        else:
-            lcc.log_info("'owner' has correct format: account_id_object_type")
-        if not self.type_validator.is_eth_address(result["eth_addr"]):
-            lcc.log_error("Wrong format of 'eth_addr', got: {}".format(result["eth_addr"]))
-        else:
-            lcc.log_info("'eth_addr' has correct format: ethereum_address_type")
-        if not self.type_validator.is_contract_id(result["contract"]):
-            lcc.log_error("Wrong format of 'contract', got: {}".format(result["contract"]))
-        else:
-            lcc.log_info("'contract' has correct format: contract_object_type")
-        check_that_in(
-            result,
-            "name", is_str(),
-            "symbol", is_str(),
-            "decimals", is_integer(),
-            "extensions", is_list(),
-            quiet=True
-        )
+        self.object_validator.validate_erc20_token_object(self, result)
 
 
 @lcc.prop("positive", "type")
@@ -149,20 +129,25 @@ class PositiveTesting(BaseTest):
         erc20_token_decimals = get_random_integer_up_to_ten
 
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
-        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
-                                                                          eth_address=self.eth_account.address,
-                                                                          contract_abi=self.erc20_abi,
-                                                                          contract_bytecode=self.erc20_contract_code)
+        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(
+            self.web3,
+            eth_address=self.eth_account.address,
+            contract_abi=self.erc20_abi,
+            contract_bytecode=self.erc20_contract_code
+        )
         lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(erc20_contract.address))
 
         lcc.set_step("Perform register erc20 token operation")
         bd_result = \
-            self.utils.perform_sidechain_erc20_register_token_operation(self, account=self.echo_acc0,
-                                                                        eth_addr=erc20_contract.address,
-                                                                        name=contract_name,
-                                                                        symbol=erc20_symbol,
-                                                                        decimals=erc20_token_decimals,
-                                                                        database_api_id=self.__database_api_identifier)
+            self.utils.perform_sidechain_erc20_register_token_operation(
+                self,
+                account=self.echo_acc0,
+                eth_addr=erc20_contract.address,
+                name=contract_name,
+                symbol=erc20_symbol,
+                decimals=erc20_token_decimals,
+                database_api_id=self.__database_api_identifier
+            )
         erc20_token_id = self.get_contract_result(bd_result, self.__database_api_identifier)
         lcc.log_info("Registration of ERC20 token completed successfully, ERC20 token object is '{}'".format(
             erc20_token_id))
@@ -181,7 +166,8 @@ class PositiveTesting(BaseTest):
             "eth_addr", equal_to(erc20_contract.address[2:]),
             "name", equal_to(contract_name),
             "symbol", equal_to(erc20_symbol),
-            "decimals", equal_to(erc20_token_decimals)
+            "decimals", equal_to(erc20_token_decimals),
+            quiet=True
         )
 
     @lcc.test("Create contract using register_erc20_token operation and compare response from 'get_erc20_token' "
@@ -192,19 +178,24 @@ class PositiveTesting(BaseTest):
         erc20_symbol = get_random_valid_asset_name
 
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
-        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
-                                                                          eth_address=self.eth_account.address,
-                                                                          contract_abi=self.erc20_abi,
-                                                                          contract_bytecode=self.erc20_contract_code)
+        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(
+            self.web3,
+            eth_address=self.eth_account.address,
+            contract_abi=self.erc20_abi,
+            contract_bytecode=self.erc20_contract_code
+        )
         lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(erc20_contract.address))
 
         lcc.set_step("Perform register erc20 token operation")
         bd_result = \
-            self.utils.perform_sidechain_erc20_register_token_operation(self, account=self.echo_acc0,
-                                                                        eth_addr=erc20_contract.address,
-                                                                        name=contract_name,
-                                                                        symbol=erc20_symbol,
-                                                                        database_api_id=self.__database_api_identifier)
+            self.utils.perform_sidechain_erc20_register_token_operation(
+                self,
+                account=self.echo_acc0,
+                eth_addr=erc20_contract.address,
+                name=contract_name,
+                symbol=erc20_symbol,
+                database_api_id=self.__database_api_identifier
+            )
         erc20_token_id = self.get_contract_result(bd_result, self.__database_api_identifier)
         lcc.log_info("Registration of ERC20 token completed successfully, ERC20 token object is '{}'".format(
             erc20_token_id))
@@ -233,5 +224,6 @@ class PositiveTesting(BaseTest):
             "contract", equal_to(erc20_object_info_2["contract"]),
             "name", equal_to(erc20_object_info_2["name"]),
             "symbol", equal_to(erc20_object_info_2["symbol"]),
-            "decimals", equal_to(erc20_object_info_2["decimals"])
+            "decimals", equal_to(erc20_object_info_2["decimals"]),
+            quiet=True
         )
