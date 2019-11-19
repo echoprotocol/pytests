@@ -40,7 +40,11 @@ class GetERC20AccountDeposits(BaseTest):
         require_that("'account deposits count'", deposits, has_length(len(erc20_deposit_amounts)))
         for i, deposit in enumerate(deposits):
             lcc.set_step("Check work of method 'get_erc20_account_deposits', deposit #'{}'".format(i))
-            check_that("'length of erc20 account deposit'", deposit, has_length(8))
+            check_that(
+                "'length of erc20 account deposit'",
+                deposit, has_length(8),
+                quiet=True
+            )
             if not self.type_validator.is_deposit_erc20_id(deposit["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(deposit["id"]))
             else:
@@ -103,10 +107,12 @@ class GetERC20AccountDeposits(BaseTest):
         lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account_id, eth_account_address))
 
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
-        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
-                                                                          eth_address=self.eth_account.address,
-                                                                          contract_abi=self.erc20_abi,
-                                                                          contract_bytecode=self.erc20_contract_code)
+        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(
+            self.web3,
+            eth_address=self.eth_account.address,
+            contract_abi=self.erc20_abi,
+            contract_bytecode=self.erc20_contract_code
+        )
         lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(erc20_contract.address))
 
         lcc.set_step("Get ethereum ERC20 tokens balance in the Ethereum network")
@@ -114,10 +120,13 @@ class GetERC20AccountDeposits(BaseTest):
         require_that("'in ethereum erc20 contact balance'", in_ethereum_start_erc20_balance, greater_than(0))
 
         lcc.set_step("Perform register erc20 token operation")
-        self.utils.perform_sidechain_erc20_register_token_operation(self, account=new_account_id,
-                                                                    eth_addr=erc20_contract.address,
-                                                                    name=token_name, symbol=erc20_symbol,
-                                                                    database_api_id=self.__database_api_identifier)
+        self.utils.perform_sidechain_erc20_register_token_operation(
+            self,
+            account=new_account_id,
+            eth_addr=erc20_contract.address,
+            name=token_name, symbol=erc20_symbol,
+            database_api_id=self.__database_api_identifier
+        )
         lcc.log_info("Registration of ERC20 token completed successfully")
 
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
@@ -138,11 +147,16 @@ class GetERC20AccountDeposits(BaseTest):
         self.check_erc20_account_deposits(deposits, erc20_deposit_amounts, new_account_id, erc20_contract.address)
 
         lcc.set_step("Get ethereum ERC20 tokens balance after first transfer in the Ethereum network")
-        in_ethereum_erc20_balance_after_first_transfer = self.eth_trx.get_balance_of(erc20_contract,
-                                                                                     self.eth_account.address)
-        require_that("'in ethereum erc20 contact balance after first transfer'",
-                     in_ethereum_erc20_balance_after_first_transfer,
-                     equal_to(in_ethereum_start_erc20_balance - erc20_deposit_amounts[0]))
+        in_ethereum_erc20_balance_after_first_transfer = self.eth_trx.get_balance_of(
+            erc20_contract,
+            self.eth_account.address
+        )
+        require_that(
+            "'in ethereum erc20 contact balance after first transfer'",
+            in_ethereum_erc20_balance_after_first_transfer,
+            equal_to(in_ethereum_start_erc20_balance - erc20_deposit_amounts[0]),
+            quiet=True
+        )
 
         lcc.set_step("Second transfer erc20 to ethereum address of created account")
         erc20_deposit_amounts.append(in_ethereum_erc20_balance_after_first_transfer)
@@ -154,20 +168,33 @@ class GetERC20AccountDeposits(BaseTest):
         lcc.set_step("Get ethereum ERC20 tokens balance after second transfer in the Ethereum network")
         in_ethereum_erc20_balance_after_second_transfer = self.eth_trx.get_balance_of(erc20_contract,
                                                                                       self.eth_account.address)
-        require_that("'in ethereum erc20 contact balance after second transfer'",
-                     in_ethereum_erc20_balance_after_second_transfer,
-                     equal_to(in_ethereum_erc20_balance_after_first_transfer - erc20_deposit_amounts[1]))
+        require_that(
+            "'in ethereum erc20 contact balance after second transfer'",
+            in_ethereum_erc20_balance_after_second_transfer,
+            equal_to(in_ethereum_erc20_balance_after_first_transfer - erc20_deposit_amounts[1]),
+            quiet=True
+        )
 
         lcc.set_step("Second: Get ERC20 account deposits")
-        deposits = self.utils.get_erc20_account_deposits(self, new_account_id, self.__database_api_identifier,
-                                                         previous_account_deposits=deposits)["result"]
+        deposits = self.utils.get_erc20_account_deposits(
+            self,
+            new_account_id,
+            self.__database_api_identifier,
+            previous_account_deposits=deposits
+        )["result"]
         self.check_erc20_account_deposits(deposits, erc20_deposit_amounts, new_account_id, erc20_contract.address)
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance = \
-            self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account_id,
-                                                       balance_of_method=self.erc20_balanceOf,
-                                                       contract_id=erc20_contract_id,
-                                                       database_api_id=self.__database_api_identifier)
-        require_that("'final balance equal to start balance'",
-                     in_echo_erc20_balance == in_ethereum_start_erc20_balance, is_true())
+            self.utils.get_erc20_token_balance_in_echo(
+                self,
+                account_id=new_account_id,
+                balance_of_method=self.erc20_balanceOf,
+                contract_id=erc20_contract_id,
+                database_api_id=self.__database_api_identifier
+            )
+        require_that(
+            "'final balance equal to start balance'",
+            in_echo_erc20_balance == in_ethereum_start_erc20_balance, is_true(),
+            quiet=True
+        )
