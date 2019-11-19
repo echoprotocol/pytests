@@ -1,0 +1,38 @@
+language: python
+python:
+  - "3.7"
+if: type = pull_request
+branches:
+  only:
+    - master
+    - develop
+cache: pip
+
+env:
+  global:
+    - NATHAN_PK: 5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
+    - INIT0_PK: 5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
+    - INIT1_PK: 5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
+    - INIT2_PK: 5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH
+    - INIT3_PK: 5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz
+    - INIT4_PK: 5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
+    - INIT5_PK: 5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw
+    - MIGRATION_RESULT: ""
+  jobs:
+    - PYTESTS_FILTERS: database_api
+    - PYTESTS_FILTERS: ^database_api:connection_to_apis
+
+install:  pip3 install -r requirements.txt
+services:
+  - docker
+before_script:
+  - MIGRATION_RESULT=$(docker-compose run migrate)
+  - export SIDECHAIN_ADDRESS=$(echo \"$MIGRATION_RESULT\" | perl -lne '/SideChain.*contract address:\s+(0x.{40})/ && print $1')
+  - sed -i "s/0xc87395b45C1c199F25a6c2Be43515C41d53751Af/$SIDECHAIN_ADDRESS/g" ./genesis.json
+  - docker-compose up -d ganache
+  - docker-compose up -d echo
+script:
+  - python3 test_runner.py
+after_script:
+  - docker-compose down -v
+  - docker-compose rm -fv
