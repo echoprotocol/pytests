@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    require_that, is_str, is_, is_bool
+    require_that, is_str, is_, is_bool, greater_than
 
 
 class ObjectValidator(object):
@@ -504,6 +504,32 @@ class ObjectValidator(object):
                 lcc.log_info("'eth_addr' has correct format: hex")
             check_that_in(
                 eth_address_object,
+                "is_approved", is_bool(),
+                "approves", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    @staticmethod
+    def validate_deposit_eth_object(base_test, deposit_eth_object):
+        if require_that(
+            "'first deposit of created account'",
+            deposit_eth_object, has_length(7),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_deposit_eth_id(deposit_eth_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(deposit_eth_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: deposit_eth_object_type")
+
+            if not base_test.type_validator.is_account_id(deposit_eth_object["account"]):
+                lcc.log_error("Wrong format of 'account', got: {}".format(deposit_eth_object["account"]))
+            else:
+                lcc.log_info("'account' has correct format: account_id")
+
+            check_that_in(
+                deposit_eth_object,
+                "deposit_id", greater_than(0),
                 "is_approved", is_bool(),
                 "approves", is_list(),
                 "extensions", is_list(),
