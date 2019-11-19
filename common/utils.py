@@ -382,11 +382,6 @@ class Utils(object):
         if "result" not in response or response["result"] is not None:
             raise Exception("Can't subscribe to release of blocks, got:\n{}".format(response))
         for block_count in range(wait_block_count):
-            operation = base_test.echo_ops.get_balance_freeze_operation(echo=base_test.echo,
-                                                                        account=base_test.echo_acc0,
-                                                                        value_amount=1, duration=90)
-            collected_operation = base_test.collect_operations(operation, database_api_id)
-            base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation)
             new_block = base_test.get_notice(callback, log_response=False)
             if not current_block != new_block:
                 raise Exception("Released blocks have the same hash")

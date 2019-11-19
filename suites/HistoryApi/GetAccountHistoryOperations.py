@@ -53,7 +53,7 @@ class GetAccountHistoryOperations(BaseTest):
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get account history operations")
-        operation_id = self.echo.config.operation_ids.ACCOUNT_CREATE
+        operation_id = self.echo.config.operation_ids.BALANCE_FREEZE
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         stop, start = operation_history_obj, operation_history_obj
         limit = 1

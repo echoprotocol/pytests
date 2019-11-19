@@ -160,7 +160,7 @@ class GetAccountDeposits(BaseTest):
             )
 
         lcc.set_step("Get deposits of created account")
-        params = [new_account]
+        params = [new_account, "eth"]
         response_id = self.send_request(self.get_request("get_account_deposits", params),
                                         self.__database_api_identifier)
         deposits = self.get_response(response_id)["result"]

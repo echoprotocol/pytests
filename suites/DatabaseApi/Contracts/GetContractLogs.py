@@ -91,7 +91,8 @@ class GetContractLogs(BaseTest):
                     quiet=True
                 )
 
-
+@lcc.tags("BUG ECHO-1588")
+@lcc.disabled()
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_contracts", "get_contract_logs")
 @lcc.suite("Positive testing of method 'get_contract_logs'", rank=2)
@@ -257,31 +258,32 @@ class PositiveTesting(BaseTest):
 
     @lcc.tags("qa")
     @lcc.test("Check contract logs from 'current_block'")
-    # @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
+    @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_from_current_block(self, get_random_integer):
         value_amount = get_random_integer
         max_limit = 100
         contract_log_keys = ["address", "log", "data", "block_num", "trx_num", "op_num"]
-
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
                                                  self.__database_api_identifier, value_amount=value_amount)
-
         lcc.set_step("Call contract method getPennie")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.getPennie, callee=contract_id)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
+        # todo: remove 'broadcasting of balance_freeze_operation'. Bug: ECHO-1588
+        operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
+                                                               value_amount=1, duration=90)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         # todo: remove '-1'. Bug: ECHO-1032
         current_block_num = broadcast_result["block_num"] - 1
         lcc.log_info("Method 'getPennie' performed successfully, current_block_num is '{}'".format(current_block_num))
-
         lcc.set_step("Get contract logs with 'from' param that equal to current_block_num")
         contract_logs = self.get_contract_logs(contract_id=contract_id, _from=current_block_num, limit=max_limit)
         lcc.log_info(
             "Call method 'get_contract_logs' with params: from='{}', limit='{}'".format(current_block_num, max_limit))
-
         lcc.set_step("Check contract logs")
         require_that("'log has value'", bool(contract_logs), is_true(), quiet=True)
         for log in contract_logs:
@@ -289,9 +291,8 @@ class PositiveTesting(BaseTest):
                 for key in contract_log_keys:
                     require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
-
     @lcc.test("Check work of the method outside the block in which the logs of the contract were recorded'")
-    # @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
+    @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_outside_block_with_logs(self, get_random_integer):
         value_amount = get_random_integer
 
