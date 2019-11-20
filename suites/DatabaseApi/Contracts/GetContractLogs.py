@@ -12,6 +12,8 @@ SUITE = {
 }
 
 
+@lcc.tags("BUG ECHO-1588")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
@@ -91,6 +93,7 @@ class GetContractLogs(BaseTest):
                     quiet=True
                 )
 
+
 @lcc.tags("BUG ECHO-1588")
 @lcc.disabled()
 @lcc.prop("positive", "type")
@@ -167,7 +170,7 @@ class PositiveTesting(BaseTest):
             lcc.log_info("Method #'{}' 'getPennie' performed successfully, block_num: '{}'".format(i, block_num))
 
         lcc.set_step("Get contract logs after two identical contract calls")
-        params =  [{"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
+        params = [{"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
         get_contract_logs_results = self.get_contract_logs(params=params)
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
 
@@ -256,7 +259,6 @@ class PositiveTesting(BaseTest):
                 for key in contract_log_keys:
                     require_that("contract_logs", log[1], has_entry(key), quiet=True)
 
-    @lcc.tags("qa")
     @lcc.test("Check contract logs from 'current_block'")
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_from_current_block(self, get_random_integer):

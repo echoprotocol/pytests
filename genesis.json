@@ -603,7 +603,7 @@
         {
             "owner_name": "init5",
             "eth_address": "484035B3c9F0e0756B930A3A735e030Ce8fdc06E",
-            "btc_public_key": "02c16e97132e72738c9c0163656348cd1be03521de17efeb07e496e742ac84512e"
+            "btc_public_key": "02b4231ac9ae5c083c958ecbad5fc459f4c7e48c5741c40fd44c82696fb563edeb"
         }
     ],
     "initial_chain_id": "aa34045518f1469a28fa4578240d5f039afa9959c0b95ce3b39674efa691fb21",
