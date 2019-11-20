@@ -140,13 +140,13 @@ class HelloWorld(BaseTest):
             check_that(
                 "'owner balance'",
                 actual_balance,
-                is_(owner_balance - fee[0].get("amount") + 1 + reward)
+                is_(owner_balance - fee[0].get("amount") + 1 + reward + produce_block_reward)
             )
         else:
             check_that(
                 "'owner balance'",
                 actual_balance,
-                is_(owner_balance - fee[0].get("amount") + 1)
+                is_(owner_balance - fee[0].get("amount") + 1 + produce_block_reward)
             )
             check_that(
                 "'accumulated reward'",
