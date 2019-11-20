@@ -33,6 +33,3 @@ before_script:
   - docker-compose up -d echo
 script:
   - python3 test_runner.py
-after_script:
-  - docker-compose down -v
-  - docker-compose rm -fv
