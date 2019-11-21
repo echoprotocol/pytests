@@ -4,25 +4,23 @@ The project is intended for testing Echo project. Includes testing:
 * [**Echo Operations**](https://docs.echo.org/api-reference/echo-operations)
 * Testing according to specified scenarios
 
+
 ### Instalation:
- 
-Python version: 3.7 or later 
+Software Requirements: Python 3.7 or later 
 ##### Windows
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
-    $ virtualenv venv
     $ python3 -m pip install --user virtualenv
-    $ python3 -m venv venv
+    $ virtualenv venv
     $ .\venv\Scripts\activate
-    $ pip install -r requirements.txt
+    $ pip3 install -r requirements.txt
 
 ##### Linux
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
-    $ virtualenv venv
     $ virtualenv -p python3.7 venv
     $ source venv/bin/activate
-    $ pip install -r requirements.txt
+    $ pip3 install -r requirements.txt
     
 ##### Mac OS
 *please see Linux installation*
