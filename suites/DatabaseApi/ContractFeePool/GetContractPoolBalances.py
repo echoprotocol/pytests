@@ -356,7 +356,7 @@ class PositiveTesting(BaseTest):
             check_that("'account balance'", int(updated_account_balance),
                        equal_to(int(account_balance) - (needed_fee - value_to_pool)))
             check_that("'accumulated reward'", accum_reward_after_greet,
-                       is_(accum_reward_before_greet + reward + produce_block_reward))
+                       is_(accum_reward_before_greet + reward))
 
         lcc.set_step("Get a contract's fee pool balance after contract call")
         response_id = self.send_request(self.get_request("get_contract_pool_balance", [contract_id]),
