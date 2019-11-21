@@ -156,8 +156,9 @@ class PositiveTesting(BaseTest):
         )
 
     # todo: uncomment when bug ECHO-1462 will be fixed
-    # @lcc.test("Check limit number of operations to retrieve")
-    # @lcc.depends_on("HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
+    @lcc.test("Check limit number of operations to retrieve")
+    @lcc.depends_on("HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
+    @lcc.disabled()
     def limit_operations_to_retrieve(self, get_random_valid_account_name, get_random_integer_up_to_fifty):
         new_account = get_random_valid_account_name
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
@@ -207,9 +208,11 @@ class PositiveTesting(BaseTest):
             "'number of history results'",
             response["result"], has_length(max_limit)
         )
+
     # todo: uncomment when bug ECHO-1462 will be fixed
-    # @lcc.test("Check stop and start IDs of the operations in contract history")
-    # @lcc.depends_on("HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
+    @lcc.test("Check stop and start IDs of the operations in contract history")
+    @lcc.depends_on("HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
+    @lcc.disabled()
     def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_fifty):
         value_amount = get_random_integer
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))

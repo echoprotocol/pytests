@@ -10,7 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "database_api", "database_api_objects", "get_objects")
+@lcc.tags("api", "database_api", "database_api_objects", "get_objects", "aa")
 @lcc.suite("Check work of method 'get_objects' (committee frozen balance object)", rank=1)
 class GetCommitteeFrozenBalanceObjects(BaseTest):
 
@@ -37,7 +37,9 @@ class GetCommitteeFrozenBalanceObjects(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    # todo: wait for ECHOT-77 merge
     @lcc.test("Simple work of method 'get_objects' (committee frozen balance object)")
+    @lcc.disabled()
     def method_main_check(self):
         params = ['1.10.0']
         lcc.set_step("Get 'committee_frozen_balance' object")
@@ -65,4 +67,8 @@ class GetCommitteeFrozenBalanceObjects(BaseTest):
             lcc.log_info("Call method 'get_committee_frozen_balance' with params: {}".format(committee_member_id))
 
             lcc.set_step("Check active committee member frozen balance")
-            check_that("committee_frozen_balance", committee_frozen_balance_object_result, equal_to(get_object_result))
+            check_that(
+                "committee_frozen_balance",
+                committee_frozen_balance_object_result, equal_to(get_object_result),
+                quiet=True
+            )

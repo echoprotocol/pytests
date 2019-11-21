@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    require_that, is_str, is_, is_bool, greater_than, greater_than_or_equal_to
+    is_str, is_, is_bool, greater_than, greater_than_or_equal_to
 
 
 class ObjectValidator(object):
 
     @staticmethod
     def validate_account_object(base_test, account_info):
-
-        if require_that(
+        if check_that(
             "account_info",
             account_info, has_length(16),
             quiet=True
         ):
             check_that_in(
                 account_info,
-                "id", is_str(),
-                "network_fee_percentage", is_integer(),
                 "active", is_dict(),
+                "active_delegate_share", is_integer(),
                 "options", is_dict(),
-                "whitelisting_accounts", is_list(),
                 "whitelisting_accounts", is_list(),
                 "blacklisting_accounts", is_list(),
                 "whitelisted_accounts", is_list(),
@@ -31,6 +28,10 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+            if not base_test.type_validator.is_account_id(account_info["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(account_info["id"]))
+            else:
+                lcc.log_info("'id' has correct format: account_object_type")
             if not base_test.type_validator.is_account_id(account_info["registrar"]):
                 lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
             else:
@@ -47,14 +48,9 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
             else:
                 lcc.log_info("'statistics' has correct format: account_statistics_object_type")
-            if len(account_info) == 21:
-                if not base_test.type_validator.is_vesting_balance_id(account_info["cashback_vb"]):
-                    lcc.log_error("Wrong format of 'cashback_vb', got: {}".format(account_info["cashback_vb"]))
-                else:
-                    lcc.log_info("'cashback_vb' has correct format: vesting_balance_object_type")
 
             lcc.set_step("Check 'active' field")
-            if require_that(
+            if check_that(
                 "active",
                 account_info["active"], has_length(3),
                 quiet=True
@@ -68,7 +64,7 @@ class ObjectValidator(object):
                 )
 
             lcc.set_step("Check 'options' field")
-            if require_that(
+            if check_that(
                 "options",
                 account_info["options"], has_length(3),
                 quiet=True
@@ -108,7 +104,7 @@ class ObjectValidator(object):
                 else:
                     lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
 
-        if require_that(
+        if check_that(
             "'length of chain asset'",
             asset, has_length(7),
             quiet=True
@@ -139,7 +135,7 @@ class ObjectValidator(object):
                 quiet=True
             )
             options = asset["options"]
-            if require_that(
+            if check_that(
                 "'options'",
                 options, has_length(8),
                 quiet=True
@@ -156,7 +152,7 @@ class ObjectValidator(object):
                     quiet=True
                 )
                 core_exchange_rate = options["core_exchange_rate"]
-                if require_that(
+                if check_that(
                     "'core_exchange_rate'",
                     core_exchange_rate, has_length(2),
                     quiet=True
@@ -170,7 +166,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_committee_member_object(base_test, committee_member):
-        if require_that(
+        if check_that(
             "'committee member'",
             committee_member, has_length(6),
             quiet=True
@@ -203,7 +199,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_proposal_object(base_test, proposal_object):
-        if require_that(
+        if check_that(
             "'proposal object'",
             proposal_object, has_length(7),
             quiet=True
@@ -217,7 +213,7 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'expiration_time' has correct format: iso8601")
             proposed_transaction = proposal_object["proposed_transaction"]
-            if require_that(
+            if check_that(
                 "'proposed transaction'",
                 proposed_transaction, has_length(5),
                 quiet=True
@@ -247,7 +243,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_operation_history_object(base_test, operation_history_object):
-        if require_that(
+        if check_that(
             "operation_history_object",
             operation_history_object, has_length(8),
             quiet=True
@@ -274,7 +270,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_vesting_balance_object(base_test, vesting_balance_object):
-        if require_that(
+        if check_that(
             "balance_object",
             vesting_balance_object, has_length(5),
             quiet=True
@@ -284,7 +280,7 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'id' has correct format: vesting_balance_object_type")
             balance = vesting_balance_object["balance"]
-            if require_that(
+            if check_that(
                 "balance",
                 balance, has_length(2),
                 quiet=True
@@ -295,7 +291,7 @@ class ObjectValidator(object):
                 else:
                     lcc.log_info("'asset_id' has correct format: asset_object_type")
             policy = vesting_balance_object["policy"]
-            if require_that(
+            if check_that(
                 "policy",
                 policy, has_length(2),
                 quiet=True
@@ -328,7 +324,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_balance_object(base_test, balance_object):
-        if require_that(
+        if check_that(
             "balance_object",
             balance_object, has_length(5),
             quiet=True
@@ -360,7 +356,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_frozen_balance_object(base_test, frozen_balance_object):
-        if require_that(
+        if check_that(
             "frozen_balance_object",
             frozen_balance_object, has_length(6),
             quiet=True
@@ -374,14 +370,14 @@ class ObjectValidator(object):
                 quiet=True
             )
             balance = frozen_balance_object["balance"]
-            if require_that(
+            if check_that(
                 "balance",
                 balance, has_length(2),
                 quiet=True
             ):
-                check_that_in(
-                    balance,
-                    "amount", is_integer(),
+                check_that(
+                    "committee_frozen_balance_amount",
+                    int(balance["amount"]), is_integer(),
                     quiet=True
                 )
                 if not base_test.type_validator.is_asset_id(balance["asset_id"]):
@@ -399,18 +395,22 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_committee_frozen_balance_object(base_test, committee_frozen_balance_object):
-        if require_that(
+        if check_that(
             "committee_frozen_balance_object",
-            committee_frozen_balance_object, has_length(4),
+            committee_frozen_balance_object, has_length(5),
             quiet=True
         ):
             balance = committee_frozen_balance_object["balance"]
-            if require_that(
-                "committee_frozen_balance_object",
-                balance["amount"],
-                is_integer(),
+            if check_that(
+                "balance",
+                balance, has_length(2),
                 quiet=True
             ):
+                check_that(
+                    "committee_frozen_balance_amount",
+                    int(balance["amount"]), is_integer(),
+                    quiet=True
+                )
                 if not base_test.type_validator.is_asset_id(balance["asset_id"]):
                     lcc.log_error("Wrong format of 'asset_id', got: {}".format(
                                   committee_frozen_balance_object["asset_id"]))
@@ -418,18 +418,23 @@ class ObjectValidator(object):
                     lcc.log_info("'asset_id' has correct format")
             if not base_test.type_validator.is_committee_frozen_balance_id(committee_frozen_balance_object["id"]):
                 lcc.log_error("Wrong format of 'committee_frozen_balance_id', got: {}".format(
-                              committee_frozen_balance_object["asset_id"]))
+                              committee_frozen_balance_object["id"]))
             else:
                 lcc.log_info("'committee_frozen_balance_id' has correct format")
             if not base_test.type_validator.is_committee_member_id(committee_frozen_balance_object["owner"]):
                 lcc.log_error("Wrong format of 'committee_member_id', got: {}".format(
-                              committee_frozen_balance_object["asset_id"]))
+                              committee_frozen_balance_object["owner"]))
             else:
                 lcc.log_info("'committee_member_id' has correct format")
+            if not base_test.type_validator.is_iso8601(committee_frozen_balance_object["unfreeze_balance_time"]):
+                lcc.log_error("Wrong format of 'unfreeze_balance_time', got {}".format(
+                              committee_frozen_balance_object["unfreeze_balance_time"]))
+            else:
+                lcc.log_info("'unfreeze_balance_time' has correct format")
 
     @staticmethod
     def validate_contract_object(base_test, contract_object):
-        if require_that(
+        if check_that(
             "contract",
             contract_object, has_length(7),
             quiet=True
@@ -460,9 +465,9 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_contract_result_object(base_test, contract_result_object):
-        if require_that(
+        if check_that(
             "contract result",
-            contract_result_object, has_length(4),
+            contract_result_object, has_length(5),
             quiet=True
         ):
             if not base_test.type_validator.is_contract_result_id(contract_result_object["id"]):
@@ -472,6 +477,7 @@ class ObjectValidator(object):
             check_that_in(
                 contract_result_object,
                 "type", is_str(),
+                "block_num", is_integer(),
                 "contracts_id", is_list(),
                 "extensions", is_list(),
                 quiet=True
@@ -485,7 +491,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_eth_address_object(base_test, eth_address_object):
-        if require_that(
+        if check_that(
             "account_eth_address",
             eth_address_object, has_length(6),
             quiet=True
@@ -512,7 +518,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_deposit_eth_object(base_test, deposit_eth_object):
-        if require_that(
+        if check_that(
             "'first deposit of created account'",
             deposit_eth_object, has_length(7),
             quiet=True
@@ -537,7 +543,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_withdraw_eth_object(base_test, withdraw_eth_object):
-        if require_that(
+        if check_that(
             "'first deposit of created account'",
             withdraw_eth_object, has_length(8),
             quiet=True
@@ -565,7 +571,7 @@ class ObjectValidator(object):
 
     @staticmethod
     def validate_erc20_token_object(base_test, erc20_token_object):
-        if require_that(
+        if check_that(
             "'length of ERC20 object'",
             erc20_token_object, has_length(8),
             quiet=True

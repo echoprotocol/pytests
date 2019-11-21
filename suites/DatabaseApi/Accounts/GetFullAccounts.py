@@ -37,7 +37,7 @@ class GetFullAccounts(BaseTest):
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_full_accounts", [params, False]),
                                         self.__database_api_identifier)
-        results = self.get_response(response_id, log_response=True)["result"]
+        results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_full_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")

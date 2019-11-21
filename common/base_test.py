@@ -3,6 +3,7 @@ import codecs
 import json
 import os
 import time
+from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from Crypto.Hash import keccak
@@ -21,7 +22,7 @@ from common.object_validation import ObjectValidator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG
+    GANACHE_PK, DEBUG, NATHAN_PK
 
 
 class BaseTest(object):
@@ -78,6 +79,9 @@ class BaseTest(object):
         else:
             check_that_in(response, key, is_integer(), quiet=quiet)
 
+    def solve_registration_task(self, block_id, rand_num, difficulty):
+        return self.echo.solve_registration_task(block_id, rand_num, difficulty)
+
     @staticmethod
     def get_time(global_time=False):
         if global_time:
@@ -89,6 +93,12 @@ class BaseTest(object):
         if global_datetime:
             return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+
+    @staticmethod
+    def subtract_from_datetime(str_datetime, days=0, hours=0, minutes=0, seconds=0):
+        formated_datetime = datetime.strptime(str_datetime, "%Y-%m-%dT%H:%M:%S")
+        formated_datetime = formated_datetime - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        return formated_datetime.strftime("%Y-%m-%dT%H:%M:%S")
 
     def set_timeout_wait(self, seconds=None, print_log=True):
         if print_log:
@@ -440,9 +450,16 @@ class BaseTest(object):
         public_key = self.store_new_account(account_name)
         self.__id += 1
         callback = self.__id
-        account_params = [callback, account_name, public_key, public_key]
-        response_id = self.send_request(self.get_request("register_account", account_params),
-                                        registration_api_identifier, debug_mode=debug_mode)
+
+        response_id = self.send_request(self.get_request("request_registration_task"),
+                                        registration_api_identifier)
+        pow_algorithm_data = self.get_response(response_id)["result"]
+        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
+                                                pow_algorithm_data["rand_num"],
+                                                pow_algorithm_data["difficulty"])
+        account_params = [callback, account_name, public_key, public_key, solution, pow_algorithm_data["rand_num"]]
+        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
+                                        registration_api_identifier)
         response = self.get_response(response_id, debug_mode=debug_mode)
         if response.get("error"):
             lcc.log_error(
@@ -580,6 +597,12 @@ class BaseTest(object):
                 new_file.write(json.dumps(data))
 
         return data['RESERVED_PUBLIC_KEY']
+
+    def produce_block(self, database_api_identifier):
+        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.11",
+                                                         to_account_id="1.2.1", amount=1, signer=NATHAN_PK)
+        collected_operation = self.collect_operations(operation, database_api_identifier)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
     @staticmethod
     def _login_status(response):

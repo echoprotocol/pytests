@@ -18,8 +18,8 @@ class Utils(object):
         self.waiting_time_result = 0
 
     @staticmethod
-    def add_balance_for_operations(base_test, account, operation, database_api_id, operation_count=1, transfer_amount=0,
-                                   only_in_history=False, get_only_fee=False, log_broadcast=False):
+    def add_balance_for_operations(base_test, account, operation, database_api_id, deposit_amount=0, operation_count=1,
+                                   transfer_amount=0, only_in_history=False, get_only_fee=False, log_broadcast=False):
         if only_in_history:
             transfer_amount = operation_count * transfer_amount
         if get_only_fee:
@@ -27,7 +27,7 @@ class Utils(object):
         fee_amount = base_test.get_required_fee(operation, database_api_id)[0]["amount"]
         if type(fee_amount) is str:
             fee_amount = int(fee_amount)
-        amount = operation_count * fee_amount + transfer_amount
+        amount = operation_count * fee_amount + transfer_amount + deposit_amount
         transfer_amount_for_pay_fee_op = base_test.echo_ops.get_transfer_operation(echo=base_test.echo,
                                                                                    from_account_id=base_test.echo_acc0,
                                                                                    to_account_id=account, amount=amount)
@@ -401,7 +401,8 @@ class Utils(object):
             return response
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            import time
+            time.sleep(1)
             return self.get_eth_address(base_test, account_id, database_api_id, wait_time, temp_count=temp_count)
         raise Exception(
             "No ethereum address of '{}' account. Waiting time result='{}'".format(account_id, wait_time))
@@ -596,9 +597,13 @@ class Utils(object):
         if account_id != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             broadcast_result = self.add_balance_for_operations(base_test, account_id, temp_operation, database_api_id,
-                                                               log_broadcast=log_broadcast)
+                                                               deposit_amount, log_broadcast=log_broadcast)
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
+        params = [account_id, [base_test.echo_asset]]
+        response_id = base_test.send_request(base_test.get_request("get_account_balances", params), database_api_id)
+        updated_response = base_test.get_response(response_id, log_response=True)
+
         collected_operation = base_test.collect_operations(operation, database_api_id)
         broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
                                                         log_broadcast=log_broadcast)
@@ -789,12 +794,13 @@ class Utils(object):
                                                                                               broadcast_result))
         contract_result = base_test.get_contract_result(broadcast_result, database_api_id)
         balance = base_test.get_contract_output(contract_result, output_type=int)
+
         if balance != previous_balance:
             lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
             return balance
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            base_test.produce_block(database_api_id)
             return self.get_erc20_token_balance_in_echo(base_test, account_id, balance_of_method, contract_id,
                                                         database_api_id, previous_balance=previous_balance,
                                                         wait_time=wait_time, temp_count=temp_count)
@@ -844,7 +850,7 @@ class Utils(object):
 
             lcc.set_step("Get next block after block with operation")
             next_block_num = block_number + 1
-            self.set_timeout_until_num_blocks_released(base_test, database_api_id)
+            base_test.produce_block(database_api_id)
             response_id = base_test.send_request(base_test.get_request("get_block", [next_block_num]), database_api_id)
             prev_signatures = base_test.get_response(response_id)["result"]["prev_signatures"]
 
@@ -874,7 +880,6 @@ class Utils(object):
                 delegate_reward = int(total_producer_reward * 0.2)
             producer_reward = total_producer_reward - delegate_reward
             producer_rewards[block_producer] = producer_reward
-        self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
 
         lcc.set_step("Confirm account ids rewards")
         for i, acc_id in enumerate(account_ids):

@@ -81,12 +81,18 @@ class PositiveTesting(BaseTest):
         require_that("'public key' result", public_key_status_before_registration, is_false())
 
         lcc.set_step("Register new account with generated public key")
-        account_params = [callback, new_account, public_key, public_key]
-        response_id = self.send_request(self.get_request("register_account", account_params),
+        response_id = self.send_request(self.get_request("request_registration_task"),
+                                        self.__registration_api_identifier)
+        pow_algorithm_data = self.get_response(response_id)["result"]
+        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
+                                                pow_algorithm_data["rand_num"],
+                                                pow_algorithm_data["difficulty"])
+        account_params = [callback, new_account, public_key, public_key, solution, pow_algorithm_data["rand_num"]]
+        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         self.__registration_api_identifier)
         response = self.get_response(response_id)
         self.get_notice(callback)
-        require_that("'register_account' result", response["result"], is_none(), quiet=False)
+        require_that("'register_account' result", response["result"], is_true(), quiet=False)
 
         lcc.set_step("Verify generated public key after account registration")
         response_id = self.send_request(self.get_request("is_public_key_registered", [public_key]),

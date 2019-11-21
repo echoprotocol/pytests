@@ -39,12 +39,13 @@ class GetBlockHeader(BaseTest):
         block_header = response["result"]
         require_that(
             "'the block header of the first block'",
-            block_header, has_length(9)
+            block_header, has_length(10)
         )
         check_that_in(
             block_header,
             "previous", is_str("0000000000000000000000000000000000000000"),
             "round", is_integer(),
+            "attempt", is_integer(),
             "transaction_merkle_root", is_str("0000000000000000000000000000000000000000"),
             "vm_root", is_list(),
             "prev_signatures", is_list(),
