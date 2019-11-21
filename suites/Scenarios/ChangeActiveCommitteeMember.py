@@ -129,7 +129,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             operation = self.echo_ops.get_proposal_create_operation(
                 echo=self.echo,
                 fee_paying_account="1.2.6",
-                proposed_ops=[{"op": collected_operation[0]}],
+                proposed_ops=collected_operation,
                 expiration_time=self.get_expiration_time(15),
                 review_period_seconds=10,
                 signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
