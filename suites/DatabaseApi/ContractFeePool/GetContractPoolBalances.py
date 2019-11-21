@@ -348,6 +348,8 @@ class PositiveTesting(BaseTest):
         accum_reward_after_greet = self.get_response(response_id)["result"][0]["accumulated_reward"]
         lcc.log_info("{} accumulated reward: '{}'".format(self.echo_acc0, accum_reward_after_greet))
 
+        self.produce_block(self.__database_api_identifier)
+
         lcc.set_step("Check account accumalated reward and balance")
         if accum_reward_after_greet == 0:
             check_that("'account balance'", int(updated_account_balance),
