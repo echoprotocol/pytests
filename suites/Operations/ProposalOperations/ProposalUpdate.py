@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, has_item
+from project import INIT0_PK
 
 from common.base_test import BaseTest
 
@@ -51,6 +52,7 @@ class ProposalUpdate(BaseTest):
     @lcc.test("Simple work of method 'proposal_update'")
     def method_main_check(self, get_random_integer_up_to_ten):
         transfer_amount = get_random_integer_up_to_ten
+        lcc.log_info(self.echo_acc0)
 
         response_id = self.send_request(self.get_request("get_account_balances", ["1.2.6", [self.echo_asset]]),
                                         self.__database_api_identifier)
@@ -66,13 +68,12 @@ class ProposalUpdate(BaseTest):
         operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
             fee_paying_account="1.2.6",
-            proposed_ops=[{"op": collected_operation[0]}],
+            proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(15),
             review_period_seconds=10,
-            signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
+            signer=INIT0_PK
         )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
         lcc.log_info("Propsal created, proposal id: '{}'".format(proposal_id))
         lcc.set_step("Make voting for transfer operation")
