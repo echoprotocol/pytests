@@ -20,6 +20,7 @@ class SetBlockAppliedCallback(BaseTest):
 
     def setup_suite(self):
         super().setup_suite()
+        self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
@@ -60,6 +61,7 @@ class SetBlockAppliedCallback(BaseTest):
         lcc.set_step("Check new block hash number")
         for i in range(blocks_count):
             lcc.log_info("Get notice #{}".format(i))
+            self.produce_block(self.__database_api_identifier)
             notice = self.get_notice(subscription_callback_id, log_response=True)
             notices.append(notice)
         for i in range(blocks_count):

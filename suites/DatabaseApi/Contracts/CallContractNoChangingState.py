@@ -46,7 +46,7 @@ class CallContractNoChangingState(BaseTest):
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier)
 
         lcc.set_step("Get call contract operation no changing state")
-        params = [contract_id, self.echo_acc0, self.echo_asset, self.greet]
+        params = [contract_id, self.echo_acc0, {"amount": 100, "asset_id": self.echo_asset}, self.greet]
         response_id = self.send_request(self.get_request("call_contract_no_changing_state", params),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
@@ -95,6 +95,8 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    @lcc.tags("TASK ECHOT-280")
+    @lcc.disabled()
     @lcc.test("Check work of 'call_contract_no_changing_state' method, not empty output call contract result "
               "(int and string type)")
     @lcc.depends_on("DatabaseApi.Contracts.CallContractNoChangingState.CallContractNoChangingState.method_main_check")
@@ -128,7 +130,7 @@ class PositiveTesting(BaseTest):
         lcc.tags("Contract output in hex: '{}'".format(contract_output_in_hex))
 
         lcc.set_step("Get call contract operation no changing state")
-        params = [contract_id, self.echo_acc0, self.echo_asset, self.get_string]
+        params = [contract_id, self.echo_acc0, {"amount": 100, "asset_id": self.echo_asset}, self.get_string]
         response_id = self.send_request(self.get_request("call_contract_no_changing_state", params),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
@@ -161,7 +163,7 @@ class PositiveTesting(BaseTest):
         lcc.tags("Contract output in hex: '{}'".format(contract_output_in_hex))
 
         lcc.set_step("Get call contract operation no changing state")
-        params = [contract_id, self.echo_acc0, self.echo_asset, self.get_uint]
+        params = [contract_id, self.echo_acc0, {"amount": 100, "asset_id": self.echo_asset}, self.get_uint]
         response_id = self.send_request(self.get_request("call_contract_no_changing_state", params),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
@@ -209,7 +211,7 @@ class PositiveTesting(BaseTest):
         lcc.tags("Contract output in hex: '{}'".format(contract_output_in_hex))
 
         lcc.set_step("Get call contract operation no changing state")
-        params = [contract_id, self.echo_acc0, new_asset_id, self.getPennie]
+        params = [contract_id, self.echo_acc0, {"amount": 100, "asset_id": self.echo_asset}, self.getPennie]
         response_id = self.send_request(self.get_request("call_contract_no_changing_state", params),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]

@@ -211,7 +211,7 @@ class GetGlobalProperties(BaseTest):
         lcc.log_info("Call method 'get_global_properties'")
 
         lcc.set_step("Check main fields")
-        if check_that("global_properties", response["result"], has_length(4)):
+        if check_that("global_properties", response["result"], has_length(3)):
             if not self.validator.is_global_object_id(response["result"]["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
             else:
@@ -219,14 +219,13 @@ class GetGlobalProperties(BaseTest):
             check_that_in(
                 response["result"],
                 "parameters", is_dict(),
-                "next_available_vote_id", is_integer(),
                 "active_committee_members", is_list(),
                 quiet=True
             )
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         parameters = response["result"]["parameters"]
-        if check_that("parameters", parameters, has_length(29)):
+        if check_that("parameters", parameters, has_length(24)):
             check_that_in(
                 parameters,
                 "current_fees", is_dict(),
@@ -239,14 +238,7 @@ class GetGlobalProperties(BaseTest):
                 "maximum_proposal_lifetime", is_integer(),
                 "maximum_asset_whitelist_authorities", is_integer(),
                 "maximum_asset_feed_publishers", is_integer(),
-                "maximum_committee_count", is_integer(),
                 "maximum_authority_membership", is_integer(),
-                "reserve_percent_of_fee", is_integer(),
-                "network_percent_of_fee", is_integer(),
-                "max_predicate_opcode", is_integer(),
-                "accounts_per_fee_scale", is_integer(),
-                "account_fee_scale_bitshifts", is_integer(),
-                "account_fee_scale_bitshifts", is_integer(),
                 "max_authority_depth", is_integer(),
                 "block_producer_reward_ratio", is_integer(),
                 "block_emission_amount", is_integer(),
@@ -374,9 +366,10 @@ class GetGlobalProperties(BaseTest):
 
         lcc.set_step("Check global parameters: 'echorand_config' field")
         echorand_config = parameters["echorand_config"]
-        if check_that("echorand_config", echorand_config, has_length(8)):
+        if check_that("echorand_config", echorand_config, has_length(9)):
             check_that_in(
                 echorand_config,
+                "_time_generate", is_integer(),
                 "_time_net_1mb", is_integer(),
                 "_time_net_256b", is_integer(),
                 "_creator_count", is_integer(),

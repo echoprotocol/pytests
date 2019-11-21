@@ -35,11 +35,11 @@ class GetDynamicGlobalProperties(BaseTest):
         lcc.log_info("Call method 'get_dynamic_global_properties'")
 
         lcc.set_step("Check main fields")
-        dynamic_global_properties = ["head_block_number", "committee_budget", "accounts_registered_this_interval",
+        dynamic_global_properties = ["head_block_number", "committee_budget",
                                      "dynamic_flags", "last_irreversible_block_num"]
         dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
         result = response["result"]
-        if check_that("dynamic global properties", result, has_length(11)):
+        if check_that("dynamic global properties", result, has_length(10)):
             if not self.validator.is_dynamic_global_object_id(result["id"]):
                 lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
             else:

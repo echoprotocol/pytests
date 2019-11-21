@@ -46,6 +46,7 @@ class HelloWorld(BaseTest):
               "and invoking a contract on the Echo network, written in Solidity.")
     def hello_world_scenario(self):
         expected_string = "Hello World!!!"
+        produce_block_reward = 1
 
         lcc.set_step("Create 'Piggy' contract in the Echo network")
         operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -81,8 +82,7 @@ class HelloWorld(BaseTest):
         contract_balance = response["result"][0]["amount"]
 
         lcc.set_step("Get owner balance and store")
-        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
-                                                         print_log=False)
+        self.produce_block(self.__database_api_identifier)
         params = [self.echo_acc0, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
@@ -151,7 +151,7 @@ class HelloWorld(BaseTest):
             check_that(
                 "'accumulated reward'",
                 accumulated_reward_after,
-                is_(accumulated_reward_before + reward))
+                is_(accumulated_reward_before + reward + produce_block_reward))
 
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
