@@ -2,8 +2,8 @@
 import json
 import os.path
 import sys
-import yaml
 
+import yaml
 from lemoncheesecake.project import Project
 
 
@@ -22,7 +22,6 @@ project = MyProject(project_dir)
 project.metadata_policy.add_property_rule("main", "type", on_suite=True, required=False)
 project.metadata_policy.add_property_rule("positive", "type", on_suite=True, required=False)
 project.metadata_policy.add_property_rule("negative", "type", on_suite=True, required=False)
-
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
 GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), "genesis.json")))
@@ -97,6 +96,7 @@ ACCOUNT_PREFIX = "account"
 DEFAULT_ACCOUNTS_COUNT = 1000
 MAIN_TEST_ACCOUNT_COUNT = 1
 #todo: delete. Block_interval = 5
+# todo: delete. Block_interval = 5
 BLOCK_RELEASE_INTERVAL = 5
 BLOCKS_NUM_TO_WAIT = 10
 BASE_ASSET_SYMBOL, ETH_ASSET_SYMBOL = "ECHO", "EETH"

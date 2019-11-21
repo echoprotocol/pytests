@@ -6,6 +6,11 @@ The project is intended for testing Echo project. Includes testing:
 
 Python version: 3.7 or later 
 ### Windows
+=======
+### Instalation:
+ 
+Python version: 3.7 or later 
+##### Windows
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
     $ virtualenv venv
@@ -14,7 +19,7 @@ Python version: 3.7 or later
     $ .\venv\Scripts\activate
     $ pip install -r requirements.txt
 
-### Linux
+##### Linux
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
     $ cd pytests
     $ virtualenv venv
@@ -22,7 +27,7 @@ Python version: 3.7 or later
     $ source venv/bin/activate
     $ pip install -r requirements.txt
     
-### Mac OS
+##### Mac OS
 *please see Linux installation*
 
 ## Usage

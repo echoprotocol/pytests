@@ -62,6 +62,11 @@ class EthCreateAddress(BaseTest):
         lcc.log_info("Ethereum address generated successfully")
 
         lcc.set_step("Get ethereum address of created account in the network")
-        self.eth_account_address = self.utils.get_eth_address(self, new_account,
-                                                              self.__database_api_identifier)["result"]["eth_addr"]
-        lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account, self.eth_account_address))
+        eth_account_address = self.utils.get_eth_address(self, new_account,
+                                                         self.__database_api_identifier)["result"]["eth_addr"]
+        lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account, eth_account_address))
+
+        if not self.validator.is_eth_address(eth_account_address):
+            lcc.log_info("Wrong format of eth address, got: {}".format(eth_account_address))
+        else:
+            lcc.log_info("Eth address has correct format.")
