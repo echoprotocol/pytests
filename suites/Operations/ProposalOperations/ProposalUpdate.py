@@ -2,8 +2,8 @@
 from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, has_item
-from project import INIT0_PK
+from lemoncheesecake.matching import check_that, equal_to
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
 
 from common.base_test import BaseTest
 
@@ -59,8 +59,8 @@ class ProposalUpdate(BaseTest):
         account_balance = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("{}".format(account_balance))
         lcc.set_step("Collect transfer operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.6",
-                                                                  amount=transfer_amount, to_account_id="1.2.7")
+        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.7",
+                                                                  amount=transfer_amount, to_account_id="1.2.6")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         lcc.log_info("Transfer operation collected")
 
@@ -69,39 +69,38 @@ class ProposalUpdate(BaseTest):
             echo=self.echo,
             fee_paying_account="1.2.6",
             proposed_ops=collected_operation,
-            expiration_time=self.get_expiration_time(15),
+            expiration_time=self.get_expiration_time(60),
             review_period_seconds=10,
             signer=INIT0_PK
         )
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
         lcc.log_info("Propsal created, proposal id: '{}'".format(proposal_id))
+
+        lcc.set_step("Get proposal before update")
+        response_id = self.send_request(self.get_request("get_proposed_transactions", ["1.2.7"]),
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"][0]
+        lcc.log_info("{}".format(result))
+        check_that("required_active_approvals", result["required_active_approvals"], equal_to(["1.2.7"]))
+
         lcc.set_step("Make voting for transfer operation")
         operation = self.echo_ops.get_proposal_update_operation(
             echo=self.echo,
-            fee_paying_account="1.2.6",
+            fee_paying_account="1.2.7",
             proposal=proposal_id,
-            active_approvals_to_add=["1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11"],
+            active_approvals_to_add=["1.2.7"],
             active_approvals_to_remove=[],
-            owner_approvals_to_remove=[],
             key_approvals_to_add=[],
             key_approvals_to_remove=[],
-            signer=["5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE",
-                    "5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm",
-                    "5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH",
-                    "5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz",
-                    "5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS",
-                    "5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw"]
+            signer=[INIT1_PK]
         )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were activated")
-        import time
-        time.sleep(25)
-        response_id = self.send_request(self.get_request("get_account_balances", ["1.2.6", [self.echo_asset]]),
+        response_id = self.send_request(self.get_request("get_proposed_transactions", ["1.2.7"]),
                                         self.__database_api_identifier)
-        current_account_balance = self.get_response(response_id)["result"][0]["amount"]
-        lcc.log_info("Account: {}, have balance: {}".format("1.2.7", current_account_balance))
-        check_that("transferred amount", int(current_account_balance) - int(account_balance), equal_to(transfer_amount))
+        result = self.get_response(response_id)["result"][0]
+        check_that("available_active_approvals", result["available_active_approvals"], equal_to(["1.2.7"]))

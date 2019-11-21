@@ -374,9 +374,10 @@ class EchoOperations(object):
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
+
     def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
                                       active_approvals_to_remove, key_approvals_to_add, key_approvals_to_remove,
-                                      owner_approvals_to_remove=None, fee_amount=0, fee_asset_id="1.3.0",
+                                      fee_amount=0, fee_asset_id="1.3.0",
                                       extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
@@ -388,10 +389,6 @@ class EchoOperations(object):
                                       "active_approvals_to_remove": active_approvals_to_remove,
                                       "key_approvals_to_add": key_approvals_to_add,
                                       "key_approvals_to_remove": key_approvals_to_remove})
-        if owner_approvals_to_remove is None:
-            del proposal_update_props["owner_approvals_to_remove"]
-        else:
-            proposal_update_props.update({"owner_approvals_to_remove": owner_approvals_to_remove})
         if debug_mode:
             lcc.log_debug("Proposal update operation: \n{}".format(json.dumps(proposal_update_props, indent=4)))
         if signer is None:
@@ -821,6 +818,7 @@ class EchoOperations(object):
         if expiration:
             tx.expiration = expiration
         tx.sign()
+        lcc.log_info("{}".format(tx.transaction_object))
         if no_broadcast:
             return tx.transaction_object.json()
         if broadcast_with_callback:

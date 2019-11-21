@@ -1,0 +1,103 @@
+# -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
+
+from common.base_test import BaseTest
+
+SUITE = {
+    "description": "Operation 'proposal_delete'"
+}
+
+
+@lcc.prop("main", "type")
+@lcc.tags("operations", "asset_transfer_operations", "proposal_delete")
+@lcc.suite("Check work of method 'proposal_delete'", rank=1)
+class ProposalDelete(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.__registration_api_identifier = None
+        self.echo_acc0 = None
+        self.echo_acc1 = None
+
+    def get_expiration_time(self, seconds):
+        pattern = "%Y-%m-%dT%H:%M:%S"
+        now = self.get_datetime(global_datetime=True)
+        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
+        return expiration.strftime(pattern)
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        self.__registration_api_identifier = self.get_identifier("registration")
+        lcc.log_info(
+            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
+                                                                           self.__registration_api_identifier))
+        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
+                                             self.__registration_api_identifier)
+        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
+                                             self.__registration_api_identifier)
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Simple work of method 'proposal_delete'")
+    def method_main_check(self, get_random_integer_up_to_ten):
+        transfer_amount = get_random_integer_up_to_ten
+        lcc.log_info(self.echo_acc0)
+
+        response_id = self.send_request(self.get_request("get_account_balances", ["1.2.6", [self.echo_asset]]),
+                                        self.__database_api_identifier)
+        account_balance = self.get_response(response_id)["result"][0]["amount"]
+        lcc.log_info("{}".format(account_balance))
+        lcc.set_step("Collect transfer operation")
+        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.7",
+                                                                  amount=transfer_amount, to_account_id="1.2.6")
+        collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
+        lcc.log_info("Transfer operation collected")
+
+        lcc.set_step("Make proposal of transfer operation")
+        operation = self.echo_ops.get_proposal_create_operation(
+            echo=self.echo,
+            fee_paying_account="1.2.6",
+            proposed_ops=collected_operation,
+            expiration_time=self.get_expiration_time(1000),
+            review_period_seconds=10,
+            signer=INIT0_PK
+        )
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
+        proposal_id = broadcast_result["trx"]["operation_results"][0][1]
+        lcc.log_info("Propsal created, proposal id: '{}'".format(proposal_id))
+        response_id = self.send_request(self.get_request("get_proposed_transactions", ["1.2.7"]),
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"][-1]
+        check_that("required_active_approvals", result["required_active_approvals"], equal_to(["1.2.7"]))
+        proposal_id = result["id"]
+
+        lcc.set_step("Make voting for transfer operation")
+        operation = self.echo_ops.get_proposal_delete_operation(
+            echo=self.echo,
+            fee_paying_account="1.2.7",
+            proposal=proposal_id,
+            using_owner_authority=False,
+            signer=[INIT1_PK]
+        )
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        lcc.log_info("All committee member has voted")
+
+        lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were activated")
+
+        response_id = self.send_request(self.get_request("get_objects", [[proposal_id]]),
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"]
+        lcc.log_info("{}".format(result))
+        check_that("required_active_approvals", result, equal_to([None]))
