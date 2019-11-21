@@ -2,8 +2,8 @@
 import json
 import os.path
 import sys
-import yaml
 
+import yaml
 from lemoncheesecake.project import Project
 
 
@@ -22,7 +22,6 @@ project = MyProject(project_dir)
 project.metadata_policy.add_property_rule("main", "type", on_suite=True, required=False)
 project.metadata_policy.add_property_rule("positive", "type", on_suite=True, required=False)
 project.metadata_policy.add_property_rule("negative", "type", on_suite=True, required=False)
-
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
 GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), "genesis.json")))
@@ -77,11 +76,6 @@ if "INIT4_PK" not in os.environ:
 else:
     INIT4_PK = os.environ["INIT4_PK"]
 
-if "INIT5_PK" not in os.environ:
-    INIT5_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT5_PK"]
-else:
-    INIT5_PK = os.environ["INIT5_PK"]
-
 ECHO_OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "echo_operations.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
 WALLETS = os.path.join(RESOURCES_DIR, "wallets.json")
@@ -101,9 +95,9 @@ for i, initial_committee_candidate in enumerate(INITIAL_COMMITTEE_CANDIDATES):
 ACCOUNT_PREFIX = "account"
 DEFAULT_ACCOUNTS_COUNT = 1000
 MAIN_TEST_ACCOUNT_COUNT = 1
-#todo: delete. Block_interval =5
+# todo: delete. Block_interval = 5
 BLOCK_RELEASE_INTERVAL = 5
-BLOCKS_NUM_TO_WAIT = 45
+BLOCKS_NUM_TO_WAIT = 10
 BASE_ASSET_SYMBOL, ETH_ASSET_SYMBOL = "ECHO", "EETH"
 ETH_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["ETH_asset_id"]
 ETH_CONTRACT_ADDRESS = "0x" + GENESIS["initial_parameters"]["sidechain_config"]["eth_contract_address"]

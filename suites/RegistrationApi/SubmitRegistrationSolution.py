@@ -211,9 +211,11 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with wrong 'rand_num'")
     @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_rand_num(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_rand_num(self, get_random_integer, get_random_valid_account_name,
+                                                         get_random_string):
         callback = get_random_integer
         account_name = get_random_valid_account_name
+        random_string = get_random_string
         generate_keys = self.generate_keys()
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
@@ -221,6 +223,8 @@ class NegativeTesting(BaseTest):
         while fake_rand_num == rand_num:
             fake_rand_num = str(random.randint(0, int(rand_num)))
         expected_error_message = "Assert Exception: rand_num == task->rand_num: Active task has another rand_num. " \
+                                 "" \
+                                 "" \
                                  "Request another one"
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
@@ -240,8 +244,7 @@ class NegativeTesting(BaseTest):
         generate_keys = self.generate_keys()
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
-        random_decimal = str(random.randint(100, 999))
-        rand_num = rand_num + random_decimal
+        rand_num = rand_num + random_string
         expected_error_message = "Parse Error: Couldn't parse uint64_t"
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")

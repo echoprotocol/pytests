@@ -11,6 +11,8 @@ SUITE = {
 }
 
 
+@lcc.tags("TASK ECHOT-280")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "broadcast_thousands_transactions")
 @lcc.suite("Check scenario 'broadcast_thousands_transactions'", rank=1)
@@ -84,18 +86,19 @@ class BroadcastThousandsTransactions(BaseTest):
             )
         end_broadcast_block = self.get_head_block_num()
 
+        print("1")
         while True:
             if start_broadcast_block <= self.get_head_block_num():
                 if len(self.get_block(start_broadcast_block)["transactions"]):
                     break
                 start_broadcast_block += 1
-
+        print("2")
         while True:
             if end_broadcast_block <= self.get_head_block_num():
                 if not len(self.get_block(end_broadcast_block)["transactions"]):
                     break
                 end_broadcast_block += 1
-
+        print("3")
         for block_num in range(start_broadcast_block, end_broadcast_block):
             transactions = self.get_block(block_num)["transactions"]
             all_transactions.extend(transactions)

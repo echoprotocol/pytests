@@ -70,8 +70,8 @@ class EchoOperations(object):
         return [operation_id, override_transfer_props, signer]
 
     def get_account_create_operation(self, echo, name, active_key_auths, echorand_key, fee_amount=0,
-                                     fee_asset_id="1.3.0", registrar="1.2.12", active_weight_threshold=1,
-                                     active_account_auths=None, options_delegating_account="1.2.12", delegate_share=0,
+                                     fee_asset_id="1.3.0", registrar="1.2.11", active_weight_threshold=1,
+                                     active_account_auths=None, options_delegating_account="1.2.11", delegate_share=0,
                                      options_extensions=None, extensions=None, signer=None, debug_mode=False):
         if isinstance(active_key_auths, str):
             active_key_auths = [[active_key_auths, 1]]
@@ -724,6 +724,39 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, contract_update_props, sender]
         return [operation_id, contract_update_props, signer]
+
+    def get_sidechain_btc_create_address_operation(self, echo, account, backup_address, fee_amount=0,
+                                                   fee_asset_id="1.3.0",
+                                                   extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.SIDECHAIN_BTC_CREATE_ADDRESS
+        generate_btc_address_props = self.get_operation_json("sidechain_btc_create_address_operation")
+        generate_btc_address_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        generate_btc_address_props.update(
+            {"account": account, "backup_address": backup_address, "extensions": extensions})
+        if debug_mode:
+            lcc.log_debug(
+                "Generate bitcoin address operation: \n{}".format(json.dumps(generate_btc_address_props, indent=4)))
+        if signer is None:
+            return [operation_id, generate_btc_address_props, account]
+        return [operation_id, generate_btc_address_props, signer]
+
+    def get_sidechain_btc_withdraw_operation(self, echo, btc_address, value, account, fee_amount=0,
+                                             fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.SIDECHAIN_BTC_WITHDRAW
+        create_btc_withdraw_props = self.get_operation_json("sidechain_btc_withdraw_operation")
+        create_btc_withdraw_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        create_btc_withdraw_props.update(
+            {"value": value, "btc_addr": btc_address, "account": account, "extensions": extensions})
+        if debug_mode:
+            lcc.log_debug(
+                "Create bitcoin withdraw operation: \n{}".format(json.dumps(create_btc_withdraw_props, indent=4)))
+        if signer is None:
+            return [operation_id, create_btc_withdraw_props, account]
+        return [operation_id, create_btc_withdraw_props, signer]
 
     def broadcast(self, echo, list_operations, return_operations=False, expiration=None, no_broadcast=False,
                   get_signed_tx=False, log_broadcast=False, debug_mode=False, broadcast_with_callback=False):

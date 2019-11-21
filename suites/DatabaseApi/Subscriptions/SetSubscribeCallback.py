@@ -10,6 +10,8 @@ SUITE = {
 }
 
 
+@lcc.tags("TASK ECHOT-280")
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_subscriptions", "set_subscribe_callback")
@@ -90,6 +92,8 @@ class SetSubscribeCallback(BaseTest):
         )
 
 
+@lcc.tags("TASK ECHOT-280")
+@lcc.disabled()
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_subscriptions", "set_subscribe_callback")
 @lcc.suite("Positive testing of method 'set_subscribe_callback'", rank=2)

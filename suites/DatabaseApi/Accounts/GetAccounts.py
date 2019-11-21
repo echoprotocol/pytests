@@ -42,11 +42,10 @@ class GetAccounts(BaseTest):
 
         for i, account_info in enumerate(results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            if check_that("account_info", account_info, has_length(17)):
+            if check_that("account_info", account_info, has_length(16)):
                 check_that_in(
                     account_info,
                     "id", is_str(params[i]),
-                    "network_fee_percentage", is_integer(),
                     "active", is_dict(),
                     "active_delegate_share", is_integer(),
                     "options", is_dict(),

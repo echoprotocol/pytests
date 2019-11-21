@@ -295,30 +295,34 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Call method with start param equal to negative integers")
         response = self.get_asset_holders(self.echo_asset, negative_int, 100, negative=True)
+        message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
         check_that(
-            "'result'",
-            response["result"], is_not_none(), quiet=True
+            "''get_asset_holders' return error message'",
+            response["error"]["message"], is_(message), quiet=True
         )
 
         lcc.set_step("Call method with limit param equal to negative integers")
         response = self.get_asset_holders(self.echo_asset, 0, negative_int, negative=True)
+        message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
         check_that(
-            "'get_asset_holders' return error message",
-            response, has_entry("error"), quiet=True,
+            "''get_asset_holders' return error message'",
+            response["error"]["message"], is_(message), quiet=True
         )
 
         lcc.set_step("Call method with start and limit params equal to floats")
         response = self.get_asset_holders(self.echo_asset, float_number, float_number, negative=True)
+        message = "Bad Cast: Invalid cast from double_type to uint64"
         check_that(
-            "'result'",
-            response["result"], is_not_none(), quiet=True
+            "''get_asset_holders' return error message'",
+            response["error"]["message"], is_(message), quiet=True
         )
 
         lcc.set_step("Call method with start and limit params equal to booleans")
         response = self.get_asset_holders(self.echo_asset, get_random_bool, get_random_bool, negative=True)
+        message = "Bad Cast: Invalid cast from bool_type to uint64"
         check_that(
-            "'result'",
-            response["result"], is_not_none(), quiet=True
+            "''get_asset_holders' return error message'",
+            response["error"]["message"], is_(message), quiet=True
         )
 
     @lcc.test("Call method with more then limit params")

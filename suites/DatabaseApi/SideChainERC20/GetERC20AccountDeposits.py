@@ -76,6 +76,7 @@ class GetERC20AccountDeposits(BaseTest):
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         self.eth_account = self.get_default_ethereum_account()
         lcc.log_info("Ethereum address in the ethereum network: '{}'".format(self.eth_account.address))
+        self.utils.cancel_all_subscriptions(self, self.__database_api_identifier)
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()

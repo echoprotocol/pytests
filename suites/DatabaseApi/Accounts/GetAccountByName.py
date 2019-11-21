@@ -42,7 +42,7 @@ class GetAccountByName(BaseTest):
 
         lcc.set_step("Checking committee-account")
         account_info = response["result"]
-        if check_that("account_info", account_info, has_length(17)):
+        if check_that("account_info", account_info, has_length(16)):
             account_ids_format = ["id", "registrar"]
             for account_id_format in account_ids_format:
                 self.check_fields_account_ids_format(account_info, account_id_format)
@@ -60,7 +60,6 @@ class GetAccountByName(BaseTest):
                 lcc.log_info("'statistics' has correct format: account_statistics_object_type")
             check_that_in(
                 account_info,
-                "network_fee_percentage", is_integer(),
                 "active", is_dict(),
                 "active_delegate_share", is_integer(),
                 "options", is_dict(),

@@ -16,7 +16,6 @@ env:
     - INIT2_PK: 5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH
     - INIT3_PK: 5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz
     - INIT4_PK: 5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
-    - INIT5_PK: 5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw
     - MIGRATION_RESULT: ""
   jobs:
     - PYTESTS_FILTERS: database_api
@@ -33,6 +32,7 @@ before_script:
   - docker-compose up -d echo
 script:
   - python3 test_runner.py
+
 after_script:
   - docker-compose down -v
   - docker-compose rm -fv

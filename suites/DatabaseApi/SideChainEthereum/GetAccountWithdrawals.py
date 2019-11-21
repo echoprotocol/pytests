@@ -175,7 +175,7 @@ class GetAccountWithdrawals(BaseTest):
             )
 
         lcc.set_step("Get withdrawals of created account")
-        params = [new_account]
+        params = [new_account, "eth"]
         response_id = self.send_request(self.get_request("get_account_withdrawals", params),
                                         self.__database_api_identifier)
         withdrawals = self.get_response(response_id)["result"]

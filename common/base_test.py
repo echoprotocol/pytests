@@ -21,7 +21,7 @@ from common.validation import Validator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG
+    GANACHE_PK, DEBUG, NATHAN_PK
 
 
 class BaseTest(object):
@@ -501,7 +501,7 @@ class BaseTest(object):
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
                                         database_api_identifier)
-        response = self.get_response(response_id, log_response=True)
+        response = self.get_response(response_id)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
         if response.get("result")[0].get("fee"):
@@ -595,6 +595,12 @@ class BaseTest(object):
                 new_file.write(json.dumps(data))
 
         return data['RESERVED_PUBLIC_KEY']
+
+    def produce_block(self, database_api_identifier):
+        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.11",
+                                                         to_account_id="1.2.1", amount=1, signer=NATHAN_PK)
+        collected_operation = self.collect_operations(operation, database_api_identifier)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
     @staticmethod
     def _login_status(response):
