@@ -70,8 +70,8 @@ class EchoOperations(object):
         return [operation_id, override_transfer_props, signer]
 
     def get_account_create_operation(self, echo, name, active_key_auths, echorand_key, fee_amount=0,
-                                     fee_asset_id="1.3.0", registrar="1.2.12", active_weight_threshold=1,
-                                     active_account_auths=None, options_delegating_account="1.2.12", delegate_share=0,
+                                     fee_asset_id="1.3.0", registrar="1.2.11", active_weight_threshold=1,
+                                     active_account_auths=None, options_delegating_account="1.2.11", delegate_share=0,
                                      options_extensions=None, extensions=None, signer=None, debug_mode=False):
         if isinstance(active_key_auths, str):
             active_key_auths = [[active_key_auths, 1]]
