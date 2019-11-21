@@ -53,8 +53,9 @@ class EchoOperations(object):
             return [operation_id, transfer_props, from_account_id]
         return [operation_id, transfer_props, signer]
 
-    def get_override_transfer_operation(self, echo, issuer, from_account_id, to_account_id, amount=0, amount_asset_id='1.3.0',
-                                        fee_amount=0, fee_asset_id='1.3.0', extensions=None, signer=None, debug_mode=False):
+    def get_override_transfer_operation(self, echo, issuer, from_account_id, to_account_id, amount=0,
+                                        amount_asset_id='1.3.0', fee_amount=0, fee_asset_id='1.3.0',
+                                        extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.OVERRIDE_TRANSFER
@@ -231,14 +232,16 @@ class EchoOperations(object):
         operation_id = echo.config.operation_ids.ASSET_UPDATE_BITASSET
         asset_update_bitasset_props = self.get_operation_json("asset_update_bitasset_operation")
         asset_update_bitasset_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
-        asset_update_bitasset_props.update({"issuer": issuer, "asset_to_update": asset_to_update, "extensions": extensions})
+        asset_update_bitasset_props.update(
+            {"issuer": issuer, "asset_to_update": asset_to_update, "extensions": extensions})
         asset_update_bitasset_props["new_options"].update({"feed_lifetime_sec": feed_lifetime_sec,
                                                            "minimum_feeds": minimum_feeds,
                                                            "short_backing_asset": short_backing_asset,
                                                            "extensions": new_options_extensions})
         if debug_mode:
             lcc.log_debug("Asset update bitasset operation: \n{}".format(json.dumps([operation_id,
-                                                                                     asset_update_bitasset_props], indent=4)))
+                                                                                     asset_update_bitasset_props],
+                                                                                    indent=4)))
         if signer is None:
             return [operation_id, asset_update_bitasset_props, issuer]
         return [operation_id, asset_update_bitasset_props, signer]
@@ -249,13 +252,14 @@ class EchoOperations(object):
             extensions = []
         operation_id = echo.config.operation_ids.ASSET_UPDATE_FEED_PRODUCERS
         asset_update_feed_producers_props = self.get_operation_json("asset_update_feed_producers_operation")
-        asset_update_feed_producers_props["fee"].update({"amount":fee_amount, "asset_id": fee_asset_id})
+        asset_update_feed_producers_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         asset_update_feed_producers_props.update(
             {"issuer": issuer, "asset_to_update": asset_to_update, "new_feed_producers": new_feed_producers,
              "extensions": extensions}
         )
         if debug_mode:
-            lcc.log_debug("Create update feed producers operation: \n{}".format(json.dumps(asset_update_feed_producers_props, indent=4)))
+            lcc.log_debug("Create update feed producers operation: \n{}".format(
+                json.dumps(asset_update_feed_producers_props, indent=4)))
         if signer is None:
             return [operation_id, asset_update_feed_producers_props, issuer]
         return [operation_id, asset_update_feed_producers_props, signer]
@@ -285,7 +289,8 @@ class EchoOperations(object):
         asset_reserve_props.update({"payer": payer, "extensions": extensions})
         asset_reserve_props["amount_to_reserve"].update({"amount": reserve_amount, "asset_id": reserve_asset_id})
         if debug_mode:
-            lcc.log_debug("Asset reserve operation: \n{}".format(json.dumps([operation_id, asset_reserve_props], indent=4)))
+            lcc.log_debug(
+                "Asset reserve operation: \n{}".format(json.dumps([operation_id, asset_reserve_props], indent=4)))
         if signer is None:
             return [operation_id, asset_reserve_props, payer]
         return [operation_id, asset_reserve_props, signer]
@@ -298,9 +303,10 @@ class EchoOperations(object):
         asset_fund_fee_pool_props = self.get_operation_json("asset_fund_fee_pool_operation")
         asset_fund_fee_pool_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         asset_fund_fee_pool_props.update({"from_account": from_account, "asset_id": asset_id, "amount": amount,
-                                         "extensions": extensions})
+                                          "extensions": extensions})
         if debug_mode:
-            lcc.log_debug("Asset fund fee pool operation: \n{}".format(json.dumps([operation_id, asset_fund_fee_pool_props], indent=4)))
+            lcc.log_debug("Asset fund fee pool operation: \n{}".format(
+                json.dumps([operation_id, asset_fund_fee_pool_props], indent=4)))
         if signer is None:
             return [operation_id, asset_fund_fee_pool_props, from_account]
         return [operation_id, asset_fund_fee_pool_props, signer]
@@ -321,7 +327,7 @@ class EchoOperations(object):
         asset_publish_feed_props["feed"].update({"maintenance_collateral_ratio": maintenance_collateral_ratio,
                                                  "maximum_short_squeeze_ratio": maximum_short_squeeze_ratio})
         asset_publish_feed_props["feed"]["settlement_price"]["base"].update({"amount": settlement_base_amount,
-                                                                            "asset_id": settlement_base_asset_id})
+                                                                             "asset_id": settlement_base_asset_id})
         asset_publish_feed_props["feed"]["settlement_price"]["quote"].update({"amount": settlement_quote_amount,
                                                                               "asset_id": settlement_quote_asset_id})
         asset_publish_feed_props["feed"]["core_exchange_rate"]["base"].update({"amount": exchange_base_amount,
@@ -329,7 +335,8 @@ class EchoOperations(object):
         asset_publish_feed_props["feed"]["core_exchange_rate"]["quote"].update({"amount": exchange_quote_amount,
                                                                                 "asset_id": exchange_quote_asset_id})
         if debug_mode:
-            lcc.log_debug("Asset publish feed operation: \n{}".format(json.dumps([operation_id, asset_publish_feed_props], indent=4)))
+            lcc.log_debug("Asset publish feed operation: \n{}".format(
+                json.dumps([operation_id, asset_publish_feed_props], indent=4)))
         if signer is None:
             return [operation_id, asset_publish_feed_props, publisher]
         return [operation_id, asset_publish_feed_props, signer]
@@ -345,7 +352,8 @@ class EchoOperations(object):
         asset_claim_fees_props.update({"issuer": issuer, "extensions": extensions})
         asset_claim_fees_props["amount_to_claim"].update({"amount": claim_amount, "asset_id": claim_asset_id})
         if debug_mode:
-            lcc.log_debug("Asset claim fees operation: \n{}".format(json.dumps([operation_id, asset_claim_fees_props], indent=4)))
+            lcc.log_debug(
+                "Asset claim fees operation: \n{}".format(json.dumps([operation_id, asset_claim_fees_props], indent=4)))
         if signer is None:
             return [operation_id, asset_claim_fees_props, issuer]
         return [operation_id, asset_claim_fees_props, signer]
@@ -529,7 +537,6 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, balance_unfreeze_operation_props, account]
         return [operation_id, balance_unfreeze_operation_props, signer]
-
 
     def get_contract_create_operation(self, echo, registrar, bytecode, fee_amount=0, fee_asset_id="1.3.0",
                                       value_amount=0, value_asset_id="1.3.0", supported_asset_id=None,
