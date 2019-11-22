@@ -19,7 +19,6 @@ class EthCreateAddress(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.echo_acc0 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -31,9 +30,6 @@ class EthCreateAddress(BaseTest):
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -62,6 +58,11 @@ class EthCreateAddress(BaseTest):
         lcc.log_info("Ethereum address generated successfully")
 
         lcc.set_step("Get ethereum address of created account in the network")
-        self.eth_account_address = self.utils.get_eth_address(self, new_account,
-                                                              self.__database_api_identifier)["result"]["eth_addr"]
-        lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account, self.eth_account_address))
+        eth_account_address = self.utils.get_eth_address(self, new_account,
+                                                         self.__database_api_identifier)["result"]["eth_addr"]
+        lcc.log_info("Ethereum address of '{}' account is '{}'".format(new_account, eth_account_address))
+
+        if not self.validator.is_eth_address(eth_account_address):
+            lcc.log_info("Wrong format of eth address, got: {}".format(eth_account_address))
+        else:
+            lcc.log_info("Eth address has correct format.")

@@ -115,7 +115,7 @@ class ERC20(BaseTest):
         lcc.log_info(
             "Transfer '{}' erc20 tokens to '{}' account completed successfully".format(erc20_deposit_amounts,
                                                                                        eth_account_address))
-
+        # self.set_timeout_wait(10)
         lcc.set_step("Get ERC20 balance in the ECHO network")
         in_echo_erc20_balance = \
             self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account,
