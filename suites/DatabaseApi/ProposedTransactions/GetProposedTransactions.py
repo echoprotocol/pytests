@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import require_that, is_list, is_true, has_item
 
@@ -64,12 +62,6 @@ class PositiveTesting(BaseTest):
         self.__registration_api_identifier = None
         self.echo_acc0 = None
         self.echo_acc1 = None
-
-    def get_expiration_time(self, seconds):
-        pattern = "%Y-%m-%dT%H:%M:%S"
-        now = self.get_datetime(global_datetime=True)
-        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
-        return expiration.strftime(pattern)
 
     def setup_suite(self):
         super().setup_suite()

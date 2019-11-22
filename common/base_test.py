@@ -92,6 +92,12 @@ class BaseTest(object):
             return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
 
+    def get_expiration_time(self, seconds):
+        pattern = "%Y-%m-%dT%H:%M:%S"
+        now = self.get_datetime(global_datetime=True)
+        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
+        return expiration.strftime(pattern)
+
     @staticmethod
     def subtract_from_datetime(str_datetime, days=0, hours=0, minutes=0, seconds=0):
         formated_datetime = datetime.strptime(str_datetime, "%Y-%m-%dT%H:%M:%S")
@@ -515,7 +521,7 @@ class BaseTest(object):
         try:
             if fee_amount is None:
                 fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id, proposal=proposal,
-                                            debug_mode=True)
+                                            debug_mode=debug_mode)
                 operation[1].update({"fee": fee[0]})
                 return fee
             operation[1]["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})

@@ -355,6 +355,7 @@ class EchoOperations(object):
 
     def get_proposal_create_operation(self, echo, fee_paying_account, expiration_time, proposed_ops,
                                       review_period_seconds=None, extensions=None, signer=None, debug_mode=False):
+        # don't use 'collect_operation' for returned object from this method
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_CREATE
@@ -369,16 +370,14 @@ class EchoOperations(object):
             proposal_create_props.update({"review_period_seconds": review_period_seconds})
         if debug_mode:
             lcc.log_debug("Proposal create operation: \n{}".format(json.dumps(proposal_create_props, indent=4)))
-        del proposal_create_props["fee"]
         if signer is None:
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
-
     def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
                                       active_approvals_to_remove, key_approvals_to_add, key_approvals_to_remove,
-                                      fee_amount=0, fee_asset_id="1.3.0",
-                                      extensions=None, signer=None, debug_mode=False):
+                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                      debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_UPDATE
@@ -409,6 +408,7 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, proposal_delete_props, fee_paying_account]
         return [operation_id, proposal_delete_props, signer]
+
     def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, btc_public_key,
                                               deposit_amount, fee_amount=0, fee_asset_id="1.3.0", url="",
                                               deposit_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
@@ -818,7 +818,6 @@ class EchoOperations(object):
         if expiration:
             tx.expiration = expiration
         tx.sign()
-        lcc.log_info("{}".format(tx.transaction_object))
         if no_broadcast:
             return tx.transaction_object.json()
         if broadcast_with_callback:
