@@ -82,7 +82,7 @@ class ObjectValidator(object):
 
     def validate_asset_object(self, base_test, asset):
 
-        def validate_core_exchange_rate_structure(self, base_test, core_exchange_rate):
+        def validate_core_exchange_rate_structure(base_test, core_exchange_rate):
             check_that_in(
                 core_exchange_rate,
                 "base", is_dict(),
@@ -155,7 +155,7 @@ class ObjectValidator(object):
                     core_exchange_rate, has_length(2),
                     quiet=True
                 ):
-                    validate_core_exchange_rate_structure(self, base_test, core_exchange_rate)
+                    validate_core_exchange_rate_structure(base_test, core_exchange_rate)
                 base_test.check_uint64_numbers(
                     options,
                     "max_supply",
@@ -645,6 +645,564 @@ class ObjectValidator(object):
                 "value", is_str(),
                 "is_approved", is_bool(),
                 "approves", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    def validate_global_properties_object(self, base_test, global_properties_object):
+
+        def validate_sidechain_config(base_test, sidechain_config, eth_params, eth_methods):
+            if check_that(
+                "sidechain_config",
+                sidechain_config, has_length(19),
+                quiet=True
+            ):
+                for eth_param in eth_params:
+                    if not base_test.type_validator.is_hex(sidechain_config[eth_param]):
+                        lcc.log_error(
+                            "Wrong format of '{}', got: {}".format(eth_param, sidechain_config[eth_param]))
+                    else:
+                        lcc.log_info("'{}' has correct format: hex".format(eth_param))
+                for eth_method in eth_methods:
+                    if check_that(
+                        "eth_method",
+                        sidechain_config[eth_method], has_length(2),
+                        quiet=True
+                    ):
+                        if not base_test.type_validator.is_hex(sidechain_config[eth_method]["method"]):
+                            lcc.log_error(
+                                "Wrong format of '{}', got: {}".format(eth_method, sidechain_config[eth_method]))
+                        else:
+                            lcc.log_info("'{}' has correct format: hex".format(eth_method))
+                        check_that_in(
+                            sidechain_config[eth_method],
+                            "gas", is_integer(),
+                            quiet=True
+                        )
+                if not base_test.type_validator.is_eth_asset_id(sidechain_config["ETH_asset_id"]):
+                    lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(sidechain_config["ETH_asset_id"]))
+                else:
+                    lcc.log_info("'ETH_asset_id' has correct format: eth_asset_id")
+                if not base_test.type_validator.is_btc_asset_id(sidechain_config["BTC_asset_id"]):
+                    lcc.log_error("Wrong format of 'BTC_asset_id', got: {}".format(sidechain_config["BTC_asset_id"]))
+                else:
+                    lcc.log_info("'BTC_asset_id' has correct format: btc_asset_id")
+                if check_that(
+                    "fines",
+                    sidechain_config["fines"], has_length(1),
+                    quiet=True
+                ):
+                    check_that_in(
+                        sidechain_config["fines"], "generate_eth_address", is_(-10), quiet=True
+                    )
+                check_that_in(
+                    sidechain_config,
+                    "satoshis_per_byte", is_integer(),
+                    "coefficient_waiting_blocks", is_integer(),
+                    quiet=True
+                )
+                base_test.check_uint64_numbers(
+                    sidechain_config,
+                    "gas_price",
+                    quiet=True
+                )
+
+        def validate_erc20_config(base_test, erc20_config, erc20_methods):
+            if check_that(
+                "erc20_config",
+                erc20_config, has_length(6),
+                quiet=True
+            ):
+                if not base_test.type_validator.is_hex(erc20_config["contract_code"]):
+                    lcc.log_error("Wrong format of 'contract_code', got: {}".format(erc20_config["contract_code"]))
+                else:
+                    lcc.log_info("'contract_code' has correct format: hex")
+                if not base_test.type_validator.is_hex(erc20_config["transfer_topic"]):
+                    lcc.log_error("Wrong format of 'transfer_topic', got: {}".format(erc20_config["transfer_topic"]))
+                else:
+                    lcc.log_info("'transfer_topic' has correct format: hex")
+                check_that_in(
+                    erc20_config,
+                    "create_token_fee", is_integer(),
+                    quiet=True
+                )
+                for erc20_method in erc20_methods:
+                    if check_that(
+                        "erc20_method",
+                        erc20_config[erc20_method], has_length(2),
+                        quiet=True
+                    ):
+                        if not base_test.type_validator.is_hex(erc20_config[erc20_method]["method"]):
+                            lcc.log_error("Wrong format of '{}', got: {}".format(erc20_method, erc20_config[erc20_method]))
+                        else:
+                            lcc.log_info("'{}' has correct format: hex".format(erc20_method))
+                        check_that_in(
+                            erc20_config[erc20_method],
+                            "gas", is_integer(),
+                            quiet=True
+                        )
+
+        def no_fee(actual_fee):
+            check_that(
+                "fee",
+                actual_fee, has_length(0),
+                quiet=True
+            )
+
+        def only_fee(actual_fee):
+            if check_that(
+                "fee",
+                actual_fee, has_length(1),
+                quiet=True
+            ):
+                check_that_in(
+                    actual_fee,
+                    "fee", is_integer(),
+                    quiet=True
+                )
+
+        def fee_with_price_per_kbyte(actual_fee):
+            if check_that(
+                "fee",
+                actual_fee, has_length(2),
+                quiet=True
+            ):
+                check_that_in(
+                    actual_fee,
+                    "fee", is_integer(),
+                    "price_per_kbyte", is_integer(),
+                    quiet=True
+                )
+
+        def account_create_fee(actual_fee):
+            if check_that(
+                "fee",
+                actual_fee, has_length(3),
+                quiet=True
+            ):
+                check_that_in(
+                    actual_fee,
+                    "basic_fee", is_integer(),
+                    "premium_fee", is_integer(),
+                    "price_per_kbyte", is_integer(),
+                    quiet=True
+                )
+
+        def asset_create_fee(actual_fee):
+            if check_that(
+                "fee",
+                actual_fee, has_length(4),
+                quiet=True
+            ):
+                check_that_in(
+                    actual_fee,
+                    "symbol3", is_integer(),
+                    "symbol4", is_integer(),
+                    "long_symbol", is_integer(),
+                    "price_per_kbyte", is_integer(),
+                    quiet=True
+                )
+
+        def pool_fee(actual_fee):
+            if check_that(
+                "fee",
+                actual_fee, has_length(2),
+                quiet=True
+            ):
+                check_that_in(
+                    actual_fee,
+                    "fee", is_integer(),
+                    "pool_fee", is_integer(),
+                    quiet=True
+                )
+
+        def check_default_fee_for_operation(base_test, current_fees, operations, check_kind):
+            for operation in operations:
+                for fee in current_fees:
+                    if fee[0] == base_test.all_operations.get(operation.upper()):
+                        lcc.log_info("Check default fee for '{}' operation, "
+                                     "operation_id is '{}'".format(operation, fee[0]))
+                        check_kind(fee[1])
+                        break
+
+        def show_wrong_fee_operations(base_test, current_operations_ids, operations_for_checking):
+            all_operations_names = [key for key in base_test.all_operations.keys()]
+            all_operations_ids = [value for value in base_test.all_operations.values()]
+            ids, operations, added_operations, wrong_fee_operations = [], [], [], []
+            for current_operation_id in current_operations_ids:
+                if current_operation_id in all_operations_ids:
+                    ids.append(current_operation_id)
+            for id in ids:
+                operations.append(all_operations_names[id].lower())
+            for operation in operations:
+                if operation not in operations_for_checking:
+                    added_operations.append(operation)
+            if len(added_operations) > 1:
+                lcc.log_info("Added operations: {}".format(added_operations))
+            for operation in operations_for_checking:
+                if operation not in operations:
+                    wrong_fee_operations.append(operation)
+            if len(wrong_fee_operations) > 1:
+                lcc.log_info("Wrong fee operations: {}".format(wrong_fee_operations))
+
+        fee_with_price_per_kbyte_operations = ["account_update", "asset_update", "proposal_create", "proposal_update",
+                                               "account_address_create"]
+        only_fee_operations = ["transfer", "account_whitelist", "asset_update_bitasset", "balance_freeze",
+                               "asset_update_feed_producers", "asset_issue", "asset_reserve", "asset_fund_fee_pool",
+                               "asset_publish_feed", "proposal_delete", "committee_member_create",
+                               "committee_member_update", "committee_member_update_global_parameters",
+                               "vesting_balance_create", "vesting_balance_withdraw", "override_transfer",
+                               "asset_claim_fees", "contract_create", "contract_call",
+                               "transfer_to_address", "contract_update",
+                               "sidechain_eth_create_address", "sidechain_eth_deposit", "sidechain_eth_withdraw",
+                               "sidechain_eth_approve_withdraw", "contract_fund_pool", "contract_whitelist",
+                               "sidechain_erc20_deposit_token", "sidechain_erc20_withdraw_token",
+                               "sidechain_erc20_approve_token_withdraw",
+                               'committee_member_activate', 'committee_member_deactivate',
+                               'committee_frozen_balance_deposit', 'committee_frozen_balance_withdraw',
+                               'sidechain_eth_approve_address', 'sidechain_issue', 'sidechain_burn',
+                               'sidechain_erc20_issue', 'sidechain_erc20_burn', 'sidechain_btc_create_address',
+                               'sidechain_btc_create_intermediate_deposit', 'sidechain_btc_intermediate_deposit',
+                               'sidechain_btc_deposit', 'sidechain_btc_withdraw', 'sidechain_btc_approve_withdraw',
+                               'sidechain_btc_aggregate']
+        no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create', 'contract_internal_call',
+                             'contract_selfdestruct', 'block_reward']
+        account_create_fee_operations = ["account_create"]
+        asset_create_fee_operations = ["asset_create"]
+        pool_fee_operations = ["sidechain_erc20_register_token"]
+
+        if check_that(
+            "global_properties",
+            global_properties_object, has_length(3),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_global_object_id(global_properties_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(global_properties_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: global_property_object_type")
+            check_that_in(
+                global_properties_object,
+                "parameters", is_dict(),
+                "active_committee_members", is_list(),
+                quiet=True
+            )
+
+        lcc.set_step("Check global parameters: 'current_fees' field")
+        parameters = global_properties_object["parameters"]
+        if check_that(
+            "parameters",
+            parameters, has_length(24),
+            quiet=True
+        ):
+            check_that_in(
+                parameters,
+                "current_fees", is_dict(),
+                "maintenance_interval", is_integer(),
+                "maintenance_duration_seconds", is_integer(),
+                "committee_proposal_review_period", is_integer(),
+                "maximum_transaction_size", is_integer(),
+                "maximum_block_size", is_integer(),
+                "maximum_time_until_expiration", is_integer(),
+                "maximum_proposal_lifetime", is_integer(),
+                "maximum_asset_whitelist_authorities", is_integer(),
+                "maximum_asset_feed_publishers", is_integer(),
+                "maximum_authority_membership", is_integer(),
+                "max_authority_depth", is_integer(),
+                "block_producer_reward_ratio", is_integer(),
+                "block_emission_amount", is_integer(),
+                "frozen_balances_multipliers", is_list(),
+                "committee_frozen_balance_to_activate", is_str(),
+                "committee_maintenance_intervals_to_deposit", is_integer(),
+                "committee_freeze_duration_seconds", is_integer(),
+                "echorand_config", is_dict(),
+                "sidechain_config", is_dict(),
+                "erc20_config", is_dict(),
+                "gas_price", is_dict(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+            lcc.set_step("Check global parameters: 'current_fees' field")
+            current_fees = parameters["current_fees"]
+            if check_that(
+                "current_fees",
+                current_fees, has_length(2),
+                quiet=True
+            ):
+                check_that_in(
+                    current_fees,
+                    "parameters", is_list(),
+                    "scale", is_integer(),
+                    quiet=True
+                )
+
+            lcc.set_step("Check global parameters: 'frozen_balances_multipliers' field")
+            frozen_balances_multipliers = parameters["frozen_balances_multipliers"]
+            for frozen_balance in frozen_balances_multipliers:
+                for balance in frozen_balance:
+                    check_that(
+                        "frozen_balance",
+                        balance, is_integer(),
+                        quiet=True
+                    )
+
+            # todo: uncomment when current_fees of btc operations will be added
+            # lcc.set_step("Check the count of fees for operations")
+            # fee_parameters = current_fees["parameters"]
+            # require_that(
+            #     "count of fees for operations",
+            #     fee_parameters, has_length(len(base_test.all_operations))
+            # )
+
+            # lcc.set_step("Check that count of checking fees fields equal to all operations")
+            # checking_operations_fee_types = [fee_with_price_per_kbyte_operations, only_fee_operations, no_fee_operations,
+            #                                  account_create_fee_operations, asset_create_fee_operations,
+            #                                  pool_fee_operations]
+            # for fee_type in checking_operations_fee_types:
+            #     all_checking_operations.extend(fee_type)
+            # check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
+            #            has_length(len(base_test.all_operations)))
+
+        fee_with_price_per_kbyte_operations_ids, only_fee_operations_ids, no_fee_operations_ids,\
+            account_create_fee_operations_ids, asset_create_fee_operations_ids,\
+            pool_fee_operations_ids = [], [], [], [], [], []
+
+        lcc.set_step("Save the number of types of current_fees")
+        fee_parameters = current_fees["parameters"]
+        for fee_parameter in fee_parameters:
+            parameter = fee_parameter[1]
+            if len(parameter) == 0:
+                no_fee_operations_ids.append(fee_parameter[0])
+                base_test.no_fee_count += 1
+                continue
+            if len(parameter) == 1 and "fee" in parameter:
+                base_test.only_fee_count += 1
+                only_fee_operations_ids.append(fee_parameter[0])
+                continue
+            if len(parameter) == 2 and ("fee" and "price_per_kbyte") in parameter:
+                fee_with_price_per_kbyte_operations_ids.append(fee_parameter[0])
+                base_test.fee_with_price_per_kbyte_count += 1
+                continue
+            if len(parameter) == 2 and ("membership_annual_fee" and "membership_lifetime_fee") in parameter:
+                only_fee_operations_ids.append(fee_parameter[0])
+                base_test.account_update_fee_count += 1
+                continue
+            if len(parameter) == 2 and ("fee" and "pool_fee") in parameter:
+                account_create_fee_operations_ids.append(fee_parameter[0])
+                base_test.pool_fee_count += 1
+                continue
+            if len(parameter) == 3 and ("basic_fee" and "premium_fee" and "price_per_kbyte") in parameter:
+                account_create_fee_operations_ids.append(fee_parameter[0])
+                base_test.account_create_fee_count += 1
+                continue
+            if len(parameter) == 4 and (
+                    "symbol3" and "symbol4" and "long_symbol" and "price_per_kbyte") in parameter:
+                asset_create_fee_operations_ids.append(fee_parameter[0])
+                base_test.asset_create_count += 1
+                continue
+            else:
+                lcc.log_warning("Warn: Added new option for calculating fee for the operation, got: '{}'".format(
+                    fee_parameter))
+
+        lcc.set_step("Check 'fee_with_price_per_kbyte' for operations")
+        check_that(
+            "'fee_with_price_per_kbyte' operation count",
+            fee_with_price_per_kbyte_operations, has_length(base_test.fee_with_price_per_kbyte_count),
+            quiet=True
+        )
+        check_default_fee_for_operation(
+            base_test,
+            fee_parameters,
+            fee_with_price_per_kbyte_operations,
+            fee_with_price_per_kbyte
+        )
+        show_wrong_fee_operations(
+            base_test,
+            fee_with_price_per_kbyte_operations_ids,
+            fee_with_price_per_kbyte_operations
+        )
+
+        lcc.set_step("Check 'only_fee' for operations")
+        check_that(
+            "'only_fee' operation count",
+            only_fee_operations, has_length(base_test.only_fee_count),
+            quiet=True
+        )
+        check_default_fee_for_operation(
+            base_test,
+            fee_parameters,
+            only_fee_operations,
+            only_fee
+        )
+        show_wrong_fee_operations(
+            base_test,
+            only_fee_operations_ids,
+            only_fee_operations
+        )
+
+        lcc.set_step("Check 'no_fee' for operations")
+        check_that(
+            "'no_fee' operation count",
+            no_fee_operations, has_length(base_test.no_fee_count),
+            quiet=True
+        )
+        check_default_fee_for_operation(
+            base_test,
+            fee_parameters,
+            no_fee_operations,
+            no_fee
+        )
+        show_wrong_fee_operations(
+            base_test,
+            no_fee_operations_ids,
+            no_fee_operations
+        )
+
+        lcc.set_step("Check 'account_create_fee' for operations")
+        check_that(
+            "'account_create_fee' operation count",
+            account_create_fee_operations, has_length(base_test.account_create_fee_count),
+            quiet=True
+        )
+        check_default_fee_for_operation(
+            base_test,
+            fee_parameters,
+            account_create_fee_operations,
+            account_create_fee
+        )
+        show_wrong_fee_operations(
+            base_test,
+            account_create_fee_operations_ids,
+            account_create_fee_operations
+        )
+
+        lcc.set_step("Check 'asset_create_fee' for operations")
+        check_that(
+            "'asset_create_fee' operation count",
+            asset_create_fee_operations, has_length(base_test.asset_create_count),
+            quiet=True
+        )
+        check_default_fee_for_operation(
+            base_test,
+            fee_parameters,
+            asset_create_fee_operations,
+            asset_create_fee
+        )
+        show_wrong_fee_operations(
+            base_test,
+            asset_create_fee_operations_ids,
+            asset_create_fee_operations
+        )
+
+        lcc.set_step("Check 'pool_fee' for operations")
+        check_that(
+            "'pool_fee' operation count",
+            pool_fee_operations, has_length(base_test.pool_fee_count),
+            quiet=True
+        )
+        if not check_default_fee_for_operation(
+            base_test,
+            fee_parameters,
+            pool_fee_operations,
+            pool_fee
+        ):
+            show_wrong_fee_operations(
+                base_test,
+                pool_fee_operations_ids,
+                pool_fee_operations
+            )
+
+        lcc.set_step("Check global parameters: 'echorand_config' field")
+        echorand_config = parameters["echorand_config"]
+        if check_that(
+            "echorand_config",
+            echorand_config, has_length(9),
+            quiet=True
+        ):
+            check_that_in(
+                echorand_config,
+                "_time_generate", is_integer(),
+                "_time_net_1mb", is_integer(),
+                "_time_net_256b", is_integer(),
+                "_creator_count", is_integer(),
+                "_verifier_count", is_integer(),
+                "_ok_threshold", is_integer(),
+                "_max_bba_steps", is_integer(),
+                "_gc1_delay", is_integer(),
+                "_time_generate", is_integer(),
+                quiet=True
+            )
+
+        lcc.set_step("Check global parameters: 'sidechain_config' field")
+        sidechain_config = parameters["sidechain_config"]
+        eth_params = ["eth_contract_address", "eth_committee_updated_topic", "eth_gen_address_topic",
+                      "eth_deposit_topic", "eth_withdraw_topic", "erc20_deposit_topic", "erc20_withdraw_topic"]
+        eth_methods = ["eth_committee_update_method", "eth_gen_address_method", "eth_withdraw_method",
+                       "eth_update_addr_method", "eth_withdraw_token_method", "eth_collect_tokens_method"]
+        validate_sidechain_config(base_test, sidechain_config, eth_params, eth_methods)
+
+        lcc.set_step("Check global parameters: 'erc20_config' field")
+        erc20_config = parameters["erc20_config"]
+        erc20_methods = ["check_balance_method", "burn_method", "issue_method"]
+        validate_erc20_config(base_test, erc20_config, erc20_methods)
+
+        lcc.set_step("Check global parameters: 'gas_price' field")
+        gas_price = parameters["gas_price"]
+        if check_that(
+            "gas_price",
+            gas_price, has_length(2),
+            quiet=True
+        ):
+            check_that_in(
+                gas_price,
+                "price", is_integer(),
+                "gas_amount", is_integer(),
+                quiet=True
+            )
+
+    def validate_dynamic_global_property_object(self, base_test, dynamic_global_property_object):
+        dynamic_global_properties = ["head_block_number", "committee_budget",
+                                     "dynamic_flags", "last_irreversible_block_num"]
+        dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
+        if check_that(
+            "dynamic global properties",
+            dynamic_global_property_object, has_length(10),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_dynamic_global_object_id(dynamic_global_property_object["id"]):
+                lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(
+                    dynamic_global_property_object))
+            else:
+                lcc.log_info("'id' has correct format: dynamic_global_object_id")
+            for property_ in dynamic_global_properties:
+                base_test.check_uint64_numbers(
+                    dynamic_global_property_object,
+                    property_,
+                    quiet=True
+                )
+                value = int(dynamic_global_property_object[property_])
+                check_that(
+                    property_,
+                    value, greater_than_or_equal_to(0),
+                    quiet=True
+                )
+            if not base_test.type_validator.is_hex(dynamic_global_property_object["head_block_id"]):
+                lcc.log_error("Wrong format of 'head_block_id', got: {}".format(dynamic_global_property_object))
+            else:
+                lcc.log_info("'head_block_id' has correct format: hex")
+
+            for time_property in dynamic_global_properties_time:
+                if not base_test.type_validator.is_iso8601(dynamic_global_property_object[time_property]):
+                    lcc.log_error(
+                        "Wrong format of '{}', got: {}".format(
+                            time_property,
+                            dynamic_global_property_object[time_property]
+                        )
+                    )
+                else:
+                    lcc.log_info("'{}' has correct format: iso8601".format(time_property))
+            check_that_in(
+                dynamic_global_property_object,
                 "extensions", is_list(),
                 quiet=True
             )
