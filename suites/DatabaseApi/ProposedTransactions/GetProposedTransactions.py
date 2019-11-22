@@ -90,17 +90,19 @@ class PositiveTesting(BaseTest):
                                                                   to_account_id=self.echo_acc0)
         lcc.set_step("Broadcast proposal transaction that contains simple transfer operation to the ECHO network")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
+        proposal_expiration = self.get_expiration_time(60)
         proposal_create_operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
             fee_paying_account=self.echo_acc0,
             proposed_ops=collected_operation,
-            expiration_time=self.get_expiration_time(60)
+            expiration_time=proposal_expiration
         )
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=proposal_create_operation,
                                                    log_broadcast=False)
         require_that(
             "broadcast transaction complete successfully",
-            self.is_operation_completed(broadcast_result, 1), is_true(), quiet=True
+            self.is_operation_completed(broadcast_result, 1), is_true(),
+            quiet=True
         )
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
         broadcasted_proposed_operation = broadcast_result["trx"]["operations"][0][1]["proposed_ops"][0]["op"]
