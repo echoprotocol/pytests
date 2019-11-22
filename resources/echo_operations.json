@@ -318,14 +318,40 @@
     "proposal_create_operation": [
         16,
         {
+            "fee_paying_account": "1.2.0",
+            "expiration_time": "1970-01-01T00:00:00",
+            "proposed_ops": [],
+            "review_period_seconds": 100500,
+            "extensions": []
+        }
+    ],
+    "proposal_update_operation": [
+        17,
+        {
+        "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "fee_paying_account": "1.2.0",
+            "proposal": "1.5.0",
+            "active_approvals_to_add": [],
+            "active_approvals_to_remove": [],
+            "key_approvals_to_add": [],
+            "key_approvals_to_remove": [],
+            "extensions": []
+        }
+    ],
+    "proposal_delete_operation":
+    [
+        18,
+        {
             "fee": {
                 "amount": 0,
                 "asset_id": "1.3.0"
             },
             "fee_paying_account": "1.2.0",
-            "expiration_time": "1970-01-01T00:00:00",
-            "proposed_ops": [],
-            "review_period_seconds": 100500,
+            "using_owner_authority": false,
+            "proposal": "1.5.0",
             "extensions": []
         }
     ],
@@ -498,6 +524,32 @@
     ],
     "contract_internal_create_operation": [
         33,
+        {
+            "caller": "1.11.0",
+            "new_contract": "1.11.0",
+            "value": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "eth_accuracy": false,
+            "extensions": []
+        }
+    ],
+    "contract_internal_call_operation": [
+        34,
+        {
+            "caller": "1.11.0",
+            "callee": "0.0.0",
+            "method": "",
+            "value": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "extensions": []
+        }
+    ],
+    "contract_transfer_operation": [
+        27,
         {
             "caller": "1.11.0",
             "new_contract": "1.11.0",
