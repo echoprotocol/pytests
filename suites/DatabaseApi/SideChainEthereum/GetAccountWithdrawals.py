@@ -3,21 +3,22 @@ import random
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import is_, check_that_in, is_true, check_that, equal_to, starts_with,\
-    require_that_in
+    require_that_in, require_that, has_length
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_account_withdrawals'"
+    "description": "Methods: 'get_account_withdrawals', 'get_objects' (withdraw eth object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_ethereum",
-    "database_api_sidechain_ethereum", "get_account_withdrawals"
+    "database_api_sidechain_ethereum", "get_account_withdrawals",
+    "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of method 'get_account_withdrawals'", rank=1)
+@lcc.suite("Check work of methods: 'get_account_withdrawals', 'get_objects' (withdraw eth object)", rank=1)
 class GetAccountWithdrawals(BaseTest):
 
     def __init__(self):
@@ -54,7 +55,7 @@ class GetAccountWithdrawals(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_account_withdrawals'")
+    @lcc.test("Simple work of methods: 'get_account_withdrawals', 'get_objects' (withdraw eth object)")
     def method_main_check(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         eth_amount = 0.01
@@ -198,11 +199,11 @@ class GetAccountWithdrawals(BaseTest):
         params = [new_account, "eth"]
         response_id = self.send_request(self.get_request("get_account_withdrawals", params),
                                         self.__database_api_identifier)
-        withdrawals = self.get_response(response_id)["result"]
+        get_account_withdrawals_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_account_withdrawals' of new account '{}'".format(new_account))
 
         lcc.set_step("Check simple work of method 'get_account_withdrawals'")
-        for i, withdraw in enumerate(withdrawals):
+        for i, withdraw in enumerate(get_account_withdrawals_results):
             lcc.set_step("Check account withdraw #{}".format(i))
             self.object_validator.validate_withdraw_eth_object(self, withdraw)
             withdraw_ids.append(withdraw["id"])
@@ -213,24 +214,27 @@ class GetAccountWithdrawals(BaseTest):
                 "value", is_(withdraw_values[i]),
                 quiet=True
             )
-        lcc.set_step("Get withdraw by id using 'get_objects'")
-        response_id = self.send_request(self.get_request("get_objects", [withdraw_ids]),
-                                        self.__database_api_identifier)
-        response = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_objects' with param: {}".format(withdraw_ids))
 
-        lcc.set_step("Compare withdrawals in 'get_account_withdrawals' with method 'get_objects'")
-        for i, withdraw in enumerate(withdrawals):
-            lcc.set_step("Compare #{}, withdraw in 'get_account_withdrawals' with method 'get_objects'".format(i))
-            check_that_in(
-                withdraw,
-                "id", is_(response[i]["id"]),
-                "withdraw_id", is_(response[i]["withdraw_id"]),
-                "account", is_(response[i]["account"]),
-                "eth_addr", is_(response[i]["eth_addr"]),
-                "value", is_(response[i]["value"]),
-                "is_approved", is_(response[i]["is_approved"]),
-                "approves", is_(response[i]["approves"]),
-                "extensions", is_(response[i]["extensions"]),
+        lcc.set_step("Get withdraw by id using 'get_objects'")
+        params = withdraw_ids
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results,
+            has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Compare deposits in 'get_account_withdrawals' with method 'get_objects'")
+        for i, deposit in enumerate(get_account_withdrawals_results):
+            lcc.set_step("Compare #{}: deposit in 'get_account_withdrawals' with method 'get_objects'".format(i))
+            require_that(
+                "result",
+                deposit, equal_to(get_objects_results[i]),
                 quiet=True
             )

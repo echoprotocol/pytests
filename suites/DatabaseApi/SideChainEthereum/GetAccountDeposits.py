@@ -3,21 +3,22 @@ import random
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import is_, check_that_in, is_true, equal_to, check_that, starts_with,\
-    require_that_in
+    require_that_in, require_that, has_length
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_account_deposits'"
+    "description": "Methods 'get_account_deposits', 'get_objects' (deposit eth object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_ethereum",
-    "database_api_sidechain_ethereum", "get_account_deposits"
+    "database_api_sidechain_ethereum", "get_account_deposits",
+    "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of method 'get_account_deposits'", rank=1)
+@lcc.suite("Check work of methods: 'get_account_deposits', 'get_objects' (deposit eth object)", rank=1)
 class GetAccountDeposits(BaseTest):
 
     def __init__(self):
@@ -54,7 +55,7 @@ class GetAccountDeposits(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_account_deposits'")
+    @lcc.test("Simple work of methods 'get_account_deposits', 'get_objects' (deposit eth object)")
     def method_main_check(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         eth_amount = 0.01
@@ -183,11 +184,11 @@ class GetAccountDeposits(BaseTest):
         params = [new_account, "eth"]
         response_id = self.send_request(self.get_request("get_account_deposits", params),
                                         self.__database_api_identifier)
-        deposits = self.get_response(response_id)["result"]
+        get_account_deposits_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_account_deposits' of new account '{}'".format(new_account))
 
         lcc.set_step("Check simple work of method 'get_account_deposits'")
-        for i, deposit in enumerate(deposits):
+        for i, deposit in enumerate(get_account_deposits_results):
             lcc.set_step("Check account deposit #{}".format(i))
             self.object_validator.validate_deposit_eth_object(self, deposit)
             deposit_ids.append(deposit["id"])
@@ -200,22 +201,25 @@ class GetAccountDeposits(BaseTest):
             )
 
         lcc.set_step("Get deposit by id using 'get_objects'")
-        response_id = self.send_request(self.get_request("get_objects", [deposit_ids]),
+        params = deposit_ids
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_objects' with param: {}".format(deposit_ids))
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results,
+            has_length(len(params)),
+            quiet=True
+        )
 
         lcc.set_step("Compare deposits in 'get_account_deposits' with method 'get_objects'")
-        for i, deposit in enumerate(deposits):
+        for i, deposit in enumerate(get_account_deposits_results):
             lcc.set_step("Compare #{}: deposit in 'get_account_deposits' with method 'get_objects'".format(i))
-            check_that_in(
-                deposit,
-                "id", is_(response[i]["id"]),
-                "deposit_id", is_(response[i]["deposit_id"]),
-                "account", is_(response[i]["account"]),
-                "value", is_(response[i]["value"]),
-                "is_approved", is_(response[i]["is_approved"]),
-                "approves", is_(response[i]["approves"]),
-                "extensions", is_(response[i]["extensions"]),
+            require_that(
+                "result",
+                deposit, equal_to(get_objects_results[i]),
                 quiet=True
             )

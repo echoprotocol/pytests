@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, is_bool, is_none
+from lemoncheesecake.matching import check_that, require_that, has_length, equal_to, is_none
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_eth_address'"
+    "description": "Methods: 'get_eth_address', 'get_objects' (eth_address object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_ethereum",
-    "database_api_sidechain_ethereum", "get_eth_address"
+    "database_api_sidechain_ethereum", "get_eth_address",
+    "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of method 'get_eth_address'", rank=1)
+@lcc.suite("Check work of methods: 'get_eth_address', 'get_objects' (eth address object)", rank=1)
 class GetEthAddress(BaseTest):
 
     def __init__(self):
@@ -40,7 +41,7 @@ class GetEthAddress(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_eth_address'")
+    @lcc.test("Simple work of methods: 'get_eth_address', 'get_objects' (eth address object)")
     def method_main_check(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
 
@@ -70,5 +71,26 @@ class GetEthAddress(BaseTest):
         lcc.set_step("Check new eth address in method 'get_eth_address'")
         response_id = self.send_request(self.get_request("get_eth_address", [new_account]),
                                         self.__database_api_identifier)
-        result = self.get_response(response_id)["result"]
-        self.object_validator.validate_eth_address_object(self, result)
+        get_eth_address_result = self.get_response(response_id)["result"]
+        self.object_validator.validate_eth_address_object(self, get_eth_address_result)
+
+        lcc.set_step("Get eth address by id using 'get_objects'")
+        params = [get_eth_address_result["id"]]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results,
+            has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_eth_address', 'get_objects'")
+        require_that(
+            'result',
+            get_objects_results[0], equal_to(get_eth_address_result),
+            quiet=True
+        )
