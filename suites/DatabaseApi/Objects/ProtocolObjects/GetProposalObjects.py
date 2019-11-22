@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import require_that, equal_to, is_true, is_list, check_that
 
@@ -18,12 +17,9 @@ class GetProposalObjects(BaseTest):
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
-
-    def get_expiration_time(self, seconds):
-        pattern = "%Y-%m-%dT%H:%M:%S"
-        now = self.get_datetime(global_datetime=True)
-        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
-        return expiration.strftime(pattern)
+        self.__registration_api_identifier = None
+        self.echo_acc0 = None
+        self.echo_acc1 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -47,19 +43,13 @@ class GetProposalObjects(BaseTest):
                                                                   to_account_id=self.echo_acc0)
         lcc.set_step("Broadcast proposal transaction that contains simple transfer operation to the ECHO network")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        operations = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                             return_operations=True)
-        for op_num, op in enumerate(operations):
-            operations[op_num][1] = op[1].json()
-
         proposal_expiration = self.get_expiration_time(60)
         proposal_create_operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
             fee_paying_account=self.echo_acc0,
-            proposed_ops=operations,
+            proposed_ops=collected_operation,
             expiration_time=proposal_expiration
         )
-        del proposal_create_operation[1]['fee']
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=proposal_create_operation,
                                                    log_broadcast=False)
         require_that(
