@@ -175,8 +175,7 @@ class PositiveTesting(BaseTest):
         require_that("'contract_pool_whitelist'", contract_pool_whitelist["whitelist"], is_list(full_whitelist))
 
         lcc.set_step("First: call 'greet' method using fee pool sender")
-        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
-                                                         print_log=False)
+        self.produce_block(self.__database_api_identifier)
         account_balance = self.utils.get_account_balances(self, self.echo_acc0, self.__database_api_identifier)[
             "amount"]
         collected_operation = self.collect_operations(operation_method, self.__database_api_identifier)
@@ -302,8 +301,7 @@ class PositiveTesting(BaseTest):
         require_that("'contract_pool_blacklist'", contract_pool_whitelist["blacklist"], is_list(full_blacklist))
 
         lcc.set_step("Second: call 'greet' method using fee pool sender")
-        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, wait_block_count=2,
-                                                         print_log=False)
+        self.produce_block(self.__database_api_identifier)
         account_balance = self.utils.get_account_balances(self, self.echo_acc0, self.__database_api_identifier)[
             "amount"]
         operation_method = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,

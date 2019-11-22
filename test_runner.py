@@ -78,21 +78,30 @@ def process_filters(filters):
     category_filters = []
     type_filters = []
     for pytests_filter in filters:
+        filter_negation = not pytests_filter.startswith("^")
+        if not filter_negation:
+            pytests_filter = pytests_filter[1:]
         if pytests_filter in types:
-            type_filters.append(pytests_filter)
+            type_filters.append([pytests_filter, filter_negation])
         else:
-            category_filters.append(pytests_filter)
+            category_filters.append([pytests_filter, filter_negation])
 
     command = ""
     if len(category_filters):
         command = "{}-a ".format(command)
         for category_filter in category_filters:
-            command = "{}{} ".format(command, category_filter)
+            if category_filter[1]:
+                command = "{}{} ".format(command, category_filter[0])
+            else:
+                command = "{}^{} ".format(command, category_filter[0])
 
     if len(type_filters):
         command = "{}-m ".format(command)
         for type_filter in type_filters:
-            command = "{}{}:type ".format(command, type_filter)
+            if type_filter[1]:
+                command = "{}{}:type ".format(command, type_filter[0])
+            else:
+                command = "{}^{}:type ".format(command, type_filter[0])
 
     return command
 

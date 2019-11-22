@@ -131,7 +131,7 @@
                 [
                     19,
                     {
-                        "fee": 2323
+                        "fee": 50000
                     }
                 ],
                 [
@@ -366,11 +366,7 @@
         "maximum_proposal_lifetime": 2419200,
         "maximum_asset_whitelist_authorities": 10,
         "maximum_asset_feed_publishers": 10,
-        "maximum_committee_count": 1001,
         "maximum_authority_membership": 10,
-        "reserve_percent_of_fee": 2000,
-        "network_percent_of_fee": 2000,
-        "max_predicate_opcode": 1,
         "fee_liquidation_threshold": 10000000,
         "accounts_per_fee_scale": 1000,
         "account_fee_scale_bitshifts": 4,
@@ -434,8 +430,6 @@
             "erc20_withdraw_topic": "ec7288d868c54d049bda9254803b6ddaaf0317b76e81601c0af91a480592b272",
             "ETH_asset_id": "1.3.1",
             "BTC_asset_id": "1.3.2",
-            "waiting_eth_blocks": 0,
-            "waiting_btc_blocks": 0,
             "fines": {
                 "generate_eth_address": -10
             },
@@ -493,11 +487,6 @@
             "name": "init4",
             "active_key": "ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR",
             "echorand_key": "ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR"
-        },
-        {
-            "name": "init5",
-            "active_key": "ECHOD5vmsdJr82JAbXpLZgxsebCewQJvQFBpmeAjPUzQrPEB",
-            "echorand_key": "ECHOD5vmsdJr82JAbXpLZgxsebCewQJvQFBpmeAjPUzQrPEB"
         },
         {
             "name": "nathan",
@@ -605,11 +594,6 @@
             "owner_name": "init4",
             "eth_address": "4DE1618a5E0f038b78F7044Fa9dD8F778eA6d6ef",
             "btc_public_key": "039eeae9c2c707b95f024cf012c35c7784356a069a909af05e585a86348897f0c1"
-        },
-        {
-            "owner_name": "init5",
-            "eth_address": "484035B3c9F0e0756B930A3A735e030Ce8fdc06E",
-            "btc_public_key": "02c16e97132e72738c9c0163656348cd1be03521de17efeb07e496e742ac84512e"
         }
     ],
     "initial_chain_id": "aa34045518f1469a28fa4578240d5f039afa9959c0b95ce3b39674efa691fb21",

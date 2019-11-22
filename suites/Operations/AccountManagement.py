@@ -2,6 +2,6 @@
 import lemoncheesecake.api as lcc
 
 
-@lcc.suite("Votes")
-class Votes:
+@lcc.suite("AccountManagement")
+class AccountManagement:
     pass

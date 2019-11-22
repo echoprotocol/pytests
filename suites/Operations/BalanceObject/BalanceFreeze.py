@@ -21,7 +21,6 @@ class BalanceFreeze(BaseTest):
         self.__registration_api_identifier = None
         self.echo_acc0 = None
 
-
     def setup_suite(self):
         super().setup_suite()
         self._connect_to_echopy_lib()
@@ -51,7 +50,7 @@ class BalanceFreeze(BaseTest):
 
         lcc.set_step("Perform balance freeze operation")
         operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
-                                                               value_amount=value_amount, duration=1)
+                                                               value_amount=value_amount, duration=90)
         fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
