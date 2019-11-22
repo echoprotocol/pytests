@@ -16,8 +16,10 @@ class EchoOperations(object):
 
     def get_signer(self, signer):
         """
-        :param signer: name, id or wif key
+        :param signer: list, name, id, or wif key
         """
+        if type(signer) is list:
+            return signer
         if self.validator.is_wif(signer):
             return signer
         wallets = json.load(open(WALLETS))
@@ -30,6 +32,7 @@ class EchoOperations(object):
                     return wallets[wallets_keys[key]]["private_key"]
         lcc.log_error("Try to get invalid signer, get: '{}'".format(signer))
         raise Exception("Try to get invalid signer")
+
 
     @staticmethod
     def get_operation_json(variable_name, example=False):
@@ -359,13 +362,13 @@ class EchoOperations(object):
         return [operation_id, asset_claim_fees_props, signer]
 
     def get_proposal_create_operation(self, echo, fee_paying_account, expiration_time, proposed_ops,
-                                      review_period_seconds=None, fee_amount=0, fee_asset_id="1.3.0",
-                                      extensions=None, signer=None, debug_mode=False):
+                                      review_period_seconds=None, extensions=None, signer=None, debug_mode=False):
+        # don't use 'collect_operation' for returned object from this method
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_CREATE
         proposal_create_props = self.get_operation_json("proposal_create_operation")
-        proposal_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposed_ops = [op[:2] for op in proposed_ops]
         proposal_create_props.update(
             {"fee_paying_account": fee_paying_account, "expiration_time": expiration_time, "proposed_ops": proposed_ops,
              "extensions": extensions})
@@ -378,6 +381,41 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
+
+    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
+                                      active_approvals_to_remove, key_approvals_to_add, key_approvals_to_remove,
+                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                      debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.PROPOSAL_UPDATE
+        proposal_update_props = self.get_operation_json("proposal_update_operation")
+        proposal_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposal_update_props.update({"fee_paying_account": fee_paying_account, "proposal": proposal})
+        proposal_update_props.update({"active_approvals_to_add": active_approvals_to_add,
+                                      "active_approvals_to_remove": active_approvals_to_remove,
+                                      "key_approvals_to_add": key_approvals_to_add,
+                                      "key_approvals_to_remove": key_approvals_to_remove})
+        if debug_mode:
+            lcc.log_debug("Proposal update operation: \n{}".format(json.dumps(proposal_update_props, indent=4)))
+        if signer is None:
+            return [operation_id, proposal_update_props, fee_paying_account]
+        return [operation_id, proposal_update_props, signer]
+
+    def get_proposal_delete_operation(self, echo, fee_paying_account, using_owner_authority, proposal,
+                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.PROPOSAL_DELETE
+        proposal_delete_props = self.get_operation_json("proposal_delete_operation")
+        proposal_delete_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        proposal_delete_props.update({"fee_paying_account": fee_paying_account,
+                                      "using_owner_authority": using_owner_authority, "proposal": proposal})
+        if debug_mode:
+            lcc.log_debug("Proposal delete operation: \n{}".format(json.dumps(proposal_delete_props, indent=4)))
+        if signer is None:
+            return [operation_id, proposal_delete_props, fee_paying_account]
+        return [operation_id, proposal_delete_props, signer]
 
     def get_committee_member_create_operation(self, echo, committee_member_account, eth_address, btc_public_key,
                                               deposit_amount, fee_amount=0, fee_asset_id="1.3.0", url="",
@@ -779,7 +817,11 @@ class EchoOperations(object):
         if return_operations:
             return tx.operations
         for operation in list_operations:
-            tx.add_signer(self.get_signer(signer=operation[2]))
+            if type(operation[2]) is list:
+                for i, op in enumerate(operation[2]):
+                    tx.add_signer(self.get_signer(signer=operation[2][i]))
+            else:
+                tx.add_signer(self.get_signer(signer=operation[2]))
         if expiration:
             tx.expiration = expiration
         tx.sign()
