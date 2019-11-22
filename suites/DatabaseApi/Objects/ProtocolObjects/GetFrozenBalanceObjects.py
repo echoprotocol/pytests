@@ -57,15 +57,15 @@ class GetFrozenBalancesObjects(BaseTest):
         frozen_balances_id = get_frozen_balances_result["id"]
         response_id = self.send_request(self.get_request("get_objects", [[frozen_balances_id]]),
                                         self.__database_api_identifier)
-        get_object_result = self.get_response(response_id)["result"][-1]
+        get_objects_results = self.get_response(response_id)["result"][-1]
         lcc.log_info("Call method 'get_objects' with params: {}".format(frozen_balances_id))
 
         lcc.set_step("Checking balance object")
-        self.object_validator.validate_frozen_balance_object(self, get_object_result)
+        self.object_validator.validate_frozen_balance_object(self, get_objects_results)
 
         lcc.set_step("Check the identity of returned results of api-methods: 'get_frozen_balances', 'get_objects'")
         check_that(
             "'get_object' result of 'get_frozen_balances'",
-            get_object_result, equal_to(get_frozen_balances_result),
+            get_objects_results, equal_to(get_frozen_balances_result),
             quiet=True
         )

@@ -51,20 +51,23 @@ class GetBalanceObjects(BaseTest):
         lcc.set_step("Get balance object")
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        results = self.get_response(response_id)["result"]
+        get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check length of received objects")
         require_that(
             "'list of received objects'",
-            results, has_length(len(params)),
+            get_objects_results, has_length(len(params)),
             quiet=True
         )
 
-        for i, balance_info in enumerate(results):
+        for i, balance_info in enumerate(get_objects_results):
             lcc.set_step("Checking balance object #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_balance_object(self, balance_info)
 
-            lcc.set_step("Check the identity of returned results of api-methods: 'get_balance_objects', 'get_objects'")
-            check_that("get_object result of vesting_balance", balance_info, equal_to(get_balance_objects_result),
-                       quiet=True)
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_balance_objects', 'get_objects'")
+        check_that(
+            "get_object result of vesting_balance",
+            get_objects_results[0], equal_to(get_balance_objects_result),
+            quiet=True
+        )

@@ -2,22 +2,23 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, greater_than, equal_to, has_length, check_that_in, is_list, \
-    check_that, is_true, greater_than_or_equal_to
+from lemoncheesecake.matching import require_that, greater_than, equal_to, has_length, check_that_in,\
+    check_that, is_true
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_erc20_account_withdrawals'"
+    "description": "Methods: 'get_erc20_account_withdrawals', 'get_objects (withdraw erc20 token object)'"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_erc20",
-    "database_api_sidechain_erc20", "get_erc20_account_withdrawals"
+    "database_api_sidechain_erc20", "get_erc20_account_withdrawals",
+    "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of method 'get_erc20_account_withdrawals'", rank=1)
+@lcc.suite("Check work of methods: 'get_erc20_account_withdrawals', 'get_objects (withdraw erc20 token object)'", rank=1)
 class GetERC20AccountWithdrawals(BaseTest):
 
     def __init__(self):
@@ -36,42 +37,22 @@ class GetERC20AccountWithdrawals(BaseTest):
             return self.get_random_amount(_to=_to, _from=_from)
         return amount
 
-    def check_erc20_account_withdrawals(self, withdrawals, erc20_withdrawal_amounts, withdrawal_erc20_token_ids,
-                                        new_account_id):
+    def check_erc20_account_withdrawals(self, withdrawals, account_id, erc20_withdrawal_amounts,
+                                        withdrawal_erc20_token_ids):
         require_that(
             "'account withdrawals'",
             withdrawals, has_length(len(erc20_withdrawal_amounts)),
             quiet=True
         )
-        for i, withdrawal in enumerate(withdrawals):
+        for i, erc20_account_withdraw in enumerate(withdrawals):
             lcc.set_step("Check work of method 'get_erc20_account_withdrawals', withdrawal #'{}'".format(i))
-            check_that(
-                "'length of erc20 account withdrawal'",
-                withdrawal, has_length(9),
-                quiet=True
-            )
-            if not self.type_validator.is_withdraw_erc20_id(withdrawal["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(withdrawal["id"]))
-            else:
-                lcc.log_info("'id' has correct format: withdraw_erc20_token_object")
-            if not self.type_validator.is_eth_address(withdrawal["to"]):
-                lcc.log_error("Wrong format of 'to', got: {}".format(withdrawal["to"]))
-            else:
-                lcc.log_info("'to' has correct format: ethereum_address_type")
-            if not self.type_validator.is_erc20_object_id(withdrawal["erc20_token"]):
-                lcc.log_error("Wrong format of 'erc20_token', got: {}".format(withdrawal["erc20_token"]))
-            else:
-                lcc.log_info("'erc20_token' has correct format: erc20_token_object")
-
+            self.object_validator.validate_erc20_withdraw_object(self, erc20_account_withdraw)
             check_that_in(
-                withdrawal,
-                "withdraw_id", greater_than_or_equal_to(0),
+                erc20_account_withdraw,
                 "id", equal_to(withdrawal_erc20_token_ids[i]),
-                "account", equal_to(new_account_id),
-                "value", equal_to(str(erc20_withdrawal_amounts[i])),
+                "account", equal_to(account_id),
                 "is_approved", is_true(),
-                "approves", is_list(),
-                "extensions", is_list(),
+                "value", equal_to(str(erc20_withdrawal_amounts[i])),
                 quiet=True
             )
 
@@ -96,7 +77,7 @@ class GetERC20AccountWithdrawals(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_erc20_account_withdrawals'")
+    @lcc.test("Simple work of methods:: 'get_erc20_account_withdrawals', 'get_objects (withdraw erc20 token object)'")
     def method_main_check(self, get_random_valid_account_name, get_random_string, get_random_valid_asset_name):
         new_account_name = get_random_valid_account_name
         token_name = "erc20" + get_random_string
@@ -201,10 +182,16 @@ class GetERC20AccountWithdrawals(BaseTest):
             withdrawal_erc20_token_ids[0]))
 
         lcc.set_step("First: Get ERC20 account withdrawals")
-        withdrawals = self.utils.get_erc20_account_withdrawals(self, new_account_id,
-                                                               self.__database_api_identifier)["result"]
-        self.check_erc20_account_withdrawals(withdrawals, erc20_withdrawal_amounts, withdrawal_erc20_token_ids,
-                                             new_account_id)
+        get_erc20_account_withdrawals_results = self.utils.get_erc20_account_withdrawals(
+            self, new_account_id,
+            self.__database_api_identifier
+        )["result"]
+        self.check_erc20_account_withdrawals(
+            get_erc20_account_withdrawals_results,
+            new_account_id,
+            erc20_withdrawal_amounts,
+            withdrawal_erc20_token_ids
+        )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance_after_first_withdrawal = \
@@ -216,7 +203,7 @@ class GetERC20AccountWithdrawals(BaseTest):
                 previous_balance=in_echo_erc20_balance
             )
         require_that(
-            "'in echo account's erc20 balance'", 
+            "'in echo account's erc20 balance'",
             in_echo_erc20_balance_after_first_withdrawal,
             equal_to(in_echo_erc20_start_balance - int(erc20_withdrawal_amounts[0])),
             quiet=True
@@ -247,10 +234,16 @@ class GetERC20AccountWithdrawals(BaseTest):
             withdrawal_erc20_token_ids[1]))
 
         lcc.set_step("Second: Get ERC20 account withdrawals")
-        withdrawals = self.utils.get_erc20_account_withdrawals(self, new_account_id, self.__database_api_identifier,
-                                                               previous_account_withdrawals=withdrawals)["result"]
-        self.check_erc20_account_withdrawals(withdrawals, erc20_withdrawal_amounts, withdrawal_erc20_token_ids,
-                                             new_account_id)
+        get_erc20_account_withdrawals_results = self.utils.get_erc20_account_withdrawals(
+            self, new_account_id,
+            self.__database_api_identifier
+        )["result"]
+        self.check_erc20_account_withdrawals(
+            get_erc20_account_withdrawals_results,
+            new_account_id,
+            erc20_withdrawal_amounts,
+            withdrawal_erc20_token_ids
+        )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance_after_second_withdrawal = \
@@ -279,3 +272,24 @@ class GetERC20AccountWithdrawals(BaseTest):
             in_ethereum_erc20_balance_after_second_withdrawal, equal_to(in_echo_erc20_start_balance),
             quiet=True
         )
+
+        lcc.set_step("Get erc20 withdraw by id using 'get_objects'")
+        params = [withdraw["id"] for withdraw in get_erc20_account_withdrawals_results]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+        lcc.set_step("Compare erc20 deposits in 'get_erc20_withdrawals' with method 'get_objects'")
+        for i, deposit in enumerate(get_erc20_account_withdrawals_results):
+            lcc.set_step("Compare #{}: deposit in 'get_erc20_withdrawals' with method 'get_objects'".format(i))
+            require_that(
+                "result",
+                get_objects_results[i], equal_to(deposit),
+                quiet=True
+            )

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, equal_to
+from lemoncheesecake.matching import check_that_in, equal_to, require_that, has_length
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_erc20_token'"
+    "description": "Methods: 'get_erc20_token', 'get_objects (erc20 token object)'"
 }
 
 
@@ -13,7 +13,8 @@ SUITE = {
 @lcc.prop("positive", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_erc20",
-    "database_api_sidechain_erc20", "get_erc20_token"
+    "database_api_sidechain_erc20", "get_erc20_token",
+    "database_api_objects", "get_objects"
 )
 @lcc.suite("Check work of method 'get_erc20_token'", rank=1)
 class GetERC20Token(BaseTest):
@@ -86,9 +87,10 @@ class GetERC20Token(BaseTest):
 @lcc.prop("positive", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_erc20",
-    "database_api_sidechain_erc20", "get_erc20_token"
+    "database_api_sidechain_erc20", "get_erc20_token",
+    "database_api_objects", "get_objects"
 )
-@lcc.suite("Positive testing of method 'get_erc20_token'", rank=2)
+@lcc.suite("Positive testing of methods 'get_erc20_token', 'get_objects' (erc20 token object)", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -203,27 +205,27 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
         response_id = self.send_request(self.get_request("get_erc20_token", [erc20_contract.address[2:]]),
                                         self.__database_api_identifier)
-        response_1 = self.get_response(response_id)
+        get_erc20_token_result = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_erc20_token' with eth_erc20_contract_address='{}' parameter".format(
             erc20_contract.address[2:]))
 
-        lcc.set_step("Get account by id")
-        response_id = self.send_request(self.get_request("get_objects", [[erc20_token_id]]),
+        lcc.set_step("Get erc20 token by id")
+        params = [erc20_token_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        response_2 = self.get_response(response_id)
-        lcc.log_info("Call method 'get_objects' with param: {}".format(erc20_token_id))
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
 
-        lcc.set_step("Checking created account")
-        erc20_object_info_1 = response_1["result"]
-        erc20_object_info_2 = response_2["result"][0]
-        check_that_in(
-            erc20_object_info_1,
-            "id", equal_to(erc20_object_info_2["id"]),
-            "owner", equal_to(erc20_object_info_2["owner"]),
-            "eth_addr", equal_to(erc20_object_info_2["eth_addr"]),
-            "contract", equal_to(erc20_object_info_2["contract"]),
-            "name", equal_to(erc20_object_info_2["name"]),
-            "symbol", equal_to(erc20_object_info_2["symbol"]),
-            "decimals", equal_to(erc20_object_info_2["decimals"]),
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_erc20_token', 'get_objects'")
+        require_that(
+            "result",
+            get_objects_results[0], equal_to(get_erc20_token_result),
             quiet=True
         )

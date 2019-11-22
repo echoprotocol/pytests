@@ -6,8 +6,7 @@ from lemoncheesecake.matching import has_length, is_integer, check_that_in, chec
 
 class ObjectValidator(object):
 
-    @staticmethod
-    def validate_account_object(base_test, account_info):
+    def validate_account_object(self, base_test, account_info):
         if check_that(
             "account_info",
             account_info, has_length(16),
@@ -81,10 +80,9 @@ class ObjectValidator(object):
                     quiet=True
                 )
 
-    @staticmethod
-    def validate_asset_object(base_test, asset):
+    def validate_asset_object(self, base_test, asset):
 
-        def validate_core_exchange_rate_structure(base_test, core_exchange_rate):
+        def validate_core_exchange_rate_structure(self, base_test, core_exchange_rate):
             check_that_in(
                 core_exchange_rate,
                 "base", is_dict(),
@@ -157,15 +155,14 @@ class ObjectValidator(object):
                     core_exchange_rate, has_length(2),
                     quiet=True
                 ):
-                    validate_core_exchange_rate_structure(base_test, core_exchange_rate)
+                    validate_core_exchange_rate_structure(self, base_test, core_exchange_rate)
                 base_test.check_uint64_numbers(
                     options,
                     "max_supply",
                     quiet=True
                 )
 
-    @staticmethod
-    def validate_committee_member_object(base_test, committee_member):
+    def validate_committee_member_object(self, base_test, committee_member):
         if check_that(
             "'committee member'",
             committee_member, has_length(6),
@@ -197,8 +194,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_proposal_object(base_test, proposal_object):
+    def validate_proposal_object(self, base_test, proposal_object):
         if check_that(
             "'proposal object'",
             proposal_object, has_length(7),
@@ -241,8 +237,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_operation_history_object(base_test, operation_history_object):
+    def validate_operation_history_object(self, base_test, operation_history_object):
         if check_that(
             "operation_history_object",
             operation_history_object, has_length(8),
@@ -268,8 +263,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_vesting_balance_object(base_test, vesting_balance_object):
+    def validate_vesting_balance_object(self, base_test, vesting_balance_object):
         if check_that(
             "balance_object",
             vesting_balance_object, has_length(5),
@@ -322,8 +316,7 @@ class ObjectValidator(object):
                     quiet=True
                 )
 
-    @staticmethod
-    def validate_balance_object(base_test, balance_object):
+    def validate_balance_object(self, base_test, balance_object):
         if check_that(
             "balance_object",
             balance_object, has_length(5),
@@ -354,8 +347,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_frozen_balance_object(base_test, frozen_balance_object):
+    def validate_frozen_balance_object(self, base_test, frozen_balance_object):
         if check_that(
             "frozen_balance_object",
             frozen_balance_object, has_length(6),
@@ -393,8 +385,7 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'unfreeze_time' has correct format: iso8601")
 
-    @staticmethod
-    def validate_committee_frozen_balance_object(base_test, committee_frozen_balance_object):
+    def validate_committee_frozen_balance_object(self, base_test, committee_frozen_balance_object):
         if check_that(
             "committee_frozen_balance_object",
             committee_frozen_balance_object, has_length(5),
@@ -432,8 +423,7 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'unfreeze_balance_time' has correct format")
 
-    @staticmethod
-    def validate_contract_object(base_test, contract_object):
+    def validate_contract_object(self, base_test, contract_object):
         if check_that(
             "contract",
             contract_object, has_length(7),
@@ -463,8 +453,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_contract_result_object(base_test, contract_result_object):
+    def validate_contract_result_object(self, base_test, contract_result_object):
         if check_that(
             "contract result",
             contract_result_object, has_length(5),
@@ -489,8 +478,7 @@ class ObjectValidator(object):
                 else:
                     lcc.log_info("'contract_id' has correct format: contract_object_type")
 
-    @staticmethod
-    def validate_eth_address_object(base_test, eth_address_object):
+    def validate_eth_address_object(self, base_test, eth_address_object):
         if check_that(
             "account_eth_address",
             eth_address_object, has_length(6),
@@ -516,8 +504,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_deposit_eth_object(base_test, deposit_eth_object):
+    def validate_deposit_eth_object(self, base_test, deposit_eth_object):
         if check_that(
             "'first deposit of created account'",
             deposit_eth_object, has_length(7),
@@ -541,8 +528,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_withdraw_eth_object(base_test, withdraw_eth_object):
+    def validate_withdraw_eth_object(self, base_test, withdraw_eth_object):
         if check_that(
             "'first deposit of created account'",
             withdraw_eth_object, has_length(8),
@@ -569,8 +555,7 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-    @staticmethod
-    def validate_erc20_token_object(base_test, erc20_token_object):
+    def validate_erc20_token_object(self, base_test, erc20_token_object):
         if check_that(
             "'length of ERC20 object'",
             erc20_token_object, has_length(8),
@@ -597,6 +582,69 @@ class ObjectValidator(object):
                 "name", is_str(),
                 "symbol", is_str(),
                 "decimals", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    def validate_erc20_deposit_object(self, base_test, erc20_deposit_object):
+        if check_that(
+            "'length of erc20 account deposit'",
+            erc20_deposit_object, has_length(8),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_deposit_erc20_id(erc20_deposit_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(erc20_deposit_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: deposit_erc20_token_object")
+            if not base_test.type_validator.is_hex(erc20_deposit_object["transaction_hash"]):
+                lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(
+                    erc20_deposit_object["transaction_hash"]))
+            else:
+                lcc.log_info("'transaction_hash' has correct format: hex")
+            if not base_test.type_validator.is_account_id(erc20_deposit_object["account"]):
+                lcc.log_error("Wrong format of 'account', got {}".format(erc20_deposit_object["account"]))
+            else:
+                lcc.log_info("'account' has correct format: account_id_type")
+
+            check_that_in(
+                erc20_deposit_object,
+                "erc20_addr", is_str(),
+                "value", is_str(),
+                "is_approved", is_bool(),
+                "approves", is_list(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    def validate_erc20_withdraw_object(self, base_test, erc20_withdraw_object):
+        if check_that(
+            "'length of erc20 account withdrawal'",
+            erc20_withdraw_object, has_length(9),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_withdraw_erc20_id(erc20_withdraw_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(erc20_withdraw_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: withdraw_erc20_token_object")
+            if not base_test.type_validator.is_eth_address(erc20_withdraw_object["to"]):
+                lcc.log_error("Wrong format of 'to', got: {}".format(erc20_withdraw_object["to"]))
+            else:
+                lcc.log_info("'to' has correct format: ethereum_address_type")
+            if not base_test.type_validator.is_erc20_object_id(erc20_withdraw_object["erc20_token"]):
+                lcc.log_error("Wrong format of 'erc20_token', got: {}".format(erc20_withdraw_object["erc20_token"]))
+            else:
+                lcc.log_info("'erc20_token' has correct format: erc20_token_object")
+            if not base_test.type_validator.is_account_id(erc20_withdraw_object["account"]):
+                lcc.log_error("Wrong format of 'account', got {}".format(erc20_withdraw_object["account"]))
+            else:
+                lcc.log_info("'account' has correct format: account_id_type")
+
+            check_that_in(
+                erc20_withdraw_object,
+                "withdraw_id", greater_than_or_equal_to(0),
+                "value", is_str(),
+                "is_approved", is_bool(),
+                "approves", is_list(),
                 "extensions", is_list(),
                 quiet=True
             )

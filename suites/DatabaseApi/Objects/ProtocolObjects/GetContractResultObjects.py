@@ -49,18 +49,18 @@ class GetContractResultObjects(BaseTest):
         params = [contract_result_id]
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        results = self.get_response(response_id)["result"]
+        get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check length of received objects")
         require_that(
             "'list of received objects'",
-            results,
+            get_objects_results,
             has_length(len(params)),
             quiet=True
         )
 
-        for i, result in enumerate(results):
+        for i, result in enumerate(get_objects_results):
             lcc.set_step("Checking contract result object #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_contract_result_object(self, result)
             require_that_in(

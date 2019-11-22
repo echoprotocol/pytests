@@ -29,17 +29,17 @@ class GetCommitteeMemberObjects(BaseTest):
         lcc.set_step("Get committee member object")
         params = ["1.4.0"]
         response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
-        results = self.get_response(response_id)["result"]
+        get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check length of received objects")
         require_that(
             "'list of received objects'",
-            results, has_length(len(params)),
+            get_objects_results, has_length(len(params)),
             quiet=True
         )
 
-        for i, asset_info in enumerate(results):
+        for i, asset_info in enumerate(get_objects_results):
             lcc.set_step("Checking committee member object #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_committee_member_object(self, asset_info)
 
@@ -54,6 +54,6 @@ class GetCommitteeMemberObjects(BaseTest):
         lcc.set_step("Check the identity of returned results of api-methods: 'get_committee_members', 'get_objects'")
         require_that(
             'results',
-            results, equal_to(get_assets_results),
+            get_objects_results, equal_to(get_assets_results),
             quiet=True
         )

@@ -61,11 +61,11 @@ class GetOperationHistoryObjects(BaseTest):
         params = [get_account_history_operations_result[0]["id"]]
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        get_object_result = self.get_response(response_id)["result"]
+        get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check operation history object")
-        for result in get_object_result:
+        for result in get_objects_results:
             self.object_validator.validate_operation_history_object(self, result)
             check_that(
                 "'operation id'",
@@ -76,7 +76,7 @@ class GetOperationHistoryObjects(BaseTest):
         lcc.set_step("Check the identity of returned results of api-methods: 'get_account_history_operations', 'get_objects'")
         require_that(
             'results',
-            get_object_result, equal_to(get_account_history_operations_result),
+            get_objects_results, equal_to(get_account_history_operations_result),
             quiet=True
         )
 

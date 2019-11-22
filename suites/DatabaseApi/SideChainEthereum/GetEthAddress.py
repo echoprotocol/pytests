@@ -83,8 +83,7 @@ class GetEthAddress(BaseTest):
         lcc.set_step("Check length of received objects")
         require_that(
             "'list of received objects'",
-            get_objects_results,
-            has_length(len(params)),
+            get_objects_results, has_length(len(params)),
             quiet=True
         )
 

@@ -210,8 +210,7 @@ class GetAccountDeposits(BaseTest):
         lcc.set_step("Check length of received objects")
         require_that(
             "'list of received objects'",
-            get_objects_results,
-            has_length(len(params)),
+            get_objects_results, has_length(len(params)),
             quiet=True
         )
 
@@ -220,6 +219,6 @@ class GetAccountDeposits(BaseTest):
             lcc.set_step("Compare #{}: deposit in 'get_account_deposits' with method 'get_objects'".format(i))
             require_that(
                 "result",
-                deposit, equal_to(get_objects_results[i]),
+                get_objects_results[i], equal_to(deposit),
                 quiet=True
             )

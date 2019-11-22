@@ -74,11 +74,11 @@ class GetProposalObjects(BaseTest):
         params = [proposal_id]
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        proposal_objects = self.get_response(response_id, log_response=True)["result"]
+        get_objects_results = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call 'get_objects' with params='{}'".format(params))
 
         lcc.set_step("Check 'get_proposed_transactions' method result")
-        for proposal_object in proposal_objects:
+        for proposal_object in get_objects_results:
             if proposal_object["id"] == proposal_id:
                 break
 
@@ -102,10 +102,10 @@ class GetProposalObjects(BaseTest):
         lcc.set_step("Get proposed transactions for '{}' account".format(self.echo_acc1))
         response_id = self.send_request(self.get_request("get_proposed_transactions", [self.echo_acc1]),
                                         self.__database_api_identifier)
-        proposal_objects = self.get_response(response_id)["result"]
+        get_proposed_transactions_results = self.get_response(response_id)["result"]
         lcc.log_info("Call 'get_proposed_transactions' with id='{}' parameter".format(self.echo_acc1))
 
-        for get_proposed_transactions_result in proposal_objects:
+        for get_proposed_transactions_result in get_proposed_transactions_results:
             if get_proposed_transactions_result["id"] == proposal_id:
                 break
 

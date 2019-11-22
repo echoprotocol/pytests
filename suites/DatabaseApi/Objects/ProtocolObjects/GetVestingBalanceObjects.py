@@ -52,11 +52,11 @@ class GetVestingBalanceObject(BaseTest):
         params = [vesting_balance_id]
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        get_object_result = self.get_response(response_id)["result"][0]
+        get_objects_results = self.get_response(response_id)["result"][0]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Checking vesting balance object")
-        self.object_validator.validate_vesting_balance_object(self, get_object_result)
+        self.object_validator.validate_vesting_balance_object(self, get_objects_results)
 
         lcc.set_step("Get vesting balance of account")
         response_id = self.send_request(self.get_request("get_vesting_balances", [self.echo_acc0]),
@@ -67,6 +67,6 @@ class GetVestingBalanceObject(BaseTest):
         lcc.set_step("Check the identity of returned results of api-methods: 'get_vesting_balances', 'get_objects'")
         check_that(
             "get_object result of vesting_balance",
-            get_object_result, equal_to(get_vesting_balances_result),
+            get_objects_results, equal_to(get_vesting_balances_result),
             quiet=True
         )
