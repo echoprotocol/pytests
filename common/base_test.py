@@ -497,6 +497,12 @@ class BaseTest(object):
             lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
         return account_id
 
+    def get_initial_account_id(self, initial_account_num, database_api_identifier):
+        response_id = self.send_request(self.get_request("get_global_properties"),
+                                        database_api_identifier)
+        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
+        return active_committee_members[initial_account_num][1]
+
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []
         for i in range(account_count):

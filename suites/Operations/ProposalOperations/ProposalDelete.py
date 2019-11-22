@@ -19,6 +19,8 @@ class ProposalDelete(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.init0 = None
+        self.init1 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -30,6 +32,10 @@ class ProposalDelete(BaseTest):
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
 
+        self.init0 = self.get_initial_account_id(0, self.__database_api_identifier)
+        self.init1 = self.get_initial_account_id(1, self.__database_api_identifier)
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.init0, self.init1))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -38,21 +44,16 @@ class ProposalDelete(BaseTest):
     def method_main_check(self, get_random_integer_up_to_ten):
         transfer_amount = get_random_integer_up_to_ten
 
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        proposal_creator_id = active_committee_members[0][1]
-        proposal_prevent_account_id = active_committee_members[1][1]
-
         lcc.set_step("Collect transfer operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=proposal_prevent_account_id,
-                                                                  amount=transfer_amount, to_account_id=proposal_creator_id)
+        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.init1,
+                                                                  amount=transfer_amount, to_account_id=self.init0)
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         lcc.log_info("Transfer operation collected")
 
         lcc.set_step("Make proposal of transfer operation")
         operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
-            fee_paying_account=proposal_creator_id,
+            fee_paying_account=self.init0,
             proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(60),
             review_period_seconds=10,
@@ -70,7 +71,7 @@ class ProposalDelete(BaseTest):
         lcc.set_step("Make voting for transfer operation")
         operation = self.echo_ops.get_proposal_delete_operation(
             echo=self.echo,
-            fee_paying_account=proposal_prevent_account_id,
+            fee_paying_account=self.init1,
             proposal=proposal_id,
             using_owner_authority=False,
             signer=[INIT1_PK]
