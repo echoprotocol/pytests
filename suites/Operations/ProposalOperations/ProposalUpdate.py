@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
+from project import INIT0_PK, INIT1_PK
 
 from common.base_test import BaseTest
 
@@ -52,12 +52,7 @@ class ProposalUpdate(BaseTest):
     @lcc.test("Simple work of method 'proposal_update'")
     def method_main_check(self, get_random_integer_up_to_ten):
         transfer_amount = get_random_integer_up_to_ten
-        lcc.log_info(self.echo_acc0)
 
-        response_id = self.send_request(self.get_request("get_account_balances", ["1.2.6", [self.echo_asset]]),
-                                        self.__database_api_identifier)
-        account_balance = self.get_response(response_id)["result"][0]["amount"]
-        lcc.log_info("{}".format(account_balance))
         lcc.set_step("Collect transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.7",
                                                                   amount=transfer_amount, to_account_id="1.2.6")
@@ -81,7 +76,6 @@ class ProposalUpdate(BaseTest):
         response_id = self.send_request(self.get_request("get_proposed_transactions", ["1.2.7"]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
-        lcc.log_info("{}".format(result))
         check_that("required_active_approvals", result["required_active_approvals"], equal_to(["1.2.7"]))
 
         lcc.set_step("Make voting for transfer operation")
@@ -99,7 +93,7 @@ class ProposalUpdate(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("All committee member has voted")
 
-        lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were activated")
+        lcc.set_step("Check that all required committee member has voted")
         response_id = self.send_request(self.get_request("get_proposed_transactions", ["1.2.7"]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
