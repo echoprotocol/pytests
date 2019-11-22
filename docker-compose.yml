@@ -88,7 +88,6 @@ services:
       --sidechain-btc-committeeman=[\"1.2.8\",\"cMfvqZL27R5o7bhCRop3QBMezeUyL6h7KhUcpT2cmVW8Ftjo1Aup\"]
       --sidechain-btc-committeeman=[\"1.2.9\",\"cSBuEeeysRAMkXt1A8aubynVPaP14VGAW6iULYWSUFpGXBj3Byg3\"]
       --sidechain-btc-committeeman=[\"1.2.10\",\"cVqYxKMybncNeQ2YQ4wyyUi6PzD5ttJHUuATB8XUvb3AjdAJnNEp\"]
-      --sidechain-btc-committeeman=[\"1.2.11\",\"L2Yu2YGroohyiYp8FfUityDyTsZtQGNsxuyAbsuAPYBJfJKeL4vL\"]
       --btc-rpc-ip=bitcoin
       --btc-rpc-port=18443
       --btc-rpc-user=test

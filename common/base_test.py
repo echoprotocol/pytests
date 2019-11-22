@@ -613,7 +613,7 @@ class BaseTest(object):
         return data['RESERVED_PUBLIC_KEY']
 
     def produce_block(self, database_api_identifier):
-        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.12",
+        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.11",
                                                          to_account_id="1.2.1", amount=1, signer=NATHAN_PK)
         collected_operation = self.collect_operations(operation, database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)

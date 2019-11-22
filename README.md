@@ -4,9 +4,6 @@ The project is intended for testing Echo project. Includes testing:
 * [**Echo Operations**](https://docs.echo.org/api-reference/echo-operations)
 * Testing according to specified scenarios
 
-Python version: 3.7 or later 
-### Windows
-=======
 ### Instalation:
  
 Python version: 3.7 or later 
