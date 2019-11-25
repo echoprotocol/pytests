@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, equal_to, check_that, is_none
+from lemoncheesecake.matching import check_that_in, equal_to, check_that, is_none, require_that, has_length
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_assets'"
+    "description": "Methods: 'get_assets', 'get_objects' (asset object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_assets", "get_assets")
-@lcc.suite("Check work of method 'get_assets'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_assets", "get_assets",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_assets', 'get_objects (asset object)'", rank=1)
 class GetAssets(BaseTest):
 
     def __init__(self):
@@ -28,16 +31,35 @@ class GetAssets(BaseTest):
     @lcc.test("Simple work of method 'get_assets'")
     def method_main_check(self):
         lcc.set_step("Get default asset of the chain")
-        asset_ids = [self.echo_asset]
-        response_id = self.send_request(self.get_request("get_assets", [asset_ids]),
+        params = [self.echo_asset]
+        response_id = self.send_request(self.get_request("get_assets", [params]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
-        lcc.log_info("Call method 'get_assets' with asset_ids='{}' parameter".format(asset_ids))
+        get_assets_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_assets' with asset_ids='{}' parameter".format(params))
 
         lcc.set_step("Check simple work of method 'get_assets'")
-        asset = response["result"][0]
+        for i, asset_info in enumerate(get_assets_results):
+            lcc.set_step("Checking asset object #{} - '{}'".format(i, params[i]))
+            self.object_validator.validate_asset_object(self, asset_info)
 
-        self.object_validator.validate_asset_object(self, asset)
+        lcc.set_step("Get asset object")
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_assets', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_assets_results),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")
