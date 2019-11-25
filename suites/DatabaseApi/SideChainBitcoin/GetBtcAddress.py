@@ -53,16 +53,16 @@ class GetBtcAddress(BaseTest):
                                                                              backup_address=backup_address)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        lcc.log_info("'sidechain_btc_create_address_operation' Broadcasted successfully.")
+        lcc.log_info("'sidechain_btc_create_address_operation' broadcasted successfully.")
         lcc.set_step("Call 'Get_btc_address' method and check its result")
         response_id = self.send_request(self.get_request("get_btc_address", [new_account_id]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
 
         if not self.validator.is_btc_address_id(result["id"]):
-                lcc.log_error("Wrong format of 'btc_address_id', got: {}".format(result["id"]))
+            lcc.log_error("Wrong format of 'btc_address_id', got: {}".format(result["id"]))
         else:
-            lcc.log_info("Correct format of 'btc_address_id'.")
+            lcc.log_info("Correct format of btc_address_id.")
 
         check_that("account", result["account"], equal_to(new_account_id), quiet=True)
 
@@ -77,8 +77,8 @@ class GetBtcAddress(BaseTest):
                 lcc.log_error("Wrong format of 'btc_public_key', got: {}".format(committee_member_info[1]))
             if not self.validator.is_account_id(committee_member_info[0]):
                 lcc.log_error("Wrong format of 'committee_member_account_id', got: {}".format(committee_member_info[0]))
-        lcc.log_info("All 'btc_public_key' has correct format.")
-        lcc.log_info("All 'committee_member_account_id' has correct format.")
+        lcc.log_info("All 'btc_public_key' has correct format, got account_id")
+        lcc.log_info("All 'committee_member_account_id' has correct format, got btc_public_key")
 
         check_that("is_relevant", result["is_relevant"], is_true(), quiet=True)
 
