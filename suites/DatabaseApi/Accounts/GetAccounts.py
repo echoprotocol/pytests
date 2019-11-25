@@ -15,7 +15,7 @@ SUITE = {
     "api", "database_api", "database_api_accounts", "get_accounts",
     "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of methods: 'get_accounts', 'get_objects (account object)'", rank=1)
+@lcc.suite("Check work of method 'get_accounts'", rank=1)
 class GetAccounts(BaseTest):
 
     def __init__(self):
@@ -47,29 +47,13 @@ class GetAccounts(BaseTest):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_account_object(self, account_info)
 
-        lcc.set_step("Get accounts objects")
-        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
-        get_objects_results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
-
-        lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results, has_length(len(params)),
-            quiet=True
-        )
-
-        lcc.set_step("Check the identity of returned results of api-methods: 'get_accounts', 'get_objects'")
-        require_that(
-            'results',
-            get_objects_results, equal_to(get_accounts_results),
-            quiet=True
-        )
-
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_accounts", "get_accounts")
-@lcc.suite("Positive testing of method 'get_accounts'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_accounts", "get_accounts",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Positive testing of methods: 'get_accounts', 'get_objects' (account object)", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -145,27 +129,28 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Get account by name")
         account_id = self.get_account_by_name(account_name, self.__database_api_identifier).get("result").get("id")
-        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
+        params = [account_id]
+        response_id = self.send_request(self.get_request("get_accounts", [params]),
                                         self.__database_api_identifier)
-        response_1 = self.get_response(response_id)
-        lcc.log_info("Call method 'get_account_by_name' with param: {}".format(account_id))
+        get_accounts_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_accounts' with param: {}".format(params))
 
         lcc.set_step("Get account by id")
-        response_id = self.send_request(self.get_request("get_objects", [[account_id]]),
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        response_2 = self.get_response(response_id)
-        lcc.log_info("Call method 'get_objects' with param: {}".format(account_id))
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
 
-        lcc.set_step("Checking created account")
-        account_info_1 = response_1["result"]
-        account_info_2 = response_2["result"]
-        for i, result in enumerate(account_info_1):
-            check_that_in(
-                result,
-                "registrar", equal_to(account_info_2[i]["registrar"]),
-                "name", equal_to(account_info_2[i]["name"]),
-                "active", equal_to(account_info_2[i]["active"]),
-                "echorand_key", equal_to(account_info_2[i]["echorand_key"]),
-                "options", equal_to(account_info_2[i]["options"]),
-                "extensions", equal_to(account_info_2[i]["extensions"])
-            )
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_accounts', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_accounts_results),
+            quiet=True
+        )

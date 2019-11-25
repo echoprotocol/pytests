@@ -16,7 +16,7 @@ SUITE = {
     "api", "database_api", "database_api_committee_members", "get_committee_members",
     "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of methods: 'get_committee_members', 'get_objects' (committee member object)", rank=1)
+@lcc.suite("Check work of method 'get_committee_members'", rank=1)
 class GetCommitteeMembers(BaseTest):
 
     def __init__(self):
@@ -31,7 +31,7 @@ class GetCommitteeMembers(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of methods: 'get_committee_members', 'get_objects' (committee member object)")
+    @lcc.test("Simple work of method 'get_committee_members'")
     def method_main_check(self):
         active_committee_members_ids = []
 
@@ -53,27 +53,6 @@ class GetCommitteeMembers(BaseTest):
         for i, committee_member in enumerate(get_committee_members_results):
             lcc.set_step("Get active committee member #'{}'".format(i))
             self.object_validator.validate_committee_member_object(self, committee_member)
-
-        lcc.set_step("Get committee member object")
-        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
-        get_objects_results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
-
-        lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results, has_length(len(params)),
-            quiet=True
-        )
-
-        lcc.set_step(
-            "Check the identity of returned results of api-methods: 'get_committee_members', 'get_objects'"
-        )
-        require_that(
-            'results',
-            get_objects_results, equal_to(get_committee_members_results),
-            quiet=True
-        )
 
 
 @lcc.prop("positive", "type")
@@ -210,29 +189,45 @@ class PositiveTesting(BaseTest):
         lcc.log_info("New Echo account created, account_id='{}'".format(self.new_account_id))
 
         lcc.set_step("Create committee member of new account in the ECHO network")
-        broadcast_result = self.utils.perform_committee_member_create_operation(self, self.new_account_id,
-                                                                                eth_account_address,
-                                                                                btc_public_key,
-                                                                                self.__database_api_identifier,
-                                                                                deposit_amount=100000000000, url=url)
+        broadcast_result = self.utils.perform_committee_member_create_operation(
+            self,
+            self.new_account_id,
+            eth_account_address,
+            btc_public_key,
+            self.__database_api_identifier,
+            deposit_amount=100000000000,
+            url=url
+        )
         self.committee_member_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Successfully created a new committee member, id: '{}'".format(self.committee_member_id))
 
         lcc.set_step("Get committee member")
-        param = [self.committee_member_id]
-        response_id = self.send_request(self.get_request("get_committee_members", [param]),
+        params = [self.committee_member_id]
+        response_id = self.send_request(self.get_request("get_committee_members", [params]),
                                         self.__database_api_identifier)
-        committee_member_result = self.get_response(response_id)["result"][0]
-        lcc.log_info("Call method 'get_committee_members' with params='{}'".format(param))
+        get_committee_members_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_committee_members' with params='{}'".format(params))
 
         lcc.set_step("Get committee member by id")
-        response_id = self.send_request(self.get_request("get_objects", [param]), self.__database_api_identifier)
-        committee_member_info = self.get_response(response_id)["result"][0]
-        lcc.log_info("Call method 'get_objects' with param: {}".format(param))
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
-        lcc.set_step("Compare results of method 'get_objects' and 'get_committee_members'")
-        require_that("'results of method 'get_committee_members' and 'get_objects' is equal",
-                     committee_member_result == committee_member_info, is_true())
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_committee_members', 'get_objects'"
+        )
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_committee_members_results),
+            quiet=True
+        )
 
     @lcc.test("Use in method call nonexistent committee member id")
     @lcc.depends_on("DatabaseApi.CommitteeMembers.GetCommitteeMembers.GetCommitteeMembers.method_main_check")

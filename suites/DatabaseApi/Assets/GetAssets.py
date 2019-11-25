@@ -28,7 +28,7 @@ class GetAssets(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of method 'get_assets'")
+    @lcc.test("Simple work of methods: 'get_assets', 'get_objects' (asset object)")
     def method_main_check(self):
         lcc.set_step("Get default asset of the chain")
         params = [self.echo_asset]

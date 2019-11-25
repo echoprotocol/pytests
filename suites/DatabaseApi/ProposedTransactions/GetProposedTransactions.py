@@ -5,13 +5,16 @@ from lemoncheesecake.matching import require_that, is_list, is_true, check_that,
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_proposed_transactions'"
+    "description": "Methods: 'get_proposed_transactions', 'get_objects' (proposal object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_proposed_transactions", "get_proposed_transactions")
+@lcc.tags(
+    "api", "database_api", "database_api_proposed_transactions", "get_proposed_transactions",
+    "database_api_objects", "get_objects"
+)
 @lcc.suite("Check work of method 'get_proposed_transactions'", rank=1)
 class GetProposedTransactions(BaseTest):
 
@@ -52,8 +55,11 @@ class GetProposedTransactions(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_proposed_transactions", "get_proposed_transactions")
-@lcc.suite("Positive testing of method 'get_proposed_transactions'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_proposed_transactions", "get_proposed_transactions",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Positive testing of methods: 'get_proposed_transactions', 'get_objects' (proposal object)", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -82,7 +88,9 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Propose transaction using proposal_create operation and get info about it")
-    @lcc.depends_on("DatabaseApi.ProposedTransactions.GetProposedTransactions.GetProposedTransactions.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.ProposedTransactions.GetProposedTransactions.GetProposedTransactions.method_main_check"
+    )
     def get_info_about_proposed_transaction(self):
         lcc.set_step("Collect 'get_proposed_transactions' operation")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
@@ -110,11 +118,11 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Get proposed transactions for '{}' account".format(self.echo_acc1))
         response_id = self.send_request(self.get_request("get_proposed_transactions", [self.echo_acc1]),
                                         self.__database_api_identifier)
-        proposal_objects = self.get_response(response_id)["result"]
+        get_proposed_transactions_results = self.get_response(response_id)["result"]
         lcc.log_info("Call 'get_proposed_transactions' with id='{}' parameter".format(self.echo_acc1))
 
         lcc.set_step("Check 'get_proposed_transactions' method result")
-        for proposal_object in proposal_objects:
+        for proposal_object in get_proposed_transactions_results:
             if proposal_object["id"] == proposal_id:
                 break
 
@@ -135,5 +143,26 @@ class PositiveTesting(BaseTest):
             "'required active approval'",
             proposal_object["required_active_approvals"],
             is_list([self.echo_acc1]),
+            quiet=True
+        )
+
+        lcc.set_step("Get proposal object")
+        params = [proposal_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call 'get_objects' with params='{}'".format(params))
+
+        lcc.set_step("Check 'get_proposed_transactions' method result")
+        for get_objects_proposal in get_objects_results:
+            if get_objects_proposal["id"] == proposal_id:
+                break
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_proposed_transactions', 'get_objects'"
+        )
+        require_that(
+            'proposal object',
+            get_objects_proposal, equal_to(proposal_object),
             quiet=True
         )
