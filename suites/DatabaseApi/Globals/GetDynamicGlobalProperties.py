@@ -11,8 +11,13 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_globals", "get_dynamic_global_properties")
-@lcc.suite("Check work of method 'get_dynamic_global_properties'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_globals", "get_dynamic_global_properties",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite(
+    "Check work of methods: 'get_dynamic_global_properties', 'get_objects' (dynamic global property object)", rank=1
+)
 class GetDynamicGlobalProperties(BaseTest):
 
     def __init__(self):
@@ -26,7 +31,7 @@ class GetDynamicGlobalProperties(BaseTest):
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
     @lcc.test(
-        "Simple work of methods: : 'get_dynamic_global_properties', 'get_objects' (dynamic global property object)"
+        "Simple work of methods: 'get_dynamic_global_properties', 'get_objects' (dynamic global property object)"
     )
     def method_main_check(self):
         lcc.set_step("Get dynamic global properties")
