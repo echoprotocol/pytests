@@ -13,7 +13,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.tags("operations", "sidechain", "sidechain_ethereum", "sidechain_erc20_register_token")
-@lcc.suite("Check work of method 'sidechain_erc20_register_token'", rank=1)
+@lcc.suite("Check work of operation 'sidechain_erc20_register_token'", rank=1)
 class ERC20(BaseTest):
 
     def __init__(self):
@@ -51,7 +51,7 @@ class ERC20(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'sidechain_erc20_register_token'")
+    @lcc.test("Simple work of operation 'sidechain_erc20_register_token'")
     def erc20_sidechain_pre_run_scenario(self, get_random_valid_account_name, get_random_string,
                                          get_random_valid_asset_name):
         new_account = get_random_valid_account_name
