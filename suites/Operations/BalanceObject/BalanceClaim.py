@@ -12,8 +12,8 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("operations", "asset_transfer_operations", "balance_claim")
-@lcc.suite("Check work of method 'balance_claim'", rank=1)
+@lcc.tags("operations", "balance_object_operations", "balance_claim")
+@lcc.suite("Check work of operation 'balance_claim'", rank=1)
 class BalanceClaim(BaseTest):
 
     def __init__(self):
@@ -75,7 +75,7 @@ class BalanceClaim(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'balance_claim'")
+    @lcc.test("Simple work of operation 'balance_claim'")
     def method_main_check(self, get_random_valid_account_name):
         if self.state:
             account_info = self.get_account_by_name(self.init4_account_name, self.__database_api_identifier)
