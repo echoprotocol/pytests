@@ -11,7 +11,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("operations", "asset_transfer_operations", "balance_freeze")
+@lcc.tags("operations", "balance_object_operations", "balance_freeze")
 @lcc.suite("Check work of method 'balance_freeze'", rank=1)
 class BalanceFreeze(BaseTest):
 
@@ -38,7 +38,7 @@ class BalanceFreeze(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'balance_freeze'")
+    @lcc.test("Simple work of operation 'balance_freeze'")
     def method_main_check(self, get_random_integer):
         value_amount = get_random_integer
         lcc.set_step("Get balances of account")
