@@ -5,14 +5,17 @@ from lemoncheesecake.matching import check_that_in, has_length, require_that, eq
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_accounts'"
+    "description": "Methods: 'get_accounts', 'get_objects' (account object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_accounts", "get_accounts")
-@lcc.suite("Check work of method 'get_accounts'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_accounts", "get_accounts",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_accounts', 'get_objects (account object)'", rank=1)
 class GetAccounts(BaseTest):
 
     def __init__(self):
@@ -30,18 +33,38 @@ class GetAccounts(BaseTest):
         lcc.set_step("Get info about default accounts")
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
-        results = self.get_response(response_id)["result"]
+        get_accounts_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
         require_that(
             "'list of received accounts'",
-            results, has_length(len(params))
+            get_accounts_results, has_length(len(params)),
+            quiet=True
         )
 
-        for i, account_info in enumerate(results):
+        for i, account_info in enumerate(get_accounts_results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_account_object(self, account_info)
+
+        lcc.set_step("Get accounts objects")
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_accounts', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_accounts_results),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")
