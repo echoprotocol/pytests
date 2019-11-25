@@ -6,7 +6,7 @@ from lemoncheesecake.matching import is_str, is_false, check_that, has_length, r
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Methods: 'get_contracts', 'get_objects' (contract object)"
+    "description": "Methods: 'get_contracts', 'get_objects' (contract & contract result objects)"
 }
 
 
@@ -17,7 +17,7 @@ SUITE = {
     "api", "database_api", "database_api_contracts", "get_contracts",
     "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of methods: 'get_contracts', 'get_objects' (contract object)", rank=1)
+@lcc.suite("Check work of methods: 'get_contracts', 'get_objects' (contract & contract result objects)", rank=1)
 class GetContracts(BaseTest):
 
     def __init__(self):
@@ -44,11 +44,21 @@ class GetContracts(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of methods: 'get_contracts', 'get_objects' (contract object)")
+    @lcc.test(
+        "Simple work of methods: 'get_contracts', 'get_objects' (contract & contract result objects)"
+    )
     def method_main_check(self):
         lcc.set_step("Create contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
-                                                 supported_asset_id=self.echo_asset)
+        contract_info = self.utils.get_contract_id(
+            self,
+            self.echo_acc0,
+            self.contract,
+            self.__database_api_identifier,
+            supported_asset_id=self.echo_asset,
+            need_broadcast_result=True
+        )
+        contract_id = contract_info["contract_id"]
+        contract_result_id = contract_info["broadcast_result"]["trx"]["operation_results"][0][1]
 
         lcc.set_step("Get info about created contract")
         params = [contract_id]
@@ -88,6 +98,32 @@ class GetContracts(BaseTest):
             get_objects_results, equal_to(get_contracts_results),
             quiet=True
         )
+
+        lcc.set_step("Get contract result object")
+        params = [contract_result_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: '{}'".format(contract_id))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results,
+            has_length(len(params)),
+            quiet=True
+        )
+
+        for i, result in enumerate(get_objects_results):
+            lcc.set_step("Checking contract result object #{} - '{}'".format(i, params[i]))
+            self.object_validator.validate_contract_result_object(self, result)
+            require_that_in(
+                result,
+                "id", equal_to(contract_result_id),
+                "type", equal_to("evm"),
+                "contracts_id", equal_to([contract_id]),
+                quiet=True
+            )
 
 
 @lcc.prop("positive", "type")

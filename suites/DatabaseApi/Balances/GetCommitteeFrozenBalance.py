@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, greater_than
+from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
 from fixtures.base_fixtures import get_random_integer
@@ -14,7 +14,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_frozen_balance")
+@lcc.tags("api", "database_api", "database_api_balances", "get_committee_frozen_balance")
 @lcc.suite("Check work of method 'get_committee_frozen_balance'", rank=1)
 class GetCommitteeFrozenBalance(BaseTest):
 
@@ -89,7 +89,7 @@ class GetCommitteeFrozenBalance(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_frozen_balance")
+@lcc.tags("api", "database_api", "database_api_balances", "get_committee_frozen_balance")
 @lcc.suite("Positive testing of method 'get_committee_frozen_balance'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -111,7 +111,7 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Get committee frozen balance after several freeze")
     @lcc.depends_on(
-        "DatabaseApi.CommitteeMembers.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance.method_main_check")
+        "DatabaseApi.Balances.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance.method_main_check")
     def perform_next_frozen_committee_frozen_balance_deposit_operation(self):
         amount_to_freeze = get_random_integer()
 
@@ -145,7 +145,7 @@ class PositiveTesting(BaseTest):
 
 
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_frozen_balance")
+@lcc.tags("api", "database_api", "database_api_balances", "get_committee_frozen_balance")
 @lcc.suite("Negative testing of method 'get_committee_frozen_balance'", rank=3)
 class NegativeTesting(BaseTest):
 
@@ -163,7 +163,7 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Freeze more than is available on the account")
     @lcc.depends_on(
-        "DatabaseApi.CommitteeMembers.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance.method_main_check")
+        "DatabaseApi.Balances.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance.method_main_check")
     def check_freezing_amount_more_than_is_available_in_account_balance(self):
         error_message = "Assert Exception: d.get_balance(op.committee_member_account, op.amount.asset_id) >= " \
                         "op.amount: Not enough balance"
