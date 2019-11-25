@@ -29,6 +29,7 @@ class Validator(object):
     erc20_object_id_regex = re.compile(r"^1\.16\.(0|[1-9]\d*)$")
     deposit_erc20_id_regex = re.compile(r"^1\.17\.(0|[1-9]\d*)$")
     withdraw_erc20_id_regex = re.compile(r"^1\.18\.(0|[1-9]\d*)$")
+    btc_address_id_regex = re.compile(r"^1\.19\.(0|[1-9]\d*)$")
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")
@@ -174,6 +175,10 @@ class Validator(object):
     def is_withdraw_erc20_id(self, value):
         if self.is_string(value):
             return bool(self.withdraw_erc20_id_regex.match(value))
+
+    def is_btc_address_id(self, value):
+        if self.is_string(value):
+            return bool(self.btc_address_id_regex.match(value))
 
     def is_global_object_id(self, value):
         if self.is_string(value):
