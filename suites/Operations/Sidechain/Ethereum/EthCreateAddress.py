@@ -12,7 +12,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.tags("operations", "sidechain", "sidechain_ethereum", "sidechain_eth_create_address")
-@lcc.suite("Check work of method 'sidechain_eth_create_address'", rank=1)
+@lcc.suite("Check work of operation 'sidechain_eth_create_address'", rank=1)
 class EthCreateAddress(BaseTest):
 
     def __init__(self):
@@ -35,7 +35,7 @@ class EthCreateAddress(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'sidechain_eth_create_address'")
+    @lcc.test("Simple work of operation 'sidechain_eth_create_address'")
     def sidechain_eth_create_address_operation(self, get_random_valid_account_name):
 
         new_account = get_random_valid_account_name
