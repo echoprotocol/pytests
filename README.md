@@ -5,7 +5,7 @@ The project is intended for testing Echo project. Includes testing:
 * Testing according to specified scenarios
 
 ### Instalation:
-
+ 
 Python version: 3.7 or later 
 ##### Windows
     $ git clone https://gitlab.pixelplex.by/631_echo/pytests.git
