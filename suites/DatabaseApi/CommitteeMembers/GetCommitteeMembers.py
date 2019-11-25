@@ -6,14 +6,17 @@ from lemoncheesecake.matching import require_that, has_length, check_that_in, eq
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_committee_members'"
+    "description": "Methods: 'get_committee_members', 'get_objects' (committee member object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_members")
-@lcc.suite("Check work of method 'get_committee_members'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_committee_members", "get_committee_members",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_committee_members', 'get_objects' (committee member object)", rank=1)
 class GetCommitteeMembers(BaseTest):
 
     def __init__(self):
@@ -28,7 +31,7 @@ class GetCommitteeMembers(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of method 'get_committee_members'")
+    @lcc.test("Simple work of methods: 'get_committee_members', 'get_objects' (committee member object)")
     def method_main_check(self):
         active_committee_members_ids = []
 
@@ -40,19 +43,45 @@ class GetCommitteeMembers(BaseTest):
         lcc.log_info("Active committee members ids: '{}'".format(active_committee_members_ids))
 
         lcc.set_step("Call method 'get_committee_members'")
-        response_id = self.send_request(self.get_request("get_committee_members", [active_committee_members_ids]),
+        params = active_committee_members_ids
+        response_id = self.send_request(self.get_request("get_committee_members", [params]),
                                         self.__database_api_identifier)
-        committee_members = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_committee_members' with params='{}'".format(active_committee_members))
+        get_committee_members_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_committee_members' with params='{}'".format(params))
 
         lcc.set_step("Check method 'get_committee_members' result")
-        for i, committee_member in enumerate(committee_members):
+        for i, committee_member in enumerate(get_committee_members_results):
             lcc.set_step("Get active committee member #'{}'".format(i))
             self.object_validator.validate_committee_member_object(self, committee_member)
 
+        lcc.set_step("Get committee member object")
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_committee_members', 'get_objects'"
+        )
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_committee_members_results),
+            quiet=True
+        )
+
+
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_members")
-@lcc.suite("Positive testing of method 'get_committee_members'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_committee_members", "get_committee_members",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Positive testing of methods: 'get_committee_members', 'get_objects' (committee member object)", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
