@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_true, check_that, equal_to
 
-from common.validation import Validator
 from common.base_test import BaseTest
 
 SUITE = {
@@ -22,7 +20,6 @@ class GetBtcDepositScript(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.validator = Validator()
 
     def setup_suite(self):
         super().setup_suite()
@@ -52,8 +49,11 @@ class GetBtcDepositScript(BaseTest):
         operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account=new_account_id,
                                                                              backup_address=backup_address)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        lcc.log_info("'sidechain_btc_create_address_operation' broadcasted successfully.")
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+            lcc.log_error("'sidechain_btc_create_address_operation' fallen while broadcast")
+        else:
+            lcc.log_info("'sidechain_btc_create_address_operation' broadcasted successfully.")
         lcc.set_step("Call 'Get_btc_address' method and check its result")
         response_id = self.send_request(self.get_request("get_btc_address", [new_account_id]),
                                         self.__database_api_identifier)
@@ -61,8 +61,8 @@ class GetBtcDepositScript(BaseTest):
 
         response_id = self.send_request(self.get_request("get_btc_deposit_script", [btc_address_id]),
                                         self.__database_api_identifier)
-        btc_address_id = self.get_response(response_id)["result"]
-        if not self.validator.is_hex(btc_address_id):
-            lcc.log_error("Wrong format of 'btc_deposit_script', got: {}".format(btc_address_id))
+        btc_deposit_script = self.get_response(response_id)["result"]
+        if not self.validator.is_hex(btc_deposit_script):
+            lcc.log_error("Wrong format of 'btc_deposit_script', got: {}".format(btc_deposit_script))
         else:
             lcc.log_info("response from 'get_btc_deposit_script' has correct format: hex")

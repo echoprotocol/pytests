@@ -22,6 +22,7 @@ categories = [
     'network_broadcast_api',
     'registration_api',
     'database_api',
+
     'connection_to_apis',
 
     # database_api section
@@ -58,10 +59,12 @@ categories = [
     'asset_transfer_operations',
     'vesting_balances_operations',
     'withdrawal_permissions_operations',
+
     'sidechain',
     'sidechain_ethereum',
     'sidechain_erc20',
     'sidechain_bitcoin',
+
     'scenarios',
 ]
 

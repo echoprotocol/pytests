@@ -30,6 +30,11 @@ class Validator(object):
     deposit_erc20_id_regex = re.compile(r"^1\.17\.(0|[1-9]\d*)$")
     withdraw_erc20_id_regex = re.compile(r"^1\.18\.(0|[1-9]\d*)$")
     btc_address_id_regex = re.compile(r"^1\.19\.(0|[1-9]\d*)$")
+    btc_intermediate_deposit_id_regex = re.compile(r"^1\.20\.(0|[1-9]\d*)$")
+    btc_deposit_id_regex = re.compile(r"^1\.21\.(0|[1-9]\d*)$")
+    btc_withdraw_id_regex = re.compile(r"^1\.22\.(0|[1-9]\d*)$")
+    btc_aggregating_id_regex = re.compile(r"^1\.23\.(0|[1-9]\d*)$")
+
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")
@@ -179,6 +184,22 @@ class Validator(object):
     def is_btc_address_id(self, value):
         if self.is_string(value):
             return bool(self.btc_address_id_regex.match(value))
+
+    def is_btc_intermediate_deposit_id(self, value):
+        if self.is_string(value):
+            return bool(self.btc_intermediate_deposit_id_regex.match(value))
+
+    def is_deposit_id(self, value):
+        if self.is_string(value):
+            return bool(self.btc_deposit_id_regex.match(value))
+
+    def is_btc_withdraw_id(self, value):
+        if self.is_string(value):
+            return bool(self.btc_withdraw_id_regex.match(value))
+
+    def is_btc_aggregating_id(self, value):
+        if self.is_string(value):
+            return bool(self.btc_aggregating_id_regex.match(value))
 
     def is_global_object_id(self, value):
         if self.is_string(value):
