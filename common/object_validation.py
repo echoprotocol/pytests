@@ -205,7 +205,8 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'id' has correct format: proposal_object_type")
             if not base_test.type_validator.is_iso8601(proposal_object["expiration_time"]):
-                lcc.log_error("Wrong format of 'expiration_time', got: {}".format(proposal_object["expiration_time"]))
+                lcc.log_error("Wrong format of 'expiration_time', got: {}".format(
+                    proposal_object["expiration_time"]))
             else:
                 lcc.log_info("'expiration_time' has correct format: iso8601")
             proposed_transaction = proposal_object["proposed_transaction"]
@@ -215,7 +216,8 @@ class ObjectValidator(object):
                 quiet=True
             ):
                 if not base_test.type_validator.is_iso8601(proposed_transaction["expiration"]):
-                    lcc.log_error("Wrong format of 'expiration', got: {}".format(proposed_transaction["expiration"]))
+                    lcc.log_error("Wrong format of 'expiration', got: {}".format(
+                        proposed_transaction["expiration"]))
                 else:
                     lcc.log_info("'expiration' has correct format: iso8601")
 
@@ -244,7 +246,8 @@ class ObjectValidator(object):
             quiet=True
         ):
             if not base_test.type_validator.is_operation_history_id(operation_history_object["id"]):
-                lcc.log_error("Wrong format of 'operation history id', got: {}".format(operation_history_object["id"]))
+                lcc.log_error("Wrong format of 'operation history id', got: {}".format(
+                    operation_history_object["id"]))
             else:
                 lcc.log_info("'operation_history_id' has correct format: operation_history_id")
             if not base_test.type_validator.is_operation_id(operation_history_object["op"][0]):
@@ -381,14 +384,15 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'id' has correct format: frozen_balance_type")
             if not base_test.type_validator.is_iso8601(frozen_balance_object["unfreeze_time"]):
-                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(frozen_balance_object["unfreeze_time"]))
+                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(
+                    frozen_balance_object["unfreeze_time"]))
             else:
                 lcc.log_info("'unfreeze_time' has correct format: iso8601")
 
     def validate_committee_frozen_balance_object(self, base_test, committee_frozen_balance_object):
         if check_that(
             "committee_frozen_balance_object",
-            committee_frozen_balance_object, has_length(5),
+            committee_frozen_balance_object, has_length(4),
             quiet=True
         ):
             balance = committee_frozen_balance_object["balance"]
@@ -417,11 +421,13 @@ class ObjectValidator(object):
                               committee_frozen_balance_object["owner"]))
             else:
                 lcc.log_info("'committee_member_id' has correct format")
+            """
             if not base_test.type_validator.is_iso8601(committee_frozen_balance_object["unfreeze_balance_time"]):
                 lcc.log_error("Wrong format of 'unfreeze_balance_time', got {}".format(
                               committee_frozen_balance_object["unfreeze_balance_time"]))
             else:
                 lcc.log_info("'unfreeze_balance_time' has correct format")
+            """
 
     def validate_contract_object(self, base_test, contract_object):
         if check_that(
@@ -438,7 +444,8 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'statistics' has correct format: contract_statistics_object_type")
             if not base_test.type_validator.is_asset_id(contract_object["supported_asset_id"]):
-                lcc.log_error("Wrong format of 'supported_asset_id', got {}".format(contract_object["supported_asset_id"]))
+                lcc.log_error("Wrong format of 'supported_asset_id', got {}".format(
+                    contract_object["supported_asset_id"]))
             else:
                 lcc.log_info("'supported_asset_id' has correct format")
             if not base_test.type_validator.is_account_id(contract_object["owner"]):
@@ -631,7 +638,8 @@ class ObjectValidator(object):
             else:
                 lcc.log_info("'to' has correct format: ethereum_address_type")
             if not base_test.type_validator.is_erc20_object_id(erc20_withdraw_object["erc20_token"]):
-                lcc.log_error("Wrong format of 'erc20_token', got: {}".format(erc20_withdraw_object["erc20_token"]))
+                lcc.log_error("Wrong format of 'erc20_token', got: {}".format(
+                    erc20_withdraw_object["erc20_token"]))
             else:
                 lcc.log_info("'erc20_token' has correct format: erc20_token_object")
             if not base_test.type_validator.is_account_id(erc20_withdraw_object["account"]):
@@ -680,11 +688,13 @@ class ObjectValidator(object):
                             quiet=True
                         )
                 if not base_test.type_validator.is_eth_asset_id(sidechain_config["ETH_asset_id"]):
-                    lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(sidechain_config["ETH_asset_id"]))
+                    lcc.log_error("Wrong format of 'ETH_asset_id', got: {}".format(
+                        sidechain_config["ETH_asset_id"]))
                 else:
                     lcc.log_info("'ETH_asset_id' has correct format: eth_asset_id")
                 if not base_test.type_validator.is_btc_asset_id(sidechain_config["BTC_asset_id"]):
-                    lcc.log_error("Wrong format of 'BTC_asset_id', got: {}".format(sidechain_config["BTC_asset_id"]))
+                    lcc.log_error("Wrong format of 'BTC_asset_id', got: {}".format(
+                        sidechain_config["BTC_asset_id"]))
                 else:
                     lcc.log_info("'BTC_asset_id' has correct format: btc_asset_id")
                 if check_that(
@@ -714,11 +724,13 @@ class ObjectValidator(object):
                 quiet=True
             ):
                 if not base_test.type_validator.is_hex(erc20_config["contract_code"]):
-                    lcc.log_error("Wrong format of 'contract_code', got: {}".format(erc20_config["contract_code"]))
+                    lcc.log_error("Wrong format of 'contract_code', got: {}".format(
+                        erc20_config["contract_code"]))
                 else:
                     lcc.log_info("'contract_code' has correct format: hex")
                 if not base_test.type_validator.is_hex(erc20_config["transfer_topic"]):
-                    lcc.log_error("Wrong format of 'transfer_topic', got: {}".format(erc20_config["transfer_topic"]))
+                    lcc.log_error("Wrong format of 'transfer_topic', got: {}".format(
+                        erc20_config["transfer_topic"]))
                 else:
                     lcc.log_info("'transfer_topic' has correct format: hex")
                 check_that_in(
@@ -733,7 +745,8 @@ class ObjectValidator(object):
                         quiet=True
                     ):
                         if not base_test.type_validator.is_hex(erc20_config[erc20_method]["method"]):
-                            lcc.log_error("Wrong format of '{}', got: {}".format(erc20_method, erc20_config[erc20_method]))
+                            lcc.log_error("Wrong format of '{}', got: {}".format(
+                                erc20_method, erc20_config[erc20_method]))
                         else:
                             lcc.log_info("'{}' has correct format: hex".format(erc20_method))
                         check_that_in(
@@ -845,8 +858,8 @@ class ObjectValidator(object):
             if len(wrong_fee_operations) > 1:
                 lcc.log_info("Wrong fee operations: {}".format(wrong_fee_operations))
 
-        fee_with_price_per_kbyte_operations = ["account_update", "asset_update", "proposal_create", "proposal_update",
-                                               "account_address_create"]
+        fee_with_price_per_kbyte_operations = ["account_update", "asset_update", "proposal_create",
+                                               "proposal_update", "account_address_create"]
         only_fee_operations = ["transfer", "account_whitelist", "asset_update_bitasset", "balance_freeze",
                                "asset_update_feed_producers", "asset_issue", "asset_reserve", "asset_fund_fee_pool",
                                "asset_publish_feed", "proposal_delete", "committee_member_create",
@@ -865,8 +878,8 @@ class ObjectValidator(object):
                                'sidechain_btc_create_intermediate_deposit', 'sidechain_btc_intermediate_deposit',
                                'sidechain_btc_deposit', 'sidechain_btc_withdraw', 'sidechain_btc_approve_withdraw',
                                'sidechain_btc_aggregate']
-        no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create', 'contract_internal_call',
-                             'contract_selfdestruct', 'block_reward']
+        no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create',
+                             'contract_internal_call', 'contract_selfdestruct', 'block_reward']
         account_create_fee_operations = ["account_create"]
         asset_create_fee_operations = ["asset_create"]
         pool_fee_operations = ["sidechain_erc20_register_token"]
