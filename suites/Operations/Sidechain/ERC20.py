@@ -2,6 +2,6 @@
 import lemoncheesecake.api as lcc
 
 
-@lcc.suite("AssetTransfer")
-class AssetTransfer:
+@lcc.suite("ERC20")
+class ERC20:
     pass
