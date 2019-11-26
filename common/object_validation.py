@@ -1219,3 +1219,37 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    def validate_chain_properties_object(self, base_test, chain_properties_object):
+        if check_that(
+            "chain_properties",
+            chain_properties_object, has_length(4),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_chain_property_object_id(chain_properties_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(chain_properties_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: chain_property_object_type")
+            if not base_test.type_validator.is_hex(chain_properties_object["chain_id"]):
+                lcc.log_error("Wrong format of 'chain_id', got: {}".format(chain_properties_object["chain_id"]))
+            else:
+                lcc.log_info("'chain_id' has correct format: hex")
+            check_that_in(
+                chain_properties_object,
+                "immutable_parameters", is_dict(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+        lcc.set_step("Check 'immutable_parameters'")
+        immutable_parameters = chain_properties_object["immutable_parameters"]
+        if check_that(
+            "immutable_parameters",
+            immutable_parameters, has_length(1),
+            quiet=True
+        ):
+            check_that_in(
+                immutable_parameters,
+                "min_committee_member_count", is_integer(),
+                quiet=True
+            )
