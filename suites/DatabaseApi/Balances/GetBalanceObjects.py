@@ -3,7 +3,7 @@ import json
 import os
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_not_none, check_that, has_length, is_, is_list,\
+from lemoncheesecake.matching import is_not_none, check_that, has_length, is_,\
     require_that, equal_to
 
 from common.base_test import BaseTest

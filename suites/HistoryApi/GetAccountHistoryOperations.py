@@ -14,7 +14,8 @@ SUITE = {
 @lcc.prop("positive", "type")
 @lcc.tags(
     "api", "history_api", "get_account_history_operations",
-    "database_api", "database_api_objects", "get_objects"
+    "database_api_objects", "get_objects"
+    # database_api (solve this)
 )
 @lcc.suite(
     "Check work of methods: 'get_account_history_operations', 'get_objects' (operation history object)", rank=1
