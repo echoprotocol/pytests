@@ -3,7 +3,6 @@ import random
 
 import lemoncheesecake.api as lcc
 
-from common.validation import Validator
 from common.base_test import BaseTest
 
 SUITE = {
@@ -12,7 +11,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("operations", "sidechain", "sidechain_ethereum", "sidechain_erc20_register_token")
+@lcc.tags("operations", "sidechain", "sidechain_erc20", "sidechain_erc20_register_token")
 @lcc.suite("Check work of operation 'sidechain_erc20_register_token'", rank=1)
 class ERC20(BaseTest):
 
@@ -20,7 +19,6 @@ class ERC20(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.validator = Validator()
         self.echo_acc0 = None
         self.eth_account = None
         self.erc20_contract_code = self.get_byte_code("erc20", "code", ethereum_contract=True)
