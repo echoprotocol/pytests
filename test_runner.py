@@ -41,6 +41,7 @@ categories = [
     'database_api_proposed_transactions',
     'database_api_sidechain_ethereum',
     'database_api_sidechain_erc20',
+    'database_api_sidechain_bitcoin',
     'database_api_contract_fee_pool',
 
     # OPERATIONS SECTION
@@ -62,6 +63,7 @@ categories = [
     'sidechain',
     'sidechain_ethereum',
     'sidechain_erc20',
+    'sidechain_bitcoin',
 
     'scenarios',
 ]
