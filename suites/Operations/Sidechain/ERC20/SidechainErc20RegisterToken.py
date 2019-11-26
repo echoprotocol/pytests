@@ -95,7 +95,7 @@ class ERC20(BaseTest):
             erc20_token_id))
 
         lcc.set_step("Check that ERC20 has correct format")
-        if not self.validator.is_erc20_object_id(erc20_token_id):
+        if not self.type_validator.is_erc20_object_id(erc20_token_id):
             lcc.log_error("Wrong format of erc20 token id, got: {}".format(erc20_token_id))
         else:
             lcc.log_info("Erc20 token has correct format.")
