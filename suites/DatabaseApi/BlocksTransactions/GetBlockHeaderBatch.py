@@ -42,11 +42,12 @@ class GetBlockHeaderBatch(BaseTest):
         for block_info in results:
             require_that("'get_block_header_batch' result", block_info, has_length(2))
             require_that("'number of searched block'", block_info[0], equal_to(block_num))
-            if check_that("'length of the block info'", block_info[1], has_length(9)):
+            if check_that("'length of the block info'", block_info[1], has_length(10)):
                 check_that_in(
                     block_info[1],
                     "previous", is_str("0000000000000000000000000000000000000000"),
                     "round", is_integer(),
+                    "attempt", is_integer(),
                     "transaction_merkle_root", is_str("0000000000000000000000000000000000000000"),
                     "vm_root", is_list(),
                     "prev_signatures", is_list(),
@@ -83,7 +84,7 @@ class PositiveTesting(BaseTest):
         return block_num
 
     def get_head_block_number(self):
-        self.utils.set_timeout_until_num_blocks_released(self, self.__database_api_identifier, print_log=False)
+        self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
                                         self.__database_api_identifier)
         head_block_number = self.get_response(response_id)["result"]["head_block_number"]
@@ -91,9 +92,14 @@ class PositiveTesting(BaseTest):
 
     def setup_suite(self):
         super().setup_suite()
+        self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
 
     @lcc.prop("type", "method")
     @lcc.test("Check info about several blocks")
@@ -119,7 +125,7 @@ class PositiveTesting(BaseTest):
             lcc.set_step("Check #'{}' block in 'get_block_header_batch' result".format(i))
             require_that("'get_block_header_batch' result", block_info, has_length(2))
             require_that("'number of searched block'", block_info[0], equal_to(block_numbers[i]))
-            if check_that("'length of the block info'", block_info[1], has_length(9)):
+            if check_that("'length of the block info'", block_info[1], has_length(10)):
                 check_that_in(
                     block_info[1],
                     "round", is_integer(),

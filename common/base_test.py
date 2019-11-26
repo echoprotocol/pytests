@@ -3,6 +3,7 @@ import codecs
 import json
 import os
 import time
+from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from Crypto.Hash import keccak
@@ -20,7 +21,7 @@ from common.validation import Validator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG
+    GANACHE_PK, DEBUG, NATHAN_PK
 
 
 class BaseTest(object):
@@ -90,6 +91,18 @@ class BaseTest(object):
         if global_datetime:
             return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+
+    def get_expiration_time(self, seconds):
+        pattern = "%Y-%m-%dT%H:%M:%S"
+        now = self.get_datetime(global_datetime=True)
+        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
+        return expiration.strftime(pattern)
+
+    @staticmethod
+    def subtract_from_datetime(str_datetime, days=0, hours=0, minutes=0, seconds=0):
+        formated_datetime = datetime.strptime(str_datetime, "%Y-%m-%dT%H:%M:%S")
+        formated_datetime = formated_datetime - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        return formated_datetime.strftime("%Y-%m-%dT%H:%M:%S")
 
     def set_timeout_wait(self, seconds=None, print_log=True):
         if print_log:
@@ -484,6 +497,12 @@ class BaseTest(object):
             lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
         return account_id
 
+    def get_initial_account_id(self, initial_account_num, database_api_identifier):
+        response_id = self.send_request(self.get_request("get_global_properties"),
+                                        database_api_identifier)
+        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
+        return active_committee_members[initial_account_num][1]
+
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []
         for i in range(account_count):
@@ -493,8 +512,8 @@ class BaseTest(object):
 
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", proposal=False, debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
-                                        database_api_identifier, debug_mode=True)
-        response = self.get_response(response_id, log_response=True)
+                                        database_api_identifier)
+        response = self.get_response(response_id)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
         if proposal:
@@ -508,7 +527,7 @@ class BaseTest(object):
         try:
             if fee_amount is None:
                 fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id, proposal=proposal,
-                                            debug_mode=True)
+                                            debug_mode=debug_mode)
                 operation[1].update({"fee": fee[0]})
                 return fee
             operation[1]["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
@@ -525,7 +544,6 @@ class BaseTest(object):
         if type(list_operations) is list:
             list_operations = [list_operations.copy()]
         for operation in list_operations:
-            lcc.log_info("operation: {}".format(operation))
             self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, proposal,
                                       debug_mode)
         return list_operations
@@ -592,6 +610,12 @@ class BaseTest(object):
                 new_file.write(json.dumps(data))
 
         return data['RESERVED_PUBLIC_KEY']
+
+    def produce_block(self, database_api_identifier):
+        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.11",
+                                                         to_account_id="1.2.1", amount=1, signer=NATHAN_PK)
+        collected_operation = self.collect_operations(operation, database_api_identifier)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
     @staticmethod
     def _login_status(response):
