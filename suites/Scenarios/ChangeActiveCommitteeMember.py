@@ -142,10 +142,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                 review_period_seconds=10,
                 signer=INIT0_PK
             )
-
             collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
-
-            lcc.set_step("Broadcast proposal operation")
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("Proposal id {}".format(proposal_id))
@@ -157,7 +154,6 @@ class ChangeActiveCommitteeMember(BaseTest):
                 proposal=proposal_id,
                 active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
                 active_approvals_to_remove=[],
-                owner_approvals_to_remove=[],
                 key_approvals_to_add=[],
                 key_approvals_to_remove=[],
                 signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
@@ -207,10 +203,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                 review_period_seconds=10,
                 signer=INIT0_PK
             )
-
             collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
-
-            lcc.set_step("Broadcast proposal operation")
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("Proposal id {}".format(proposal_id))
@@ -222,7 +215,6 @@ class ChangeActiveCommitteeMember(BaseTest):
                 proposal=proposal_id,
                 active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
                 active_approvals_to_remove=[],
-                owner_approvals_to_remove=[],
                 key_approvals_to_add=[],
                 key_approvals_to_remove=[],
                 signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
