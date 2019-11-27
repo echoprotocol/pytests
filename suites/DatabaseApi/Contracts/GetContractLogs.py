@@ -12,8 +12,6 @@ SUITE = {
 }
 
 
-@lcc.tags("BUG ECHO-1588")
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")

@@ -81,7 +81,6 @@ class Ethereum(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.tags("qa")
     @lcc.test("The scenario checks the main parts before testing the ethereum sidechain functionality")
     def ethereum_sidechain_pre_run_scenario(self, get_random_valid_account_name):
         self.new_account = get_random_valid_account_name
@@ -106,7 +105,7 @@ class Ethereum(BaseTest):
                                                               self.__database_api_identifier)["result"]["eth_addr"]
         lcc.log_info("Ethereum address of '{}' account is '{}'".format(self.new_account, self.eth_account_address))
 
-    # @lcc.test("The scenario entering eth assets to the echo account")
+    @lcc.test("The scenario entering eth assets to the echo account")
     @lcc.depends_on("SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
     def ethereum_in_scenario(self):
         min_eth_amount = 0.01
@@ -152,7 +151,7 @@ class Ethereum(BaseTest):
         lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.new_account))
         self.withdraw_eth_to_ethereum_address(self.new_account, withdraw_amount)
 
-    # @lcc.test("The scenario transferring eeth between accounts")
+    @lcc.test("The scenario transferring eeth between accounts")
     @lcc.depends_on("SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
     def transfer_eeth_scenario(self):
         eth_amount = self.get_random_amount(amount_type=float)
@@ -199,7 +198,7 @@ class Ethereum(BaseTest):
         lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.echo_acc0))
         self.withdraw_eth_to_ethereum_address(self.echo_acc0, withdraw_amount)
 
-    # @lcc.test("The scenario transferring eeth to account addresses")
+    @lcc.test("The scenario transferring eeth to account addresses")
     @lcc.depends_on("SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
     def transfer_eeth_to_account_address_scenario(self, get_random_string):
         eth_amount = self.get_random_amount(amount_type=float)

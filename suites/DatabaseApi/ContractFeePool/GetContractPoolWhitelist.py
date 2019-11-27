@@ -13,7 +13,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_contract_fee_pool", "get_contract_pool_whitelist")
+@lcc.tags("api", "database_api", "database_api_fee_pool", "get_contract_pool_whitelist")
 @lcc.suite("Check work of method 'get_contract_pool_whitelist'", rank=1)
 class GetContractPoolWhitelist(BaseTest):
 
@@ -74,12 +74,12 @@ class GetContractPoolWhitelist(BaseTest):
         whitelist, blacklist = [self.echo_acc0], [self.echo_acc1]
         self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
                                                         self.__database_api_identifier, add_to_whitelist=whitelist,
-                                                        add_to_blacklist=blacklist, log_broadcast=True)
+                                                        add_to_blacklist=blacklist)
 
         lcc.set_step("Get updated a contract's fee pool whitelist")
         response_id = self.send_request(self.get_request("get_contract_pool_whitelist", [contract_id]),
-                                        self.__database_api_identifier, debug_mode=True)
-        result = self.get_response(response_id, debug_mode=True)["result"]
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_contract_pool_balance' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check added accounts to contract lists")
