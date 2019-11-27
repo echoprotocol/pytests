@@ -388,7 +388,7 @@
             ]
         ],
         "echorand_config": {
-            "_time_generate": 500,
+            "_time_generate": 400,
             "_time_net_1mb": 100,
             "_time_net_256b": 50,
             "_creator_count": 5,
