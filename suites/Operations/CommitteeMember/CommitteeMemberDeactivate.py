@@ -4,6 +4,8 @@ import lemoncheesecake.api as lcc
 from common.base_test import BaseTest
 from datetime import datetime, timedelta
 
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
+
 SUITE = {
     "description": "Operation 'committee_member_deactivate'"
 }
@@ -12,18 +14,22 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_member_deactivate")
-@lcc.suite("Check work of method 'committee_member_deactivate'", rank=1)
-class CommitteeMemberActivate(BaseTest):
+@lcc.suite("Check work of operation 'committee_member_deactivate'", rank=1)
+class CommitteeMemberDeactivate(BaseTest):
 
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
 
-    def get_active_committee_members_ids(self):
+    def get_active_committee_members_ids_and_account_ids(self):
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"][
             "active_committee_members"]
-        return [member[0] for member in active_committee_members]
+        committee_members_ids = [[], []]
+        for member in active_committee_members:
+            committee_members_ids[0].append(member[0])
+            committee_members_ids[1].append(member[1])
+        return committee_members_ids
 
     def get_expiration_time(self, seconds):
         pattern = "%Y-%m-%dT%H:%M:%S"
@@ -46,53 +52,58 @@ class CommitteeMemberActivate(BaseTest):
     @lcc.depends_on("Operations.CommitteeMember.CommitteeMemberActivate.CommitteeMemberActivate.method_main_check")
     def committee_member_deactivate_operation(self):
         lcc.set_step("Get active committee members ids, ethereum addresses and store")
-        active_committe_members = self.get_active_committee_members_ids()
-        new_member_id = active_committe_members[-1]
+        active_committe_member_ids = self.get_active_committee_members_ids_and_account_ids()
+        committee_members_ids, committee_members_account_ids = active_committe_member_ids[0], active_committe_member_ids[1]
+        new_member_id = committee_members_ids.pop()
+        committee_members_account_ids.pop()
+        fee_paying_account = committee_members_account_ids[0]
+
         operation = self.echo_ops.get_committee_member_deactivate_operation(
             echo=self.echo,
-            committee_member_account=new_member_id,
+            committee_member_account=fee_paying_account,
             committee_to_deactivate=new_member_id,
-            signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE")
+            signer=INIT0_PK)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         lcc.log_info("Collected successfully")
         lcc.set_step("Make proposal of deactivating new account")
         operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
-            fee_paying_account="1.2.6",
-            proposed_ops=[{"op": collected_operation[0]}],
+            fee_paying_account=fee_paying_account,
+            proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(15),
             review_period_seconds=10,
-            signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
+            signer=INIT0_PK
         )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        lcc.log_info("{}".format(operation))
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+            raise Exception("Operation 'proposal_created' failed while broadcast")
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
         lcc.set_step("Make voting of deactivating new account")
         operation = self.echo_ops.get_proposal_update_operation(
             echo=self.echo,
-            fee_paying_account="1.2.6",
+            fee_paying_account=fee_paying_account,
             proposal=proposal_id,
-            active_approvals_to_add=["1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11"],
+            active_approvals_to_add=committee_members_account_ids,
             active_approvals_to_remove=[],
-            owner_approvals_to_remove=[],
             key_approvals_to_add=[],
             key_approvals_to_remove=[],
-            signer=["5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE",
-                    "5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm",
-                    "5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH",
-                    "5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz",
-                    "5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS",
-                    "5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw"]
+            signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
         )
+
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
+            raise Exception("Operation 'proposal_update' failed while broadcast")
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were deactivated")
+        self.produce_block(self.__database_api_identifier)
         import time
-        time.sleep(25)
+        time.sleep(15)
+        self.produce_block(self.__database_api_identifier)
 
-        current_active_committe_members = self.get_active_committee_members_ids()
+        current_active_committe_members = self.get_active_committee_members_ids_and_account_ids()
         if new_member_id not in current_active_committe_members:
             lcc.log_info("new acitve committee member were deactivated")
         else:

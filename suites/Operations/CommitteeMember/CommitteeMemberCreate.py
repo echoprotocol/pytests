@@ -12,7 +12,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_member_create")
-@lcc.suite("Check work of method 'committee_member_create'", rank=1)
+@lcc.suite("Check work of operation 'committee_member_create'", rank=1)
 class CommitteeMemberCreate(BaseTest):
 
     def __init__(self):
@@ -64,7 +64,9 @@ class CommitteeMemberCreate(BaseTest):
                                                                         deposit_amount=0)
         self.utils.add_balance_for_operations(self, new_account_id, operation, self.__database_api_identifier)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+            raise Exception("Operation 'committee_member_create' failed while broadcast")
         lcc.log_info("'committee_member_create' operation broadcastes successfully")
 
         lcc.set_step("Check that new committee member created")

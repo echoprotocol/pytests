@@ -12,8 +12,8 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("operations", "vesting_balances_operations", "committee_member_update")
-@lcc.suite("Check work of method 'committee_member_update'", rank=1)
+@lcc.tags("operations", "committee_member_operations", "committee_member_update")
+@lcc.suite("Check work of operation 'committee_member_update'", rank=1)
 class CommitteeMemberUpdate(BaseTest):
 
     def __init__(self):
@@ -67,7 +67,9 @@ class CommitteeMemberUpdate(BaseTest):
                                                                         deposit_amount=0)
         self.utils.add_balance_for_operations(self, new_account_id, operation, self.__database_api_identifier)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+            raise Exception("Operation 'committee_member_create' failed while broadcast")
         lcc.log_info("'committee_member_create' operation broadcastes successfully")
 
         lcc.set_step("Perform 'committee_member_update' operation")
@@ -79,8 +81,6 @@ class CommitteeMemberUpdate(BaseTest):
         old_url = committee_member["url"]
         old_eth_address = committee_member["eth_address"]
         old_btc_public_key = committee_member["btc_public_key"]
-
-        lcc.set_step("Perform 'committee_member_update' operation")
         operation = self.echo_ops.get_committee_member_update_operation(echo=self.echo,
                                                                         committee_member=committee_member_id,
                                                                         committee_member_account=committee_member_account,
@@ -89,7 +89,9 @@ class CommitteeMemberUpdate(BaseTest):
                                                                         new_url=new_url)
         self.utils.add_balance_for_operations(self, new_account_id, operation, self.__database_api_identifier)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
+            raise Exception("Operation 'committee_member_update' failed while broadcast")
         lcc.log_info("'committee_member_update' operation broadcasted successfully")
 
         lcc.set_step("Check that committee member fields have been updated")

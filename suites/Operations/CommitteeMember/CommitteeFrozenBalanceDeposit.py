@@ -6,15 +6,15 @@ from common.base_test import BaseTest
 from project import INIT0_PK
 
 SUITE = {
-    "description": "Method 'committee_frozen_balance_deposit'"
+    "description": "Operation 'committee_frozen_balance_deposit'"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_committee_members", "committee_frozen_balance_deposit")
-@lcc.suite("Check work of method 'committee_frozen_balance_deposit'", rank=1)
+@lcc.tags("operations", "committee_member_operations", "committee_frozen_balance_deposit")
+@lcc.suite("Check work of operation 'committee_frozen_balance_deposit'", rank=1)
 class CommitteeFrozenBalanceDeposit(BaseTest):
 
     def __init__(self):
@@ -35,7 +35,6 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
 
     @lcc.test("Simple work of method 'committee_frozen_balance_deposit'")
     def method_main_check(self, get_random_integer):
-
         amount_to_freeze = get_random_integer + 10
 
         lcc.set_step("Get first active committee member id and account id")
@@ -45,25 +44,27 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         committee_member_account_id = active_committee_members[0][1]
         lcc.log_info("Committee member id: '{}' and account id: '{}'".format(committee_member_id,
                                                                              committee_member_account_id))
-        lcc.set_step("Get first active committee member balance")
+        lcc.set_step("Get active committee member balance")
         params = [committee_member_account_id, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         current_balance = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("{} account id balance: {}".format(committee_member_account_id, current_balance))
 
-        lcc.set_step("Check first active committee member frozen balance")
+        lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [committee_member_id]),
                                         self.__database_api_identifier)
         current_frozen_balance = self.get_response(response_id)["result"]["amount"]
         lcc.log_info("{} account id frozen balance: {}".format(committee_member_account_id, current_frozen_balance))
 
-        lcc.set_step("Freeze part of first active committee member balance")
+        lcc.set_step("Freeze part of active committee member balance")
         operation = self.echo_ops.get_committee_frozen_balance_deposit_operation(
             echo=self.echo, committee_member=committee_member_id, committee_member_account=committee_member_account_id,
-            amount=amount_to_freeze, asset_id="1.3.0", signer=INIT0_PK)
+            amount=amount_to_freeze, asset_id=self.echo_asset, signer=INIT0_PK)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
+            raise Exception("Balance is not freezed")
         lcc.log_info("Freeze {} assets".format(amount_to_freeze))
 
         lcc.set_step("Get required fee for 'committee_frozen_balance_deposit' operation")
@@ -72,7 +73,7 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         fee_amount = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("Required fee: '{}'".format(fee_amount))
 
-        lcc.set_step("Check first active committee member balance after performing operation")
+        lcc.set_step("Check active committee member balance after performing operation")
         params = [committee_member_account_id, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
@@ -80,7 +81,7 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         check_that("balance reduced", int(current_balance) - int(balance_after_freeze),
                    equal_to(amount_to_freeze + fee_amount))
 
-        lcc.set_step("Check first active committee member frozen balance")
+        lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [committee_member_id]),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)

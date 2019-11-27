@@ -5,15 +5,16 @@ from lemoncheesecake.matching import check_that, equal_to
 from common.base_test import BaseTest
 from datetime import datetime, timedelta
 
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, REQUIRED_DEPOSIT_AMOUNT
+
 SUITE = {
     "description": "Operation 'committee_member_activate'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.prop("positive", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_member_activate")
-@lcc.suite("Check work of method 'committee_member_activate'", rank=1)
+@lcc.suite("Check work of operation 'committee_member_activate'", rank=1)
 class CommitteeMemberActivate(BaseTest):
 
     def __init__(self):
@@ -35,6 +36,12 @@ class CommitteeMemberActivate(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
+    def get_active_committee_members_account_ids(self):
+        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
+        active_committee_members = self.get_response(response_id)["result"][
+            "active_committee_members"]
+        return [member[1] for member in active_committee_members]
+
     def get_expiration_time(self, seconds):
         pattern = "%Y-%m-%dT%H:%M:%S"
         now = self.get_datetime(global_datetime=True)
@@ -50,7 +57,9 @@ class CommitteeMemberActivate(BaseTest):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address
         btc_public_key = get_random_btc_public_key
-        required_deposit = 100000000000
+
+        active_committe_member_ids = self.get_active_committee_members_account_ids()
+        fee_paying_account = active_committe_member_ids[0]
 
         lcc.set_step("Register new account in the ECHO network")
         new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
@@ -62,7 +71,7 @@ class CommitteeMemberActivate(BaseTest):
                                                                                 eth_account_address,
                                                                                 btc_public_key,
                                                                                 self.__database_api_identifier,
-                                                                                deposit_amount=required_deposit)
+                                                                                deposit_amount=REQUIRED_DEPOSIT_AMOUNT)
         committee_member_id = broadcast_result["trx"]["operation_results"][0][1]
         lcc.log_info("New committee member id: {}".format(committee_member_id))
 
@@ -77,43 +86,41 @@ class CommitteeMemberActivate(BaseTest):
         lcc.set_step("Make proposal of new active committee member")
         operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
-            fee_paying_account="1.2.6",
-            proposed_ops=[{"op": collected_operation[0]}],
+            fee_paying_account=fee_paying_account,
+            proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(15),
             review_period_seconds=10,
             signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
         )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+            raise Exception("Operation 'proposal_created' failed while broadcast")
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
 
         lcc.set_step("Make voting for new active committee member")
         operation = self.echo_ops.get_proposal_update_operation(
             echo=self.echo,
-            fee_paying_account="1.2.6",
+            fee_paying_account=fee_paying_account,
             proposal=proposal_id,
-            active_approvals_to_add=["1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11"],
+            active_approvals_to_add=active_committe_member_ids,
             active_approvals_to_remove=[],
-            owner_approvals_to_remove=[],
             key_approvals_to_add=[],
             key_approvals_to_remove=[],
-            signer=["5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE",
-                    "5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm",
-                    "5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH",
-                    "5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz",
-                    "5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS",
-                    "5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw"]
+            signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
         )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
+            raise Exception("Operation 'proposal_update' failed while broadcast")
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were activated")
+        self.produce_block(self.__database_api_identifier)
         import time
-        time.sleep(25)
-
+        time.sleep(15)
+        self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_global_properties"),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
-        last_active_committee_member = response["result"]["active_committee_members"][-1][-1]
+        last_active_committee_member = response["result"]["active_committee_members"][-1][1]
         check_that("new account in committee member", new_account_id, equal_to(last_active_committee_member))
