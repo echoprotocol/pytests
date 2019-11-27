@@ -8,7 +8,7 @@ class ObjectValidator(object):
 
     def validate_account_object(self, base_test, account_info):
         if check_that(
-            "account_info",
+            "account info",
             account_info, has_length(16),
             quiet=True
         ):
@@ -196,7 +196,7 @@ class ObjectValidator(object):
 
     def validate_proposal_object(self, base_test, proposal_object):
         if check_that(
-            "'proposal object'",
+            "'proposal'",
             proposal_object, has_length(7),
             quiet=True
         ):
@@ -241,7 +241,7 @@ class ObjectValidator(object):
 
     def validate_operation_history_object(self, base_test, operation_history_object):
         if check_that(
-            "operation_history_object",
+            "operation history",
             operation_history_object, has_length(8),
             quiet=True
         ):
@@ -268,7 +268,7 @@ class ObjectValidator(object):
 
     def validate_vesting_balance_object(self, base_test, vesting_balance_object):
         if check_that(
-            "balance_object",
+            "vesting balance",
             vesting_balance_object, has_length(5),
             quiet=True
         ):
@@ -321,7 +321,7 @@ class ObjectValidator(object):
 
     def validate_balance_object(self, base_test, balance_object):
         if check_that(
-            "balance_object",
+            "balance",
             balance_object, has_length(5),
             quiet=True
         ):
@@ -352,7 +352,7 @@ class ObjectValidator(object):
 
     def validate_frozen_balance_object(self, base_test, frozen_balance_object):
         if check_that(
-            "frozen_balance_object",
+            "frozen balance",
             frozen_balance_object, has_length(6),
             quiet=True
         ):
@@ -391,7 +391,7 @@ class ObjectValidator(object):
 
     def validate_committee_frozen_balance_object(self, base_test, committee_frozen_balance_object):
         if check_that(
-            "committee_frozen_balance_object",
+            "committee frozen balance",
             committee_frozen_balance_object, has_length(4),
             quiet=True
         ):
@@ -487,7 +487,7 @@ class ObjectValidator(object):
 
     def validate_eth_address_object(self, base_test, eth_address_object):
         if check_that(
-            "account_eth_address",
+            "account eth address",
             eth_address_object, has_length(6),
             quiet=True
         ):
@@ -513,7 +513,7 @@ class ObjectValidator(object):
 
     def validate_deposit_eth_object(self, base_test, deposit_eth_object):
         if check_that(
-            "'first deposit of created account'",
+            "'deposit eth'",
             deposit_eth_object, has_length(7),
             quiet=True
         ):
@@ -537,7 +537,7 @@ class ObjectValidator(object):
 
     def validate_withdraw_eth_object(self, base_test, withdraw_eth_object):
         if check_that(
-            "'first deposit of created account'",
+            "'withdraw eth'",
             withdraw_eth_object, has_length(8),
             quiet=True
         ):
@@ -564,7 +564,7 @@ class ObjectValidator(object):
 
     def validate_erc20_token_object(self, base_test, erc20_token_object):
         if check_that(
-            "'length of ERC20 object'",
+            "'erc20 token'",
             erc20_token_object, has_length(8),
             quiet=True
         ):
@@ -595,7 +595,7 @@ class ObjectValidator(object):
 
     def validate_erc20_deposit_object(self, base_test, erc20_deposit_object):
         if check_that(
-            "'length of erc20 account deposit'",
+            "'erc20 deposit'",
             erc20_deposit_object, has_length(8),
             quiet=True
         ):
@@ -625,7 +625,7 @@ class ObjectValidator(object):
 
     def validate_erc20_withdraw_object(self, base_test, erc20_withdraw_object):
         if check_that(
-            "'length of erc20 account withdrawal'",
+            "'erc20 withdrawal'",
             erc20_withdraw_object, has_length(9),
             quiet=True
         ):
@@ -661,7 +661,7 @@ class ObjectValidator(object):
 
         def validate_sidechain_config(base_test, sidechain_config, eth_params, eth_methods):
             if check_that(
-                "sidechain_config",
+                "sidechain config",
                 sidechain_config, has_length(19),
                 quiet=True
             ):
@@ -719,7 +719,7 @@ class ObjectValidator(object):
 
         def validate_erc20_config(base_test, erc20_config, erc20_methods):
             if check_that(
-                "erc20_config",
+                "erc20 config",
                 erc20_config, has_length(6),
                 quiet=True
             ):
@@ -885,7 +885,7 @@ class ObjectValidator(object):
         pool_fee_operations = ["sidechain_erc20_register_token"]
 
         if check_that(
-            "global_properties",
+            "global properties",
             global_properties_object, has_length(3),
             quiet=True
         ):
@@ -938,7 +938,7 @@ class ObjectValidator(object):
             lcc.set_step("Check global parameters: 'current_fees' field")
             current_fees = parameters["current_fees"]
             if check_that(
-                "current_fees",
+                "current fees",
                 current_fees, has_length(2),
                 quiet=True
             ):
@@ -1162,7 +1162,7 @@ class ObjectValidator(object):
         lcc.set_step("Check global parameters: 'gas_price' field")
         gas_price = parameters["gas_price"]
         if check_that(
-            "gas_price",
+            "gas price",
             gas_price, has_length(2),
             quiet=True
         ):
@@ -1222,7 +1222,7 @@ class ObjectValidator(object):
 
     def validate_chain_properties_object(self, base_test, chain_properties_object):
         if check_that(
-            "chain_properties",
+            "chain properties",
             chain_properties_object, has_length(4),
             quiet=True
         ):
@@ -1244,7 +1244,7 @@ class ObjectValidator(object):
         lcc.set_step("Check 'immutable_parameters'")
         immutable_parameters = chain_properties_object["immutable_parameters"]
         if check_that(
-            "immutable_parameters",
+            "immutable parameters",
             immutable_parameters, has_length(1),
             quiet=True
         ):
@@ -1252,4 +1252,24 @@ class ObjectValidator(object):
                 immutable_parameters,
                 "min_committee_member_count", is_integer(),
                 quiet=True
+            )
+
+    def validate_asset_dynamic_data_object(self, base_test, asset_dynamic_data_object):
+        if check_that(
+            "asset dynamic data",
+            asset_dynamic_data_object, has_length(5),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_dynamic_asset_data_id(asset_dynamic_data_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(asset_dynamic_data_object["id"]))
+            else:
+                lcc.log_info("'id' has correct formt: dynamic_asset_data_object_type")
+
+            check_that_in(
+                asset_dynamic_data_object,
+                "current_supply", is_str(),
+                "accumulated_fees", is_integer(),
+                "fee_pool", is_integer(),
+                "extensions", is_list(),
+                quiet=False
             )

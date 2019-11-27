@@ -5,7 +5,7 @@ from lemoncheesecake.matching import check_that_in, equal_to, check_that, is_non
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Methods: 'get_assets', 'get_objects' (asset object)"
+    "description": "Methods: 'get_assets', 'get_objects' (asset & dynamic asset data objects)"
 }
 
 
@@ -15,7 +15,7 @@ SUITE = {
     "api", "database_api", "database_api_assets", "get_assets",
     "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of methods: 'get_assets', 'get_objects (asset object)'", rank=1)
+@lcc.suite("Check work of methods: 'get_assets', 'get_objects (asset & dynamic asset data objects)'", rank=1)
 class GetAssets(BaseTest):
 
     def __init__(self):
@@ -28,7 +28,7 @@ class GetAssets(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of methods: 'get_assets', 'get_objects' (asset object)")
+    @lcc.test("Simple work of methods: 'get_assets', 'get_objects' (asset & dynamic asset data objects)")
     def method_main_check(self):
         lcc.set_step("Get default asset of the chain")
         params = [self.echo_asset]
@@ -60,6 +60,24 @@ class GetAssets(BaseTest):
             get_objects_results, equal_to(get_assets_results),
             quiet=True
         )
+
+        lcc.set_step("Get asset dynamic data object")
+        asset_dynamic_data_id = get_assets_results[0]["dynamic_asset_data_id"]
+        params = [asset_dynamic_data_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+        for i, asset_dynamic_data in enumerate(get_objects_results):
+            lcc.set_step("Checking dynamic asset data object #{} - '{}'".format(i, params[i]))
+            lcc.log_info("{}".format(asset_dynamic_data))
+            self.object_validator.validate_asset_dynamic_data_object(self, asset_dynamic_data)
 
 
 @lcc.prop("positive", "type")
