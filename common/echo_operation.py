@@ -377,13 +377,12 @@ class EchoOperations(object):
             proposal_create_props.update({"review_period_seconds": review_period_seconds})
         if debug_mode:
             lcc.log_debug("Proposal create operation: \n{}".format(json.dumps(proposal_create_props, indent=4)))
-        del proposal_create_props["fee"]
         if signer is None:
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
     def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
-                                      active_approvals_to_remove, owner_approvals_to_remove,
+                                      active_approvals_to_remove,
                                       key_approvals_to_add, key_approvals_to_remove,
                                       fee_amount=0, fee_asset_id="1.3.0",
                                       extensions=None, signer=None, debug_mode=False):
@@ -396,7 +395,6 @@ class EchoOperations(object):
             {"fee_paying_account": fee_paying_account, "proposal": proposal,
              "active_approvals_to_add": active_approvals_to_add,
              "active_approvals_to_remove": active_approvals_to_remove,
-             "owner_approvals_to_remove": owner_approvals_to_remove,
              "key_approvals_to_add": key_approvals_to_add,
              "key_approvals_to_remove": key_approvals_to_remove,
              "extensions": extensions})

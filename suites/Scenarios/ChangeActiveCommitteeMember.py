@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from copy import deepcopy
 from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import require_that, not_equal_to, equal_to, check_that, is_true, is_false
 
 from common.base_test import BaseTest
-from project import ROPSTEN
+from project import ROPSTEN, REQUIRED_DEPOSIT_AMOUNT, INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
 
 SUITE = {
     "description": "Check for updating the list of active committee members"
@@ -73,6 +74,14 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                                  self.__registration_api_identifier)
             lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
+            self.init0 = self.get_initial_account_id(0, self.__database_api_identifier)
+            self.init1 = self.get_initial_account_id(1, self.__database_api_identifier)
+            self.init2 = self.get_initial_account_id(2, self.__database_api_identifier)
+            self.init3 = self.get_initial_account_id(3, self.__database_api_identifier)
+            self.init4 = self.get_initial_account_id(4, self.__database_api_identifier)
+            lcc.log_info(
+                "Echo  initial accounts: {}, {}, {}, {}, {}".format(self.init0, self.init1, self.init2, self.init3,
+                                                                    self.init4))
         else:
             lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
@@ -88,7 +97,6 @@ class ChangeActiveCommitteeMember(BaseTest):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address
         btc_public_key = get_random_btc_public_key
-        required_deposit = 100000000000
 
         if not ROPSTEN:
             lcc.set_step("Get active committee members ids, ethereum addresses and store")
@@ -113,7 +121,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                                                                                     eth_account_address,
                                                                                     btc_public_key,
                                                                                     self.__database_api_identifier,
-                                                                                    deposit_amount=required_deposit)
+                                                                                    deposit_amount=REQUIRED_DEPOSIT_AMOUNT)
             committee_member_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("New committee member id: {}".format(committee_member_id))
 
@@ -125,49 +133,42 @@ class ChangeActiveCommitteeMember(BaseTest):
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             lcc.log_info("Collected successfully")
 
-            lcc.set_step("Make proposal of new active committee member")
+            lcc.set_step("Make proposal operation of new active committee member")
             operation = self.echo_ops.get_proposal_create_operation(
                 echo=self.echo,
-                fee_paying_account="1.2.6",
+                fee_paying_account=self.init0,
                 proposed_ops=collected_operation,
                 expiration_time=self.get_expiration_time(15),
                 review_period_seconds=10,
-                signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
+                signer=INIT0_PK
             )
-            collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
+
+            collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
+
+            lcc.set_step("Broadcast proposal operation")
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
+            lcc.log_info("Proposal id {}".format(proposal_id))
 
             lcc.set_step("Make voting for new active committee member")
             operation = self.echo_ops.get_proposal_update_operation(
                 echo=self.echo,
-                fee_paying_account="1.2.6",
+                fee_paying_account=self.init0,
                 proposal=proposal_id,
-                active_approvals_to_add=["1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11"],
+                active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
                 active_approvals_to_remove=[],
                 owner_approvals_to_remove=[],
                 key_approvals_to_add=[],
                 key_approvals_to_remove=[],
-                signer=["5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE",
-                        "5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm",
-                        "5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH",
-                        "5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz",
-                        "5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS",
-                        "5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw"]
+                signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            lcc.log_debug(str(collected_operation))
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
-            lcc.set_step("Waiting for maintenance and expiration_time / review_period_seconds")
-
+            lcc.set_step("Set timer for proposal expiration")
             import time
-            time.sleep(25)
-            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                      to_account_id="1.2.12", amount=5)
-            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                       log_broadcast=False)
+            time.sleep(15)
+            self.produce_block(self.__database_api_identifier)
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
             updated_active_committee_members = self.get_active_committee_members()
@@ -193,50 +194,46 @@ class ChangeActiveCommitteeMember(BaseTest):
                 self.echo_ops.get_committee_member_deactivate_operation(echo=self.echo,
                                                                         committee_member_account=new_member_id,
                                                                         committee_to_deactivate=committee_member_id,
-                                                                        signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE")
+                                                                        signer=INIT0_PK)
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             lcc.log_info("Collected successfully")
 
             lcc.set_step("Make proposal of deactivating new account")
             operation = self.echo_ops.get_proposal_create_operation(
                 echo=self.echo,
-                fee_paying_account="1.2.6",
-                proposed_ops=[{"op": collected_operation[0]}],
+                fee_paying_account=self.init0,
+                proposed_ops=collected_operation,
                 expiration_time=self.get_expiration_time(15),
                 review_period_seconds=10,
-                signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
+                signer=INIT0_PK
             )
-            collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
+
+            collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
+
+            lcc.set_step("Broadcast proposal operation")
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
+            lcc.log_info("Proposal id {}".format(proposal_id))
 
-            lcc.set_step("Make voting for deactivating new account")
+            lcc.set_step("Make voting for new active committee member")
             operation = self.echo_ops.get_proposal_update_operation(
                 echo=self.echo,
-                fee_paying_account="1.2.6",
+                fee_paying_account=self.init0,
                 proposal=proposal_id,
-                active_approvals_to_add=["1.2.7", "1.2.8", "1.2.9", "1.2.10", "1.2.11"],
+                active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
                 active_approvals_to_remove=[],
                 owner_approvals_to_remove=[],
                 key_approvals_to_add=[],
                 key_approvals_to_remove=[],
-                signer=["5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE",
-                        "5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm",
-                        "5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH",
-                        "5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz",
-                        "5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS",
-                        "5JFDAh3DqESZEifvvB1dGgLu4Ar9WXMgx2YSwdBngR3mY9H2YGw"]
+                signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
+            lcc.set_step("Set timer for proposal expiration")
             import time
-            time.sleep(25)
-            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                      to_account_id="1.2.12", amount=1)
-            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                       log_broadcast=False)
+            time.sleep(15)
+            self.produce_block(self.__database_api_identifier)
             lcc.log_info("Voting finished.")
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
@@ -255,7 +252,6 @@ class ChangeActiveCommitteeMember(BaseTest):
                                                                                       new_member_address)
             check_that("'status of new committee member '{}''".format(new_member_address),
                        new_committee_member_status, is_false())
-
         else:
             lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
