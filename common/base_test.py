@@ -92,6 +92,12 @@ class BaseTest(object):
             return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
 
+    def get_expiration_time(self, seconds):
+        pattern = "%Y-%m-%dT%H:%M:%S"
+        now = self.get_datetime(global_datetime=True)
+        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
+        return expiration.strftime(pattern)
+
     @staticmethod
     def subtract_from_datetime(str_datetime, days=0, hours=0, minutes=0, seconds=0):
         formated_datetime = datetime.strptime(str_datetime, "%Y-%m-%dT%H:%M:%S")
@@ -491,6 +497,12 @@ class BaseTest(object):
             lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
         return account_id
 
+    def get_initial_account_id(self, initial_account_num, database_api_identifier):
+        response_id = self.send_request(self.get_request("get_global_properties"),
+                                        database_api_identifier)
+        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
+        return active_committee_members[initial_account_num][1]
+
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []
         for i in range(account_count):
@@ -514,7 +526,8 @@ class BaseTest(object):
                              proposal=False, debug_mode=False):
         try:
             if fee_amount is None:
-                fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id, proposal=proposal)
+                fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id, proposal=proposal,
+                                            debug_mode=debug_mode)
                 operation[1].update({"fee": fee[0]})
                 return fee
             operation[1]["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
@@ -534,6 +547,7 @@ class BaseTest(object):
             self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, proposal,
                                       debug_mode)
         return list_operations
+
 
     def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):
         contract_result = self.get_operation_results_ids(broadcast_result)
