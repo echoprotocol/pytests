@@ -144,8 +144,8 @@
         }
     ],
     "account_whitelist": [
-       5,
-       {
+        5,
+        {
             "fee": {
                 "amount": 0,
                 "asset_id": "1.3.0"
@@ -206,7 +206,7 @@
             "extensions": []
         }
     ],
-    "asset_update_feed_producers_operation":[
+    "asset_update_feed_producers_operation": [
         10,
         {
             "fee": {
@@ -219,7 +219,7 @@
             "extensions": []
         }
     ],
-    "asset_reserve_operation":[
+    "asset_reserve_operation": [
         12,
         {
             "fee": {
@@ -247,8 +247,7 @@
             "extensions": []
         }
     ],
-    "asset_publish_feed_operation":
-    [
+    "asset_publish_feed_operation": [
         14,
         {
             "fee": {
@@ -317,7 +316,11 @@
     ],
     "proposal_create_operation": [
         16,
-        {
+        {   
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
             "fee_paying_account": "1.2.0",
             "expiration_time": "1970-01-01T00:00:00",
             "proposed_ops": [],
@@ -355,6 +358,23 @@
             "extensions": []
         }
     ],
+    "proposal_update_operation": [
+        17,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "fee_paying_account": "1.2.0",
+            "proposal": "1.5.0",
+            "active_approvals_to_add": [],
+            "active_approvals_to_remove": [],
+            "owner_approvals_to_remove": [],
+            "key_approvals_to_add": [],
+            "key_approvals_to_remove": [],
+            "extensions": []
+        }
+    ],
     "committee_member_create_operation": [
         19,
         {
@@ -385,6 +405,28 @@
             "new_url": "http://example.com",
             "new_eth_address": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
             "new_btc_public_key": "039eeae9c2c707b95f024cf012c35c7784356a069a909af05e585a86348897f0c1",
+            "extensions": []
+        }
+    ],
+    "committee_member_activate_operation": [
+        22,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "committee_to_activate": "1.4.0",
+            "extensions": []
+        }
+    ],
+    "committee_member_deactivate_operation": [
+        23,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "committee_to_deactivate": "1.4.0",
             "extensions": []
         }
     ],
@@ -714,6 +756,32 @@
             "sender": "1.2.0",
             "contract": "1.9.0",
             "new_owner": "1.2.0",
+            "extensions": []
+        }
+    ],
+    "contract_internal_create_operation": [
+        33,
+        {
+            "caller": "1.11.0",
+            "new_contract": "1.11.0",
+            "value": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "eth_accuracy": false,
+            "extensions": []
+        }
+    ],
+    "contract_internal_call_operation": [
+        34,
+        {
+            "caller": "1.11.0",
+            "callee": "0.0.0",
+            "method": "",
+            "value": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
             "extensions": []
         }
     ],

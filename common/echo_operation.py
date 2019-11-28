@@ -363,7 +363,6 @@ class EchoOperations(object):
 
     def get_proposal_create_operation(self, echo, fee_paying_account, expiration_time, proposed_ops,
                                       review_period_seconds=None, extensions=None, signer=None, debug_mode=False):
-        # don't use 'collect_operation' for returned object from this method
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_CREATE
@@ -382,20 +381,26 @@ class EchoOperations(object):
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
-    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
-                                      active_approvals_to_remove, key_approvals_to_add, key_approvals_to_remove,
-                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
-                                      debug_mode=False):
+    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add=[],
+                                      active_approvals_to_remove=[], key_approvals_to_add=[],
+                                      key_approvals_to_remove=[], fee_amount=0, fee_asset_id="1.3.0",
+                                      extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_UPDATE
         proposal_update_props = self.get_operation_json("proposal_update_operation")
         proposal_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
-        proposal_update_props.update({"fee_paying_account": fee_paying_account, "proposal": proposal})
-        proposal_update_props.update({"active_approvals_to_add": active_approvals_to_add,
-                                      "active_approvals_to_remove": active_approvals_to_remove,
-                                      "key_approvals_to_add": key_approvals_to_add,
-                                      "key_approvals_to_remove": key_approvals_to_remove})
+        proposal_update_props.update(
+            {
+                "fee_paying_account": fee_paying_account,
+                "proposal": proposal,
+                "active_approvals_to_add": active_approvals_to_add,
+                "active_approvals_to_remove": active_approvals_to_remove,
+                "key_approvals_to_add": key_approvals_to_add,
+                "key_approvals_to_remove": key_approvals_to_remove,
+                "extensions": extensions
+            }
+        )
         if debug_mode:
             lcc.log_debug("Proposal update operation: \n{}".format(json.dumps(proposal_update_props, indent=4)))
         if signer is None:
@@ -478,12 +483,49 @@ class EchoOperations(object):
         committee_frozen_balance_deposit_props.update({"committee_member": committee_member})
         committee_frozen_balance_deposit_props.update({"committee_member_account": committee_member_account})
         committee_frozen_balance_deposit_props["amount"].update({"amount": amount, "asset_id": asset_id})
+        committee_frozen_balance_deposit_props.update({"extensions": extensions})
         if debug_mode:
             lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
                 json.dumps([operation_id, committee_frozen_balance_deposit_props], indent=4)))
         if signer is None:
             return [operation_id, committee_frozen_balance_deposit_props, committee_member_account]
         return [operation_id, committee_frozen_balance_deposit_props, signer]
+
+    def get_committee_member_activate_operation(self, echo, committee_to_activate, committee_member_account,
+                                                fee_amount=0,
+                                                fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_ACTIVATE
+        committee_member_activate_props = deepcopy(
+            self.get_operation_json("committee_member_activate_operation"))
+        committee_member_activate_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_activate_props.update({"committee_to_activate": committee_to_activate})
+        committee_member_activate_props.update({"extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Committee member activate operation: \n{}".format(
+                json.dumps([operation_id, committee_member_activate_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_activate_props, committee_member_account]
+        return [operation_id, committee_member_activate_props, signer]
+
+    def get_committee_member_deactivate_operation(self, echo, committee_to_deactivate, committee_member_account,
+                                                  fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                                  debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_DEACTIVATE
+        committee_member_deactivate_props = deepcopy(
+            self.get_operation_json("committee_member_deactivate_operation"))
+        committee_member_deactivate_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_member_deactivate_props.update({"committee_to_deactivate": committee_to_deactivate})
+        committee_member_deactivate_props.update({"extensions": extensions})
+        if debug_mode:
+            lcc.log_debug("Committee member deactivate operation: \n{}".format(
+                json.dumps([operation_id, committee_member_deactivate_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_member_deactivate_props, committee_member_account]
+        return [operation_id, committee_member_deactivate_props, signer]
 
     def get_vesting_balance_create_operation(self, echo, creator, owner, fee_amount=0, fee_asset_id="1.3.0", amount=1,
                                              amount_asset_id="1.3.0", begin_timestamp="1970-01-01T00:00:00",

@@ -143,7 +143,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("First: add fee pool to perform the call contract 'greet' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=new_account,
                                                               bytecode=self.greet, callee=contract_id)
-        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         self.utils.perform_contract_fund_pool_operation(self, self.echo_acc0, contract_id, needed_fee,
                                                         self.__database_api_identifier)
         lcc.log_info("Added '{}' assets value to '{}' contract fee pool successfully".format(needed_fee, contract_id))
@@ -183,7 +183,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Add echo assets to new_account")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=new_account,
                                                               bytecode=self.get_pennie, callee=contract_id)
-        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account, self.__database_api_identifier,
                                                transfer_amount=needed_fee)
         lcc.log_info("'{}' echo assets added to new_account".format(needed_fee))
@@ -225,7 +225,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Add fee pool to new contract")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.break_piggy, callee=contract_id)
-        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         self.utils.perform_contract_fund_pool_operation(self, self.echo_acc0, contract_id,
                                                         needed_fee + get_random_integer_up_to_ten,
                                                         self.__database_api_identifier)
@@ -300,7 +300,7 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Add fee pool to perform the call contract 'greet' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.greet, callee=contract_id)
-        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        needed_fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         value_to_pool = self.get_random_amount(needed_fee)
         self.utils.perform_contract_fund_pool_operation(self, self.echo_acc0, contract_id, value_to_pool,
                                                         self.__database_api_identifier)

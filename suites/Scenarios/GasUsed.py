@@ -83,7 +83,7 @@ class GasUsed(BaseTest):
         lcc.set_step("Get required fee for contract_create operation and store")
         operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
                                                                 bytecode=self.contract)
-        required_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        required_fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         lcc.log_info("Required fee for contract create: {}".format(required_fee))
 
         lcc.set_step("Create 'Piggy' contract in the Echo network. Store gas_used")
@@ -106,7 +106,7 @@ class GasUsed(BaseTest):
         contract_id = self.get_contract_id(response)
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.break_piggy, callee=contract_id)
-        required_fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        required_fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         lcc.log_info("Required fee for call contract: {}".format(required_fee))
 
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method. Store gas_used")

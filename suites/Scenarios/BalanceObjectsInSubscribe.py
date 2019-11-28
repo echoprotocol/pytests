@@ -60,7 +60,7 @@ class BalanceObjectsInSubscribe(BaseTest):
                                                                   from_account_id=tracked_accounts[0],
                                                                   to_account_id=tracked_accounts[1],
                                                                   amount=transfer_amount)
-        fee = self.get_required_fee(transfer_operation, self.__database_api_identifier)[0]["amount"]
+        fee = self.get_required_fee(transfer_operation, self.__database_api_identifier)["amount"]
         lcc.log_info("Required fee for transfer transaction: '{}'".format(fee))
 
         lcc.set_step("Set subscribe callback")

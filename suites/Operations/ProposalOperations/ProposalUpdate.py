@@ -59,7 +59,8 @@ class ProposalUpdate(BaseTest):
             review_period_seconds=10,
             signer=INIT0_PK
         )
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         require_that(
             "broadcast transaction complete successfully",
             self.is_operation_completed(broadcast_result, 1), is_true(),

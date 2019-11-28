@@ -4,6 +4,7 @@ import json
 import os
 import time
 from datetime import datetime, timedelta
+from copy import deepcopy
 
 import lemoncheesecake.api as lcc
 from Crypto.Hash import keccak
@@ -40,7 +41,8 @@ class BaseTest(object):
         self.echo_asset = "1.3.0"
         self.eth_asset = ETH_ASSET_ID
         # Declare all default accounts
-        self.accounts = ["{}{}".format(ACCOUNT_PREFIX, account_num) for account_num in range(DEFAULT_ACCOUNTS_COUNT)]
+        self.accounts = ["{}{}".format(
+            ACCOUNT_PREFIX, account_num) for account_num in range(DEFAULT_ACCOUNTS_COUNT)]
 
     @staticmethod
     def create_connection_to_echo():
@@ -265,7 +267,8 @@ class BaseTest(object):
             if notices_list:
                 notice = json.loads(self.ws.recv())
                 if log_response:
-                    lcc.log_info("Received notice with list of notifications:\n{}".format(json.dumps(notice, indent=4)))
+                    lcc.log_info("Received notice with list of notifications:\n{}".format(
+                        json.dumps(notice, indent=4)))
                 return notice["params"][1][0]
             return self.receiver.get_notice(id_response, object_id, operation_id, log_response)
         except KeyError as key:
@@ -418,7 +421,12 @@ class BaseTest(object):
 
     @staticmethod
     def get_account_details_template(account_name, private_key, public_key, brain_key):
-        return {account_name: {"id": "", "private_key": private_key, "public_key": public_key, "brain_key": brain_key}}
+        return {account_name: {
+            "id": "",
+            "private_key": private_key,
+            "public_key": public_key,
+            "brain_key": brain_key
+        }}
 
     def generate_keys(self):
         brain_key_object = self.echo.brain_key()
@@ -450,7 +458,8 @@ class BaseTest(object):
             raise Exception("Error received")
         return response
 
-    def register_account(self, account_name, registration_api_identifier, database_api_identifier, debug_mode=False):
+    def register_account(self, account_name, registration_api_identifier, database_api_identifier,
+                         debug_mode=False):
         public_key = self.store_new_account(account_name)
         self.__id += 1
         callback = self.__id
@@ -490,8 +499,12 @@ class BaseTest(object):
         return response
 
     def get_account_id(self, account_name, database_api_identifier, registration_api_identifier, debug_mode=False):
-        account = self.get_or_register_an_account(account_name, database_api_identifier, registration_api_identifier,
-                                                  debug_mode=debug_mode)
+        account = self.get_or_register_an_account(
+            account_name,
+            database_api_identifier,
+            registration_api_identifier,
+            debug_mode=debug_mode
+        )
         account_id = account.get("result").get("id")
         if debug_mode:
             lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
@@ -510,25 +523,46 @@ class BaseTest(object):
                                                    registration_api_identifier))
         return account_ids
 
-    def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", proposal=False, debug_mode=False):
+    def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
                                         database_api_identifier)
         response = self.get_response(response_id)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
-        if proposal:
-            return [response.get("result")[0][0]]
-        elif response.get("result")[0].get("fee"):
-            return [response.get("result")[0].get("fee")]
-        return response.get("result")
+        if response.get("result")[0].get("fee"):
+            return response.get("result")[0].get("fee")
+        return response.get("result")[0]
+
+    def get_proposal_create_required_fee(self, proposal_create_operation, database_api_identifier,
+                                         asset="1.3.0", debug_mode=False):
+        collected_operation = deepcopy(proposal_create_operation)
+        proposed_op = proposal_create_operation[1]["proposed_ops"][0]
+        collected_operation[1]["proposed_ops"] = [{"op": proposed_op}]
+        response_id = self.send_request(self.get_request("get_required_fees", [[collected_operation], asset]),
+                                        database_api_identifier)
+        response = self.get_response(response_id)
+        if debug_mode:
+            lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
+        return response.get("result")[0][0]
 
     def add_fee_to_operation(self, operation, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
-                             proposal=False, debug_mode=False):
+                             debug_mode=False):
         try:
             if fee_amount is None:
-                fee = self.get_required_fee(operation, database_api_identifier, asset=fee_asset_id, proposal=proposal,
-                                            debug_mode=debug_mode)
-                operation[1].update({"fee": fee[0]})
+                if operation[0] == self.echo.config.operation_ids.PROPOSAL_CREATE:
+                    fee = self.get_proposal_create_required_fee(
+                        operation,
+                        database_api_identifier,
+                        asset=fee_asset_id,
+                        debug_mode=debug_mode
+                    )
+                else:
+                    fee = self.get_required_fee(
+                        operation,
+                        database_api_identifier,
+                        asset=fee_asset_id,
+                        debug_mode=debug_mode)
+                operation[1].update({"fee": fee})
                 return fee
             operation[1]["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
             return fee_amount
@@ -538,16 +572,16 @@ class BaseTest(object):
             lcc.log_error("Add fee: This index does not exist: '{}'".format(index))
 
     def collect_operations(self, list_operations, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
-                           proposal=False, debug_mode=False):
+                           debug_mode=False):
         if debug_mode:
             lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))
         if type(list_operations) is list:
             list_operations = [list_operations.copy()]
         for operation in list_operations:
-            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, proposal,
+            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id,
                                       debug_mode)
+            lcc.log_info("{}".format(operation))
         return list_operations
-
 
     def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):
         contract_result = self.get_operation_results_ids(broadcast_result)
@@ -596,7 +630,8 @@ class BaseTest(object):
         keccak_hash.update(bytes(value, encoding=encoding))
         keccak_hash_in_hex = keccak_hash.hexdigest()
         if print_log:
-            lcc.log_info("'{}' value in keccak '{}' standard is '{}'".format(value, digest_bits, keccak_hash_in_hex))
+            lcc.log_info("'{}' value in keccak '{}' standard is '{}'".format(
+                value, digest_bits, keccak_hash_in_hex))
         return keccak_hash_in_hex
 
     def get_reserved_public_key(self):
@@ -613,8 +648,13 @@ class BaseTest(object):
         return data['RESERVED_PUBLIC_KEY']
 
     def produce_block(self, database_api_identifier):
-        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id="1.2.11",
-                                                         to_account_id="1.2.1", amount=1, signer=NATHAN_PK)
+        operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo,
+            from_account_id="1.2.11",
+            to_account_id="1.2.1",
+            amount=1, 
+            signer=NATHAN_PK
+        )
         collected_operation = self.collect_operations(operation, database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 

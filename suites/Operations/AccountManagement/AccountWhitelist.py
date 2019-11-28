@@ -52,7 +52,7 @@ class AccountWhitelist(BaseTest):
         operation = self.echo_ops.get_account_whitelist_operation(self.echo, authorizing_account=self.echo_acc0,
                                                                   account_to_list=new_account, new_listing=1)
 
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
+        fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
                                                self.__database_api_identifier, transfer_amount=fee)
         lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
@@ -69,7 +69,7 @@ class AccountWhitelist(BaseTest):
         operation = self.echo_ops.get_account_whitelist_operation(self.echo, authorizing_account=self.echo_acc0,
                                                                   account_to_list=new_account, new_listing=2)
 
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
+        fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
                                                self.__database_api_identifier, transfer_amount=fee)
         lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
@@ -86,7 +86,7 @@ class AccountWhitelist(BaseTest):
         operation = self.echo_ops.get_account_whitelist_operation(self.echo, authorizing_account=self.echo_acc0,
                                                                   account_to_list=new_account, new_listing=3)
 
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
+        fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
                                                self.__database_api_identifier, transfer_amount=fee)
         lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
@@ -106,7 +106,7 @@ class AccountWhitelist(BaseTest):
         operation = self.echo_ops.get_account_whitelist_operation(self.echo, authorizing_account=self.echo_acc0,
                                                                   account_to_list=new_account, new_listing=0)
 
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
+        fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
                                                self.__database_api_identifier, transfer_amount=fee)
         lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
