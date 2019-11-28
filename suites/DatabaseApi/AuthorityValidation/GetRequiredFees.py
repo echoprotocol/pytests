@@ -284,7 +284,7 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Send transfer transaction with a lower fee than the 'get_required_fee'")
         required_fee = self.get_required_fee(self.transfer_operation, self.__database_api_identifier)
         self.add_fee_to_operation(self.transfer_operation, self.__database_api_identifier,
-                                  fee_amount=(required_fee[0].get("amount") - 1))
+                                  fee_amount=(required_fee.get("amount") - 1))
         try:
             self.echo_ops.broadcast(echo=self.echo, list_operations=self.transfer_operation)
             lcc.log_error("Error: broadcast transaction complete with insufficient.")
