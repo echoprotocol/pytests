@@ -97,8 +97,7 @@ class PositiveTesting(BaseTest):
             proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(60)
         )
-        collected_operation = self.utils.get_proposal_required_fee(self, proposal_create_operation,
-                                                                   self.__database_api_identifier)
+        collected_operation = self.collect_operations(proposal_create_operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         require_that(

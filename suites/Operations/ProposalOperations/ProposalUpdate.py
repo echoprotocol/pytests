@@ -59,7 +59,7 @@ class ProposalUpdate(BaseTest):
             review_period_seconds=10,
             signer=INIT0_PK
         )
-        collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         require_that(
             "broadcast transaction complete successfully",

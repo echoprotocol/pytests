@@ -24,7 +24,7 @@ class Utils(object):
             transfer_amount = operation_count * transfer_amount
         if get_only_fee:
             transfer_amount = 0
-        fee_amount = base_test.get_required_fee(operation, database_api_id)[0]["amount"]
+        fee_amount = base_test.get_required_fee(operation, database_api_id)["amount"]
         if type(fee_amount) is str:
             fee_amount = int(fee_amount)
         amount = operation_count * fee_amount + transfer_amount + deposit_amount
@@ -824,16 +824,6 @@ class Utils(object):
             if signature["_fallback"] == 0:
                 verifers_account_ids.append("1.2." + str(signature["_producer"]))
         return verifers_account_ids
-
-    def get_proposal_required_fee(self, base_test, operation, database_api_identifier):
-        collected_operation = deepcopy(operation)
-        proposed_op = operation[1]["proposed_ops"][0]
-        operation[1]["proposed_ops"] = [{"op": proposed_op}]
-        response_id = base_test.send_request(base_test.get_request("get_required_fees", [[operation], base_test.echo_asset]),
-                                             database_api_identifier)
-        fee = base_test.get_response(response_id)["result"][0]
-        collected_operation[1].update({"fee": fee[0]})
-        return collected_operation
 
     def get_account_block_reward(self, base_test, account_ids, block_number, database_api_id):
         total_verifiers_balance, reward, total_verifiers_reward, delegate_reward, account_reward = 0, 0, 0, 0, 0

@@ -381,10 +381,9 @@ class EchoOperations(object):
             return [operation_id, proposal_create_props, fee_paying_account]
         return [operation_id, proposal_create_props, signer]
 
-    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add,
-                                      active_approvals_to_remove,
-                                      key_approvals_to_add, key_approvals_to_remove,
-                                      fee_amount=0, fee_asset_id="1.3.0",
+    def get_proposal_update_operation(self, echo, fee_paying_account, proposal, active_approvals_to_add=[],
+                                      active_approvals_to_remove=[], key_approvals_to_add=[],
+                                      key_approvals_to_remove=[], fee_amount=0, fee_asset_id="1.3.0",
                                       extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
@@ -392,12 +391,16 @@ class EchoOperations(object):
         proposal_update_props = self.get_operation_json("proposal_update_operation")
         proposal_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         proposal_update_props.update(
-            {"fee_paying_account": fee_paying_account, "proposal": proposal,
-             "active_approvals_to_add": active_approvals_to_add,
-             "active_approvals_to_remove": active_approvals_to_remove,
-             "key_approvals_to_add": key_approvals_to_add,
-             "key_approvals_to_remove": key_approvals_to_remove,
-             "extensions": extensions})
+            {
+                "fee_paying_account": fee_paying_account,
+                "proposal": proposal,
+                "active_approvals_to_add": active_approvals_to_add,
+                "active_approvals_to_remove": active_approvals_to_remove,
+                "key_approvals_to_add": key_approvals_to_add,
+                "key_approvals_to_remove": key_approvals_to_remove,
+                "extensions": extensions
+            }
+        )
         if debug_mode:
             lcc.log_debug("Proposal update operation: \n{}".format(json.dumps(proposal_update_props, indent=4)))
         if signer is None:

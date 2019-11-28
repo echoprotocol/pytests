@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
+import time
 from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
@@ -44,8 +44,8 @@ class ChangeActiveCommitteeMember(BaseTest):
                 eth_addresses.append(committee_member_obj["eth_address"])
                 if print_log:
                     lcc.log_info(
-                        "'{}' active committee members has '{}' eth_address".format(active_committee_members_ids[i],
-                                                                                    eth_addresses[i]))
+                        "'{}' active committee members has '{}' eth_address".format(
+                            active_committee_members_ids[i], eth_addresses[i]))
         if len(eth_addresses) == 1:
             return eth_addresses[0]
         return eth_addresses
@@ -117,11 +117,14 @@ class ChangeActiveCommitteeMember(BaseTest):
             lcc.log_info("New Echo account created, account_id='{}'".format(new_account_id))
 
             lcc.set_step("Create created account as new committee member in the ECHO network")
-            broadcast_result = self.utils.perform_committee_member_create_operation(self, new_account_id,
-                                                                                    eth_account_address,
-                                                                                    btc_public_key,
-                                                                                    self.__database_api_identifier,
-                                                                                    deposit_amount=REQUIRED_DEPOSIT_AMOUNT)
+            broadcast_result = self.utils.perform_committee_member_create_operation(
+                self,
+                new_account_id,
+                eth_account_address,
+                btc_public_key,
+                self.__database_api_identifier,
+                deposit_amount=REQUIRED_DEPOSIT_AMOUNT
+            )
             committee_member_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("New committee member id: {}".format(committee_member_id))
 
@@ -142,7 +145,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                 review_period_seconds=10,
                 signer=INIT0_PK
             )
-            collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("Proposal id {}".format(proposal_id))
@@ -162,7 +165,6 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
             lcc.set_step("Set timer for proposal expiration")
-            import time
             time.sleep(15)
             self.produce_block(self.__database_api_identifier)
 
@@ -182,15 +184,20 @@ class ChangeActiveCommitteeMember(BaseTest):
             lcc.log_info("'{}' new committee member address: '{}'".format(new_member_id, new_member_address))
             new_committee_member_status = self.eth_trx.get_status_of_committee_member(self, self.web3,
                                                                                       new_member_address)
-            check_that("'status of new committee member '{}''".format(new_member_address), new_committee_member_status,
-                       is_true())
+            check_that(
+                "'status of new committee member '{}''".format(new_member_address),
+                new_committee_member_status, is_true(),
+                quiet=True
+            )
 
             lcc.set_step("Collect 'committee_member_deactivate_operation'")
             operation = \
-                self.echo_ops.get_committee_member_deactivate_operation(echo=self.echo,
-                                                                        committee_member_account=new_member_id,
-                                                                        committee_to_deactivate=committee_member_id,
-                                                                        signer=INIT0_PK)
+                self.echo_ops.get_committee_member_deactivate_operation(
+                    echo=self.echo,
+                    committee_member_account=new_member_id,
+                    committee_to_deactivate=committee_member_id,
+                    signer=INIT0_PK
+                )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             lcc.log_info("Collected successfully")
 
@@ -203,7 +210,7 @@ class ChangeActiveCommitteeMember(BaseTest):
                 review_period_seconds=10,
                 signer=INIT0_PK
             )
-            collected_operation = self.utils.get_proposal_required_fee(self, operation, self.__database_api_identifier)
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("Proposal id {}".format(proposal_id))
@@ -223,7 +230,6 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
             lcc.set_step("Set timer for proposal expiration")
-            import time
             time.sleep(15)
             self.produce_block(self.__database_api_identifier)
             lcc.log_info("Voting finished.")
