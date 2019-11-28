@@ -530,7 +530,7 @@ class BaseTest(object):
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
         if response.get("result")[0].get("fee"):
-            return [response.get("result")[0].get("fee")[0]]
+            return response.get("result")[0].get("fee")
         return response.get("result")[0]
 
     def get_proposal_create_required_fee(self, proposal_create_operation, database_api_identifier,
