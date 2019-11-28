@@ -466,6 +466,25 @@ class EchoOperations(object):
             return [operation_id, committee_member_update_props, committee_member_account]
         return [operation_id, committee_member_update_props, signer]
 
+    def get_committee_member_update_global_parameters_operation(self, echo, _time_net_1mb,
+                                                                signer, debug_mode=False):
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_UPDATE_GLOBAL_PARAMETERS
+        committee_member_update_global_parameters_props = echo.api.database.get_global_properties()
+        committee_member_update_global_parameters_props["new_parameters"] =\
+            committee_member_update_global_parameters_props.pop("parameters")
+
+        committee_member_update_global_parameters_props["new_parameters"]["echorand_config"].update(
+            {
+                "_time_net_1mb": _time_net_1mb
+            }
+        )
+        if debug_mode:
+            lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
+                json.dumps([operation_id, committee_member_update_global_parameters_props], indent=4)))
+        # if signer is None:
+        #     return [operation_id, committee_member_update_global_parameters_props, committee_member_account]
+        return [operation_id, committee_member_update_global_parameters_props, signer]
+
     def get_committee_frozen_balance_deposit_operation(self, echo, committee_member, committee_member_account,
                                                        amount=0, asset_id="1.3.0", fee_amount=0, fee_asset_id="1.3.0",
                                                        extensions=None, signer=None, debug_mode=False):
