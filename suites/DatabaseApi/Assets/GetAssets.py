@@ -174,3 +174,35 @@ class PositiveTesting(BaseTest):
         asset_info = response["result"]
         for nonexistent_result in asset_info:
             check_that("'get_assets result'", nonexistent_result, is_none())
+
+    @lcc.test("Get object for asset bitasset data")
+    @lcc.depends_on("DatabaseApi.Assets.GetAssets.GetAssets.method_main_check")
+    def get_object_for_asset_bitasset_data(self, get_random_valid_asset_name):
+        new_asset_name = get_random_valid_asset_name
+
+        lcc.set_step("Perform creating of bitasset")
+        asset_create_operation = self.echo_ops.get_asset_create_operation(
+            echo=self.echo,
+            issuer=self.echo_acc0,
+            symbol=new_asset_name,
+            feed_lifetime_sec=86400,
+            minimum_feeds=1,
+            short_backing_asset=self.echo_asset
+        )
+        collected_operation = self.collect_operations(asset_create_operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        created_asset_id = self.get_operation_results_ids(broadcast_result)
+        lcc.log_info("Asset successfully created, id={}".format(created_asset_id))
+
+        lcc.set_step("Get bitasset id from asset info")
+        response_id = self.send_request(self.get_request("get_assets", [[created_asset_id]]),
+                                        self.__database_api_identifier)
+        created_asset = self.get_response(response_id)["result"][0]
+
+        bitasset_id = created_asset["bitasset_data_id"]
+
+        response_id = self.send_request(self.get_request("get_objects", [[bitasset_id]]),
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"][0]
+
+        self.object_validator.validate_asset_bitasset_data_object(self, result)

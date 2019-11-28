@@ -1273,3 +1273,92 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=False
             )
+
+    def validate_asset_bitasset_data_object(self, base_test, asset_bitasset_data_object):
+
+        def validate_price_object(base_test, price_object):
+            check_that_in(
+                price_object,
+                "base", is_dict(),
+                "quote", is_dict(),
+                quiet=True
+            )
+            for key in price_object:
+                price_part = price_object[key]
+                base_test.check_uint64_numbers(
+                    price_part,
+                    "amount",
+                    quiet=True
+                )
+                if not base_test.type_validator.is_asset_id(price_part["asset_id"]):
+                    lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
+                        key, price_part["asset_id"]))
+                else:
+                    lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
+
+        if check_that(
+            "asset bitasset data",
+            asset_bitasset_data_object, has_length(8),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_bitasset_id(asset_bitasset_data_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(asset_bitasset_data_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: bitasset_data_object_type")
+            if not base_test.type_validator.is_iso8601(
+                    asset_bitasset_data_object["current_feed_publication_time"]):
+                lcc.log_error("Wrong format of 'current_feed_publication_time', got: {}".format(
+                    asset_bitasset_data_object["current_feed_publication_time"]))
+            else:
+                lcc.log_info("'current_feed_publication_time' has correct format: iso8601")
+
+            if check_that_in(
+                asset_bitasset_data_object,
+                "feeds", is_list(),
+                "current_feed", is_dict(),
+                "options", is_dict(),
+                "settlement_price", is_dict(),
+                "settlement_fund", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            ):
+                current_feed = asset_bitasset_data_object["current_feed"]
+                if check_that(
+                    "current feed",
+                    current_feed, has_length(4),
+                    quiet=True
+                ):
+                    for key in ["settlement_price", "core_exchange_rate"]:
+                        validate_price_object(base_test, current_feed[key])
+                    check_that_in(
+                        current_feed,
+                        "maintenance_collateral_ratio", is_integer(),
+                        "maximum_short_squeeze_ratio", is_integer(),
+                        quiet=True
+                    )
+
+                options = asset_bitasset_data_object["options"]
+                if check_that(
+                    "options",
+                    options, has_length(4),
+                    quiet=True
+                ):
+                    if not base_test.type_validator.is_asset_id(options["short_backing_asset"]):
+                        lcc.log_error("Wrong format of 'short_backing_asset', got: {}".format(
+                            options["short_backing_asset"]))
+                    else:
+                        lcc.log_info("'short_backing_asset' has correct format: asset_id")
+                    check_that_in(
+                        options,
+                        "feed_lifetime_sec", is_integer(),
+                        "minimum_feeds", is_integer(),
+                        "extensions", is_list(),
+                        quiet=True
+                    )
+                settlement_price = asset_bitasset_data_object["settlement_price"]
+                if check_that(
+                    "settlement price",
+                    settlement_price, has_length(2),
+                    quiet=True
+                ):
+                    validate_price_object(base_test, settlement_price)
