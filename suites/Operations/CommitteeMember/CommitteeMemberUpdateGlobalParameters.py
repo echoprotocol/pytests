@@ -3,6 +3,8 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to
 from common.base_test import BaseTest
 from datetime import datetime, timedelta
+import time
+
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
 SUITE = {
     "description": "Operation 'committee_member_update_global_parameters'"
@@ -52,6 +54,11 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         dyn = self.get_response(response_id, log_response=False)["result"]
         lcc.log_info("{}, {}, {}".format(dyn["head_block_number"], dyn["time"], dyn["next_maintenance_time"]))
 
+    def produce(self):
+        time.sleep(50)
+        self.produce_block(self.__database_api_identifier)
+        self.dynamic()
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -76,7 +83,6 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
             review_period_seconds=10,
             signer=INIT0_PK
         )
-        import time
         # collected_operation = self.collect_operations(operation, self.__database_api_identifier, proposal=True)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation, log_broadcast=True)
         self.dynamic()
@@ -97,15 +103,8 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         self.dynamic()
         lcc.log_info("All committee member has voted")
         lcc.set_step("Waiting for maintenance and release of two blocks and check that parameters have been updated")
-        self.produce_block(self.__database_api_identifier)
-        self.dynamic()
-        self.produce_block(self.__database_api_identifier)
-        self.dynamic()
-        time.sleep(60)
-        self.produce_block(self.__database_api_identifier)
-        self.dynamic()
-        self.produce_block(self.__database_api_identifier)
-        self.dynamic()
+        for i in range(4):
+            self.produce()
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         global_properties = self.get_response(response_id)["result"]
         check_that("global", global_properties1, not_equal_to(global_properties), quiet=True)
