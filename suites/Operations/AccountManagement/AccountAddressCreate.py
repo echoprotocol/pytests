@@ -52,7 +52,7 @@ class AccountAddressCreate(BaseTest):
         lcc.set_step("Perform 'account_address_create_operation'")
         operation = self.echo_ops.get_account_address_create_operation(echo=self.echo, owner=new_account,
                                                                        label=label)
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
+        fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
                                                self.__database_api_identifier, transfer_amount=fee)
         lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))

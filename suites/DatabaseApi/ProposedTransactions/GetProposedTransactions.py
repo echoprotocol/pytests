@@ -82,7 +82,8 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Propose transaction using proposal_create operation and get info about it")
-    @lcc.depends_on("DatabaseApi.ProposedTransactions.GetProposedTransactions.GetProposedTransactions.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.ProposedTransactions.GetProposedTransactions.GetProposedTransactions.method_main_check")
     def get_info_about_proposed_transaction(self):
         lcc.set_step("Collect 'get_proposed_transactions' operation")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
@@ -96,7 +97,8 @@ class PositiveTesting(BaseTest):
             proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(60)
         )
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=proposal_create_operation,
+        collected_operation = self.collect_operations(proposal_create_operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         require_that(
             "broadcast transaction complete successfully",

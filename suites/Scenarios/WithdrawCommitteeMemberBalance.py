@@ -76,9 +76,6 @@ class WithdrawCommitteeMemberBalance(BaseTest):
         operation = self.echo_ops.get_committee_frozen_balance_withdraw_operation(
             echo=self.echo, committee_member_account=committee_member_account_id,
             amount=int(current_frozen_balance) - minimal_frozen_balance, asset_id=self.echo_asset, signer=INIT0_PK)
-
-        self.utils.perform_transfer_operations(self, self.echo_acc0, committee_member_account_id,
-                                               self.__database_api_identifier, transfer_amount=20)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.produce_block(self.__database_api_identifier)
         try:

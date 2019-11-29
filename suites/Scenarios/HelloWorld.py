@@ -109,7 +109,12 @@ class HelloWorld(BaseTest):
         block_num = broadcast_result["block_num"]
 
         lcc.set_step("Get account block reward")
-        reward = self.utils.get_account_block_reward(self, [self.echo_acc0], block_num, self.__database_api_identifier)
+        reward = self.utils.get_account_block_reward(
+            self,
+            [self.echo_acc0],
+            block_num,
+            self.__database_api_identifier
+        )
 
         lcc.set_step("Get contract. Amount should be reduced by one.")
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
@@ -140,13 +145,13 @@ class HelloWorld(BaseTest):
             check_that(
                 "'owner balance'",
                 actual_balance,
-                is_(owner_balance - fee[0].get("amount") + 1 + reward)
+                is_(owner_balance - fee.get("amount") + 1 + reward)
             )
         else:
             check_that(
                 "'owner balance'",
                 actual_balance,
-                is_(owner_balance - fee[0].get("amount") + 1)
+                is_(owner_balance - fee.get("amount") + 1)
             )
             check_that(
                 "'accumulated reward'",
