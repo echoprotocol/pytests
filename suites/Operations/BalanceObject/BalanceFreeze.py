@@ -51,7 +51,7 @@ class BalanceFreeze(BaseTest):
         lcc.set_step("Perform balance freeze operation")
         operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
                                                                value_amount=value_amount, duration=90)
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0].get("amount")
+        fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
@@ -66,4 +66,8 @@ class BalanceFreeze(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         balance_after_freeze = int(self.get_response(response_id)["result"][0]["amount"])
-        check_that("freezed balance amount", frozen_balance_amount, equal_to(total_balance - balance_after_freeze - fee))
+        check_that(
+            "freezed balance amount",
+            frozen_balance_amount, equal_to(total_balance - balance_after_freeze - fee),
+            quiet=True
+        )
