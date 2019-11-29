@@ -216,4 +216,5 @@ class PositiveTesting(BaseTest):
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
 
+        lcc.set_step("Check bitasset object")
         self.object_validator.validate_asset_bitasset_data_object(self, result)
