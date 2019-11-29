@@ -1440,3 +1440,28 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    def validate_account_address_object(self, base_test, account_address_object):
+        if check_that(
+            "account addresses object",
+            account_address_object, has_length(5),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_account_address_id(account_address_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(account_address_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: account_address_object_type")
+            if not base_test.type_validator.is_account_id(account_address_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(account_address_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: account_object_type")
+            if not base_test.type_validator.is_hex(account_address_object["address"]):
+                lcc.log_error("Wrong format of 'address', got: {}".format(account_address_object["owner"]))
+            else:
+                lcc.log_info("'address' has correct format: hex")
+            check_that_in(
+                account_address_object,
+                "label", is_str(),
+                "extensions", is_list(),
+                quiet=True
+            )
