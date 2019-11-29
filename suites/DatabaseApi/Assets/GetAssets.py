@@ -5,7 +5,8 @@ from lemoncheesecake.matching import check_that_in, equal_to, check_that, is_non
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Methods: 'get_assets', 'get_objects' (asset & dynamic asset data objects)"
+    "description": "Methods: 'get_assets', 'get_objects' (asset & dynamic asset data"
+    " & bitasset data objects)"
 }
 
 
@@ -15,7 +16,10 @@ SUITE = {
     "api", "database_api", "database_api_assets", "get_assets",
     "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of methods: 'get_assets', 'get_objects (asset & dynamic asset data objects)'", rank=1)
+@lcc.suite(
+    "Check work of methods: 'get_assets', 'get_objects (asset & dynamic asset data & bitasset data objects)'",
+    rank=1
+)
 class GetAssets(BaseTest):
 
     def __init__(self):
@@ -28,7 +32,8 @@ class GetAssets(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of methods: 'get_assets', 'get_objects' (asset & dynamic asset data objects)")
+    @lcc.test(
+        "Simple work of methods: 'get_assets', 'get_objects (asset & dynamic asset data)")
     def method_main_check(self):
         lcc.set_step("Get default asset of the chain")
         params = [self.echo_asset]
@@ -81,8 +86,14 @@ class GetAssets(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_assets", "get_assets")
-@lcc.suite("Positive testing of method 'get_assets'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_assets", "get_assets",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite(
+    "Positive testing of methods:'get_assets', 'get_objects (asset & dynamic asset data & bitasset data objects)'",
+    rank=2
+)
 class PositiveTesting(BaseTest):
 
     def __init__(self):

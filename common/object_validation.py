@@ -1271,7 +1271,7 @@ class ObjectValidator(object):
                 "accumulated_fees", is_integer(),
                 "fee_pool", is_integer(),
                 "extensions", is_list(),
-                quiet=False
+                quiet=True
             )
 
     def validate_asset_bitasset_data_object(self, base_test, asset_bitasset_data_object):
