@@ -1420,3 +1420,23 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    def validate_block_summary_object(self, base_test, block_summary_object):
+        if check_that(
+            "block summary object",
+            block_summary_object, has_length(3),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_block_summary_id(block_summary_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(block_summary_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: block_summary_id")
+            if not base_test.type_validator.is_bytes(block_summary_object["block_id"], 20):
+                lcc.log_error("Wrong format of 'block_id', got: {}".format(block_summary_object["block_id"]))
+            else:
+                lcc.log_info("'block_id' has correct format: bytes")
+            check_that_in(
+                block_summary_object,
+                "extensions", is_list(),
+                quiet=True
+            )

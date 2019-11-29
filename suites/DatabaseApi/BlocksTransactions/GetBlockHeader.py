@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, has_length
+from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, has_length, equal_to
 
 from common.base_test import BaseTest
 
@@ -39,7 +39,8 @@ class GetBlockHeader(BaseTest):
         block_header = response["result"]
         require_that(
             "'the block header of the first block'",
-            block_header, has_length(10)
+            block_header, has_length(10),
+            quiet=True
         )
         check_that_in(
             block_header,
@@ -64,3 +65,25 @@ class GetBlockHeader(BaseTest):
             lcc.log_error("Wrong format of 'delegate', got: {}".format(block_header["delegate"]))
         else:
             lcc.log_info("'delegate' has correct format: account_id")
+
+        lcc.set_step("Get block summary object by id")
+        params = ["2.7.{}".format(block_num - 1)]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check block_summary object")
+        self.object_validator.validate_block_summary_object(self, get_objects_results[0])
+        check_that_in(
+            get_objects_results[0],
+            "block_id", equal_to(block_header["previous"]),
+            quiet=True
+        )
