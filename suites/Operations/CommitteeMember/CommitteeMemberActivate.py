@@ -22,6 +22,11 @@ class CommitteeMemberActivate(BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
+        self.init0 = None
+        self.init1 = None
+        self.init2 = None
+        self.init3 = None
+        self.init4 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -35,12 +40,11 @@ class CommitteeMemberActivate(BaseTest):
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-
-    def get_active_committee_members_account_ids(self):
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_members = self.get_response(response_id)["result"][
-            "active_committee_members"]
-        return [member[1] for member in active_committee_members]
+        self.init0 = self.get_initial_account_id(0, self.__database_api_identifier)
+        self.init1 = self.get_initial_account_id(1, self.__database_api_identifier)
+        self.init2 = self.get_initial_account_id(2, self.__database_api_identifier)
+        self.init3 = self.get_initial_account_id(3, self.__database_api_identifier)
+        self.init4 = self.get_initial_account_id(4, self.__database_api_identifier)
 
     def get_expiration_time(self, seconds):
         pattern = "%Y-%m-%dT%H:%M:%S"
@@ -57,9 +61,6 @@ class CommitteeMemberActivate(BaseTest):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address
         btc_public_key = get_random_btc_public_key
-
-        active_committe_member_ids = self.get_active_committee_members_account_ids()
-        fee_paying_account = active_committe_member_ids[0]
 
         lcc.set_step("Register new account in the ECHO network")
         new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
@@ -86,7 +87,7 @@ class CommitteeMemberActivate(BaseTest):
         lcc.set_step("Make proposal of new active committee member")
         operation = self.echo_ops.get_proposal_create_operation(
             echo=self.echo,
-            fee_paying_account=fee_paying_account,
+            fee_paying_account=self.init0,
             proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(15),
             review_period_seconds=10,
@@ -100,9 +101,9 @@ class CommitteeMemberActivate(BaseTest):
         lcc.set_step("Make voting for new active committee member")
         operation = self.echo_ops.get_proposal_update_operation(
             echo=self.echo,
-            fee_paying_account=fee_paying_account,
+            fee_paying_account=self.init0,
             proposal=proposal_id,
-            active_approvals_to_add=active_committe_member_ids,
+            active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
             active_approvals_to_remove=[],
             key_approvals_to_add=[],
             key_approvals_to_remove=[],

@@ -29,6 +29,13 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         lcc.log_info(
             "API identifiers are: database='{}'".format(self.__database_api_identifier))
 
+    def get_committee_member_ids(self, account):
+        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
+        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
+        committee_member_id = active_committee_members[account][0]
+        committee_member_account_id = active_committee_members[account][1]
+        return committee_member_id, committee_member_account_id
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -38,10 +45,7 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         amount_to_freeze = get_random_integer + 10
 
         lcc.set_step("Get first active committee member id and account id")
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        committee_member_id = active_committee_members[0][0]
-        committee_member_account_id = active_committee_members[0][1]
+        committee_member_id, committee_member_account_id = self.get_committee_member_ids(0)
         lcc.log_info("Committee member id: '{}' and account id: '{}'".format(committee_member_id,
                                                                              committee_member_account_id))
         lcc.set_step("Get active committee member balance")
