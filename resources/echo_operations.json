@@ -388,6 +388,7 @@
             "extensions": []
         }
     ],
+
     "vesting_balance_create_operation": [
         26,
         {
@@ -479,6 +480,21 @@
                 "asset_id": "1.3.0"
             },
             "committee_member": "1.4.0",
+            "committee_member_account": "1.2.0",
+            "amount": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "extensions": []
+        }
+    ],
+    "committee_frozen_balance_withdraw_operation":[
+        25,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
             "committee_member_account": "1.2.0",
             "amount": {
                 "amount": 0,
