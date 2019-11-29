@@ -1362,3 +1362,61 @@ class ObjectValidator(object):
                     quiet=True
                 ):
                     validate_price_object(base_test, settlement_price)
+
+    def validate_account_balance_object(self, base_test, account_balance_object):
+        if check_that(
+            "account balance object",
+            account_balance_object, has_length(5),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_account_balance_id(account_balance_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(account_balance_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: account_balance_id")
+            if not base_test.type_validator.is_account_id(account_balance_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(account_balance_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: account_id")
+            if not base_test.type_validator.is_asset_id(account_balance_object["asset_type"]):
+                lcc.log_error("Wrong format of 'asset_type', got: {}".format(account_balance_object["asset_type"]))
+            else:
+                lcc.log_info("'asset_type' has correct format: asset_id")
+
+            check_that_in(
+                account_balance_object,
+                "balance", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    def validate_account_statistics_object(self, base_test, account_statistics_object):
+        if check_that(
+            "account statistics object",
+            account_statistics_object, has_length(10),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_account_statistics_id(account_statistics_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(account_statistics_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: account_statistics_id")
+            if not base_test.type_validator.is_account_id(account_statistics_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(account_statistics_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: account_id")
+            if not base_test.type_validator.is_account_transaction_history_id(
+                    account_statistics_object["most_recent_op"]):
+                lcc.log_error("Wrong format of 'most_recent_op', got: {}".format(
+                    account_statistics_object["most_recent_op"]))
+            else:
+                lcc.log_info("'most_recent_op' has correct format: account_transaction_history_id")
+            check_that_in(
+                account_statistics_object,
+                "total_ops", is_integer(),
+                "removed_ops", is_integer(),
+                "total_blocks", is_integer(),
+                "total_core_in_orders", is_integer(),
+                "generated_eth_address", is_bool(),
+                "committeeman_rating", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
