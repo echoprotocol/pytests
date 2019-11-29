@@ -105,7 +105,8 @@ class PositiveTesting(BaseTest):
             proposed_ops=collected_operation,
             expiration_time=proposal_expiration
         )
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=proposal_create_operation,
+        collected_operation = self.collect_operations(proposal_create_operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
         require_that(
             "broadcast transaction complete successfully",

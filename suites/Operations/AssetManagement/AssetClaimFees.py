@@ -67,7 +67,7 @@ class AssetClaimFees(BaseTest):
             echo=self.echo, from_account_id=new_account,
             to_account_id=self.echo_acc0, amount=1, fee_amount=20,
             fee_asset_id=new_asset_id, amount_asset_id=new_asset_id)
-        fee = self.get_required_fee(operation, self.__database_api_identifier)[0]["amount"]
+        fee = self.get_required_fee(operation, self.__database_api_identifier)["amount"]
         for i in range(transfer_operation_count):
             collected_operation.append(self.collect_operations(operation, self.__database_api_identifier,
                                                                fee_amount=20, fee_asset_id=new_asset_id))
