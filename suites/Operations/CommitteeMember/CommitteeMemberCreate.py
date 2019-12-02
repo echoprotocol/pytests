@@ -38,7 +38,7 @@ class CommitteeMemberCreate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_member_create'")
+    @lcc.test("Simple work of operation 'committee_member_create'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address
@@ -53,7 +53,11 @@ class CommitteeMemberCreate(BaseTest):
         response_id = self.send_request(self.get_request("get_committee_member_by_account", [new_account_id]),
                                         self.__database_api_identifier)
         committee_member = self.get_response(response_id)["result"]
-        check_that("'committee_member_by_account' method result", committee_member, equal_to(None))
+        check_that(
+            "'committee_member_by_account' method result",
+            committee_member, equal_to(None),
+            quiet=True
+        )
 
         lcc.set_step("Perform 'committee_member_create' operation")
         operation = self.echo_ops.get_committee_member_create_operation(echo=self.echo,
@@ -74,5 +78,8 @@ class CommitteeMemberCreate(BaseTest):
         response_id = self.send_request(self.get_request("get_committee_member_by_account", [new_account_id]),
                                         self.__database_api_identifier)
         committee_member = self.get_response(response_id)["result"]
-        check_that("new committee member account", committee_member["committee_member_account"],
-                   equal_to(new_account_id))
+        check_that(
+            "new committee member account",
+            committee_member["committee_member_account"], equal_to(new_account_id),
+            quiet=True
+        )

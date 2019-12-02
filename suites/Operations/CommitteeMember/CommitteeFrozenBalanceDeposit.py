@@ -36,7 +36,7 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_frozen_balance_deposit'")
+    @lcc.test("Simple work of operation 'committee_frozen_balance_deposit'")
     def method_main_check(self, get_random_integer):
         amount_to_freeze = get_random_integer + 10
 
@@ -74,16 +74,23 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         lcc.log_info("Required fee: '{}'".format(fee_amount))
 
         lcc.set_step("Check active committee member balance after performing operation")
-        params = [committee_member_account_id, [self.echo_asset]]
+        params = [self.init0, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         balance_after_freeze = self.get_response(response_id)["result"][0]["amount"]
-        check_that("balance reduced", int(current_balance) - int(balance_after_freeze),
-                   equal_to(amount_to_freeze + fee_amount))
+        check_that(
+            "balance reduced",
+            int(current_balance) - int(balance_after_freeze), equal_to(amount_to_freeze + fee_amount),
+            quiet=True
+        )
 
         lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [committee_member_id]),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
         frozen_balance = response["result"]["amount"]
-        check_that("frozen balance", frozen_balance, equal_to(current_frozen_balance + amount_to_freeze))
+        check_that(
+            "frozen balance",
+            frozen_balance, equal_to(current_frozen_balance + amount_to_freeze),
+            quiet=True
+        )

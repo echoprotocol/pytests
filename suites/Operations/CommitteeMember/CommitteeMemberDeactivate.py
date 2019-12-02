@@ -5,6 +5,7 @@ from common.base_test import BaseTest
 from datetime import datetime, timedelta
 from lemoncheesecake.matching import check_that, not_equal_to
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
+import time
 
 SUITE = {
     "description": "Operation 'committee_member_deactivate'"
@@ -50,7 +51,7 @@ class CommitteeMemberDeactivate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_member_deactivate'")
+    @lcc.test("Simple work of operation 'committee_member_deactivate'")
     @lcc.depends_on("Operations.CommitteeMember.CommitteeMemberActivate.CommitteeMemberActivate.method_main_check")
     def committee_member_deactivate_operation(self):
         operation = self.echo_ops.get_committee_member_deactivate_operation(
@@ -94,8 +95,11 @@ class CommitteeMemberDeactivate(BaseTest):
 
         lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were deactivated")
         self.produce_block(self.__database_api_identifier)
-        import time
         time.sleep(15)
         self.produce_block(self.__database_api_identifier)
-        check_that("acitve committee member", self.committee_members_info[-1]["account_id"],
-                   not_equal_to(self.get_active_committee_members_info(self.__database_api_identifier)[-1]["account_id"]))
+        check_that(
+            "acitve committee member",
+            self.committee_members_info[-1]["account_id"], not_equal_to(self.get_active_committee_members_info(
+                self.__database_api_identifier)[-1]["account_id"]),
+            quiet=True
+        )

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, not_equal_to
+from lemoncheesecake.matching import check_that, equal_to, not_equal_to, check_that_in
 
 from fixtures.base_fixtures import get_random_eth_address, get_random_btc_public_key, get_random_url
 from common.base_test import BaseTest
@@ -39,7 +39,7 @@ class CommitteeMemberUpdate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_member_update'")
+    @lcc.test("Simple work of operation 'committee_member_update'")
     def method_main_check(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address()
@@ -56,7 +56,11 @@ class CommitteeMemberUpdate(BaseTest):
         response_id = self.send_request(self.get_request("get_committee_member_by_account", [new_account_id]),
                                         self.__database_api_identifier)
         committee_member = self.get_response(response_id)["result"]
-        check_that("'get_committee_member_by_account' method result", committee_member, equal_to(None))
+        check_that(
+            "'get_committee_member_by_account' method result",
+            committee_member, equal_to(None),
+            quiet=True
+        )
 
         lcc.set_step("Perform 'committee_member_create' operation")
         operation = self.echo_ops.get_committee_member_create_operation(echo=self.echo,
@@ -99,9 +103,12 @@ class CommitteeMemberUpdate(BaseTest):
         response_id = self.send_request(self.get_request("get_committee_member_by_account", [new_account_id]),
                                         self.__database_api_identifier)
         committee_member = self.get_response(response_id)["result"]
-        check_that("id", committee_member["id"], equal_to(committee_member_id))
-        check_that("committee_member_account", committee_member["committee_member_account"],
-                   equal_to(committee_member_account))
-        check_that("url", committee_member["url"], not_equal_to(old_url))
-        check_that("eth_address", committee_member["eth_address"], not_equal_to(old_eth_address))
-        check_that("btc_public_key", committee_member["btc_public_key"], not_equal_to(old_btc_public_key))
+        check_that_in(
+            committee_member,
+            "id", equal_to(committee_member_id),
+            "committee_member_account", equal_to(committee_member_account),
+            "url", not_equal_to(old_url),
+            "eth_address", not_equal_to(old_eth_address),
+            "btc_public_key", not_equal_to(old_btc_public_key),
+            quiet=True
+        )

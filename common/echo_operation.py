@@ -486,8 +486,6 @@ class EchoOperations(object):
         if debug_mode:
             lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
                 json.dumps([operation_id, committee_member_update_global_parameters_props], indent=4)))
-        # if signer is None:
-        #     return [operation_id, committee_member_update_global_parameters_props, committee_member_account]
         return [operation_id, committee_member_update_global_parameters_props, signer]
 
     def get_committee_frozen_balance_deposit_operation(self, echo, committee_member, committee_member_account,

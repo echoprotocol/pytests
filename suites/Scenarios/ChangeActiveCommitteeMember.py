@@ -235,7 +235,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
             lcc.set_step("Set timer for proposal expiration")
-            time.sleep(25)
+            time.sleep(15)
             self.produce_block(self.__database_api_identifier)
             lcc.log_info("Voting finished.")
 

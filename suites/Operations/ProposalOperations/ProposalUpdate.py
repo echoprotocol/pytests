@@ -12,7 +12,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.tags("operations", "proposal_operations", "proposal_update")
-@lcc.suite("Check work of method 'proposal_update'", rank=1)
+@lcc.suite("Check work of operation 'proposal_update'", rank=1)
 class ProposalUpdate(BaseTest):
 
     def __init__(self):
@@ -42,7 +42,7 @@ class ProposalUpdate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'proposal_update'")
+    @lcc.test("Simple work of operation 'proposal_update'")
     def method_main_check(self, get_random_integer_up_to_ten):
         transfer_amount = get_random_integer_up_to_ten
 
@@ -100,5 +100,8 @@ class ProposalUpdate(BaseTest):
                                         [self.init1]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
-        check_that("available_active_approvals", result["available_active_approvals"],
-                   equal_to([self.init1]), quiet=True)
+        check_that(
+            "available_active_approvals",
+            result["available_active_approvals"], equal_to([self.init1]),
+            quiet=True
+        )

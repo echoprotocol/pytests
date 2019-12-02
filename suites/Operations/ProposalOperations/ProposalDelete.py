@@ -95,4 +95,8 @@ class ProposalDelete(BaseTest):
         response_id = self.send_request(self.get_request("get_objects", [[proposal_id]]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
-        check_that("required_active_approvals", result, equal_to([None]), quiet=True)
+        check_that(
+            "required_active_approvals",
+            result, equal_to([None]),
+            quiet=True
+        )

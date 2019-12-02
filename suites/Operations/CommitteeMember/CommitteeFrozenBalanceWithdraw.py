@@ -37,7 +37,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_frozen_balance_withdraw'")
+    @lcc.test("Simple work of operation 'committee_frozen_balance_withdraw'")
     def method_main_check(self, get_random_integer):
         amount_to_freeze = REQUIRED_DEPOSIT_AMOUNT + get_random_integer
 
@@ -77,4 +77,8 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
                                         self.__database_api_identifier)
         frozen_balance_after_withdraw = self.get_response(response_id)["result"]["amount"]
         lcc.log_info("{}".format(frozen_balance_after_withdraw))
-        check_that("frozen balance", frozen_balance_after_withdraw, equal_to(REQUIRED_DEPOSIT_AMOUNT + 1))
+        check_that(
+            "frozen balance",
+            frozen_balance_after_withdraw, equal_to(REQUIRED_DEPOSIT_AMOUNT + 1),
+            quiet=True
+        )

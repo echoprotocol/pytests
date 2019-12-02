@@ -63,13 +63,15 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_member_update_global_parameters'")
+    @lcc.test("Simple work of operation 'committee_member_update_global_parameters'")
     def method_main_check(self):
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         global_properties = self.get_response(response_id)["result"]
+        _time_net_1mb = global_properties["parameters"]["echorand_config"]["_time_net_1mb"]
+        _time_net_1mb += 1
         lcc.set_step("Perform 'committee_member_update_global_parameters' operation")
         operation = self.echo_ops.get_committee_member_update_global_parameters_operation(
-            echo=self.echo, _time_net_1mb=102,
+            echo=self.echo, _time_net_1mb=_time_net_1mb,
             signer=INIT0_PK, debug_mode=True)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         lcc.set_step("Make proposal of `committee_member_update_global_parameters`")
@@ -103,4 +105,8 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         self.produce()
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         current_global_properties = self.get_response(response_id)["result"]
-        check_that("global", global_properties, not_equal_to(current_global_properties), quiet=True)
+        check_that(
+            "global",
+            global_properties, not_equal_to(current_global_properties),
+            quiet=True
+        )

@@ -6,7 +6,7 @@ from common.base_test import BaseTest
 from datetime import datetime, timedelta
 
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, REQUIRED_DEPOSIT_AMOUNT
-
+import time
 SUITE = {
     "description": "Operation 'committee_member_activate'"
 }
@@ -60,7 +60,7 @@ class CommitteeMemberActivate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'committee_member_activate'")
+    @lcc.test("Simple work of operation 'committee_member_activate'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address
@@ -121,12 +121,14 @@ class CommitteeMemberActivate(BaseTest):
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were activated")
-        self.produce_block(self.__database_api_identifier)
-        import time
         time.sleep(15)
         self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_global_properties"),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
         last_active_committee_member = response["result"]["active_committee_members"][-1][1]
-        check_that("new account in committee member", new_account_id, equal_to(last_active_committee_member))
+        check_that(
+            "new account in committee member",
+            new_account_id, equal_to(last_active_committee_member),
+            quiet=True
+        )
