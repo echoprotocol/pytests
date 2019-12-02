@@ -2,7 +2,7 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, equal_to
+from lemoncheesecake.matching import check_that_in, equal_to, require_that, has_length
 
 from common.base_test import BaseTest
 
@@ -191,3 +191,41 @@ class PositiveTesting(BaseTest):
                 "amount", equal_to(value_amounts[i]),
                 "asset_id", equal_to(new_asset_ids[i])
             )
+
+    @lcc.test("Compare 'get_contract_balances' with 'get_objects' methods")
+    @lcc.depends_on("DatabaseApi.Balances.GetContractBalances.GetContractBalances.method_main_check")
+    def compare_get_contract_balances_with_get_objects_methods(self):
+        contract_balance_id = "2.11.0"
+
+        lcc.set_step("Get contract balance object by id")
+        params = [contract_balance_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        for i, balance in enumerate(get_objects_results):
+            lcc.set_step("Check contract balance object #{}: {}".format(i, params[i]))
+            self.object_validator.validate_contract_balance_object(self, balance)
+
+        lcc.set_step("Get contract balances")
+        contract_id = get_objects_results[0]["owner"]
+        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
+                                        self.__database_api_identifier)
+        get_contract_balances_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_contract_balances' with param: {}".format(contract_id))
+
+        lcc.set_step("Compare 'get_contract_balances' with 'get_objects' methods")
+        check_that_in(
+            get_contract_balances_results[0],
+            "amount", equal_to(get_objects_results[0]["balance"]),
+            "asset_id", equal_to(get_objects_results[0]["asset_type"]),
+            quiet=True
+        )

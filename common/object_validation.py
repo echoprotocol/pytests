@@ -1465,3 +1465,29 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    def validate_contract_balance_object(self, base_test, contract_balance_object):
+        if check_that(
+            "contract balance object",
+            contract_balance_object, has_length(5),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_contract_balance_object_id(contract_balance_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(contract_balance_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_balance_object_type")
+            if not base_test.type_validator.is_contract_id(contract_balance_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(contract_balance_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: contract_object_type")
+            if not base_test.type_validator.is_asset_id(contract_balance_object["asset_type"]):
+                lcc.log_error("Wrong format of 'asset_type', got: {}".format(
+                    contract_balance_object["asset_type"]))
+            else:
+                lcc.log_info("'asset_type' has correct format: asset_id")
+            check_that_in(
+                contract_balance_object,
+                "balance", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
