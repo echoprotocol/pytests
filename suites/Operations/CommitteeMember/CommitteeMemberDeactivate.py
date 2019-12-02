@@ -51,7 +51,7 @@ class CommitteeMemberDeactivate(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'committee_member_deactivate'")
-    # @lcc.depends_on("Operations.CommitteeMember.CommitteeMemberActivate.CommitteeMemberActivate.method_main_check")
+    @lcc.depends_on("Operations.CommitteeMember.CommitteeMemberActivate.CommitteeMemberActivate.method_main_check")
     def committee_member_deactivate_operation(self):
         operation = self.echo_ops.get_committee_member_deactivate_operation(
             echo=self.echo,
