@@ -19,7 +19,7 @@ env:
     - MIGRATION_RESULT=""
   jobs:
     - PYTESTS_FILTERS=database_api GENESIS_FILE=genesis.json
-    - PYTESTS_FILTERS=^database_api:^committee_member_update_global_parameters:connection_to_apis GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=^database_api:connection_to_apis GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=committee_member_update_global_parameters GENESIS_FILE=genesis_update_global_parameters.json
 
 install:  pip3 install -r requirements.txt
