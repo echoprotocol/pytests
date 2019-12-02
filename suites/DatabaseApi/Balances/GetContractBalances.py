@@ -7,13 +7,16 @@ from lemoncheesecake.matching import check_that_in, equal_to, require_that, has_
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_contract_balances'"
+    "description": "Methods: 'get_contract_balances', 'get_objects' (contract balance object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_balances", "get_contract_balances")
+@lcc.tags(
+    "api", "database_api", "database_api_balances", "get_contract_balances",
+    "database_api_objects", "get_objects"
+)
 @lcc.suite("Check work of method 'get_contract_balances'", rank=1)
 class GetContractBalances(BaseTest):
 
@@ -63,8 +66,14 @@ class GetContractBalances(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_balances", "get_contract_balances")
-@lcc.suite("Positive testing of method 'get_contract_balances'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_balances", "get_contract_balances",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite(
+    "Positive testing of methods: 'get_contract_balances', 'get_objects' (contract balance object)",
+    rank=2
+)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
