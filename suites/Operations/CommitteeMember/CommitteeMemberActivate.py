@@ -22,6 +22,7 @@ class CommitteeMemberActivate(BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
+        self.committee_members_info = None
         self.init0 = None
         self.init1 = None
         self.init2 = None
@@ -40,11 +41,14 @@ class CommitteeMemberActivate(BaseTest):
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-        self.init0 = self.get_initial_account_id(0, self.__database_api_identifier)
-        self.init1 = self.get_initial_account_id(1, self.__database_api_identifier)
-        self.init2 = self.get_initial_account_id(2, self.__database_api_identifier)
-        self.init3 = self.get_initial_account_id(3, self.__database_api_identifier)
-        self.init4 = self.get_initial_account_id(4, self.__database_api_identifier)
+        self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
+        self.init0 = self.committee_members_info[0]["account_id"]
+        self.init1 = self.committee_members_info[1]["account_id"]
+        self.init2 = self.committee_members_info[2]["account_id"]
+        self.init3 = self.committee_members_info[3]["account_id"]
+        self.init4 = self.committee_members_info[4]["account_id"]
+        lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
+                     self.init0, self.init1, self.init2, self.init3, self.init4))
 
     def get_expiration_time(self, seconds):
         pattern = "%Y-%m-%dT%H:%M:%S"
@@ -91,8 +95,9 @@ class CommitteeMemberActivate(BaseTest):
             proposed_ops=collected_operation,
             expiration_time=self.get_expiration_time(15),
             review_period_seconds=10,
-            signer="5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE"
+            signer=INIT0_PK
         )
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
         if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
             raise Exception("Operation 'proposal_created' failed while broadcast")

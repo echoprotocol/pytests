@@ -23,18 +23,18 @@ class ChangeActiveCommitteeMember(BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
-
-    def get_active_committee_members_ids(self):
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_members = self.get_response(response_id)["result"][
-            "active_committee_members"]
-        return [member[0] for member in active_committee_members]
+        self.committee_members_info = None
+        self.init0 = None
+        self.init1 = None
+        self.init2 = None
+        self.init3 = None
+        self.init4 = None
 
     def get_active_committee_members_eth_addresses(self, active_committee_members_ids=None, print_log=True):
         if active_committee_members_ids is not None:
             active_committee_members_ids = [active_committee_members_ids]
         else:
-            active_committee_members_ids = self.get_active_committee_members_ids()
+            active_committee_members_ids = [ids["committee_id"] for ids in self.get_active_committee_members_info(self.__database_api_identifier)]
         eth_addresses = []
         response_id = self.send_request(self.get_request("get_committee_members", [active_committee_members_ids]),
                                         self.__database_api_identifier)
@@ -51,7 +51,7 @@ class ChangeActiveCommitteeMember(BaseTest):
         return eth_addresses
 
     def get_active_committee_members(self):
-        return {"ids": self.get_active_committee_members_ids(),
+        return {"ids": [ids["committee_id"] for ids in self.get_active_committee_members_info(self.__database_api_identifier)],
                 "eth_addresses": self.get_active_committee_members_eth_addresses()}
 
     def get_expiration_time(self, seconds):
@@ -74,14 +74,14 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                                  self.__registration_api_identifier)
             lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-            self.init0 = self.get_initial_account_id(0, self.__database_api_identifier)
-            self.init1 = self.get_initial_account_id(1, self.__database_api_identifier)
-            self.init2 = self.get_initial_account_id(2, self.__database_api_identifier)
-            self.init3 = self.get_initial_account_id(3, self.__database_api_identifier)
-            self.init4 = self.get_initial_account_id(4, self.__database_api_identifier)
-            lcc.log_info(
-                "Echo  initial accounts: {}, {}, {}, {}, {}".format(self.init0, self.init1, self.init2, self.init3,
-                                                                    self.init4))
+            self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
+            self.init0 = self.committee_members_info[0]["account_id"]
+            self.init1 = self.committee_members_info[1]["account_id"]
+            self.init2 = self.committee_members_info[2]["account_id"]
+            self.init3 = self.committee_members_info[3]["account_id"]
+            self.init4 = self.committee_members_info[4]["account_id"]
+            lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
+                         self.init0, self.init1, self.init2, self.init3, self.init4))
         else:
             lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
@@ -132,7 +132,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             operation = \
                 self.echo_ops.get_committee_member_activate_operation(echo=self.echo,
                                                                       committee_to_activate=committee_member_id,
-                                                                      committee_member_account=new_account_id)
+                                                                      committee_member_activate=new_account_id)
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             lcc.log_info("Collected successfully")
 
@@ -147,6 +147,8 @@ class ChangeActiveCommitteeMember(BaseTest):
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+                raise Exception("Operation 'proposal_created' failed while broadcast")
             proposal_id = broadcast_result["trx"]["operation_results"][0][1]
             lcc.log_info("Proposal id {}".format(proposal_id))
 
@@ -162,7 +164,10 @@ class ChangeActiveCommitteeMember(BaseTest):
                 signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
+                raise Exception("Operation 'proposal_update' failed while broadcast")
+            lcc.log_info("All committee member has voted")
 
             lcc.set_step("Set timer for proposal expiration")
             time.sleep(15)
@@ -230,7 +235,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
             lcc.set_step("Set timer for proposal expiration")
-            time.sleep(15)
+            time.sleep(25)
             self.produce_block(self.__database_api_identifier)
             lcc.log_info("Voting finished.")
 

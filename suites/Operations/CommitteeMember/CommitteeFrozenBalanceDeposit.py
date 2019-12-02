@@ -11,8 +11,6 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.prop("positive", "type")
-@lcc.prop("negative", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_frozen_balance_deposit")
 @lcc.suite("Check work of operation 'committee_frozen_balance_deposit'", rank=1)
 class CommitteeFrozenBalanceDeposit(BaseTest):
@@ -20,6 +18,7 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
+        self.init0 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -28,13 +27,10 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info(
             "API identifiers are: database='{}'".format(self.__database_api_identifier))
-
-    def get_committee_member_ids(self, account):
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        committee_member_id = active_committee_members[account][0]
-        committee_member_account_id = active_committee_members[account][1]
-        return committee_member_id, committee_member_account_id
+        self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
+        self.init0 = self.committee_members_info[0]["account_id"]
+        lcc.log_info("Echo  initial accounts: {}".format(
+                     self.init0))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -45,25 +41,25 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         amount_to_freeze = get_random_integer + 10
 
         lcc.set_step("Get first active committee member id and account id")
-        committee_member_id, committee_member_account_id = self.get_committee_member_ids(0)
+        committee_member_id = self.committee_members_info[0]["committee_id"]
         lcc.log_info("Committee member id: '{}' and account id: '{}'".format(committee_member_id,
-                                                                             committee_member_account_id))
+                                                                             self.init0))
         lcc.set_step("Get active committee member balance")
-        params = [committee_member_account_id, [self.echo_asset]]
+        params = [self.init0, [self.echo_asset]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         current_balance = self.get_response(response_id)["result"][0]["amount"]
-        lcc.log_info("{} account id balance: {}".format(committee_member_account_id, current_balance))
+        lcc.log_info("{} account id balance: {}".format(self.init0, current_balance))
 
         lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [committee_member_id]),
                                         self.__database_api_identifier)
         current_frozen_balance = self.get_response(response_id)["result"]["amount"]
-        lcc.log_info("{} account id frozen balance: {}".format(committee_member_account_id, current_frozen_balance))
+        lcc.log_info("{} account id frozen balance: {}".format(self.init0, current_frozen_balance))
 
         lcc.set_step("Freeze part of active committee member balance")
         operation = self.echo_ops.get_committee_frozen_balance_deposit_operation(
-            echo=self.echo, committee_member=committee_member_id, committee_member_account=committee_member_account_id,
+            echo=self.echo, committee_member=committee_member_id, committee_member_account=self.init0,
             amount=amount_to_freeze, asset_id=self.echo_asset, signer=INIT0_PK)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)

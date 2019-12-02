@@ -4,6 +4,7 @@ from lemoncheesecake.matching import check_that, equal_to, not_equal_to
 
 from fixtures.base_fixtures import get_random_eth_address, get_random_btc_public_key, get_random_url
 from common.base_test import BaseTest
+from project import REQUIRED_DEPOSIT_AMOUNT
 
 SUITE = {
     "description": "Operation 'committee_member_update'"
@@ -11,7 +12,6 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.prop("positive", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_member_update")
 @lcc.suite("Check work of operation 'committee_member_update'", rank=1)
 class CommitteeMemberUpdate(BaseTest):
@@ -64,8 +64,9 @@ class CommitteeMemberUpdate(BaseTest):
                                                                         eth_address=eth_account_address,
                                                                         btc_public_key=btc_public_key,
                                                                         url="",
-                                                                        deposit_amount=0)
-        self.utils.add_balance_for_operations(self, new_account_id, operation, self.__database_api_identifier)
+                                                                        deposit_amount=REQUIRED_DEPOSIT_AMOUNT)
+        self.utils.add_balance_for_operations(self, new_account_id, operation,
+                                              self.__database_api_identifier, deposit_amount=REQUIRED_DEPOSIT_AMOUNT)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
