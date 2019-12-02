@@ -1491,3 +1491,59 @@ class ObjectValidator(object):
                 "extensions", is_list(),
                 quiet=True
             )
+
+    def validate_contract_history_object(self, base_test, contract_history_object):
+        if check_that(
+            "contract history object",
+            contract_history_object, has_length(6),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_contract_history_id(contract_history_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(contract_history_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_history_id")
+            if not base_test.type_validator.is_contract_id(contract_history_object["contract"]):
+                lcc.log_error("Wrong format of 'contract', got: {}".format(contract_history_object["contract"]))
+            else:
+                lcc.log_info("'contract' has correct format: contract_id")
+            if not base_test.type_validator.is_operation_history_id(contract_history_object["operation_id"]):
+                lcc.log_error("Wrong format of 'operation_id', got: {}".format(
+                    contract_history_object["operation_id"]))
+            else:
+                lcc.log_info("'operation_id' has correct format: operation_history_id")
+            if not base_test.type_validator.is_contract_history_id(contract_history_object["next"]):
+                lcc.log_error("Wrong format of 'next', got: {}".format(contract_history_object["next"]))
+            else:
+                lcc.log_info("'next' has correct format: contract_history_id")
+            check_that_in(
+                contract_history_object,
+                "sequence", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )
+
+    def validate_contract_statistics_object(self, base_test, contract_statistics_object):
+        if check_that(
+            "contract statistics object",
+            contract_statistics_object, has_length(5),
+            quiet=True
+        ):
+            if not base_test.type_validator.is_contract_statistics_id(contract_statistics_object["id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(contract_statistics_object["id"]))
+            else:
+                lcc.log_info("'id' has correct format: contract_statistics_id")
+            if not base_test.type_validator.is_contract_id(contract_statistics_object["owner"]):
+                lcc.log_error("Wrong format of 'owner', got: {}".format(contract_statistics_object["owner"]))
+            else:
+                lcc.log_info("'owner' has correct format: contract_object_type")
+            if not base_test.type_validator.is_contract_history_id(contract_statistics_object["most_recent_op"]):
+                lcc.log_error("Wrong format of 'most_recent_op', got: {}".format(
+                    contract_statistics_object["most_recent_op"]))
+            else:
+                lcc.log_info("'most_recent_op' has correct format: contract_history_id")
+            check_that_in(
+                contract_statistics_object,
+                "total_ops", is_integer(),
+                "extensions", is_list(),
+                quiet=True
+            )

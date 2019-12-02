@@ -2,21 +2,18 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, equal_to, require_that, has_length
+from lemoncheesecake.matching import check_that_in, equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Methods: 'get_contract_balances', 'get_objects' (contract balance object)"
+    "description": "Methods 'get_contract_balances'"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags(
-    "api", "database_api", "database_api_balances", "get_contract_balances",
-    "database_api_objects", "get_objects"
-)
+@lcc.tags("api", "database_api", "database_api_balances", "get_contract_balances")
 @lcc.suite("Check work of method 'get_contract_balances'", rank=1)
 class GetContractBalances(BaseTest):
 
@@ -48,8 +45,13 @@ class GetContractBalances(BaseTest):
         value_amount = get_random_integer
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
-                                                 value_amount=value_amount)
+        contract_id = self.utils.get_contract_id(
+            self,
+            self.echo_acc0,
+            self.contract,
+            self.__database_api_identifier,
+            value_amount=value_amount
+        )
 
         lcc.set_step("Get contract balances")
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
@@ -66,14 +68,8 @@ class GetContractBalances(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags(
-    "api", "database_api", "database_api_balances", "get_contract_balances",
-    "database_api_objects", "get_objects"
-)
-@lcc.suite(
-    "Positive testing of methods: 'get_contract_balances', 'get_objects' (contract balance object)",
-    rank=2
-)
+@lcc.tags("api", "database_api", "database_api_balances", "get_contract_balances")
+@lcc.suite("Positive testing of method 'get_contract_balances'", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -161,8 +157,8 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Get contract balance in several assets")
     @lcc.depends_on("DatabaseApi.Balances.GetContractBalances.GetContractBalances.method_main_check")
-    def check_contract_with_balance_in_several_assets(self, get_random_valid_asset_name, get_random_integer_up_to_fifty,
-                                                      get_random_string):
+    def check_contract_with_balance_in_several_assets(self, get_random_valid_asset_name,
+                                                      get_random_integer_up_to_fifty, get_random_string):
         count = 2
         new_asset_ids = []
         list_operations = []
@@ -182,10 +178,14 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Call 'setGreeting' method to add several assets to contract balance")
         argument = self.get_byte_code_param(get_random_string, str)
         for i, asset_id in enumerate(new_asset_ids):
-            operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                  bytecode=self.storage_setGreeting + argument,
-                                                                  callee=contract_id, value_amount=value_amounts[i],
-                                                                  value_asset_id=asset_id)
+            operation = self.echo_ops.get_contract_call_operation(
+                echo=self.echo,
+                registrar=self.echo_acc0,
+                bytecode=self.storage_setGreeting + argument,
+                callee=contract_id,
+                value_amount=value_amounts[i],
+                value_asset_id=asset_id
+            )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             list_operations.append(collected_operation)
         self.echo_ops.broadcast(echo=self.echo, list_operations=list_operations)
@@ -200,41 +200,3 @@ class PositiveTesting(BaseTest):
                 "amount", equal_to(value_amounts[i]),
                 "asset_id", equal_to(new_asset_ids[i])
             )
-
-    @lcc.test("Compare 'get_contract_balances' with 'get_objects' methods")
-    @lcc.depends_on("DatabaseApi.Balances.GetContractBalances.GetContractBalances.method_main_check")
-    def compare_get_contract_balances_with_get_objects_methods(self):
-        contract_balance_id = "2.11.0"
-
-        lcc.set_step("Get contract balance object by id")
-        params = [contract_balance_id]
-        response_id = self.send_request(self.get_request("get_objects", [params]),
-                                        self.__database_api_identifier)
-        get_objects_results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
-
-        lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results, has_length(len(params)),
-            quiet=True
-        )
-
-        for i, balance in enumerate(get_objects_results):
-            lcc.set_step("Check contract balance object #{}: {}".format(i, params[i]))
-            self.object_validator.validate_contract_balance_object(self, balance)
-
-        lcc.set_step("Get contract balances")
-        contract_id = get_objects_results[0]["owner"]
-        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
-                                        self.__database_api_identifier)
-        get_contract_balances_results = self.get_response(response_id)["result"]
-        lcc.log_info("Call method 'get_contract_balances' with param: {}".format(contract_id))
-
-        lcc.set_step("Compare 'get_contract_balances' with 'get_objects' methods")
-        check_that_in(
-            get_contract_balances_results[0],
-            "amount", equal_to(get_objects_results[0]["balance"]),
-            "asset_id", equal_to(get_objects_results[0]["asset_type"]),
-            quiet=True
-        )
