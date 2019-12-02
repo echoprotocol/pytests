@@ -10,16 +10,17 @@ cache: pip
 
 env:
   global:
-    - NATHAN_PK: 5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
-    - INIT0_PK: 5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
-    - INIT1_PK: 5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
-    - INIT2_PK: 5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH
-    - INIT3_PK: 5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz
-    - INIT4_PK: 5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
-    - MIGRATION_RESULT: ""
+    - NATHAN_PK=5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
+    - INIT0_PK=5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
+    - INIT1_PK=5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
+    - INIT2_PK=5KJe2KY1yVnnBwXDtTDGfmnRGdUdR4HpLTUqpsG39h6VexYQwWH
+    - INIT3_PK=5K3FJdakQUJvLon2dBxLNUwcHJbZxW6XBvc1AJKDCiGHPyXZadz
+    - INIT4_PK=5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
+    - MIGRATION_RESULT=""
   jobs:
-    - PYTESTS_FILTERS: database_api
-    - PYTESTS_FILTERS: ^database_api:connection_to_apis
+    - PYTESTS_FILTERS=database_api GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=^database_api:^committee_member_update_global_parameters:connection_to_apis GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=committee_member_update_global_parameters GENESIS_FILE=genesis_update_global_parameters.json
 
 install:  pip3 install -r requirements.txt
 services:

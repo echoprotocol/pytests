@@ -891,7 +891,6 @@ class EchoOperations(object):
             tx.add_operation(name=operation[0], props=operation[1])
         if return_operations:
             return tx.operations
-
         for operation in list_operations:
             if type(operation[2]) is list:
                 for i, op in enumerate(operation[2]):
