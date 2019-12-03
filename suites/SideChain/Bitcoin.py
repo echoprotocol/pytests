@@ -116,3 +116,12 @@ class Bitcoin(BaseTest):
                     # check_that("'previous_aggregation'", aggregating["previous_aggregation"], is_str())
                     check_that("'is_approved'", aggregating["is_approved"], is_false())
 
+        params = [self.echo_acc0, "btc"]
+        response_id = self.send_request(self.get_request("get_account_deposits", params),
+                                        self.__database_api_identifier)
+        deposits = self.get_response(response_id, log_response=True)
+
+        params = [self.echo_acc0, "btc"]
+        response_id = self.send_request(self.get_request("get_account_withdrawals", params),
+                                        self.__database_api_identifier)
+        deposits = self.get_response(response_id, log_response=True)
