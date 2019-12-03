@@ -178,11 +178,18 @@ class ChangeActiveCommitteeMember(BaseTest):
             updated_active_committee_members_ids = updated_active_committee_members["ids"]
 
             lcc.set_step("Check that new committee member added.")
-            require_that("'updated list of active committee members'", updated_active_committee_members_ids,
-                         not_equal_to(active_committee_members_ids))
+            require_that(
+                "'updated list of active committee members'",
+                updated_active_committee_members_ids, not_equal_to(active_committee_members_ids),
+                quiet=True
+            )
             new_member_id = set(updated_active_committee_members_ids).difference(
                 set(active_committee_members_ids)).pop()
-            require_that("'new committee member'", new_member_id, equal_to(committee_member_id))
+            require_that(
+                "'new committee member'",
+                new_member_id, equal_to(committee_member_id),
+                quiet=True
+            )
 
             lcc.set_step("Check that new committee member became active committee member.")
             new_member_address = self.get_active_committee_members_eth_addresses(new_member_id, print_log=False)
@@ -245,16 +252,22 @@ class ChangeActiveCommitteeMember(BaseTest):
             updated_active_committee_members_ids = updated_active_committee_members["ids"]
 
             lcc.set_step("Check that new committee member deleted.")
-            require_that("'updated list of active committee members'", active_committee_members_ids,
-                         not_equal_to(updated_active_committee_members_ids))
+            require_that(
+                "'updated list of active committee members'",
+                active_committee_members_ids, not_equal_to(updated_active_committee_members_ids),
+                quiet=True
+            )
             deleted_member_id = set(active_committee_members_ids).difference(
                 set(updated_active_committee_members_ids)).pop()
             require_that("'deleted committee member'", new_member_id, equal_to(deleted_member_id))
 
             new_committee_member_status = self.eth_trx.get_status_of_committee_member(self, self.web3,
                                                                                       new_member_address)
-            check_that("'status of new committee member '{}''".format(new_member_address),
-                       new_committee_member_status, is_false())
+            check_that(
+                "'status of new committee member '{}''".format(new_member_address),
+                new_committee_member_status, is_false(),
+                quiet=True
+            )
         else:
             lcc.log_warning(
                 "Tests did not run in the local network. Scenario 'change_active_committee_member' was skipped.")
