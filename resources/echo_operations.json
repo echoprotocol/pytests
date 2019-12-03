@@ -803,8 +803,10 @@
                 "amount": 0,
                 "asset_id": "1.3.0"
             },
+            "account": "1.2.0",
             "btc_addr": "2N5a7rmQazzjpUiUbmCEYruxUnZH3Uannup",
-            "value": 0
+            "value": 0,
+            "extensions": []
         }
     ]
 }
