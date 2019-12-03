@@ -13,7 +13,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "eth_accuracy")
 @lcc.suite("Check scenario 'eth_accuracy'")
-class GetContractHistory(BaseTest):
+class EthAccuracy(BaseTest):
 
     def __init__(self):
         super().__init__()
