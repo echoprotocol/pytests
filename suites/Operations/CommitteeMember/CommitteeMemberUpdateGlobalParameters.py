@@ -12,7 +12,6 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.disabled()
 @lcc.tags("operations", "committee_member_operations", "committee_member_update_global_parameters")
 @lcc.suite("Check work of method 'committee_member_update_global_parameters'", rank=1)
 class CommitteeMemberUpdateGlobalParameters(BaseTest):
@@ -65,48 +64,59 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
 
     @lcc.test("Simple work of operation 'committee_member_update_global_parameters'")
     def method_main_check(self):
+        lcc.set_step("Get global properties and update it")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         global_properties = self.get_response(response_id)["result"]
-        _time_net_1mb = global_properties["parameters"]["echorand_config"]["_time_net_1mb"]
-        _time_net_1mb += 1
-        lcc.set_step("Perform 'committee_member_update_global_parameters' operation")
-        operation = self.echo_ops.get_committee_member_update_global_parameters_operation(
-            echo=self.echo, _time_net_1mb=_time_net_1mb,
-            signer=INIT0_PK, debug_mode=True)
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        lcc.set_step("Make proposal of `committee_member_update_global_parameters`")
-        operation = self.echo_ops.get_proposal_create_operation(
-            echo=self.echo,
-            fee_paying_account=self.init0,
-            proposed_ops=collected_operation,
-            expiration_time=self.get_expiration_time(30),
-            review_period_seconds=10,
-            signer=INIT0_PK
-        )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
-        proposal_id = broadcast_result["trx"]["operation_results"][0][1]
-
-        lcc.set_step("Make voting for new global parameters")
-        operation = self.echo_ops.get_proposal_update_operation(
-            echo=self.echo,
-            fee_paying_account=self.init0,
-            proposal=proposal_id,
-            active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
-            active_approvals_to_remove=[],
-            key_approvals_to_add=[],
-            key_approvals_to_remove=[],
-            signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
-        )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        lcc.log_info("All committee member has voted")
-        lcc.set_step("Waiting for maintenance and release of two blocks and check that parameters have been updated")
-        self.produce()
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        current_global_properties = self.get_response(response_id)["result"]
-        check_that(
-            "global",
-            global_properties, not_equal_to(current_global_properties),
-            quiet=True
-        )
+        if global_properties["parameters"]["maintenance_interval"] > 50:
+            lcc.log_info(
+                "Test did not find required conditions: 'maintenance_interval > 50. "
+                "Test of operation 'committee_member_update_global_parameters' was skipped."
+            )
+        else:
+            _time_net_1mb = global_properties["parameters"]["echorand_config"]["_time_net_1mb"]
+            _time_net_1mb += 1
+            lcc.log_info("Update echorand_config parameter '_time_net_1mb', new value: {}".format(_time_net_1mb))
+            lcc.set_step("Perform 'committee_member_update_global_parameters' operation")
+            operation = self.echo_ops.get_committee_member_update_global_parameters_operation(
+                echo=self.echo,
+                _time_net_1mb=_time_net_1mb,
+                signer=INIT0_PK
+            )
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+            lcc.log_info("Operation was collected")
+            lcc.set_step("Make proposal of `committee_member_update_global_parameters`")
+            operation = self.echo_ops.get_proposal_create_operation(
+                echo=self.echo,
+                fee_paying_account=self.init0,
+                proposed_ops=collected_operation,
+                expiration_time=self.get_expiration_time(30),
+                review_period_seconds=10,
+                signer=INIT0_PK
+            )
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
+            proposal_id = broadcast_result["trx"]["operation_results"][0][1]
+            lcc.log_info("Proposal was created: {}".format(proposal_id))
+            lcc.set_step("Make voting for new global parameters")
+            operation = self.echo_ops.get_proposal_update_operation(
+                echo=self.echo,
+                fee_paying_account=self.init0,
+                proposal=proposal_id,
+                active_approvals_to_add=[self.init0, self.init1, self.init2, self.init3, self.init4],
+                active_approvals_to_remove=[],
+                key_approvals_to_add=[],
+                key_approvals_to_remove=[],
+                signer=[INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK]
+            )
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            lcc.log_info("All committee member has voted")
+            lcc.set_step("Waiting for maintenance and release of block and check that parameters have been updated")
+            self.produce()
+            response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
+            current_global_properties = self.get_response(response_id)["result"]
+            check_that(
+                "global",
+                global_properties, not_equal_to(current_global_properties),
+                quiet=True
+            )

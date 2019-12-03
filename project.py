@@ -24,7 +24,9 @@ project.metadata_policy.add_property_rule("positive", "type", on_suite=True, req
 project.metadata_policy.add_property_rule("negative", "type", on_suite=True, required=False)
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
-GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), "genesis.json")))
+
+genesis_path = "genesis.json" if "GENESIS_FILE" not in os.environ else os.environ["GENESIS_FILE"]
+GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), genesis_path)))
 
 if "ROPSTEN" in os.environ and os.environ["ROPSTEN"].lower() != "false":
     ROPSTEN = True
