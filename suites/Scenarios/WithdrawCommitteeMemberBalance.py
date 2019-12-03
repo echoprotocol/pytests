@@ -83,7 +83,9 @@ class WithdrawCommitteeMemberBalance(BaseTest):
         except Exception as e:
             # todo: change error message check after changing the error message
             lcc.log_info("{}".format(e))
+        self.produce_block(self.__database_api_identifier)
         time.sleep(50)
+        self.produce_block(self.__database_api_identifier)
         try:
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         except Exception as e:
