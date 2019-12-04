@@ -402,7 +402,7 @@ class Utils(object):
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
             import time
-            time.sleep(3)
+            time.sleep(1)
             return self.get_eth_address(base_test, account_id, database_api_id, wait_time, temp_count=temp_count)
         raise Exception(
             "No ethereum address of '{}' account. Waiting time result='{}'".format(account_id, wait_time))
