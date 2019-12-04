@@ -22,7 +22,7 @@ from common.validation import Validator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG, NATHAN_PK
+    GANACHE_PK, DEBUG, NATHAN_PK, INIT4_PK
 
 
 class BaseTest(object):
@@ -510,11 +510,17 @@ class BaseTest(object):
             lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
         return account_id
 
-    def get_initial_account_id(self, initial_account_num, database_api_identifier):
+    def get_active_committee_members_info(self, database_api_identifier):
         response_id = self.send_request(self.get_request("get_global_properties"),
                                         database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        return active_committee_members[initial_account_num][1]
+        return [
+            {
+                "account_id": member[1],
+                "committee_id": member[0]
+            }
+            for member in active_committee_members
+        ]
 
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []
@@ -647,12 +653,14 @@ class BaseTest(object):
         return data['RESERVED_PUBLIC_KEY']
 
     def produce_block(self, database_api_identifier):
+        committee_members_info = self.get_active_committee_members_info(database_api_identifier)
+
         operation = self.echo_ops.get_transfer_operation(
             echo=self.echo,
-            from_account_id="1.2.11",
-            to_account_id="1.2.1",
-            amount=1, 
-            signer=NATHAN_PK
+            from_account_id=committee_members_info[4]["account_id"],
+            to_account_id=committee_members_info[0]["account_id"],
+            amount=1,
+            signer=INIT4_PK
         )
         collected_operation = self.collect_operations(operation, database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)

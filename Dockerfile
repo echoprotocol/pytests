@@ -9,6 +9,7 @@ ADD ./requirements.txt /home/
 RUN pip3 install -r requirements.txt
 
 ADD ./genesis.json /home/
+ADD ./genesis_update_global_parameters.json /home/
 ADD ./fixtures /home/fixtures
 ADD ./pre_run_scripts /home/pre_run_scripts
 ADD ./resources /home/resources

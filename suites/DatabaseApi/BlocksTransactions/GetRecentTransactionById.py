@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
 from time import strptime
 
 import lemoncheesecake.api as lcc
@@ -42,12 +41,6 @@ class GetRecentTransactionById(BaseTest):
     def compare_datetimes(first_time, second_time):
         pattern = "%Y-%m-%dT%H:%M:%S"
         return strptime(first_time, pattern) > strptime(second_time, pattern)
-
-    def get_expiration_time(self, seconds):
-        pattern = "%Y-%m-%dT%H:%M:%S"
-        now = self.get_datetime(global_datetime=True)
-        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
-        return expiration.strftime(pattern)
 
     def get_last_block_time(self):
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"),

@@ -471,6 +471,23 @@ class EchoOperations(object):
             return [operation_id, committee_member_update_props, committee_member_account]
         return [operation_id, committee_member_update_props, signer]
 
+    def get_committee_member_update_global_parameters_operation(self, echo, _time_net_1mb,
+                                                                signer, debug_mode=False):
+        operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_UPDATE_GLOBAL_PARAMETERS
+        committee_member_update_global_parameters_props = echo.api.database.get_global_properties()
+        committee_member_update_global_parameters_props["new_parameters"] =\
+            committee_member_update_global_parameters_props.pop("parameters")
+
+        committee_member_update_global_parameters_props["new_parameters"]["echorand_config"].update(
+            {
+                "_time_net_1mb": _time_net_1mb
+            }
+        )
+        if debug_mode:
+            lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
+                json.dumps([operation_id, committee_member_update_global_parameters_props], indent=4)))
+        return [operation_id, committee_member_update_global_parameters_props, signer]
+
     def get_committee_frozen_balance_deposit_operation(self, echo, committee_member, committee_member_account,
                                                        amount=0, asset_id="1.3.0", fee_amount=0, fee_asset_id="1.3.0",
                                                        extensions=None, signer=None, debug_mode=False):
@@ -491,22 +508,38 @@ class EchoOperations(object):
             return [operation_id, committee_frozen_balance_deposit_props, committee_member_account]
         return [operation_id, committee_frozen_balance_deposit_props, signer]
 
-    def get_committee_member_activate_operation(self, echo, committee_to_activate, committee_member_account,
-                                                fee_amount=0,
-                                                fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+    def get_committee_frozen_balance_withdraw_operation(self, echo, committee_member_account, amount=0, asset_id="1.3.0",
+                                                        fee_amount=0, fee_asset_id="1.3.0", extensions=None,
+                                                        signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.COMMITTEE_FROZEN_BALANCE_WITHDRAW
+        committee_frozen_balance_withdraw_props = deepcopy(
+            self.get_operation_json("committee_frozen_balance_deposit_operation"))
+        committee_frozen_balance_withdraw_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        committee_frozen_balance_withdraw_props.update({"committee_member_account": committee_member_account})
+        committee_frozen_balance_withdraw_props["amount"].update({"amount": amount, "asset_id": asset_id})
+        if debug_mode:
+            lcc.log_debug("Committee frozen balance deposit operation: \n{}".format(
+                json.dumps([operation_id, committee_frozen_balance_withdraw_props], indent=4)))
+        if signer is None:
+            return [operation_id, committee_frozen_balance_withdraw_props, committee_member_account]
+        return [operation_id, committee_frozen_balance_withdraw_props, signer]
+
+    def get_committee_member_activate_operation(self, echo, committee_to_activate, committee_member_activate,
+                                                fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                                debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_ACTIVATE
-        committee_member_activate_props = deepcopy(
-            self.get_operation_json("committee_member_activate_operation"))
+        committee_member_activate_props = deepcopy(self.get_operation_json("committee_member_activate_operation"))
         committee_member_activate_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         committee_member_activate_props.update({"committee_to_activate": committee_to_activate})
-        committee_member_activate_props.update({"extensions": extensions})
         if debug_mode:
             lcc.log_debug("Committee member activate operation: \n{}".format(
                 json.dumps([operation_id, committee_member_activate_props], indent=4)))
         if signer is None:
-            return [operation_id, committee_member_activate_props, committee_member_account]
+            return [operation_id, committee_member_activate_props, committee_member_activate]
         return [operation_id, committee_member_activate_props, signer]
 
     def get_committee_member_deactivate_operation(self, echo, committee_to_deactivate, committee_member_account,

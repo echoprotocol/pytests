@@ -100,7 +100,7 @@ class GetERC20AccountWithdrawals(BaseTest):
         lcc.set_step("Generate ethereum address for new account")
         self.utils.perform_sidechain_eth_create_address_operation(self, new_account_id, self.__database_api_identifier)
         lcc.log_info("Ethereum address generated successfully")
-
+        self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get ethereum address of created account in the ECHO network")
         eth_account_address = self.utils.get_eth_address(self, new_account_id,
                                                          self.__database_api_identifier)["result"]["eth_addr"]
@@ -144,7 +144,7 @@ class GetERC20AccountWithdrawals(BaseTest):
                                                                                self.eth_account.address)
         require_that("'in ethereum erc20 contact balance after transfer'", in_ethereum_erc20_balance_after_transfer,
                      equal_to(0))
-
+        self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance = \
             self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account_id,
@@ -152,6 +152,7 @@ class GetERC20AccountWithdrawals(BaseTest):
                                                        contract_id=erc20_contract_id,
                                                        database_api_id=self.__database_api_identifier,
                                                        previous_balance=0)
+
         require_that("'in echo account's erc20 balance'", in_echo_erc20_balance, equal_to(in_echo_erc20_start_balance))
 
         lcc.set_step("Perform withdrawal ERC20 token operation")
