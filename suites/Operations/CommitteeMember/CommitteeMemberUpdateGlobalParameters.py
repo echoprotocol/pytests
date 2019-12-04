@@ -2,7 +2,6 @@
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, not_equal_to
 from common.base_test import BaseTest
-from datetime import datetime, timedelta
 import time
 
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
@@ -26,12 +25,6 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         self.init2 = None
         self.init3 = None
         self.init4 = None
-
-    def get_expiration_time(self, seconds):
-        pattern = "%Y-%m-%dT%H:%M:%S"
-        now = self.get_datetime(global_datetime=True)
-        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
-        return expiration.strftime(pattern)
 
     def setup_suite(self):
         super().setup_suite()

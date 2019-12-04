@@ -3,7 +3,6 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
-from datetime import datetime, timedelta
 
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, REQUIRED_DEPOSIT_AMOUNT
 import time
@@ -49,12 +48,6 @@ class CommitteeMemberActivate(BaseTest):
         self.init4 = self.committee_members_info[4]["account_id"]
         lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
                      self.init0, self.init1, self.init2, self.init3, self.init4))
-
-    def get_expiration_time(self, seconds):
-        pattern = "%Y-%m-%dT%H:%M:%S"
-        now = self.get_datetime(global_datetime=True)
-        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
-        return expiration.strftime(pattern)
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()

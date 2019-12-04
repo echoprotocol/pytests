@@ -514,10 +514,13 @@ class BaseTest(object):
         response_id = self.send_request(self.get_request("get_global_properties"),
                                         database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        committee_members_ids = []
-        for member in active_committee_members:
-            committee_members_ids.append({"account_id": member[1], "committee_id": member[0]})
-        return committee_members_ids
+        return [
+            {
+                "account_id": member[1],
+                "committee_id": member[0]
+            }
+            for member in active_committee_members
+        ]
 
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []

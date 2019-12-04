@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import time
-from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import require_that, not_equal_to, equal_to, check_that, is_true, is_false
@@ -23,7 +22,6 @@ class ChangeActiveCommitteeMember(BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
-        self.committee_members_info = None
         self.init0 = None
         self.init1 = None
         self.init2 = None
@@ -34,7 +32,10 @@ class ChangeActiveCommitteeMember(BaseTest):
         if active_committee_members_ids is not None:
             active_committee_members_ids = [active_committee_members_ids]
         else:
-            active_committee_members_ids = [ids["committee_id"] for ids in self.get_active_committee_members_info(self.__database_api_identifier)]
+            active_committee_members_ids = [
+                ids["committee_id"] for ids in self.get_active_committee_members_info(
+                    self.__database_api_identifier)
+            ]
         eth_addresses = []
         response_id = self.send_request(self.get_request("get_committee_members", [active_committee_members_ids]),
                                         self.__database_api_identifier)
@@ -51,14 +52,9 @@ class ChangeActiveCommitteeMember(BaseTest):
         return eth_addresses
 
     def get_active_committee_members(self):
-        return {"ids": [ids["committee_id"] for ids in self.get_active_committee_members_info(self.__database_api_identifier)],
+        return {"ids": [ids["committee_id"] for ids in self.get_active_committee_members_info(
+                        self.__database_api_identifier)],
                 "eth_addresses": self.get_active_committee_members_eth_addresses()}
-
-    def get_expiration_time(self, seconds):
-        pattern = "%Y-%m-%dT%H:%M:%S"
-        now = self.get_datetime(global_datetime=True)
-        expiration = datetime.strptime(now, pattern) + timedelta(seconds=seconds)
-        return expiration.strftime(pattern)
 
     def setup_suite(self):
         if not ROPSTEN:
@@ -74,12 +70,12 @@ class ChangeActiveCommitteeMember(BaseTest):
             self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                                  self.__registration_api_identifier)
             lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-            self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
-            self.init0 = self.committee_members_info[0]["account_id"]
-            self.init1 = self.committee_members_info[1]["account_id"]
-            self.init2 = self.committee_members_info[2]["account_id"]
-            self.init3 = self.committee_members_info[3]["account_id"]
-            self.init4 = self.committee_members_info[4]["account_id"]
+            committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
+            self.init0 = committee_members_info[0]["account_id"]
+            self.init1 = committee_members_info[1]["account_id"]
+            self.init2 = committee_members_info[2]["account_id"]
+            self.init3 = committee_members_info[3]["account_id"]
+            self.init4 = committee_members_info[4]["account_id"]
             lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
                          self.init0, self.init1, self.init2, self.init3, self.init4))
         else:
@@ -172,6 +168,12 @@ class ChangeActiveCommitteeMember(BaseTest):
             lcc.set_step("Set timer for proposal expiration")
             time.sleep(15)
             self.produce_block(self.__database_api_identifier)
+            lcc.log_info("Voting finished.")
+
+            lcc.set_step("Set timer for sidechain")
+            time.sleep(30)
+            self.produce_block(self.__database_api_identifier)
+            lcc.log_info("Timer expired")
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
             updated_active_committee_members = self.get_active_committee_members()
@@ -245,6 +247,11 @@ class ChangeActiveCommitteeMember(BaseTest):
             time.sleep(15)
             self.produce_block(self.__database_api_identifier)
             lcc.log_info("Voting finished.")
+
+            lcc.set_step("Set timer for sidechain")
+            time.sleep(30)
+            self.produce_block(self.__database_api_identifier)
+            lcc.log_info("Timer expired")
 
             lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
             active_committee_members_ids = updated_active_committee_members_ids
