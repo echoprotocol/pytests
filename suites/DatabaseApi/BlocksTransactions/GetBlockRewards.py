@@ -88,31 +88,40 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("DatabaseApi.BlocksTransactions.GetBlockRewards.GetBlockRewards.method_main_check")
     def work_of_method_with_several_blocks(self, get_random_integer):
         subscription_callback_id = get_random_integer
-
+        lcc.set_step("Sign transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
                                                                   from_account_id=self.echo_acc0,
                                                                   to_account_id=self.echo_acc1, amount=1)
         params = [[transfer_operation], "1.3.0"]
         response_id = self.send_request(self.get_request("get_required_fees", params), self.__database_api_identifier)
         fee = self.get_response(response_id)["result"][0]["amount"]
+        lcc.log_info("Required fee for transfer operation: {}".format(fee))
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         signed_trx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                              no_broadcast=True)
+        lcc.log_info("Transfer operation signed")
 
+        lcc.set_step("Broadcast transfer operation with callback")
         params = [subscription_callback_id, signed_trx]
         response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
                                         self.__network_broadcast_identifier)
         self.get_response(response_id)
         notice = self.get_notice(subscription_callback_id, log_response=False)
         block_num = notice["block_num"]
+        lcc.log_info("Get {} block with transfer operation from returned notice".format(block_num))
+
+        lcc.set_step("Get rewards from block with transfer operation")
         response_id = self.send_request(self.get_request("get_block_rewards", [block_num - 1]),
                                         self.__database_api_identifier)
         rewards = self.get_response(response_id)["result"]["rewards"]
-
+        lcc.log_info("Rewards from block taken successfully")
+        lcc.set_step("Get block producers")
         response_id = self.send_request(self.get_request("get_block", [block_num - 1]),
                                         self.__database_api_identifier)
         cert = self.get_response(response_id)["result"]["cert"]
+        lcc.log_info("Block producers taken successfully")
         beneficiarys = [beneficiary[0] for beneficiary in rewards]
+        lcc.set_step("Check that all block producers get rewards, and fee collected correctly")
         for producers in cert:
             if "1.2." + str(producers["_producer"]) not in beneficiarys:
                 lcc.log_error(
@@ -121,4 +130,4 @@ class PositiveTesting(BaseTest):
         rewards_amount = 0
         for i in rewards:
             rewards_amount += i[1]
-        check_that("rewards_amount", fee, equal_to(rewards_amount), quiet=True)
+        check_that("collected rewards amount", fee, equal_to(rewards_amount), quiet=True)
