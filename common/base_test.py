@@ -580,7 +580,6 @@ class BaseTest(object):
         for operation in list_operations:
             self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id,
                                       debug_mode)
-            lcc.log_info("{}".format(operation))
         return list_operations
 
     def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):
