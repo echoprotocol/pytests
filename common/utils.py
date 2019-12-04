@@ -105,13 +105,14 @@ class Utils(object):
         return "0:{}".format(next_available_vote_id)
 
     def get_contract_id(self, base_test, registrar, contract_bytecode, database_api_id, value_amount=0,
-                        value_asset_id="1.3.0", supported_asset_id=None, get_only_fee=False,
+                        value_asset_id="1.3.0", supported_asset_id=None, eth_accuracy=False, get_only_fee=False,
                         need_broadcast_result=False, log_broadcast=False):
         operation = base_test.echo_ops.get_contract_create_operation(echo=base_test.echo, registrar=registrar,
                                                                      bytecode=contract_bytecode,
                                                                      value_amount=value_amount,
                                                                      value_asset_id=value_asset_id,
-                                                                     supported_asset_id=supported_asset_id)
+                                                                     supported_asset_id=supported_asset_id,
+                                                                     eth_accuracy=eth_accuracy)
         if registrar != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             temp_operation[1]["registrar"] = base_test.echo_acc0
