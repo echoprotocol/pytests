@@ -924,7 +924,6 @@ class ObjectValidator(object):
                 "block_producer_reward_ratio", is_integer(),
                 "block_emission_amount", is_integer(),
                 "frozen_balances_multipliers", is_list(),
-                "committee_frozen_balance_to_activate", is_str(),
                 "committee_maintenance_intervals_to_deposit", is_integer(),
                 "committee_freeze_duration_seconds", is_integer(),
                 "echorand_config", is_dict(),
@@ -932,6 +931,11 @@ class ObjectValidator(object):
                 "erc20_config", is_dict(),
                 "gas_price", is_dict(),
                 "extensions", is_list(),
+                quiet=True
+            )
+            check_that(
+                "committee_frozen_balance_to_activate",
+                parameters["committee_frozen_balance_to_activate"], is_integer(),
                 quiet=True
             )
 

@@ -43,7 +43,6 @@ class GetGlobalProperties(BaseTest):
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         get_global_properties_result = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call method 'get_global_properties'")
-
         lcc.set_step("Check work of method 'get_global_properties'")
         self.object_validator.validate_global_properties_object(self, get_global_properties_result)
 
