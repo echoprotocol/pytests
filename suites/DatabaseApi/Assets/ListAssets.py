@@ -15,6 +15,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_assets", "list_assets")
 @lcc.suite("Check work of method 'list_assets'", rank=1)
 class ListAssets(BaseTest):
@@ -306,3 +307,43 @@ class PositiveTesting(BaseTest):
             check_that_in(
                 asset, "symbol", match_pattern(pattern)
             )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_assets", "list_assets")
+@lcc.suite("Negative testing of method 'list_assets'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.echo_symbol = ECHO_ASSET_SYMBOL
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in list_assets")
+    @lcc.depends_on("DatabaseApi.Assets.ListAssets.ListAssets.method_main_check")
+    def check_negative_int_value_in_list_assets(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        limit = -1
+
+        lcc.set_step("Get 'list_assets' with negative limit")
+        response_id = self.send_request(self.get_request("list_assets", [self.echo_symbol, limit]),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )

@@ -12,6 +12,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_committee_members", "lookup_committee_member_accounts")
 @lcc.suite("Check work of method 'lookup_committee_member_accounts'", rank=1)
 class LookupCommitteeMemberAccounts(BaseTest):
@@ -226,4 +227,47 @@ class PositiveTesting(BaseTest):
         require_that(
             "'cut committee member accounts lookup info in alphabet symbol order'",
             account_names == sorted(account_names.copy()), is_true()
+        )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_committee_members", "lookup_committee_member_accounts")
+@lcc.suite("Negative testing of method 'lookup_committee_member_accounts'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.init0 = None
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+        self.init0 = "1.2.6"
+        # todo: replace hardcode
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in lookup_committee_member_accounts")
+    @lcc.depends_on(
+        "DatabaseApi.CommitteeMembers.LookupCommitteeMemberAccounts.LookupCommitteeMemberAccounts.method_main_check")
+    def check_negative_int_value_in_lookup_committee_member_accounts(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        limit = -1
+        params = [self.init0, limit]
+        lcc.set_step("Get 'lookup_committee_member_accounts' with negative limit")
+        response_id = self.send_request(self.get_request("lookup_committee_member_accounts", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
         )

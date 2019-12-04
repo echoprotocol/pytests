@@ -10,6 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_transaction")
 @lcc.suite("Check work of method 'get_transaction'", rank=1)
 class GetTransaction(BaseTest):
@@ -94,3 +95,56 @@ class GetTransaction(BaseTest):
             transaction_from_api_method, has_length(9)
         )
         self.compare_objects(transaction_from_broadcast_result, transaction_from_api_method)
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_transaction")
+@lcc.suite("Negative testing of method 'get_transaction'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in get_transaction")
+    @lcc.depends_on("DatabaseApi.BlocksTransactions.GetTransaction.GetTransaction.method_main_check")
+    def check_negative_int_value_in_get_transaction(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        block_num = -1
+        trx_in_block = 0
+        params = [block_num, trx_in_block]
+        lcc.set_step("Get 'get_transaction' with negative block number")
+        response_id = self.send_request(self.get_request("get_transaction", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )
+
+        block_num = 1
+        trx_in_block = -1
+        params = [block_num, trx_in_block]
+        lcc.set_step("Get 'get_transaction' with negative trx_in_block")
+        response_id = self.send_request(self.get_request("get_transaction", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )

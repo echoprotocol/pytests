@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_, check_that_in, is_str, require_that, is_list, has_entry, \
-    is_not_none, has_length
+    is_not_none, has_length, equal_to
 
 from common.base_test import BaseTest
 from project import ACCOUNT_PREFIX
@@ -359,4 +359,31 @@ class NegativeTesting(BaseTest):
         check_that(
             "'get_asset_holders' return error message",
             response, has_entry("error"),
+        )
+
+    @lcc.test("Check negative int value in get_asset_holders")
+    @lcc.depends_on("AssetApi.GetAssetHolders.GetAssetHolders.method_main_check")
+    def check_negative_int_value_in_get_asset_holders(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        start = -10
+        limit = 7
+        lcc.set_step("Get holders of ECHO asset with negative start")
+        params = [self.echo_asset, start, limit]
+        response_id = self.send_request(self.get_request("get_asset_holders", params), self.__asset_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )
+        start = 0
+        limit = -7
+        lcc.set_step("Get holders of ECHO asset  with negative limit")
+        params = [self.echo_asset, start, limit]
+        response_id = self.send_request(self.get_request("get_asset_holders", params), self.__asset_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
         )

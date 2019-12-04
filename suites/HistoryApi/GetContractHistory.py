@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import math
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, check_that_in, is_str, is_list, is_integer, require_that, \
-    require_that_in, has_length
+    require_that_in, has_length, equal_to
 
 from common.base_test import BaseTest
 
@@ -293,3 +292,52 @@ class PositiveTesting(BaseTest):
                 ["id"], is_str(operation_ids[i]),
                 ["op"], is_list(operations[i])
             )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "history_api", "get_contract_history")
+@lcc.suite("Negative testing of method 'get_contract_history'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.echo_acc0 = None
+        self.contract = self.get_byte_code("piggy", "code")
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        self.__registration_api_identifier = self.get_identifier("registration")
+        self.__history_api_identifier = self.get_identifier("history")
+        lcc.log_info(
+            "API identifiers are: database='{}', registration='{}', "
+            "history='{}'".format(self.__database_api_identifier, self.__registration_api_identifier,
+                                  self.__history_api_identifier))
+        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
+                                             self.__registration_api_identifier)
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in get_contract_history")
+    @lcc.depends_on("HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
+    def check_negative_int_value_in_get_contract_history(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
+        limit = -1
+
+        lcc.set_step("Get 'get_contract_history' with negative limit")
+        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier)
+        params = [contract_id, stop, limit, start]
+        response_id = self.send_request(self.get_request("get_contract_history", params), self.__history_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )
