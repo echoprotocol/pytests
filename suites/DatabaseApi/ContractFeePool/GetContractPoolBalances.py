@@ -15,7 +15,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_fee_pool", "get_contract_pool_balances")
+@lcc.tags("api", "database_api", "database_api_contract_fee_pool", "get_contract_pool_balances")
 @lcc.suite("Check work of method 'get_contract_pool_balances '", rank=1)
 class GetContractPoolBalances(BaseTest):
 
@@ -71,7 +71,7 @@ class GetContractPoolBalances(BaseTest):
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_fee_pool", "get_contract_pool_balances")
+@lcc.tags("api", "database_api", "database_api_contract_fee_pool", "get_contract_pool_balances")
 @lcc.suite("Positive testing of method 'get_contract_pool_balances'", rank=2)
 class PositiveTesting(BaseTest):
 

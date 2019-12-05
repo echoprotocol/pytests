@@ -177,6 +177,7 @@ class PositiveTesting(BaseTest):
     )
     def compare_get_committee_frozen_balance_with_get_objects_methods(self):
         iterator = 0
+        committee_member_id = '1.4.0'
         params = []
         lcc.set_step("Get 'committee_frozen_balance' objects")
         while True:
@@ -184,7 +185,7 @@ class PositiveTesting(BaseTest):
             response_id = self.send_request(self.get_request("get_objects", [pre_params]),
                                             self.__database_api_identifier)
             get_objects_results = self.get_response(response_id)["result"]
-            if get_objects_results[0] is not None and get_objects_results[0]["owner"] == '1.4.0':
+            if get_objects_results[0] is not None and get_objects_results[0]["owner"] == committee_member_id:
                 params.append(pre_params[0])
                 iterator += 1
             else:
@@ -212,7 +213,6 @@ class PositiveTesting(BaseTest):
             else:
                 lcc.log_info("{}".format(get_object_result))
                 get_object_result["amount"] += committee_frozen_balance_info["balance"]["amount"]
-            committee_member_id = committee_frozen_balance_info["owner"]
         lcc.set_step("Get 'committee_frozen_balance'")
         response_id = self.send_request(
             self.get_request(
@@ -226,7 +226,7 @@ class PositiveTesting(BaseTest):
         check_that(
             "committee_frozen_balance",
             committee_frozen_balance_object_result, equal_to(get_object_result),
-            quiet=False
+            quiet=True
         )
 
 

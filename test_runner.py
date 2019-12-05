@@ -36,7 +36,6 @@ categories = [
     'database_api_balances',
     'database_api_assets',
     'database_api_committee_members',
-    'database_api_votes',
     'database_api_authority_validation',
     'database_api_proposed_transactions',
     'database_api_sidechain_ethereum',
