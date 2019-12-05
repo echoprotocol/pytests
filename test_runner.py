@@ -65,6 +65,9 @@ categories = [
     'sidechain_bitcoin',
 
     'scenarios',
+
+    'database_api_first_pipeline',
+    'database_api_second_pipeline',
 ]
 
 types = [

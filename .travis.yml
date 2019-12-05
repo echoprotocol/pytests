@@ -18,10 +18,10 @@ env:
     - INIT4_PK=5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
     - MIGRATION_RESULT=""
   jobs:
-    - PYTESTS_FILTERS=scenarios GENESIS_FILE=genesis.json
-    - PYTESTS_FILTERS=operations GENESIS_FILE=genesis.json
-    - PYTESTS_FILTERS=database_api_accounts:database_api_contracts:database_api_balances GENESIS_FILE=genesis.json
-    - PYTESTS_FILTERS=asset_api:history_api:network_broadcast_api:registration_api:database_api_subscriptions:database_api_blocks_transactions:database_api_globals:database_api_keys:database_api_assets:database_api_committee_members:database_api_authority_validation:database_api_proposed_transactions:database_api_sidechain_ethereum:database_api_sidechain_erc20:database_api_sidechain_bitcoin:database_api_contract_fee_pool:connection_to_apis GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=scenarios:asset_api:network_broadcast_api:registration_api:connection_to_apis GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=operations:history_api GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=database_api_first_pipeline GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=database_api_second_pipeline GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=committee_member_update_global_parameters GENESIS_FILE=genesis_update_global_parameters.json
 
 install:  pip3 install -r requirements.txt
