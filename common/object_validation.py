@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    is_str, is_, is_bool, greater_than, greater_than_or_equal_to
+    is_str, is_, is_bool, greater_than, greater_than_or_equal_to, is_in
 
 
 class ObjectValidator(object):
@@ -390,9 +390,10 @@ class ObjectValidator(object):
                 lcc.log_info("'unfreeze_time' has correct format: iso8601")
 
     def validate_committee_frozen_balance_object(self, base_test, committee_frozen_balance_object):
+        lcc.log_info("{}".format(committee_frozen_balance_object))
         if check_that(
             "committee frozen balance",
-            committee_frozen_balance_object, has_length(4),
+            committee_frozen_balance_object, has_length(is_in([4, 5])),
             quiet=True
         ):
             balance = committee_frozen_balance_object["balance"]
@@ -421,13 +422,12 @@ class ObjectValidator(object):
                               committee_frozen_balance_object["owner"]))
             else:
                 lcc.log_info("'committee_member_id' has correct format")
-            """
-            if not base_test.type_validator.is_iso8601(committee_frozen_balance_object["unfreeze_balance_time"]):
-                lcc.log_error("Wrong format of 'unfreeze_balance_time', got {}".format(
-                              committee_frozen_balance_object["unfreeze_balance_time"]))
-            else:
-                lcc.log_info("'unfreeze_balance_time' has correct format")
-            """
+            if len(committee_frozen_balance_object) == 5:
+                if not base_test.type_validator.is_iso8601(committee_frozen_balance_object["unfreeze_balance_time"]):
+                    lcc.log_error("Wrong format of 'unfreeze_balance_time', got {}".format(
+                                  committee_frozen_balance_object["unfreeze_balance_time"]))
+                else:
+                    lcc.log_info("'unfreeze_balance_time' has correct format")
 
     def validate_contract_object(self, base_test, contract_object):
         if check_that(

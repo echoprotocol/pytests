@@ -6,15 +6,18 @@ from lemoncheesecake.matching import require_that, check_that_in, is_str, is_lis
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_block_header'"
+    "description": "Methods: 'get_block_header', 'get_objects' (block summary object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_header")
-@lcc.suite("Check work of method 'get_block_header'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_blocks_transactions", "get_block_header",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_block_header', 'get_objects' (block summary object)", rank=1)
 class GetBlockHeader(BaseTest):
 
     def __init__(self):
@@ -28,7 +31,7 @@ class GetBlockHeader(BaseTest):
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
     @lcc.prop("type", "method")
-    @lcc.test("Simple work of method 'get_block_header'")
+    @lcc.test("Simple work of methods: 'get_block_header', 'get_objects' (block summary object)")
     def method_main_check(self):
         lcc.set_step("Get the block header of the first block in the chain")
         block_num = 1

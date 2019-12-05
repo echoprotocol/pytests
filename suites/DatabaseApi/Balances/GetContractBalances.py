@@ -7,7 +7,7 @@ from lemoncheesecake.matching import check_that_in, equal_to
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Methods 'get_contract_balances'"
+    "description": "Method 'get_contract_balances'"
 }
 
 

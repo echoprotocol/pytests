@@ -176,8 +176,20 @@ class PositiveTesting(BaseTest):
         "DatabaseApi.Balances.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance.method_main_check"
     )
     def compare_get_committee_frozen_balance_with_get_objects_methods(self):
-        params = ['1.10.0']
-        lcc.set_step("Get 'committee_frozen_balance' object")
+        iterator = 0
+        params = []
+        lcc.set_step("Get 'committee_frozen_balance' objects")
+        while True:
+            pre_params = ['1.10.{}'.format(iterator)]
+            response_id = self.send_request(self.get_request("get_objects", [pre_params]),
+                                            self.__database_api_identifier)
+            get_objects_results = self.get_response(response_id)["result"]
+            if get_objects_results[0] is not None and get_objects_results[0]["owner"] == '1.4.0':
+                params.append(pre_params[0])
+                iterator += 1
+            else:
+                break
+
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
         get_objects_results = self.get_response(response_id)["result"]
@@ -189,27 +201,33 @@ class PositiveTesting(BaseTest):
             quiet=True
         )
 
+        get_object_result = None
         for i, committee_frozen_balance_info in enumerate(get_objects_results):
             lcc.set_step("Checking 'committee_frozen_balance' object #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_committee_frozen_balance_object(self, committee_frozen_balance_info)
 
-            get_object_result = committee_frozen_balance_info["balance"]
+            if get_object_result is None:
+                lcc.log_info("{}".format(get_object_result))
+                get_object_result = committee_frozen_balance_info["balance"]
+            else:
+                lcc.log_info("{}".format(get_object_result))
+                get_object_result["amount"] += committee_frozen_balance_info["balance"]["amount"]
             committee_member_id = committee_frozen_balance_info["owner"]
-            lcc.set_step("Get 'committee_frozen_balance'")
-            response_id = self.send_request(
-                self.get_request(
-                    "get_committee_frozen_balance", [committee_member_id]),
-                self.__database_api_identifier
-            )
-            committee_frozen_balance_object_result = self.get_response(response_id)["result"]
-            lcc.log_info("Call method 'get_committee_frozen_balance' with params: {}".format(committee_member_id))
+        lcc.set_step("Get 'committee_frozen_balance'")
+        response_id = self.send_request(
+            self.get_request(
+                "get_committee_frozen_balance", [committee_member_id]),
+            self.__database_api_identifier
+        )
+        committee_frozen_balance_object_result = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_committee_frozen_balance' with params: {}".format(committee_member_id))
 
-            lcc.set_step("Check active committee member frozen balance")
-            check_that(
-                "committee_frozen_balance",
-                committee_frozen_balance_object_result, equal_to(get_object_result),
-                quiet=True
-            )
+        lcc.set_step("Check active committee member frozen balance")
+        check_that(
+            "committee_frozen_balance",
+            committee_frozen_balance_object_result, equal_to(get_object_result),
+            quiet=False
+        )
 
 
 @lcc.prop("negative", "type")
