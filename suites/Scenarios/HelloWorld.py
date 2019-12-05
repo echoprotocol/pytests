@@ -57,12 +57,13 @@ class HelloWorld(BaseTest):
                                                                 value_amount=self.value_amount,
                                                                 value_asset_id=self.echo_asset)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        required_fee = collected_operation[0][1]["fee"]["amount"]
         self.utils.perform_transfer_operations(
             self,
             self.echo_acc0,
             self.account_id,
             self.__database_api_identifier,
-            transfer_amount=collected_operation[0][1]["fee"]["amount"] + self.value_amount
+            transfer_amount=required_fee + self.value_amount
         )
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
