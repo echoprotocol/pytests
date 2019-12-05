@@ -8,6 +8,7 @@ SUITE = {
     "description": "Perform 'update_asset_operation'"
 }
 
+@lcc.tags("qa")
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "update_asset")
