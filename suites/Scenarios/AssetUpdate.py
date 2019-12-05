@@ -8,7 +8,7 @@ SUITE = {
     "description": "Perform 'update_asset_operation'"
 }
 
-
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "update_asset")
 @lcc.suite("Check scenario 'Update asset'")
