@@ -66,7 +66,7 @@ categories = [
 
     'scenarios',
 
-    # databse_api sub tags: accounts, contracts and balances
+    # database_api sub tags: accounts, contracts and balances
     'database_api_first_pipeline',
 
     # rest database_api sub tags
