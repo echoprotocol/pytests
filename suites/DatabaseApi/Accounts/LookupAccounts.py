@@ -21,12 +21,12 @@ class LookupAccounts(BaseTest):
         self.__database_api_identifier = None
         self.account_name = "nathan"
 
-    def check_lookup_account_structure(self, lookup_account):
-        if not self.validator.is_account_name(lookup_account[0]):
+    def check_lookup_account_object(self, lookup_account):
+        if not self.type_validator.is_account_name(lookup_account[0]):
             lcc.log_error("Wrong format of 'account name', got: {}".format(lookup_account[0]))
         else:
             lcc.log_info("'account name' has correct format: account_name")
-        if not self.validator.is_account_id(lookup_account[1]):
+        if not self.type_validator.is_account_id(lookup_account[1]):
             lcc.log_error("Wrong format of 'account id', got: {}".format(lookup_account[1]))
         else:
             lcc.log_info("'account id' has correct format: account_id")
@@ -54,7 +54,7 @@ class LookupAccounts(BaseTest):
                 lookup_account, has_length(2)
             )
 
-            self.check_lookup_account_structure(lookup_account)
+            self.check_lookup_account_object(lookup_account)
 
 
 @lcc.prop("positive", "type")

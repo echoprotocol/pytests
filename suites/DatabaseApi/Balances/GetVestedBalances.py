@@ -60,7 +60,7 @@ class GetVestedBalances(BaseTest):
             lcc.set_step("Check simple work of method 'vested balance'")
             if check_that("balance_object", result, has_length(2)):
                 self.check_uint256_numbers(result, "amount", quiet=True)
-                if not self.validator.is_asset_id(result["asset_id"]):
+                if not self.type_validator.is_asset_id(result["asset_id"]):
                     lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
                 else:
                     lcc.log_info("'asset_id' has correct format: asset_id")

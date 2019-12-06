@@ -83,13 +83,13 @@ class GetContractResult(BaseTest):
                     "code_deposit", equal_to("Success"),
                     quiet=True
                 )
-                if not self.validator.is_hex(exec_res["new_address"]):
+                if not self.type_validator.is_hex(exec_res["new_address"]):
                     lcc.log_error("Wrong format of 'new_address', got: {}".format(exec_res["new_address"]))
                 else:
                     lcc.log_info("'new_address' has correct format: hex")
                 self.contract_id = self.get_contract_id(response)
                 contract_output_in_hex = exec_res["output"]
-                if not self.validator.is_hex(contract_output_in_hex):
+                if not self.type_validator.is_hex(contract_output_in_hex):
                     lcc.log_error("Wrong format of 'output', got: {}".format(contract_output_in_hex))
                 else:
                     lcc.log_info("'output' has correct format: hex")
@@ -168,14 +168,14 @@ class GetContractResult(BaseTest):
                         require_that("contract_id", contract_id_that_called, equal_to(self.contract_id), quiet=True)
                         log_values = log["log"]
                         for log_value in log_values:
-                            if not self.validator.is_hex(log_value):
+                            if not self.type_validator.is_hex(log_value):
                                 lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                             else:
                                 lcc.log_info("'log_value' has correct format: hex")
                         check_that_in(
                             log, "data", is_str(), quiet=True
                         )
-                    if not self.validator.is_hex(tr_receipt["bloom"]):
+                    if not self.type_validator.is_hex(tr_receipt["bloom"]):
                         lcc.log_error("Wrong format of 'bloom', got: {}".format(tr_receipt["bloom"]))
                     else:
                         lcc.log_info("'bloom' has correct format: hex")
@@ -307,11 +307,11 @@ class PositiveTesting(BaseTest):
             require_that("contract_id", contract_id_that_called, equal_to(dynamic_fields_contract_id), quiet=True)
             log_values = log["log"]
             for log_value in log_values:
-                if not self.validator.is_hex(log_value):
+                if not self.type_validator.is_hex(log_value):
                     lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                 else:
                     lcc.log_info("'log_value' has correct format: hex")
-            if not self.validator.is_hex(log["data"]):
+            if not self.type_validator.is_hex(log["data"]):
                 lcc.log_error("Wrong format of 'data', got: {}".format(log["data"]))
             else:
                 lcc.log_info("'data' has correct format: hex")

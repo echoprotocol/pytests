@@ -62,7 +62,7 @@ class GetBtcDepositScript(BaseTest):
         response_id = self.send_request(self.get_request("get_btc_deposit_script", [btc_address_id]),
                                         self.__database_api_identifier)
         btc_deposit_script = self.get_response(response_id)["result"]
-        if not self.validator.is_hex(btc_deposit_script):
+        if not self.type_validator.is_hex(btc_deposit_script):
             lcc.log_error("Wrong format of 'btc_deposit_script', got: {}".format(btc_deposit_script))
         else:
             lcc.log_info("response from 'get_btc_deposit_script' has correct format: hex")

@@ -24,11 +24,11 @@ class LookupCommitteeMemberAccounts(BaseTest):
         self.echo_acc0 = None
 
     def check_lookup_committee_member_accounts_structure(self, lookup_committee_member_account):
-        if not self.validator.is_account_name(lookup_committee_member_account[0]):
+        if not self.type_validator.is_account_name(lookup_committee_member_account[0]):
             lcc.log_error("Wrong format of 'account name', got: {}".format(lookup_committee_member_account[0]))
         else:
             lcc.log_info("'account name' has correct format: account_name")
-        if not self.validator.is_committee_member_id(lookup_committee_member_account[1]):
+        if not self.type_validator.is_committee_member_id(lookup_committee_member_account[1]):
             lcc.log_error("Wrong format of 'account id', got: {}".format(lookup_committee_member_account[1]))
         else:
             lcc.log_info("'account id' has correct format: account_id")

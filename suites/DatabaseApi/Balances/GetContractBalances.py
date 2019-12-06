@@ -45,8 +45,13 @@ class GetContractBalances(BaseTest):
         value_amount = get_random_integer
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
-                                                 value_amount=value_amount)
+        contract_id = self.utils.get_contract_id(
+            self,
+            self.echo_acc0,
+            self.contract,
+            self.__database_api_identifier,
+            value_amount=value_amount
+        )
 
         lcc.set_step("Get contract balances")
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
@@ -152,8 +157,8 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Get contract balance in several assets")
     @lcc.depends_on("DatabaseApi.Balances.GetContractBalances.GetContractBalances.method_main_check")
-    def check_contract_with_balance_in_several_assets(self, get_random_valid_asset_name, get_random_integer_up_to_fifty,
-                                                      get_random_string):
+    def check_contract_with_balance_in_several_assets(self, get_random_valid_asset_name,
+                                                      get_random_integer_up_to_fifty, get_random_string):
         count = 2
         new_asset_ids = []
         list_operations = []
@@ -173,10 +178,14 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Call 'setGreeting' method to add several assets to contract balance")
         argument = self.get_byte_code_param(get_random_string, str)
         for i, asset_id in enumerate(new_asset_ids):
-            operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                  bytecode=self.storage_setGreeting + argument,
-                                                                  callee=contract_id, value_amount=value_amounts[i],
-                                                                  value_asset_id=asset_id)
+            operation = self.echo_ops.get_contract_call_operation(
+                echo=self.echo,
+                registrar=self.echo_acc0,
+                bytecode=self.storage_setGreeting + argument,
+                callee=contract_id,
+                value_amount=value_amounts[i],
+                value_asset_id=asset_id
+            )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             list_operations.append(collected_operation)
         self.echo_ops.broadcast(echo=self.echo, list_operations=list_operations)

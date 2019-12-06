@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import lemoncheesecake.api as lcc
 
-from common.validation import Validator
+from common.type_validation import TypeValidator
 from project import WALLETS, ECHO_OPERATIONS
 
 
@@ -12,7 +12,7 @@ class EchoOperations(object):
 
     def __init__(self):
         super().__init__()
-        self.validator = Validator()
+        self.type_validator = TypeValidator()
 
     def get_signer(self, signer):
         """
@@ -20,19 +20,18 @@ class EchoOperations(object):
         """
         if type(signer) is list:
             return signer
-        if self.validator.is_wif(signer):
+        if self.type_validator.is_wif(signer):
             return signer
         wallets = json.load(open(WALLETS))
-        if self.validator.is_account_name(signer):
+        if self.type_validator.is_account_name(signer):
             return wallets[signer]["private_key"]
-        if self.validator.is_account_id(signer):
+        if self.type_validator.is_account_id(signer):
             wallets_keys = list(wallets.keys())
             for key in range(len(wallets_keys)):
                 if wallets[wallets_keys[key]]["id"] == signer:
                     return wallets[wallets_keys[key]]["private_key"]
         lcc.log_error("Try to get invalid signer, get: '{}'".format(signer))
         raise Exception("Try to get invalid signer")
-
 
     @staticmethod
     def get_operation_json(variable_name, example=False):

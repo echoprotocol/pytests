@@ -92,14 +92,14 @@ class BalanceObjectsInSubscribe(BaseTest):
         while len(tracked_accounts) > got_account_balance_notices:
             current_notices = self.get_notice(subscription_callback_id, notices_list=True)
             for notice in current_notices:
-                if "id" in notice and self.validator.is_account_balance_id(notice["id"]):
+                if "id" in notice and self.type_validator.is_account_balance_id(notice["id"]):
                     notices.update({notice["id"]: notice})
                     got_account_balance_notices += 1
 
         notices_list = [notices[key] for key in notices]
         for tracked_account in tracked_accounts:
             for notice in notices_list:
-                if self.validator.is_account_balance_id(notice["id"]):
+                if self.type_validator.is_account_balance_id(notice["id"]):
                     if notice["owner"] == tracked_account:
                         accounts_balance_after_transfer.append(notice["balance"])
                         balance_object_count += 1

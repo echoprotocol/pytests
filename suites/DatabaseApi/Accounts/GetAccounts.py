@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, check_that, has_length, is_integer, is_str, is_dict, is_list, \
-    require_that, equal_to
+from lemoncheesecake.matching import check_that_in, has_length, require_that, equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_accounts'"
+    "description": "Methods: 'get_accounts', 'get_objects' (account object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_accounts", "get_accounts")
+@lcc.tags(
+    "api", "database_api", "database_api_accounts", "get_accounts",
+    "database_api_objects", "get_objects"
+)
 @lcc.suite("Check work of method 'get_accounts'", rank=1)
 class GetAccounts(BaseTest):
 
@@ -31,80 +33,27 @@ class GetAccounts(BaseTest):
         lcc.set_step("Get info about default accounts")
         params = ["1.2.0", "1.2.1"]
         response_id = self.send_request(self.get_request("get_accounts", [params]), self.__database_api_identifier)
-        results = self.get_response(response_id)["result"]
+        get_accounts_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_accounts' with params: {}".format(params))
 
         lcc.set_step("Check length of received accounts")
         require_that(
             "'list of received accounts'",
-            results, has_length(len(params))
+            get_accounts_results, has_length(len(params)),
+            quiet=True
         )
 
-        for i, account_info in enumerate(results):
+        for i, account_info in enumerate(get_accounts_results):
             lcc.set_step("Checking account #{} - '{}'".format(i, params[i]))
-            if check_that("account_info", account_info, has_length(16)):
-                check_that_in(
-                    account_info,
-                    "id", is_str(params[i]),
-                    "active", is_dict(),
-                    "active_delegate_share", is_integer(),
-                    "options", is_dict(),
-                    "whitelisting_accounts", is_list(),
-                    "whitelisting_accounts", is_list(),
-                    "blacklisting_accounts", is_list(),
-                    "whitelisted_accounts", is_list(),
-                    "blacklisted_accounts", is_list(),
-                    "active_special_authority", is_list(),
-                    "top_n_control_flags", is_integer(),
-                    "accumulated_reward", is_integer(),
-                    "extensions", is_list(),
-                    quiet=True
-                )
-                if not self.validator.is_account_id(account_info["registrar"]):
-                    lcc.log_error("Wrong format of 'registrar', got: {}".format(account_info["registrar"]))
-                else:
-                    lcc.log_info("'registrar' has correct format: account_object_type")
-                if not self.validator.is_account_name(account_info["name"]):
-                    lcc.log_error("Wrong format of 'name', got: {}".format(account_info["name"]))
-                else:
-                    lcc.log_info("'name' has correct format: account_name")
-                if not self.validator.is_echorand_key(account_info["echorand_key"]):
-                    lcc.log_error("Wrong format of 'echorand_key', got: {}".format(account_info["echorand_key"]))
-                else:
-                    lcc.log_info("'echorand_key' has correct format: echo_rand_key")
-                if not self.validator.is_account_statistics_id(account_info["statistics"]):
-                    lcc.log_error("Wrong format of 'statistics', got: {}".format(account_info["statistics"]))
-                else:
-                    lcc.log_info("'statistics' has correct format: account_statistics_object_type")
-
-                lcc.set_step("Check 'active' field")
-                if check_that("active", account_info["active"], has_length(3)):
-                    check_that_in(
-                        account_info["active"],
-                        "weight_threshold", is_integer(),
-                        "account_auths", is_list(),
-                        "key_auths", is_list(),
-                        quiet=True
-                    )
-
-                lcc.set_step("Check 'options' field")
-                if check_that("options", account_info["options"], has_length(3)):
-                    delegating_account = account_info["options"]["delegating_account"]
-                    if not self.validator.is_account_id(delegating_account):
-                        lcc.log_error("Wrong format of 'delegating_account'got: {}".format(delegating_account))
-                    else:
-                        lcc.log_info("'{}' has correct format: account_object_type".format(delegating_account))
-                    check_that_in(
-                        account_info["options"],
-                        "delegate_share", is_integer(),
-                        "extensions", is_list(),
-                        quiet=True
-                    )
+            self.object_validator.validate_account_object(self, account_info)
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_accounts", "get_accounts")
-@lcc.suite("Positive testing of method 'get_accounts'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_accounts", "get_accounts",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Positive testing of methods: 'get_accounts', 'get_objects' (account object)", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -180,27 +129,28 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Get account by name")
         account_id = self.get_account_by_name(account_name, self.__database_api_identifier).get("result").get("id")
-        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
+        params = [account_id]
+        response_id = self.send_request(self.get_request("get_accounts", [params]),
                                         self.__database_api_identifier)
-        response_1 = self.get_response(response_id)
-        lcc.log_info("Call method 'get_account_by_name' with param: {}".format(account_id))
+        get_accounts_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_accounts' with param: {}".format(params))
 
         lcc.set_step("Get account by id")
-        response_id = self.send_request(self.get_request("get_objects", [[account_id]]),
+        response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        response_2 = self.get_response(response_id)
-        lcc.log_info("Call method 'get_objects' with param: {}".format(account_id))
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
 
-        lcc.set_step("Checking created account")
-        account_info_1 = response_1["result"]
-        account_info_2 = response_2["result"]
-        for i, result in enumerate(account_info_1):
-            check_that_in(
-                result,
-                "registrar", equal_to(account_info_2[i]["registrar"]),
-                "name", equal_to(account_info_2[i]["name"]),
-                "active", equal_to(account_info_2[i]["active"]),
-                "echorand_key", equal_to(account_info_2[i]["echorand_key"]),
-                "options", equal_to(account_info_2[i]["options"]),
-                "extensions", equal_to(account_info_2[i]["extensions"])
-            )
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_accounts', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_accounts_results),
+            quiet=True
+        )
