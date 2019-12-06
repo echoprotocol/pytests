@@ -31,10 +31,11 @@ class ProposalDelete(BaseTest):
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
-
-        self.init0 = self.get_initial_account_id(0, self.__database_api_identifier)
-        self.init1 = self.get_initial_account_id(1, self.__database_api_identifier)
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.init0, self.init1))
+        self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
+        self.init0 = self.committee_members_info[0]["account_id"]
+        self.init1 = self.committee_members_info[1]["account_id"]
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(
+                     self.init0, self.init1))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -45,8 +46,12 @@ class ProposalDelete(BaseTest):
         transfer_amount = get_random_integer_up_to_ten
 
         lcc.set_step("Collect transfer operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.init1,
-                                                                  amount=transfer_amount, to_account_id=self.init0)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo,
+            from_account_id=self.init1,
+            amount=transfer_amount,
+            to_account_id=self.init0
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         lcc.log_info("Transfer operation collected")
 
@@ -90,4 +95,8 @@ class ProposalDelete(BaseTest):
         response_id = self.send_request(self.get_request("get_objects", [[proposal_id]]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
-        check_that("required_active_approvals", result, equal_to([None]), quiet=True)
+        check_that(
+            "required_active_approvals",
+            result, equal_to([None]),
+            quiet=True
+        )

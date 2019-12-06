@@ -14,6 +14,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_accounts", "get_account_addresses")
 @lcc.suite("Check work of method 'get_account_addresses'", rank=1)
 class GetAccountAddresses(BaseTest):
@@ -283,3 +284,66 @@ class PositiveTesting(BaseTest):
                 "address", equal_to(response_from_get_objects["address"]),
                 "extensions", equal_to(response_from_get_objects["extensions"]),
             )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_accounts", "get_account_addresses")
+@lcc.suite("Negative testing of method 'get_account_addresses'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        self.__registration_api_identifier = self.get_identifier("registration")
+        lcc.log_info(
+            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
+                                                                           self.__registration_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in get_account_addresses")
+    @lcc.depends_on("DatabaseApi.Accounts.GetAccountAddresses.GetAccountAddresses.method_main_check")
+    def check_negative_int_value_in_get_account_addresses(self, get_random_valid_account_name):
+        new_account = get_random_valid_account_name
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        _from = -10
+        limit = 100
+
+        lcc.set_step("Create and get new account")
+        new_account = self.get_account_id(new_account, self.__database_api_identifier,
+                                          self.__registration_api_identifier)
+        lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
+
+        lcc.set_step("Get 'get_account_addresses' with negative from")
+        params = [new_account, _from, limit]
+        response_id = self.send_request(self.get_request("get_account_addresses", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )
+
+        _from = 0
+        limit = -100
+
+        lcc.set_step("Get 'get_account_addresses' with negative limit")
+        params = [new_account, _from, limit]
+        response_id = self.send_request(self.get_request("get_account_addresses", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )
