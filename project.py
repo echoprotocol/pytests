@@ -24,7 +24,9 @@ project.metadata_policy.add_property_rule("positive", "type", on_suite=True, req
 project.metadata_policy.add_property_rule("negative", "type", on_suite=True, required=False)
 
 RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
-GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), "genesis.json")))
+
+genesis_path = "genesis.json" if "GENESIS_FILE" not in os.environ else os.environ["GENESIS_FILE"]
+GENESIS = json.load(open(os.path.join(os.path.dirname(__file__), genesis_path)))
 
 if "ROPSTEN" in os.environ and os.environ["ROPSTEN"].lower() != "false":
     ROPSTEN = True
@@ -84,6 +86,7 @@ ECHO_INITIAL_BALANCE = int(GENESIS["initial_balances"][0]["amount"])
 ECHO_ASSET_SYMBOL = GENESIS["initial_balances"][0]["asset_symbol"]
 INITIAL_ACCOUNTS = GENESIS["initial_accounts"]
 INITIAL_COMMITTEE_CANDIDATES = GENESIS["initial_committee_candidates"]
+
 INITIAL_ACCOUNTS_COUNT = len(INITIAL_ACCOUNTS)
 INITIAL_ACCOUNTS_NAMES = []
 for i in range(INITIAL_ACCOUNTS_COUNT):
@@ -98,7 +101,7 @@ MAIN_TEST_ACCOUNT_COUNT = 1
 # todo: delete. Block_interval = 5
 BLOCK_RELEASE_INTERVAL = 5
 BLOCKS_NUM_TO_WAIT = 10
-REQUIRED_DEPOSIT_AMOUNT = 100000000000
+REQUIRED_DEPOSIT_AMOUNT = GENESIS["initial_parameters"]["committee_frozen_balance_to_activate"]
 BASE_ASSET_SYMBOL, ETH_ASSET_SYMBOL = "ECHO", "EETH"
 ETH_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["ETH_asset_id"]
 ETH_CONTRACT_ADDRESS = "0x" + GENESIS["initial_parameters"]["sidechain_config"]["eth_contract_address"]

@@ -65,6 +65,7 @@ class SubmitRegistrationSolution(BaseTest):
         names_in_block_operations = [
             block_transactions[trx_num]["operations"][0][1]["name"]
             for trx_num in range(len(block_transactions))
+            if "name" in block_transactions[trx_num]["operations"][0][1]
         ]
         check_that("account names in block", names_in_block_operations, has_item(account_name))
 

@@ -12,6 +12,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block")
 @lcc.suite("Check work of method 'get_block'", rank=1)
 class GetBlock(BaseTest):
@@ -176,3 +177,41 @@ class PositiveTesting(BaseTest):
             transaction_from_api_method, has_length(9)
         )
         self.compare_objects(transaction_from_broadcast_result, transaction_from_api_method)
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block")
+@lcc.suite("Negative testing of method 'get_block'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in get_block")
+    @lcc.depends_on("DatabaseApi.BlocksTransactions.GetBlock.GetBlock.method_main_check")
+    def check_negative_int_value_in_get_block(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+
+        lcc.set_step("Get 'get_block' with negative block number")
+        response_id = self.send_request(self.get_request("get_block", [-1]),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, check_that, \
-    equal_to, has_length, is_true
+from lemoncheesecake.matching import require_that, check_that_in, is_list, is_integer, check_that, \
+    equal_to, has_length
 
 from common.base_test import BaseTest
 
@@ -15,7 +15,6 @@ SUITE = {
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_rewards")
 @lcc.suite("Check work of method 'get_block_rewards'", rank=1)
 class GetBlockRewards(BaseTest):
-
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None

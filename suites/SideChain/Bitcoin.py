@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, is_false, has_length, is_not_none
 
 from common.base_test import BaseTest
 
@@ -55,22 +56,72 @@ class Bitcoin(BaseTest):
                                         debug_mode=True)
         response = self.get_response(response_id, log_response=True)
 
+        # todo: ECHO-1241, ECHO-1428
+
         lcc.log_info("Get account btc asset balance")
         params = [self.echo_acc0, ["1.3.2"]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
-                                        self.__database_api_identifier, debug_mode=True)
-        current_balance = self.get_response(response_id, log_response=True)["result"][0]["amount"]
-        half_balance = int(current_balance / 2)
+                                        self.__database_api_identifier)
+        privious = self.get_response(response_id)["result"][0]["amount"]
 
         lcc.log_info("Create sidechain_btc_withdraw_operation")
+        amount = 1000000
+        btc_address = 'mmYVef1naUBA4Y5PWYJA8fZRPKAkwdMD4L'
         operation = self.echo_ops.get_sidechain_btc_withdraw_operation(echo=self.echo, account=self.echo_acc0,
-                                                                       btc_address='mmYVef1naUBA4Y5PWYJA8fZRPKAkwdMD4L',
-                                                                       value=half_balance)
+                                                                       btc_address=btc_address,
+                                                                       value=amount)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=True)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
+
         lcc.log_info("Get account btc asset balance")
         params = [self.echo_acc0, ["1.3.2"]]
         response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        current = self.get_response(response_id)["result"][0]["amount"]
+
+        import time
+        time.sleep(3)
+
+        check_that("'notices id'", privious, equal_to(current + amount))
+
+        lcc.set_step("Get btc_withdraws")
+        params = [["1.22.0", "1.22.1", "1.22.2", "1.22.3", "1.22.4"]]
+        response_id = self.send_request(self.get_request("get_objects", params),
                                         self.__database_api_identifier, debug_mode=True)
-        current_balance = self.get_response(response_id, log_response=True)["result"][0]["amount"]
+        btc_withdraws = self.get_response(response_id, log_response=True)["result"]
+
+        for i, withdraw in enumerate(btc_withdraws):
+            lcc.log_info("withdraw: {}".format(params[0][i]))
+            if check_that("'btc_withdraw'", withdraw, is_not_none()):
+                check_that("'btc_withdraw'", withdraw, has_length(8))
+                check_that("'account'", withdraw["account"], equal_to(self.echo_acc0))
+                check_that("'btc address'", withdraw["btc_addr"], equal_to(btc_address))
+                check_that("'value'", withdraw["value"], equal_to(amount))
+                check_that("'is_approved'", withdraw["is_approved"], is_false())
+
+        lcc.set_step("Get btc_aggregatings")
+        params = [["1.23.0", "1.23.1", "1.23.2", "1.23.3", "1.23.4", "1.23.5"]]
+        response_id = self.send_request(self.get_request("get_objects", params),
+                                        self.__database_api_identifier, debug_mode=True)
+        btc_aggregatings = self.get_response(response_id, log_response=True)["result"]
+        for i, aggregating in enumerate(btc_aggregatings):
+            lcc.log_info("withdraw: {}".format(params[0][i]))
+            if check_that("'btc_aggregating'", aggregating, is_not_none()):
+                if check_that("'btc_aggregating'", aggregating, has_length(14)):
+                    check_that("'cpfp_depth'", aggregating["cpfp_depth"], equal_to(i))
+                    check_that("'is_approved'", aggregating["is_approved"], is_false())
+                else:
+                    check_that("'btc_aggregating'", aggregating, has_length(15))
+                    check_that("'cpfp_depth'", aggregating["cpfp_depth"], equal_to(i))
+                    # check_that("'previous_aggregation'", aggregating["previous_aggregation"], is_str())
+                    check_that("'is_approved'", aggregating["is_approved"], is_false())
+
+        params = [self.echo_acc0, "btc"]
+        response_id = self.send_request(self.get_request("get_account_deposits", params),
+                                        self.__database_api_identifier)
+        deposits = self.get_response(response_id, log_response=True)
+
+        params = [self.echo_acc0, "btc"]
+        response_id = self.send_request(self.get_request("get_account_withdrawals", params),
+                                        self.__database_api_identifier)
+        deposits = self.get_response(response_id, log_response=True)
