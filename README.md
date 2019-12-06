@@ -32,7 +32,7 @@ Software Requirements: Python 3.7 or later
 - *ETHEREUM_URL* - URL on which tests will be connected to the Ethereum node
 - *NATHAN_PK* - private key of "nathan" account
 - *INIT0_PK* - private key of "init0" initial account
-- *GENESIS_FILE* - ECHO node genesis file
+- *GENESIS_FILE* - Echo node genesis file
 
 ##### Optional:
 - *ROPSTEN* - flag to run tests in the ropsten network (bool type)
