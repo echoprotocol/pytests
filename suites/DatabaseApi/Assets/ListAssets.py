@@ -2,8 +2,7 @@
 import re
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, is_dict, equal_to, \
-    check_that, has_length, match_pattern
+from lemoncheesecake.matching import require_that, check_that_in, equal_to, check_that, has_length, match_pattern
 
 from common.base_test import BaseTest
 from project import ECHO_ASSET_SYMBOL
@@ -15,6 +14,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_assets", "list_assets")
 @lcc.suite("Check work of method 'list_assets'", rank=1)
 class ListAssets(BaseTest):
@@ -23,69 +23,6 @@ class ListAssets(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.echo_symbol = ECHO_ASSET_SYMBOL
-
-    def check_core_exchange_rate_structure(self, core_exchange_rate):
-        check_that_in(
-            core_exchange_rate,
-            "base", is_dict(),
-            "quote", is_dict(),
-            quiet=True
-        )
-        for key in core_exchange_rate:
-            core_exchange_rate_part = core_exchange_rate[key]
-            self.check_uint64_numbers(core_exchange_rate_part, "amount", quiet=True)
-            if not self.validator.is_asset_id(core_exchange_rate_part["asset_id"]):
-                lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
-                    key, core_exchange_rate_part["asset_id"]))
-            else:
-                lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
-
-    def check_asset_structure(self, asset):
-        if not self.validator.is_asset_id(asset["id"]):
-            lcc.log_error("Wrong format of 'id', got: {}".format(asset["id"]))
-        else:
-            lcc.log_info("'id' has correct format: asset_id")
-        if not self.validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
-            lcc.log_error("Wrong format of 'dynamic_asset_data_id', got: {}".format(
-                asset["dynamic_asset_data_id"]))
-        else:
-            lcc.log_info("'dynamic_asset_data_id' has correct format: dynamic_asset_data_id")
-
-        if not self.validator.is_account_id(asset["issuer"]):
-            lcc.log_error("Wrong format of 'issuer', got: {}".format(asset["issuer"]))
-        else:
-            lcc.log_info("'issuer' has correct format: account_id")
-        if not self.validator.is_asset_name(asset["symbol"]):
-            lcc.log_error("Wrong format of 'symbol', got: {}".format(asset["symbol"]))
-        else:
-            lcc.log_info("'symbol' has correct format: asset_name")
-        check_that_in(
-            asset,
-            "options", is_dict(),
-            "extensions", is_list(),
-            "precision", is_integer(8),
-            quiet=True
-        )
-        options = asset["options"]
-        require_that("'options'", options, has_length(8))
-        check_that_in(
-            options,
-            "blacklist_authorities", is_list(),
-            "core_exchange_rate", is_dict(),
-            "description", is_str(),
-            "extensions", is_list(),
-            "flags", is_integer(),
-            "issuer_permissions", is_integer(),
-            "whitelist_authorities", is_list(),
-            quiet=True
-        )
-        core_exchange_rate = options["core_exchange_rate"]
-        require_that(
-            "'core_exchange_rate'",
-            core_exchange_rate, has_length(2)
-        )
-        self.check_core_exchange_rate_structure(core_exchange_rate)
-        self.check_uint64_numbers(options, "max_supply", quiet=True)
 
     def setup_suite(self):
         super().setup_suite()
@@ -104,11 +41,7 @@ class ListAssets(BaseTest):
             self.echo_symbol, limit))
         asset = response["result"][0]
 
-        require_that(
-            "'length of default chain asset'",
-            asset, has_length(7)
-        )
-        self.check_asset_structure(asset)
+        self.object_validator.validate_asset_object(self, asset)
 
 
 @lcc.prop("positive", "type")
@@ -306,3 +239,43 @@ class PositiveTesting(BaseTest):
             check_that_in(
                 asset, "symbol", match_pattern(pattern)
             )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_assets", "list_assets")
+@lcc.suite("Negative testing of method 'list_assets'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.echo_symbol = ECHO_ASSET_SYMBOL
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in list_assets")
+    @lcc.depends_on("DatabaseApi.Assets.ListAssets.ListAssets.method_main_check")
+    def check_negative_int_value_in_list_assets(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        limit = -1
+
+        lcc.set_step("Get 'list_assets' with negative limit")
+        response_id = self.send_request(self.get_request("list_assets", [self.echo_symbol, limit]),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )

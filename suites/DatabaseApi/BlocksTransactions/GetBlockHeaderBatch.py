@@ -14,6 +14,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("database_api", "get_block_header_batch")
 @lcc.suite("Check work of method 'get_block_header_batch'", rank=1)
 class GetBlockHeaderBatch(BaseTest):
@@ -54,15 +55,15 @@ class GetBlockHeaderBatch(BaseTest):
                     "extensions", is_list(),
                     quiet=True
                 )
-                if not self.validator.is_iso8601(block_info[1]["timestamp"]):
+                if not self.type_validator.is_iso8601(block_info[1]["timestamp"]):
                     lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_info[1]["timestamp"]))
                 else:
                     lcc.log_info("'timestamp' has correct format: iso8601")
-                if not self.validator.is_account_id(block_info[1]["account"]):
+                if not self.type_validator.is_account_id(block_info[1]["account"]):
                     lcc.log_error("Wrong format of 'account id', got: {}".format(block_info[1]["account"]))
                 else:
                     lcc.log_info("'id' has correct format: account_id")
-                if not self.validator.is_account_id(block_info[1]["delegate"]):
+                if not self.type_validator.is_account_id(block_info[1]["delegate"]):
                     lcc.log_error("Wrong format of 'delegate', got: {}".format(block_info[1]["delegate"]))
                 else:
                     lcc.log_info("'delegate' has correct format: account_id")
@@ -134,23 +135,23 @@ class PositiveTesting(BaseTest):
                     "extensions", is_list(),
                     quiet=True
                 )
-                if not self.validator.is_hex(block_info[1]["previous"]):
+                if not self.type_validator.is_hex(block_info[1]["previous"]):
                     lcc.log_error("Wrong format of 'previous', got: {}".format(block_info[1]["previous"]))
                 else:
                     lcc.log_info("'previous' has correct format: hex")
-                if not self.validator.is_iso8601(block_info[1]["timestamp"]):
+                if not self.type_validator.is_iso8601(block_info[1]["timestamp"]):
                     lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_info[1]["timestamp"]))
                 else:
                     lcc.log_info("'timestamp' has correct format: iso8601")
-                if not self.validator.is_account_id(block_info[1]["account"]):
+                if not self.type_validator.is_account_id(block_info[1]["account"]):
                     lcc.log_error("Wrong format of 'account id', got: {}".format(block_info[1]["account"]))
                 else:
                     lcc.log_info("'id' has correct format: account_id")
-                if not self.validator.is_account_id(block_info[1]["delegate"]):
+                if not self.type_validator.is_account_id(block_info[1]["delegate"]):
                     lcc.log_error("Wrong format of 'delegate', got: {}".format(block_info[1]["delegate"]))
                 else:
                     lcc.log_info("'delegate' has correct format: account_id")
-                if not self.validator.is_hex(block_info[1]["transaction_merkle_root"]):
+                if not self.type_validator.is_hex(block_info[1]["transaction_merkle_root"]):
                     lcc.log_error("Wrong format of 'transaction_merkle_root', got: {}".format(
                         block_info[1]["transaction_merkle_root"]))
                 else:
@@ -168,11 +169,49 @@ class PositiveTesting(BaseTest):
                         "_fallback", is_integer(),
                         quiet=True
                     )
-                    if not self.validator.is_digit(prev_signature["_leader"]):
+                    if not self.type_validator.is_digit(prev_signature["_leader"]):
                         lcc.log_error("Wrong format of '_leader', got: {}".format(prev_signature["_leader"]))
                     else:
                         lcc.log_info("'_leader' has correct format: int")
-                    if not self.validator.is_hex(prev_signature["_bba_sign"]):
+                    if not self.type_validator.is_hex(prev_signature["_bba_sign"]):
                         lcc.log_error("Wrong format of '_bba_sign', got: {}".format(prev_signature["_bba_sign"]))
                     else:
                         lcc.log_info("'_bba_sign' has correct format: hex")
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("database_api", "get_block_header_batch")
+@lcc.suite("Negative testing of method 'get_block_header_batch'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in get_block_header_batch")
+    @lcc.depends_on("DatabaseApi.BlocksTransactions.GetBlockHeaderBatch.GetBlockHeaderBatch.method_main_check")
+    def check_negative_int_value_in_get_block_header_batch(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+
+        lcc.set_step("Get 'get_block_header_batch' with negative block number")
+        response_id = self.send_request(self.get_request("get_block_header_batch", [[-1]]),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )

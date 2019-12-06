@@ -28,7 +28,6 @@ class GetERC20AccountWithdrawals(BaseTest):
         self.erc20_abi = self.get_abi("erc20")
         self.erc20_balanceOf = self.get_byte_code("erc20", "balanceOf(address)", ethereum_contract=True)
 
-
     def get_random_amount(self, _to, _from=1):
         amount = random.randrange(_from, _to)
         if amount == _to:
@@ -40,15 +39,15 @@ class GetERC20AccountWithdrawals(BaseTest):
         for i, withdrawal in enumerate(withdrawals):
             lcc.set_step("Check work of method 'get_erc20_account_withdrawals', withdrawal #'{}'".format(i))
             check_that("'length of erc20 account withdrawal'", withdrawal, has_length(9))
-            if not self.validator.is_withdraw_erc20_id(withdrawal["id"]):
+            if not self.type_validator.is_withdraw_erc20_id(withdrawal["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(withdrawal["id"]))
             else:
                 lcc.log_info("'id' has correct format: withdraw_erc20_token_object")
-            if not self.validator.is_eth_address(withdrawal["to"]):
+            if not self.type_validator.is_eth_address(withdrawal["to"]):
                 lcc.log_error("Wrong format of 'to', got: {}".format(withdrawal["to"]))
             else:
                 lcc.log_info("'to' has correct format: ethereum_address_type")
-            if not self.validator.is_erc20_object_id(withdrawal["erc20_token"]):
+            if not self.type_validator.is_erc20_object_id(withdrawal["erc20_token"]):
                 lcc.log_error("Wrong format of 'erc20_token', got: {}".format(withdrawal["erc20_token"]))
             else:
                 lcc.log_info("'erc20_token' has correct format: erc20_token_object")
@@ -100,7 +99,7 @@ class GetERC20AccountWithdrawals(BaseTest):
         lcc.set_step("Generate ethereum address for new account")
         self.utils.perform_sidechain_eth_create_address_operation(self, new_account_id, self.__database_api_identifier)
         lcc.log_info("Ethereum address generated successfully")
-
+        self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get ethereum address of created account in the ECHO network")
         eth_account_address = self.utils.get_eth_address(self, new_account_id,
                                                          self.__database_api_identifier)["result"]["eth_addr"]
@@ -144,7 +143,7 @@ class GetERC20AccountWithdrawals(BaseTest):
                                                                                self.eth_account.address)
         require_that("'in ethereum erc20 contact balance after transfer'", in_ethereum_erc20_balance_after_transfer,
                      equal_to(0))
-
+        self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance = \
             self.utils.get_erc20_token_balance_in_echo(self, account_id=new_account_id,
@@ -152,6 +151,7 @@ class GetERC20AccountWithdrawals(BaseTest):
                                                        contract_id=erc20_contract_id,
                                                        database_api_id=self.__database_api_identifier,
                                                        previous_balance=0)
+
         require_that("'in echo account's erc20 balance'", in_echo_erc20_balance, equal_to(in_echo_erc20_start_balance))
 
         lcc.set_step("Perform withdrawal ERC20 token operation")

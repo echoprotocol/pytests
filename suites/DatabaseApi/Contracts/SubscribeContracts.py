@@ -6,13 +6,17 @@ from lemoncheesecake.matching import check_that, is_none, check_that_in, has_len
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'subscribe_contracts'"
+    "description": "Methods: 'subscribe_contracts', 'get_objects' (contract balance & contract history"
+    " & contract statistics objects)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "notice", "database_api", "database_api_contracts", "subscribe_contracts")
+@lcc.tags(
+    "api", "notice", "database_api", "database_api_contracts", "subscribe_contracts",
+    "database_api_objects", "get_objects"
+)
 @lcc.suite("Check work of method 'subscribe_contracts'", rank=1)
 class SubscribeContracts(BaseTest):
 
@@ -95,37 +99,25 @@ class SubscribeContracts(BaseTest):
             self.echo.config.implementation_object_types.CONTRACT_HISTORY))
 
         lcc.set_step("Check notice 'subscribe_contracts'")
-        if check_that("global_properties", notice, has_length(6)):
-            if not self.validator.is_contract_history_id(notice["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(notice["id"]))
-            else:
-                lcc.log_info("'id' has correct format: contract_history_object_type")
-            if not self.validator.is_contract_id(notice["contract"]):
-                lcc.log_error("Wrong format of 'contract', got: {}".format(notice["contract"]))
-            else:
-                lcc.log_info("'contract' has correct format: contract_id")
-            if not self.validator.is_operation_history_id(notice["operation_id"]):
-                lcc.log_error("Wrong format of 'operation_id', got: {}".format(notice["operation_id"]))
-            else:
-                lcc.log_info("'operation_id' has correct format: operation_history_id")
-            if not self.validator.is_contract_history_id(notice["next"]):
-                lcc.log_error("Wrong format of 'next', got: {}".format(notice["next"]))
-            else:
-                lcc.log_info("'next' has correct format: contract_history_object_type")
-            check_that_in(
-                notice,
-                "sequence", is_integer(),
-                "next", is_("{}{}".format(
-                    self.get_implementation_object_type(self.echo.config.implementation_object_types.CONTRACT_HISTORY),
-                    str((int(notice["id"].split('.')[2]) - 1)))),
-                "extensions", is_list(),
-                quiet=True
-            )
+        self.object_validator.validate_contract_history_object(self, notice)
+        check_that_in(
+            notice,
+            "sequence", is_integer(),
+            "next", is_("{}{}".format(
+                self.get_implementation_object_type(
+                    self.echo.config.implementation_object_types.CONTRACT_HISTORY),
+                str((int(notice["id"].split('.')[2]) - 1)))),
+            "extensions", is_list(),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "notice", "database_api", "database_api_contracts", "subscribe_contracts")
-@lcc.suite("Positive testing of method 'subscribe_contracts'", rank=2)
+@lcc.tags(
+    "api", "notice", "database_api", "database_api_contracts", "subscribe_contracts",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Positive testing of methods: 'subscribe_contracts', 'get_objects'", rank=2)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -202,7 +194,11 @@ class PositiveTesting(BaseTest):
                     counter += 1
                     continue
             lcc.log_info("Check notice #'{}' with id='{}'".format(str(i), notice["id"]))
-            require_that("'owner'", notice["owner"], equal_to(contract_id))
+            require_that(
+                "'owner'",
+                notice["owner"], equal_to(contract_id),
+                quiet=True
+            )
             if not notice["id"].startswith(expected_objs[i]):
                 if counter != len(notice):
                     counter += 1
@@ -212,7 +208,8 @@ class PositiveTesting(BaseTest):
                 check_that_in(
                     notice,
                     "asset_type", equal_to(asset_type),
-                    "balance", equal_to(contract_balance)
+                    "balance", equal_to(contract_balance),
+                    quiet=True
                 )
 
     def setup_suite(self):
@@ -245,7 +242,7 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Check notices of contract")
+    @lcc.test("Check notices of contract and compare with get_objects method")
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContracts.SubscribeContracts.method_main_check")
     def check_different_types_of_contract_notices(self, get_random_integer):
         value_amount = 10
@@ -282,7 +279,8 @@ class PositiveTesting(BaseTest):
         check_that_in(
             notice,
             "contract", equal_to(contract_id),
-            "operation_id", equal_to(operation_history_id)
+            "operation_id", equal_to(operation_history_id),
+            quiet=True
         )
 
         lcc.set_step("Call 'getPennie' method")
@@ -307,6 +305,36 @@ class PositiveTesting(BaseTest):
         self.check_balance_and_statistic_objs_in_notice(notice_2, contract_id, expected_contract_balance,
                                                         value_asset_id)
 
+        lcc.set_step("Get contract balance and contract statistics objects by id")
+        params = [notice_part["id"] for notice_part in notice_2]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+        contract_balance_id_pattern = self.get_implementation_object_type(
+            self.echo.config.implementation_object_types.CONTRACT_BALANCE)
+        for i, contract_balance_statistics in enumerate(get_objects_results):
+            if contract_balance_statistics["id"].startswith(contract_balance_id_pattern):
+                lcc.set_step("Check contract balance object : {}".format(params[i]))
+                self.object_validator.validate_contract_balance_object(self, contract_balance_statistics)
+            else:
+                lcc.set_step("Check contract statistics object: {}".format(params[i]))
+                self.object_validator.validate_contract_statistics_object(self, contract_balance_statistics)
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'subscribe_contracts', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(notice_2),
+            quiet=True
+        )
+
         lcc.set_step("Call 'breakPiggy' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.break_piggy, callee=contract_id)
@@ -322,6 +350,31 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check notice about updated contract history")
         self.check_contract_history_objs_in_notice(response, notice, contract_id)
+
+        lcc.set_step("Get contract history object by id")
+        params = [notice_part["id"] for notice_part in notice]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        for i, contract_history_object in enumerate(get_objects_results):
+            lcc.set_step("Check contract history object #{}: {}".format(i, params[i]))
+            self.object_validator.validate_contract_history_object(self, contract_history_object)
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'subscribe_contracts', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(notice),
+            quiet=True
+        )
 
     @lcc.test("Check notices of contract created by another contract")
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContracts.SubscribeContracts.method_main_check")
@@ -365,7 +418,8 @@ class PositiveTesting(BaseTest):
         check_that_in(
             notice,
             "contract", equal_to(created_contract_id),
-            "operation_id", equal_to(operation_history_id)
+            "operation_id", equal_to(operation_history_id),
+            quiet=True
         )
 
         lcc.set_step("Call 'tr_asset_to_creator' method of created contract")

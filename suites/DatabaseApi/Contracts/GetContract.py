@@ -55,13 +55,13 @@ class GetContract(BaseTest):
         contract_type = response["result"][0]
         require_that("contract index", contract_type, is_(0))
         contract_info = response["result"][1]
-        if not self.validator.is_hex(contract_info["code"]):
+        if not self.type_validator.is_hex(contract_info["code"]):
             lcc.log_error("Wrong format of 'code', got: {}".format(contract_info["code"]))
         else:
             lcc.log_info("'code' has correct format: hex")
 
         contract_storage = contract_info["storage"]
-        if not self.validator.is_hex(contract_storage[0][0]):
+        if not self.type_validator.is_hex(contract_storage[0][0]):
             lcc.log_error("Wrong format of 'contract storage var 1', got: {}".format(contract_storage[0][0]))
         else:
             lcc.log_info("'contract storage var 1' has correct format: hex")
@@ -234,7 +234,7 @@ class PositiveTesting(BaseTest):
         require_that("'contract storage'", contract_storage_with_int, has_length(1))
 
         require_that("'contract storage'", contract_storage_with_int, not_equal_to([]), quiet=True, )
-        if not self.validator.is_hex(contract_storage_with_int[0][0]):
+        if not self.type_validator.is_hex(contract_storage_with_int[0][0]):
             lcc.log_error("Wrong format of 'contract storage var 1', got: {}".format(contract_storage_with_int[0][0]))
         else:
             lcc.log_info("'contract storage var 1' has correct format: hex")
@@ -270,7 +270,7 @@ class PositiveTesting(BaseTest):
         require_that("'contract storage'", contract_storage_with_string, has_length(3))
         check_that("'contract storage'", contract_storage_with_string[0], equal_to(contract_storage_with_int[0]))
         for contract_storage in contract_storage_with_string:
-            if not self.validator.is_hex(contract_storage[0]):
+            if not self.type_validator.is_hex(contract_storage[0]):
                 lcc.log_error("Wrong format of 'contract storage var 1', got: {}".format(contract_storage[0][0]))
             else:
                 lcc.log_info("'contract storage var 1' has correct format: hex")

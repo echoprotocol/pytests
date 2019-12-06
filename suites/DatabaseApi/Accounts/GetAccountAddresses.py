@@ -2,20 +2,24 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, is_str, equal_to, require_that, \
+from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, equal_to, require_that,\
     not_equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_account_addresses'"
+    "description": "Methods: 'get_account_addresses', 'get_objects' (account address object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_accounts", "get_account_addresses")
-@lcc.suite("Check work of method 'get_account_addresses'", rank=1)
+@lcc.prop("negative", "type")
+@lcc.tags(
+    "api", "database_api", "database_api_accounts", "get_account_addresses",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_account_addresses', 'get_objects' (account address object)", rank=1)
 class GetAccountAddresses(BaseTest):
 
     def __init__(self):
@@ -41,7 +45,7 @@ class GetAccountAddresses(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_account_addresses'")
+    @lcc.test("Simple work of methods: 'get_account_addresses', 'get_objects' (account address object)")
     def method_main_check(self, get_random_valid_account_name, get_random_string):
         new_account = get_random_valid_account_name
         label = get_random_string
@@ -81,25 +85,35 @@ class GetAccountAddresses(BaseTest):
 
         lcc.set_step("Check new account address object in method 'get_account_addresses'")
         result = response["result"][0]
-        if check_that("account_addresses", result, has_length(5)):
-            if not self.validator.is_account_address_id(result["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'id' has correct format: account_address_object_type")
-            if not self.validator.is_account_id(result["owner"]):
-                lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
-            else:
-                lcc.log_info("'owner' has correct format: account_object_type")
-            if not self.validator.is_hex(result["address"]):
-                lcc.log_error("Wrong format of 'address', got: {}".format(result["owner"]))
-            else:
-                lcc.log_info("'address' has correct format: hex")
-            check_that_in(
-                result,
-                "label", is_str(),
-                "extensions", is_list(),
-                quiet=True
-            )
+        self.object_validator.validate_account_address_object(self, result)
+        check_that_in(
+            result,
+            "owner", equal_to(new_account),
+            "label", equal_to(label),
+            quiet=True
+        )
+
+        lcc.set_step("Get account address object by id")
+        params = [result["id"]]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_account_addresses', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results[0], equal_to(result),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")
@@ -283,3 +297,65 @@ class PositiveTesting(BaseTest):
                 "address", equal_to(response_from_get_objects["address"]),
                 "extensions", equal_to(response_from_get_objects["extensions"]),
             )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_accounts", "get_account_addresses")
+@lcc.suite("Negative testing of method 'get_account_addresses'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        self.__registration_api_identifier = self.get_identifier("registration")
+        lcc.log_info(
+            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
+                                                                           self.__registration_api_identifier))
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in get_account_addresses")
+    @lcc.depends_on("DatabaseApi.Accounts.GetAccountAddresses.GetAccountAddresses.method_main_check")
+    def check_negative_int_value_in_get_account_addresses(self, get_random_valid_account_name):
+        new_account = get_random_valid_account_name
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        _from = -10
+        limit = 100
+
+        lcc.set_step("Create and get new account")
+        new_account = self.get_account_id(new_account, self.__database_api_identifier,
+                                          self.__registration_api_identifier)
+        lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
+
+        lcc.set_step("Get 'get_account_addresses' with negative from")
+        params = [new_account, _from, limit]
+        response_id = self.send_request(self.get_request("get_account_addresses", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )
+
+        _from = 0
+        limit = -100
+
+        lcc.set_step("Get 'get_account_addresses' with negative limit")
+        params = [new_account, _from, limit]
+        response_id = self.send_request(self.get_request("get_account_addresses", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
+        )

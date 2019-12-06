@@ -66,7 +66,7 @@ class GetAccountByAddress(BaseTest):
         lcc.log_info("Call method 'get_account_by_address' of new account '{}'".format(new_account))
 
         lcc.set_step("Check response from method 'get_account_by_address'")
-        if not self.validator.is_account_id(response["result"]):
+        if not self.type_validator.is_account_id(response["result"]):
             lcc.log_error("Wrong format of 'response', got: {}".format(response["result"]))
         else:
             lcc.log_info("'response' has correct format: account_object_type")

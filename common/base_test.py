@@ -18,11 +18,12 @@ from common.echo_operation import EchoOperations
 from common.ethereum_transaction import EthereumTransactions
 from common.receiver import Receiver
 from common.utils import Utils
-from common.validation import Validator
+from common.type_validation import TypeValidator
+from common.object_validation import ObjectValidator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG, NATHAN_PK
+    GANACHE_PK, DEBUG, NATHAN_PK, INIT4_PK
 
 
 class BaseTest(object):
@@ -37,7 +38,8 @@ class BaseTest(object):
         self.echo_ops = EchoOperations()
         self.eth_trx = EthereumTransactions()
         self.__id = 0
-        self.validator = Validator()
+        self.type_validator = TypeValidator()
+        self.object_validator = ObjectValidator()
         self.echo_asset = "1.3.0"
         self.eth_asset = ETH_ASSET_ID
         # Declare all default accounts
@@ -67,14 +69,14 @@ class BaseTest(object):
     def check_uint64_numbers(self, response, key, quiet=False):
         # Method check uint64 numbers
         if type(response.get(key)) is str:
-            self.validator.is_uint64(response.get(key))
+            self.type_validator.is_uint64(response.get(key))
             check_that_in(response, key, is_str(), quiet=quiet)
         else:
             check_that_in(response, key, is_integer(), quiet=quiet)
 
     def check_uint256_numbers(self, response, key, quiet=False):
         if type(response.get(key)) is str:
-            self.validator.is_uint256(response.get(key))
+            self.type_validator.is_uint256(response.get(key))
             check_that_in(response, key, is_str(), quiet=quiet)
         else:
             check_that_in(response, key, is_integer(), quiet=quiet)
@@ -132,11 +134,11 @@ class BaseTest(object):
 
     def get_byte_code_param(self, param, param_type=None, offset="20"):
         hex_param_64 = "0000000000000000000000000000000000000000000000000000000000000000"
-        if param_type == int and self.validator.is_uint256(param):
+        if param_type == int and self.type_validator.is_uint256(param):
             param = hex(param).split('x')[-1]
             hex_param = hex_param_64[:-len(param)] + param
             return hex_param
-        if param_type == str and self.validator.is_string(param):
+        if param_type == str and self.type_validator.is_string(param):
             param_in_hex = codecs.encode(param).hex()
             len_param_in_hex = hex(len(param)).split('x')[-1]
             part_1 = hex_param_64[:-2] + offset
@@ -145,11 +147,11 @@ class BaseTest(object):
             if len(param_in_hex) < 64:
                 part_3 = param_in_hex + hex_param_64[:-len(param_in_hex)]
             return part_1 + part_2 + part_3
-        if self.validator.is_object_id(param):
+        if self.type_validator.is_object_id(param):
             param = hex(int(param.split('.')[2])).split('x')[-1]
             hex_param = hex_param_64[:-len(param)] + param
             return hex_param
-        if self.validator.is_eth_address(param):
+        if self.type_validator.is_eth_address(param):
             return hex_param_64[:-len(param)] + param
         lcc.log_error("Param not valid, got: {}".format(param))
         raise Exception("Param not valid")
@@ -317,14 +319,14 @@ class BaseTest(object):
         operations_count = len(response.get("trx").get("operations"))
         if operations_count == 1:
             operation_result = response.get("trx").get("operation_results")[0]
-            if operation_result[0] != 1 and not self.validator.is_object_id(operation_result[1]):
+            if operation_result[0] != 1 and not self.type_validator.is_object_id(operation_result[1]):
                 lcc.log_error("Wrong format of operation result, got {}".format(operation_result))
                 raise Exception("Wrong format of operation result")
             return True
         operation_results = []
         for i in range(operations_count):
             operation_results.append(response.get("trx").get("operation_results")[i])
-            if operation_results[i][0] != 1 and not self.validator.is_object_id(operation_results[i][1]):
+            if operation_results[i][0] != 1 and not self.type_validator.is_object_id(operation_results[i][1]):
                 lcc.log_error("Wrong format of operation results, got {}".format(operation_results))
                 raise Exception("Wrong format of operation results")
             return True
@@ -359,12 +361,12 @@ class BaseTest(object):
             contract_identifier_hex = response["result"][1]["exec_res"]["new_address"]
         else:
             contract_identifier_hex = response["result"][1]["tr_receipt"]["log"][0]["address"]
-        if not self.validator.is_hex(contract_identifier_hex):
+        if not self.type_validator.is_hex(contract_identifier_hex):
             lcc.log_error("Wrong format of address, got {}".format(contract_identifier_hex))
             raise Exception("Wrong format of address")
         contract_id = "{}{}".format(self.get_object_type(self.echo.config.object_types.CONTRACT),
                                     int(str(contract_identifier_hex)[2:], 16))
-        if not self.validator.is_contract_id(contract_id):
+        if not self.type_validator.is_contract_id(contract_id):
             lcc.log_error("Wrong format of contract id, got {}".format(contract_id))
             raise Exception("Wrong format of contract id")
         if new_contract:
@@ -491,7 +493,7 @@ class BaseTest(object):
     def get_or_register_an_account(self, account_name, database_api_identifier, registration_api_identifier,
                                    debug_mode=False):
         response = self.get_account_by_name(account_name, database_api_identifier, debug_mode=debug_mode)
-        if response.get("result") is None and self.validator.is_account_name(account_name):
+        if response.get("result") is None and self.type_validator.is_account_name(account_name):
             response = self.register_account(account_name, registration_api_identifier, database_api_identifier,
                                              debug_mode=debug_mode)
         if debug_mode:
@@ -510,11 +512,17 @@ class BaseTest(object):
             lcc.log_debug("Account '{}' with id '{}'".format(account_name, account_id))
         return account_id
 
-    def get_initial_account_id(self, initial_account_num, database_api_identifier):
+    def get_active_committee_members_info(self, database_api_identifier):
         response_id = self.send_request(self.get_request("get_global_properties"),
                                         database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        return active_committee_members[initial_account_num][1]
+        return [
+            {
+                "account_id": member[1],
+                "committee_id": member[0]
+            }
+            for member in active_committee_members
+        ]
 
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []
@@ -580,7 +588,6 @@ class BaseTest(object):
         for operation in list_operations:
             self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id,
                                       debug_mode)
-            lcc.log_info("{}".format(operation))
         return list_operations
 
     def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):
@@ -588,9 +595,9 @@ class BaseTest(object):
         if len([contract_result]) != 1:
             lcc.log_error("Need one contract id, got:\n{}".format(contract_result))
             raise Exception("Need one contract id")
-        if self.validator.is_erc20_object_id(contract_result):
+        if self.type_validator.is_erc20_object_id(contract_result):
             return contract_result
-        if not self.validator.is_contract_result_id(contract_result):
+        if not self.type_validator.is_contract_result_id(contract_result):
             lcc.log_error("Wrong format of contract result id, got {}".format(contract_result))
             raise Exception("Wrong format of contract result id")
         response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
@@ -648,12 +655,14 @@ class BaseTest(object):
         return data['RESERVED_PUBLIC_KEY']
 
     def produce_block(self, database_api_identifier):
+        committee_members_info = self.get_active_committee_members_info(database_api_identifier)
+
         operation = self.echo_ops.get_transfer_operation(
             echo=self.echo,
-            from_account_id="1.2.11",
-            to_account_id="1.2.1",
-            amount=1, 
-            signer=NATHAN_PK
+            from_account_id=committee_members_info[4]["account_id"],
+            to_account_id=committee_members_info[0]["account_id"],
+            amount=1,
+            signer=INIT4_PK
         )
         collected_operation = self.collect_operations(operation, database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)

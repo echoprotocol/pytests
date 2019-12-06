@@ -11,6 +11,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
+@lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_accounts", "lookup_accounts")
 @lcc.suite("Check work of method 'lookup_accounts'", rank=1)
 class LookupAccounts(BaseTest):
@@ -20,12 +21,12 @@ class LookupAccounts(BaseTest):
         self.__database_api_identifier = None
         self.account_name = "nathan"
 
-    def check_lookup_account_structure(self, lookup_account):
-        if not self.validator.is_account_name(lookup_account[0]):
+    def check_lookup_account_object(self, lookup_account):
+        if not self.type_validator.is_account_name(lookup_account[0]):
             lcc.log_error("Wrong format of 'account name', got: {}".format(lookup_account[0]))
         else:
             lcc.log_info("'account name' has correct format: account_name")
-        if not self.validator.is_account_id(lookup_account[1]):
+        if not self.type_validator.is_account_id(lookup_account[1]):
             lcc.log_error("Wrong format of 'account id', got: {}".format(lookup_account[1]))
         else:
             lcc.log_info("'account id' has correct format: account_id")
@@ -53,7 +54,7 @@ class LookupAccounts(BaseTest):
                 lookup_account, has_length(2)
             )
 
-            self.check_lookup_account_structure(lookup_account)
+            self.check_lookup_account_object(lookup_account)
 
 
 @lcc.prop("positive", "type")
@@ -188,4 +189,44 @@ class PositiveTesting(BaseTest):
         require_that(
             "'full accounts lookup info in alphabet symbol order'",
             account_names == sorted(account_names.copy()), is_true()
+        )
+
+
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_accounts", "lookup_accounts")
+@lcc.suite("Negative testing of method 'lookup_accounts'", rank=3)
+class NegativeTesting(BaseTest):
+
+    def __init__(self):
+        super().__init__()
+        self.__database_api_identifier = None
+        self.account_name = "nathan"
+
+    def setup_suite(self):
+        super().setup_suite()
+        self._connect_to_echopy_lib()
+        lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        lcc.log_info(
+            "API identifier are: database='{}'".format(self.__database_api_identifier))
+
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.test("Check negative int value in lookup_accounts")
+    @lcc.depends_on("DatabaseApi.Accounts.LookupAccounts.LookupAccounts.method_main_check")
+    def check_negative_int_value_in_lookup_accounts(self):
+        error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
+        limit = -1
+
+        lcc.set_step("Get 'lookup_accounts' with negative limit")
+        response_id = self.send_request(self.get_request("lookup_accounts", [self.account_name, limit]),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that(
+            "error_message",
+            message, equal_to(error_message),
+            quiet=True
         )
