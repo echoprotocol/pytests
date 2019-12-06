@@ -39,10 +39,10 @@ Software Requirements: Python 3.7 or later
 - *DEBUG* - run tests with debug mode that log all in\out communication messages with Echo node (bool type)
 
 ##### for this you need, example:
-* Linux OS: export BASE_URL=_[needed_url]()_
-* Windows OS: set BASE_URL=_[needed_url]()_
+* Linux OS: export BASE_URL=<BASE_URL>
+* Windows OS: set BASE_URL=<BASE_URL>
 
-### You can docker to run tests on the Echo and Ethereum nodes locally:
+### You can use docker-compose to run tests on the Echo and Ethereum nodes locally:
     $ cd pytests
     $ docker-compose pull
     $ docker-compose up build --no-cache
@@ -66,8 +66,9 @@ Run only enabled tests           | `$ lcc run --enabled`
 Run tests from special report    | `$ lcc run --from-report path_to_report`
 
 _note:_ can combine run options, for example - `$ lcc run --failed --from-report reports/report-2`
-Using `test_runner.py` script to run tests, you can specify a environment variable *PYTESTS_FILTERS* for filtering run command.
-Example: export PYTESTS_FILTERS=main:database_api
+
+Using `test_runner.py` script to run tests, you can specify a environment variable *PYTESTS_FILTERS* for filtering run command. </br>
+Example: export PYTESTS_FILTERS=main:database_api</br>
 For more information about filters see `test_runner.py` script.
 
 ## Project tree:
@@ -129,6 +130,7 @@ For more information about filters see `test_runner.py` script.
 │   ├── AssetApi.py
 │   ├── DatabaseApi.py
 │   ├── HistoryApi.py
+│   ├── LoginApi.py
 │   ├── NetworkBroadcastApi.py
 │   ├── Operations.py
 │   ├── RegistrationApi.py
