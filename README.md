@@ -47,6 +47,7 @@ Software Requirements: Python 3.7 or later
     $ docker-compose pull
     $ docker-compose up build --no-cache
     $ docker-compose up migrate
+    $ docker-compose up -d echo
     $ docker-compose up pytests
 
 ### To run tests you can use following commands in console:
@@ -165,16 +166,16 @@ For more information about filters see `test_runner.py` script.
 
 #### [Database API](https://docs.echo.org/api-reference/echo-node-api/database-api)
 
-Objects: 
+Objects: (https://docs.echo.org/api-reference/echo-node-api/database-api#objects)
 - [x] [get_objects](https://docs.echo.org/api-reference/echo-node-api/database-api#objects)  
 
-Subscriptions:
+Subscriptions: (https://docs.echo.org/api-reference/echo-node-api/database-api#subscriptions)
 - [x] [set_subscribe_callback](https://docs.echo.org/api-reference/echo-node-api/database-api#set_subscribe_callback-callback-clear_filter)
 - [x] [set_pending_transaction_callback](https://docs.echo.org/api-reference/echo-node-api/database-api#set_pending_transaction_callback-callback)
 - [x] [set_block_applied_callback ](https://docs.echo.org/api-reference/echo-node-api/database-api#set_block_applied_callback-callback)
 - [x] [cancel_all_subscriptions](https://docs.echo.org/api-reference/echo-node-api/database-api#cancel_all_subscriptions)
 
-Blocks and transactions:
+Blocks and transactions: (https://docs.echo.org/api-reference/echo-node-api/database-api#blocks-and-transactions)
 - [x] [get_block_header](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_header-block_num)
 - [x] [get_block_header_batch](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_header_batch-block_nums)
 - [x] [get_block](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block-block_num)
@@ -184,18 +185,18 @@ Blocks and transactions:
 - [x] [get_transaction](https://docs.echo.org/api-reference/echo-node-api/database-api#get_transaction-block_num-trx_in_block)
 - [x] [get_recent_transaction_by_id](https://docs.echo.org/api-reference/echo-node-api/database-api#get_recent_transaction_by_id-id)
 
-Globals:
+Globals: (https://docs.echo.org/api-reference/echo-node-api/database-api#globals)
 - [x] [get_chain_properties](https://docs.echo.org/api-reference/echo-node-api/database-api#get_chain_properties)
 - [x] [get_global_properties](https://docs.echo.org/api-reference/echo-node-api/database-api#get_global_properties)
 - [x] [get_config](https://docs.echo.org/api-reference/echo-node-api/database-api#get_config)
 - [x] [get_chain_id](https://docs.echo.org/api-reference/echo-node-api/database-api#get_chain_id)
 - [x] [get_dynamic_global_properties](https://docs.echo.org/api-reference/echo-node-api/database-api#get_dynamic_global_properties)
 
-Keys:
+Keys: (https://docs.echo.org/api-reference/echo-node-api/database-api#keys)
 - [x] [get_key_references](https://docs.echo.org/api-reference/echo-node-api/database-api#get_key_references-keys)
 - [x] [is_public_key_registered](https://docs.echo.org/api-reference/echo-node-api/database-api#is_public_key_registered-public_key)
 
-Accounts:
+Accounts: (https://docs.echo.org/api-reference/echo-node-api/database-api#accounts)
 - [x] [get_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#get_accounts-account_ids)
 - [x] [get_full_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#get_full_accounts-names_or_ids-subscribe)
 - [x] [get_account_by_name](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_by_name-name)
@@ -206,7 +207,7 @@ Accounts:
 - [x] [get_account_by_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_by_address-address)
 - [x] [get_account_count](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_count)
 
-Contracts:
+Contracts: (https://docs.echo.org/api-reference/echo-node-api/database-api#contracts)
 - [x] [get_contract](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract-contract_id)
 - [x] [get_contracts](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contracts-contract_ids)
 - [x] [get_contract_logs](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_logs-contract_logs_filter_options)
@@ -215,7 +216,7 @@ Contracts:
 - [x] [get_contract_result](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_result-id)
 - [x] [call_contract_no_changing_state](https://docs.echo.org/api-reference/echo-node-api/database-api#call_contract_no_changing_state-contract_id-caller-value-code)
 
-Balances:
+Balances: (https://docs.echo.org/api-reference/echo-node-api/database-api#balances)
 - [x] [get_account_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_balances-id-assets)
 - [x] [get_contract_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_balances-contract_id)
 - [x] [get_named_account_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_named_account_balances-name-assets)
@@ -225,18 +226,18 @@ Balances:
 - [x] [get_frozen_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_frozen_balances-account_id)
 - [x] [get_committee_frozen_balance](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_frozen_balance-committee_member_id)
 
-Assets:
+Assets: (https://docs.echo.org/api-reference/echo-node-api/database-api#assets)
 - [x] [get_assets](https://docs.echo.org/api-reference/echo-node-api/database-api#get_assets-asset_ids)
 - [x] [list_assets](https://docs.echo.org/api-reference/echo-node-api/database-api#list_assets-lower_bound_symbol-limit)
 - [x] [lookup_asset_symbols](https://docs.echo.org/api-reference/echo-node-api/database-api#lookup_asset_symbols-symbols_or_ids)
 
-Committee members:
+Committee members: (https://docs.echo.org/api-reference/echo-node-api/database-api#committee-members)
 - [x] [get_committee_members](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_members-committee_member_ids)
 - [x] [get_committee_member_by_account](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_member_by_account-account)
 - [x] [lookup_committee_member_accounts](https://docs.echo.org/api-reference/echo-node-api/database-api#lookup_committee_member_accounts-lower_bound_name-limit)
 - [x] [get_committee_count](https://docs.echo.org/api-reference/echo-node-api/database-api#get_committee_count)
 
-Authority / validation:
+Authority / validation: (https://docs.echo.org/api-reference/echo-node-api/database-api#authority-validation)
 - [x] [get_transaction_hex](https://docs.echo.org/api-reference/echo-node-api/database-api#get_transaction_hex-trx)
 - [x] [get_required_signatures](https://docs.echo.org/api-reference/echo-node-api/database-api#get_required_signatures-ctrx-available_keys)
 - [x] [get_potential_signatures](https://docs.echo.org/api-reference/echo-node-api/database-api#get_potential_signatures-ctrx)
@@ -245,45 +246,45 @@ Authority / validation:
 - [x] [validate_transaction](https://docs.echo.org/api-reference/echo-node-api/database-api#validate_transaction-trx)
 - [x] [get_required_fees](https://docs.echo.org/api-reference/echo-node-api/database-api#get_required_fees-ops-id)
 
-Proposed transactions:
+Proposed transactions: (https://docs.echo.org/api-reference/echo-node-api/database-api#proposed-transactions)
 - [x] [get_proposed_transactions](https://docs.echo.org/api-reference/echo-node-api/database-api#get_proposed_transactions-id)
 
-Sidechain:
+Sidechain: (https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain)
 - [x] [get_account_deposits](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_deposits-account-type)
 - [x] [get_account_withdrawals](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_withdrawals-account-type)
 
-Sidechain Ethereum:
+Sidechain Ethereum: (https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain-ethereum)
 - [x] [get_eth_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_eth_address-account)
 
-Sidechain ERC20:
+Sidechain ERC20: (https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain-erc20)
 - [x] [get_erc20_token](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_token-eth_addr)
 - [x] [check_erc20_token](https://docs.echo.org/api-reference/echo-node-api/database-api#check_erc-20-_token-id)
 - [x] [get_erc20_account_deposits](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_account_deposits-account)
 - [x] [get_erc20_account_withdrawals](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_account_withdrawals-account)
 
-Sidechain Bitcoin:
+Sidechain Bitcoin: (https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain-bitcoin)
 - [x] [get_btc_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_btc_address-account)
 - [x] [get_btc_deposit_script](https://docs.echo.org/api-reference/echo-node-api/database-api#get_btc_deposit_script-address)
 
-Contract Feepool:
+Contract Feepool: (https://docs.echo.org/api-reference/echo-node-api/database-api#contract-feepool)
 - [x] [get_contract_pool_balance](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_pool_balance-id)
 - [x] [get_contract_pool_whitelist](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_pool_whitelist-id)
 
-#### [History API](https://echo-dev.io/developers/apis/history-api/#history-api)
+#### [History API](https://docs.echo.org/api-reference/echo-node-api/history-api)
 
 - [x] [get_account_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_account_history-account-stop-limit-start)
 - [x] [get_account_history_operations](https://docs.echo.org/api-reference/echo-node-api/history-api#get_account_history_operations-account-operation_id-start-stop-limit)
 - [x] [get_relative_account_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_relative_account_history-account-stop-limit-start)
 - [x] [get_contract_history](https://docs.echo.org/api-reference/echo-node-api/history-api#get_contract_history-contract-stop-limit-start)
 
-#### [Network broadcast API](https://echo-dev.io/developers/apis/network-broadcast-api/#network-broadcast-api)
+#### [Network broadcast API](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api)
 
 - [x] [broadcast_transaction](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction-trx)
 - [x] [broadcast_transaction_with_callback](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_with_callback-cb-trx)
 - [x] [broadcast_transaction_synchronous](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_transaction_synchronous-trx)
 - [ ] [broadcast_block](https://docs.echo.org/api-reference/echo-node-api/network-broadcast-api#broadcast_block-signed_block)
 
-#### [Registration API](https://echo-dev.io/developers/apis/registration-api/#registration-api)
+#### [Registration API](https://docs.echo.org/api-reference/echo-node-api/registration-api)
 
 - [x] [request_registration_task](https://docs.echo.org/api-reference/echo-node-api/registration-api#request_registration_task)
 - [x] [submit_registration_solution](https://docs.echo.org/api-reference/echo-node-api/registration-api#submit_registration_solution-callback-name-active-echorand_key-nonce-rand_num)
@@ -351,7 +352,7 @@ Contract Feepool:
 - [x] [override_transfer_operation](https://docs.echo.org/api-reference/echo-operations/asset-transfer#override_transfer_operation)
 
 
-#### [List of Sidechain Operations](https://echo-dev.io/developers/operations/#vesting-balances)
+#### [List of Sidechain Operations](https://docs.echo.org/api-reference/echo-operations/sidechain)
 
 - [x] [sidechain_eth_create_address_operation](https://docs.echo.org/api-reference/echo-operations/sidechain#sidechain_eth_create_address_operation)
 - [ ] [sidechain_eth_approve_address_operation [INTERNAL]](https://docs.echo.org/api-reference/echo-operations/sidechain#sidechain_eth_approve_address_operation)
@@ -375,7 +376,7 @@ Contract Feepool:
 - [ ] [sidechain_btc_approve_aggregate_operation [INTERNAL]](https://docs.echo.org/api-reference/echo-operations/sidechain#sidechain_btc_approve_aggregate_operation)
 
 
-#### [List of Vesting Balances Operations](https://echo-dev.io/developers/operations/#vesting-balances)
+#### [List of Vesting Balances Operations](https://docs.echo.org/api-reference/echo-operations/vesting-balances)
 
 - [x] [vesting_balance_create_operation](https://docs.echo.org/api-reference/echo-operations/vesting-balances#vesting_balance_create_operation)
 - [x] [vesting_balance_withdraw_operation](https://docs.echo.org/api-reference/echo-operations/vesting-balances#vesting_balance_withdraw_operation)
