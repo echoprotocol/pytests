@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_, check_that_in, is_list, is_integer, require_that, \
+from lemoncheesecake.matching import check_that, is_, is_list, require_that, \
     has_length, equal_to
 
 from common.base_test import BaseTest
@@ -57,20 +57,7 @@ class GetRelativeAccountHistory(BaseTest):
             results, has_length(limit)
         )
         for result in results:
-            if not self.validator.is_operation_history_id(result["id"]):
-                lcc.log_error("Wrong format of 'operation id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'operation_id' has correct format: operation_history_id")
-            check_that_in(
-                result,
-                "op", is_list(),
-                "result", is_list(),
-                "block_num", is_integer(),
-                "trx_in_block", is_integer(),
-                "op_in_trx", is_integer(),
-                "virtual_op", is_integer(),
-                quiet=True
-            )
+            self.object_validator.validate_operation_history_object(self, result)
 
 
 @lcc.prop("positive", "type")

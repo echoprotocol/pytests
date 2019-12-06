@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-
-from common.validation import Validator
+from common.type_validation import TypeValidator
 from project import ECHO_INITIAL_BALANCE, NATHAN_PK, INITIAL_ACCOUNTS_COUNT, INITIAL_ACCOUNTS_NAMES, \
     ACCOUNT_PREFIX, DEFAULT_ACCOUNTS_COUNT, MAIN_TEST_ACCOUNT_COUNT, WALLETS, INITIAL_COMMITTEE_ETH_ADDRESSES, \
     ROPSTEN
@@ -101,12 +100,12 @@ def get_account_id(account):
 
 
 def get_account(base_test, account_name, database_api):
-    validator = Validator()
-    if validator.is_account_name(account_name):
+    type_validator = TypeValidator()
+    if type_validator.is_account_name(account_name):
         response_id = base_test.send_request(base_test.get_request("get_account_by_name", [account_name]),
                                              database_api)
         result = base_test.get_response(response_id)["result"]
-    elif validator.is_account_id(account_name):
+    elif type_validator.is_account_id(account_name):
         response_id = base_test.send_request(base_test.get_request("get_accounts", [[account_name]]),
                                              database_api)
         result = base_test.get_response(response_id)["result"][0]

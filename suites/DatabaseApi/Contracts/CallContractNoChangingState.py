@@ -53,7 +53,7 @@ class CallContractNoChangingState(BaseTest):
         lcc.log_info("Call method 'call_contract_no_changing_state' with params: '{}'".format(params))
 
         lcc.set_step("Check simple work of method 'call_contract_no_changing_state'")
-        if not self.validator.is_hex(result):
+        if not self.type_validator.is_hex(result):
             lcc.log_error("Wrong format of response from 'call_contract_no_changing_state', got: {}".format(result))
         else:
             lcc.log_info("response from 'call_contract_no_changing_state' has correct format: hex")

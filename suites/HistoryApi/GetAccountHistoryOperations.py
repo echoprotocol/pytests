@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_, check_that_in, is_str, is_list, is_integer, require_that, \
+from lemoncheesecake.matching import check_that, is_, is_str, is_list, require_that, \
     require_that_in, has_length, equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_account_history_operations'"
+    "description": "Methods: 'get_account_history_operations', 'get_objects' (operation history object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "history_api", "get_account_history_operations")
-@lcc.suite("Check work of method 'get_account_history_operations '", rank=1)
+@lcc.tags(
+    "api", "history_api", "get_account_history_operations",
+    "database_api_objects", "get_objects"
+    # database_api (solve this)
+)
+@lcc.suite(
+    "Check work of methods: 'get_account_history_operations', 'get_objects' (operation history object)", rank=1
+)
 class GetAccountHistoryOperations(BaseTest):
 
     def __init__(self):
@@ -43,7 +49,7 @@ class GetAccountHistoryOperations(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_account_history_operations'")
+    @lcc.test("Simple work of methods: 'get_account_history_operations', 'get_objects' (operation history object)")
     def method_main_check(self):
         value_amount = 1
 
@@ -61,7 +67,7 @@ class GetAccountHistoryOperations(BaseTest):
         params = [self.echo_acc0, operation_id, start, stop, limit]
         response_id = self.send_request(self.get_request("get_account_history_operations", params),
                                         self.__history_api_identifier)
-        results = self.get_response(response_id)["result"]
+        get_account_history_operations_results = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_account_history_operations' with: account='{}', operation_id='{}', stop='{}', start='{}',"
             " limit='{}' parameters".format(self.echo_acc0, operation_id, stop, start, limit))
@@ -69,27 +75,39 @@ class GetAccountHistoryOperations(BaseTest):
         lcc.set_step("Check response from method 'get_account_history_operations'")
         check_that(
             "'number of history results'",
-            results, has_length(limit)
+            get_account_history_operations_results, has_length(limit),
+            quiet=True
         )
-        for result in results:
+        for result in get_account_history_operations_results:
+            self.object_validator.validate_operation_history_object(self, result)
             check_that(
                 "'operation id'",
-                result["op"][0], is_(operation_id)
-            )
-            if not self.validator.is_operation_history_id(result["id"]):
-                lcc.log_error("Wrong format of 'operation id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'operation_id' has correct format: operation_history_id")
-            check_that_in(
-                result,
-                "op", is_list(),
-                "result", is_list(),
-                "block_num", is_integer(),
-                "trx_in_block", is_integer(),
-                "op_in_trx", is_integer(),
-                "virtual_op", is_integer(),
+                result["op"][0], is_(operation_id),
                 quiet=True
             )
+
+        lcc.set_step("Get operation history object (get_objects method)")
+        params = [get_account_history_operations_results[0]["id"]]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_account_history_operations', 'get_objects'"
+        )
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_account_history_operations_results),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")

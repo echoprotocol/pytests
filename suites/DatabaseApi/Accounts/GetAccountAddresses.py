@@ -2,21 +2,24 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, is_str, equal_to, require_that, \
+from lemoncheesecake.matching import check_that, is_list, check_that_in, has_length, equal_to, require_that,\
     not_equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_account_addresses'"
+    "description": "Methods: 'get_account_addresses', 'get_objects' (account address object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_accounts", "get_account_addresses")
-@lcc.suite("Check work of method 'get_account_addresses'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_accounts", "get_account_addresses",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_account_addresses', 'get_objects' (account address object)", rank=1)
 class GetAccountAddresses(BaseTest):
 
     def __init__(self):
@@ -42,7 +45,7 @@ class GetAccountAddresses(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'get_account_addresses'")
+    @lcc.test("Simple work of methods: 'get_account_addresses', 'get_objects' (account address object)")
     def method_main_check(self, get_random_valid_account_name, get_random_string):
         new_account = get_random_valid_account_name
         label = get_random_string
@@ -82,25 +85,35 @@ class GetAccountAddresses(BaseTest):
 
         lcc.set_step("Check new account address object in method 'get_account_addresses'")
         result = response["result"][0]
-        if check_that("account_addresses", result, has_length(5)):
-            if not self.validator.is_account_address_id(result["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'id' has correct format: account_address_object_type")
-            if not self.validator.is_account_id(result["owner"]):
-                lcc.log_error("Wrong format of 'owner', got: {}".format(result["owner"]))
-            else:
-                lcc.log_info("'owner' has correct format: account_object_type")
-            if not self.validator.is_hex(result["address"]):
-                lcc.log_error("Wrong format of 'address', got: {}".format(result["owner"]))
-            else:
-                lcc.log_info("'address' has correct format: hex")
-            check_that_in(
-                result,
-                "label", is_str(),
-                "extensions", is_list(),
-                quiet=True
-            )
+        self.object_validator.validate_account_address_object(self, result)
+        check_that_in(
+            result,
+            "owner", equal_to(new_account),
+            "label", equal_to(label),
+            quiet=True
+        )
+
+        lcc.set_step("Get account address object by id")
+        params = [result["id"]]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_account_addresses', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results[0], equal_to(result),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")
@@ -304,7 +317,6 @@ class NegativeTesting(BaseTest):
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
-
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()

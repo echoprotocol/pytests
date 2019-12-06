@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 
 import lemoncheesecake.api as lcc
-from eth_utils import is_list
-from lemoncheesecake.matching import require_that, has_length, check_that, check_that_in, is_list, is_, is_integer, \
-    is_dict, equal_to
+from lemoncheesecake.matching import require_that, has_length, check_that, check_that_in, is_list, is_, \
+    equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_frozen_balances'"
+    "description": "Methods: 'get_frozen_balances', 'get_objects' (frozen balance object)"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_balances", "get_frozen_balances")
-@lcc.suite("Check work of method 'get_frozen_balances'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_balances", "get_frozen_balances",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_frozen_balances', 'get_objects' (frozen balance object)", rank=1)
 class GetFrozenBalances(BaseTest):
 
     def __init__(self):
@@ -63,43 +64,61 @@ class GetFrozenBalances(BaseTest):
         lcc.set_step("Get account frozen balance")
         response_id = self.send_request(self.get_request("get_frozen_balances", [self.echo_acc0]),
                                         self.__database_api_identifier)
-        result = self.get_response(response_id)["result"]
+        get_frozen_balances_result = self.get_response(response_id)["result"]
 
         lcc.set_step("Check simple work of method 'get_frozen_balances'")
-        require_that("'get_frozen_balances result'", result, is_list(), quiet=True)
-        if check_that("frozen_balance", result[-1], has_length(6)):
-            check_that_in(
-                result[-1],
-                "owner", is_(self.echo_acc0),
-                "balance", is_dict(),
-                "multiplier", is_integer(),
-                "extensions", is_list(),
-                quiet=True
-            )
-            balance = result[-1]["balance"]
-            if check_that("balance", balance, has_length(2)):
-                check_that_in(
-                    balance,
-                    "amount", is_(value_amount),
-                    "asset_id", is_(self.echo_asset),
-                    quiet=True
-                )
-            if not self.validator.is_frozen_balance_id(result[-1]["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'id' has correct format: frozen_balance_type")
-            if not self.validator.is_iso8601(result[-1]["unfreeze_time"]):
-                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(result["unfreeze_time"]))
-            else:
-                lcc.log_info("'unfreeze_time' has correct format: iso8601")
-            frozen_balance = balance["amount"]
+        require_that(
+            "'get_frozen_balances result'",
+            get_frozen_balances_result, is_list(),
+            quiet=True
+        )
 
-            lcc.set_step("Get unfrozen balances of account")
-            params = [self.echo_acc0, [self.echo_asset]]
-            response_id = self.send_request(self.get_request("get_account_balances", params),
-                                            self.__database_api_identifier)
-            unfrozen_balance = self.get_response(response_id)["result"][0]["amount"]
+        validate_object = get_frozen_balances_result[-1]
+        self.object_validator.validate_frozen_balance_object(self, validate_object)
+        check_that_in(
+            validate_object,
+            "owner", is_(self.echo_acc0),
+            quiet=True
+        )
+        balance = validate_object["balance"]
+        check_that_in(
+            balance,
+            "amount", is_(value_amount),
+            "asset_id", is_(self.echo_asset),
+            quiet=True
+        )
+        frozen_balance = balance["amount"]
 
-            lcc.set_step("Check account balances")
-            require_that("balance", int(unfrozen_balance),
-                         equal_to(int(total_balance) - int(frozen_balance) - int(fee_amount)))
+        lcc.set_step("Get unfrozen balances of account")
+        params = [self.echo_acc0, [self.echo_asset]]
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        unfrozen_balance = self.get_response(response_id)["result"][0]["amount"]
+
+        lcc.set_step("Check account balances")
+        require_that(
+            "balance",
+            int(unfrozen_balance), equal_to(int(total_balance) - int(frozen_balance) - int(fee_amount)),
+            quiet=True
+        )
+
+        lcc.set_step("Get frozen balance object")
+        frozen_balances_id = validate_object["id"]
+        params = [frozen_balances_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_frozen_balances', 'get_objects'")
+        check_that(
+            "'get_object' result of 'get_frozen_balances'",
+            get_objects_results[-1], equal_to(validate_object),
+            quiet=True
+        )

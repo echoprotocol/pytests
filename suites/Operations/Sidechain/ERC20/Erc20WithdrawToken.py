@@ -28,7 +28,6 @@ class GetERC20AccountWithdrawals(BaseTest):
         self.erc20_abi = self.get_abi("erc20")
         self.erc20_balanceOf = self.get_byte_code("erc20", "balanceOf(address)", ethereum_contract=True)
 
-
     def get_random_amount(self, _to, _from=1):
         amount = random.randrange(_from, _to)
         if amount == _to:
@@ -40,15 +39,15 @@ class GetERC20AccountWithdrawals(BaseTest):
         for i, withdrawal in enumerate(withdrawals):
             lcc.set_step("Check work of method 'get_erc20_account_withdrawals', withdrawal #'{}'".format(i))
             check_that("'length of erc20 account withdrawal'", withdrawal, has_length(9))
-            if not self.validator.is_withdraw_erc20_id(withdrawal["id"]):
+            if not self.type_validator.is_withdraw_erc20_id(withdrawal["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(withdrawal["id"]))
             else:
                 lcc.log_info("'id' has correct format: withdraw_erc20_token_object")
-            if not self.validator.is_eth_address(withdrawal["to"]):
+            if not self.type_validator.is_eth_address(withdrawal["to"]):
                 lcc.log_error("Wrong format of 'to', got: {}".format(withdrawal["to"]))
             else:
                 lcc.log_info("'to' has correct format: ethereum_address_type")
-            if not self.validator.is_erc20_object_id(withdrawal["erc20_token"]):
+            if not self.type_validator.is_erc20_object_id(withdrawal["erc20_token"]):
                 lcc.log_error("Wrong format of 'erc20_token', got: {}".format(withdrawal["erc20_token"]))
             else:
                 lcc.log_info("'erc20_token' has correct format: erc20_token_object")

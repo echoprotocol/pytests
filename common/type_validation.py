@@ -7,7 +7,7 @@ NAME_MIN_LENGTH = 1
 NAME_MAX_LENGTH = 63
 
 
-class Validator(object):
+class TypeValidator(object):
     id_regex = re.compile(r"^(0|([1-9]\d*\.)){2}(0|([1-9]\d*))$")
     account_id_regex = re.compile(r"^1\.2\.(0|[1-9]\d*)$")
     asset_id_regex = re.compile(r"^1\.3\.(0|[1-9]\d*)$")
@@ -38,7 +38,7 @@ class Validator(object):
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")
-    bit_asset_id_regex = re.compile(r"^2\.3\.(0|[1-9]\d*)$")
+    bitasset_id_regex = re.compile(r"^2\.3\.(0|[1-9]\d*)$")
     account_balance_id_regex = re.compile(r"^2\.4\.(0|[1-9]\d*)$")
     account_statistics_id_regex = re.compile(r"^2\.5\.(0|[1-9]\d*)$")
     transaction_id_regex = re.compile(r"^2\.6\.(0|[1-9]\d*)$")
@@ -149,6 +149,10 @@ class Validator(object):
         if self.is_string(value):
             return bool(self.frozen_balance_id_regex.match(value))
 
+    def is_committee_frozen_balance_id(self, value):
+        if self.is_string(value):
+            return bool(self.committee_frozen_balance_id_regex.match(value))
+
     def is_contract_id(self, value):
         if self.is_string(value):
             return bool(self.contract_id_regex.match(value))
@@ -213,9 +217,9 @@ class Validator(object):
         if self.is_string(value):
             return bool(self.dynamic_asset_data_id_regex.match(value))
 
-    def is_bit_asset_id(self, value):
+    def is_bitasset_id(self, value):
         if self.is_string(value):
-            return bool(self.bit_asset_id_regex.match(value))
+            return bool(self.bitasset_id_regex.match(value))
 
     def is_account_balance_id(self, value):
         if self.is_string(value):

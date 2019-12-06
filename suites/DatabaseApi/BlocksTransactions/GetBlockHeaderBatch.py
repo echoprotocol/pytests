@@ -55,15 +55,15 @@ class GetBlockHeaderBatch(BaseTest):
                     "extensions", is_list(),
                     quiet=True
                 )
-                if not self.validator.is_iso8601(block_info[1]["timestamp"]):
+                if not self.type_validator.is_iso8601(block_info[1]["timestamp"]):
                     lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_info[1]["timestamp"]))
                 else:
                     lcc.log_info("'timestamp' has correct format: iso8601")
-                if not self.validator.is_account_id(block_info[1]["account"]):
+                if not self.type_validator.is_account_id(block_info[1]["account"]):
                     lcc.log_error("Wrong format of 'account id', got: {}".format(block_info[1]["account"]))
                 else:
                     lcc.log_info("'id' has correct format: account_id")
-                if not self.validator.is_account_id(block_info[1]["delegate"]):
+                if not self.type_validator.is_account_id(block_info[1]["delegate"]):
                     lcc.log_error("Wrong format of 'delegate', got: {}".format(block_info[1]["delegate"]))
                 else:
                     lcc.log_info("'delegate' has correct format: account_id")
@@ -135,23 +135,23 @@ class PositiveTesting(BaseTest):
                     "extensions", is_list(),
                     quiet=True
                 )
-                if not self.validator.is_hex(block_info[1]["previous"]):
+                if not self.type_validator.is_hex(block_info[1]["previous"]):
                     lcc.log_error("Wrong format of 'previous', got: {}".format(block_info[1]["previous"]))
                 else:
                     lcc.log_info("'previous' has correct format: hex")
-                if not self.validator.is_iso8601(block_info[1]["timestamp"]):
+                if not self.type_validator.is_iso8601(block_info[1]["timestamp"]):
                     lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_info[1]["timestamp"]))
                 else:
                     lcc.log_info("'timestamp' has correct format: iso8601")
-                if not self.validator.is_account_id(block_info[1]["account"]):
+                if not self.type_validator.is_account_id(block_info[1]["account"]):
                     lcc.log_error("Wrong format of 'account id', got: {}".format(block_info[1]["account"]))
                 else:
                     lcc.log_info("'id' has correct format: account_id")
-                if not self.validator.is_account_id(block_info[1]["delegate"]):
+                if not self.type_validator.is_account_id(block_info[1]["delegate"]):
                     lcc.log_error("Wrong format of 'delegate', got: {}".format(block_info[1]["delegate"]))
                 else:
                     lcc.log_info("'delegate' has correct format: account_id")
-                if not self.validator.is_hex(block_info[1]["transaction_merkle_root"]):
+                if not self.type_validator.is_hex(block_info[1]["transaction_merkle_root"]):
                     lcc.log_error("Wrong format of 'transaction_merkle_root', got: {}".format(
                         block_info[1]["transaction_merkle_root"]))
                 else:
@@ -169,11 +169,11 @@ class PositiveTesting(BaseTest):
                         "_fallback", is_integer(),
                         quiet=True
                     )
-                    if not self.validator.is_digit(prev_signature["_leader"]):
+                    if not self.type_validator.is_digit(prev_signature["_leader"]):
                         lcc.log_error("Wrong format of '_leader', got: {}".format(prev_signature["_leader"]))
                     else:
                         lcc.log_info("'_leader' has correct format: int")
-                    if not self.validator.is_hex(prev_signature["_bba_sign"]):
+                    if not self.type_validator.is_hex(prev_signature["_bba_sign"]):
                         lcc.log_error("Wrong format of '_bba_sign', got: {}".format(prev_signature["_bba_sign"]))
                     else:
                         lcc.log_info("'_bba_sign' has correct format: hex")

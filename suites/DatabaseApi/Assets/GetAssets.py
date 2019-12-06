@@ -1,87 +1,30 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, is_dict, equal_to, \
-    check_that, is_none, has_length
+from lemoncheesecake.matching import check_that_in, equal_to, check_that, is_none, require_that, has_length
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_assets'"
+    "description": "Methods: 'get_assets', 'get_objects' (asset & dynamic asset data"
+    " & bitasset data objects)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_assets", "get_assets")
-@lcc.suite("Check work of method 'get_assets'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_assets", "get_assets",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite(
+    "Check work of methods: 'get_assets', 'get_objects (asset & dynamic asset data & bitasset data objects)'",
+    rank=1
+)
 class GetAssets(BaseTest):
 
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
-
-    def check_core_exchange_rate_structure(self, core_exchange_rate):
-        check_that_in(
-            core_exchange_rate,
-            "base", is_dict(),
-            "quote", is_dict(),
-            quiet=True
-        )
-        for key in core_exchange_rate:
-            core_exchange_rate_part = core_exchange_rate[key]
-            self.check_uint64_numbers(core_exchange_rate_part, "amount", quiet=True)
-            if not self.validator.is_asset_id(core_exchange_rate_part["asset_id"]):
-                lcc.log_error("Wrong format of {} 'asset_id', got: {}".format(
-                    key, core_exchange_rate_part["asset_id"]))
-            else:
-                lcc.log_info("{} 'asset_id' has correct format: asset_id".format(key))
-
-    def check_asset_structure(self, asset):
-        if not self.validator.is_asset_id(asset["id"]):
-            lcc.log_error("Wrong format of 'id', got: {}".format(asset["id"]))
-        else:
-            lcc.log_info("'id' has correct format: asset_id")
-        if not self.validator.is_dynamic_asset_data_id(asset["dynamic_asset_data_id"]):
-            lcc.log_error("Wrong format of 'dynamic_asset_data_id', got: {}".format(
-                asset["dynamic_asset_data_id"]))
-        else:
-            lcc.log_info("'dynamic_asset_data_id' has correct format: dynamic_asset_data_id")
-
-        if not self.validator.is_account_id(asset["issuer"]):
-            lcc.log_error("Wrong format of 'issuer', got: {}".format(asset["issuer"]))
-        else:
-            lcc.log_info("'issuer' has correct format: account_id")
-        if not self.validator.is_asset_name(asset["symbol"]):
-            lcc.log_error("Wrong format of 'symbol', got: {}".format(asset["symbol"]))
-        else:
-            lcc.log_info("'symbol' has correct format: asset_name")
-        check_that_in(
-            asset,
-            "options", is_dict(),
-            "extensions", is_list(),
-            "precision", is_integer(8),
-            quiet=True
-        )
-        options = asset["options"]
-        require_that("'options'", options, has_length(8))
-        check_that_in(
-            options,
-            "blacklist_authorities", is_list(),
-            "core_exchange_rate", is_dict(),
-            "description", is_str(),
-            "extensions", is_list(),
-            "flags", is_integer(),
-            "issuer_permissions", is_integer(),
-            "whitelist_authorities", is_list(),
-            quiet=True
-        )
-        core_exchange_rate = options["core_exchange_rate"]
-        require_that(
-            "'core_exchange_rate'",
-            core_exchange_rate, has_length(2)
-        )
-        self.check_core_exchange_rate_structure(core_exchange_rate)
-        self.check_uint64_numbers(options, "max_supply", quiet=True)
 
     def setup_suite(self):
         super().setup_suite()
@@ -89,28 +32,68 @@ class GetAssets(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of method 'get_assets'")
+    @lcc.test(
+        "Simple work of methods: 'get_assets', 'get_objects (asset & dynamic asset data)")
     def method_main_check(self):
         lcc.set_step("Get default asset of the chain")
-        asset_ids = [self.echo_asset]
-        response_id = self.send_request(self.get_request("get_assets", [asset_ids]),
+        params = [self.echo_asset]
+        response_id = self.send_request(self.get_request("get_assets", [params]),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
-        lcc.log_info("Call method 'get_assets' with asset_ids='{}' parameter".format(asset_ids))
+        get_assets_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_assets' with asset_ids='{}' parameter".format(params))
 
         lcc.set_step("Check simple work of method 'get_assets'")
-        asset = response["result"][0]
+        for i, asset_info in enumerate(get_assets_results):
+            lcc.set_step("Checking asset object #{} - '{}'".format(i, params[i]))
+            self.object_validator.validate_asset_object(self, asset_info)
 
+        lcc.set_step("Get asset object")
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
         require_that(
-            "'length of default chain asset'",
-            asset, has_length(7)
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
         )
-        self.check_asset_structure(asset)
+
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_assets', 'get_objects'")
+        require_that(
+            'results',
+            get_objects_results, equal_to(get_assets_results),
+            quiet=True
+        )
+
+        lcc.set_step("Get asset dynamic data object")
+        asset_dynamic_data_id = get_assets_results[0]["dynamic_asset_data_id"]
+        params = [asset_dynamic_data_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+        for i, asset_dynamic_data in enumerate(get_objects_results):
+            lcc.set_step("Checking dynamic asset data object #{} - '{}'".format(i, params[i]))
+            lcc.log_info("{}".format(asset_dynamic_data))
+            self.object_validator.validate_asset_dynamic_data_object(self, asset_dynamic_data)
 
 
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_assets", "get_assets")
-@lcc.suite("Positive testing of method 'get_assets'", rank=2)
+@lcc.tags(
+    "api", "database_api", "database_api_assets", "get_assets",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite(
+    "Positive testing of methods:'get_assets', 'get_objects (asset & dynamic asset data & bitasset data objects)'",
+    rank=2
+)
 class PositiveTesting(BaseTest):
 
     def __init__(self):
@@ -202,3 +185,36 @@ class PositiveTesting(BaseTest):
         asset_info = response["result"]
         for nonexistent_result in asset_info:
             check_that("'get_assets result'", nonexistent_result, is_none())
+
+    @lcc.test("Get object for asset bitasset data")
+    @lcc.depends_on("DatabaseApi.Assets.GetAssets.GetAssets.method_main_check")
+    def get_object_for_asset_bitasset_data(self, get_random_valid_asset_name):
+        new_asset_name = get_random_valid_asset_name
+
+        lcc.set_step("Perform creating of bitasset")
+        asset_create_operation = self.echo_ops.get_asset_create_operation(
+            echo=self.echo,
+            issuer=self.echo_acc0,
+            symbol=new_asset_name,
+            feed_lifetime_sec=86400,
+            minimum_feeds=1,
+            short_backing_asset=self.echo_asset
+        )
+        collected_operation = self.collect_operations(asset_create_operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        created_asset_id = self.get_operation_results_ids(broadcast_result)
+        lcc.log_info("Asset successfully created, id={}".format(created_asset_id))
+
+        lcc.set_step("Get bitasset id from asset info")
+        response_id = self.send_request(self.get_request("get_assets", [[created_asset_id]]),
+                                        self.__database_api_identifier)
+        created_asset = self.get_response(response_id)["result"][0]
+
+        bitasset_id = created_asset["bitasset_data_id"]
+
+        response_id = self.send_request(self.get_request("get_objects", [[bitasset_id]]),
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"][0]
+
+        lcc.set_step("Check bitasset object")
+        self.object_validator.validate_asset_bitasset_data_object(self, result)

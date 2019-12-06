@@ -60,7 +60,7 @@ class GetBtcAddress(BaseTest):
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
 
-        if not self.validator.is_btc_address_id(result["id"]):
+        if not self.type_validator.is_btc_address_id(result["id"]):
             lcc.log_error("Wrong format of 'btc_address_id', got: {}".format(result["id"]))
         else:
             lcc.log_info("Correct format of btc_address_id.")
@@ -68,15 +68,15 @@ class GetBtcAddress(BaseTest):
         check_that("account", result["account"], equal_to(new_account_id), quiet=True)
 
         deposit_address = result["deposit_address"]["address"]
-        if not self.validator.is_string(deposit_address):
+        if not self.type_validator.is_string(deposit_address):
             lcc.log_error("Wrong format of 'deposit_address', got: {}".format(deposit_address))
         else:
             lcc.log_info("Correct format of 'deposit_address', got string")
 
         for committee_member_info in result["committee_member_ids_in_script"]:
-            if not self.validator.is_btc_public_key(committee_member_info[1]):
+            if not self.type_validator.is_btc_public_key(committee_member_info[1]):
                 lcc.log_error("Wrong format of 'btc_public_key', got: {}".format(committee_member_info[1]))
-            if not self.validator.is_account_id(committee_member_info[0]):
+            if not self.type_validator.is_account_id(committee_member_info[0]):
                 lcc.log_error("Wrong format of 'committee_member_account_id', got: {}".format(committee_member_info[0]))
         lcc.log_info("All 'btc_public_key' has correct format, got account_id")
         lcc.log_info("All 'committee_member_account_id' has correct format, got btc_public_key")

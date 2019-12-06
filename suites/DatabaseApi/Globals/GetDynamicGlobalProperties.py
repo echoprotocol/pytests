@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, check_that, has_length, has_entry, greater_than_or_equal_to, \
-    is_list
+from lemoncheesecake.matching import has_length, has_entry, require_that, check_that, equal_to
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_dynamic_global_properties'"
+    "description": "Methods: 'get_dynamic_global_properties', 'get_objects' (dynamic global property object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_globals", "get_dynamic_global_properties")
-@lcc.suite("Check work of method 'get_dynamic_global_properties'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_globals", "get_dynamic_global_properties",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite(
+    "Check work of methods: 'get_dynamic_global_properties', 'get_objects' (dynamic global property object)", rank=1
+)
 class GetDynamicGlobalProperties(BaseTest):
 
     def __init__(self):
@@ -26,42 +30,41 @@ class GetDynamicGlobalProperties(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of method 'get_dynamic_global_properties'")
+    @lcc.test(
+        "Simple work of methods: 'get_dynamic_global_properties', 'get_objects' (dynamic global property object)"
+    )
     def method_main_check(self):
         lcc.set_step("Get dynamic global properties")
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
                                         self.__database_api_identifier)
-        response = self.get_response(response_id)
+        get_dynamic_global_properties_result = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_dynamic_global_properties'")
 
         lcc.set_step("Check main fields")
-        dynamic_global_properties = ["head_block_number", "committee_budget",
-                                     "dynamic_flags", "last_irreversible_block_num"]
-        dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
-        result = response["result"]
-        if check_that("dynamic global properties", result, has_length(10)):
-            if not self.validator.is_dynamic_global_object_id(result["id"]):
-                lcc.log_error("Wrong format of 'dynamic_global_object_id', got: {}".format(result))
-            else:
-                lcc.log_info("'id' has correct format: dynamic_global_object_id")
-            for propertie in dynamic_global_properties:
-                self.check_uint64_numbers(result, propertie, quiet=True)
-                value = int(result[propertie])
-                check_that(propertie, value, greater_than_or_equal_to(0), quiet=True)
-            if not self.validator.is_hex(result["head_block_id"]):
-                lcc.log_error("Wrong format of 'head_block_id', got: {}".format(result))
-            else:
-                lcc.log_info("'head_block_id' has correct format: hex")
+        self.object_validator.validate_dynamic_global_property_object(self, get_dynamic_global_properties_result)
 
-            for time_propertie in dynamic_global_properties_time:
-                if not self.validator.is_iso8601(result[time_propertie]):
-                    lcc.log_error(
-                        "Wrong format of '{}', got: {}".format(time_propertie, result[time_propertie]))
-                else:
-                    lcc.log_info("'{}' has correct format: iso8601".format(time_propertie))
-            check_that_in(
-                result, "extensions", is_list(), quiet=True
-            )
+        lcc.set_step("Get dynamic global propreties object")
+        dynamic_global_properties_id = get_dynamic_global_properties_result["id"]
+        params = [dynamic_global_properties_id]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_dynamic_global_properties', 'get_objects'"
+        )
+        require_that(
+            'results',
+            get_objects_results[0], equal_to(get_dynamic_global_properties_result),
+            quiet=True
+        )
 
 
 @lcc.prop("negative", "type")
@@ -94,6 +97,9 @@ class NegativeTesting(BaseTest):
                                             self.__api_identifier)
             response = self.get_response(response_id, negative=True)
             check_that(
-                "'get_dynamic_global_properties' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                "'get_dynamic_global_properties' return error message with '{}' params".format(
+                    random_type_names[i]
+                ),
+                response, has_entry("error"),
+                quiet=True
             )
