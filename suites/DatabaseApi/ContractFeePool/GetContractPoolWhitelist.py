@@ -13,7 +13,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_fee_pool", "get_contract_pool_whitelist")
+@lcc.tags("api", "database_api", "database_api_contract_fee_pool", "get_contract_pool_whitelist")
 @lcc.suite("Check work of method 'get_contract_pool_whitelist'", rank=1)
 class GetContractPoolWhitelist(BaseTest):
 

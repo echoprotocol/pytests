@@ -412,7 +412,7 @@ class Utils(object):
     def get_account_balances(base_test, account, database_api_id, assets=None):
         if assets is None:
             assets = [base_test.echo_asset]
-        elif base_test.validator.is_asset_id(assets):
+        elif base_test.type_validator.is_asset_id(assets):
             assets = [assets]
         params = [account, assets]
         response_id = base_test.send_request(base_test.get_request("get_account_balances", params), database_api_id)

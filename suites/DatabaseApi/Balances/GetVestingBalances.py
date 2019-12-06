@@ -3,20 +3,23 @@ import random
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-from lemoncheesecake.matching import check_that_in, check_that, has_length, is_, is_integer, equal_to, require_that, \
-    greater_than, is_list, require_that_in
+from lemoncheesecake.matching import check_that_in, check_that, has_length, is_, equal_to, require_that, \
+    greater_than, require_that_in
 
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_vesting_balances'"
+    "description": "Methods: 'get_vesting_balances', 'get_objects' (vesting balance object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("api", "database_api", "database_api_balances", "get_vesting_balances")
-@lcc.suite("Check work of method 'get_vesting_balances'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_balances", "get_vesting_balances",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods:'get_vesting_balances', 'get_objects' (vesting balance object)", rank=1)
 class GetVestingBalances(BaseTest):
 
     def __init__(self):
@@ -57,52 +60,35 @@ class GetVestingBalances(BaseTest):
         response_id = self.send_request(self.get_request("get_vesting_balances", [self.echo_acc0]),
                                         self.__database_api_identifier)
 
-        result = self.get_response(response_id)["result"][-1]
+        get_vesting_balances_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_vesting_balances' with param: '{}'".format(self.echo_acc0))
 
-        lcc.set_step("Check simple work of method 'get_vesting_balances'")
-        if check_that("balance_object", result, has_length(5)):
-            if not self.validator.is_vesting_balance_id(result["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(result["id"]))
-            else:
-                lcc.log_info("'id' has correct format: vesting_balance_object_type")
-            check_that_in(
-                result,
-                "id", is_(vesting_balance_id),
-                "owner", is_(self.echo_acc0),
-                "extensions", is_list(),
-                quiet=True
-            )
-            balance = result["balance"]
-            if check_that("balance", balance, has_length(2)):
-                self.check_uint256_numbers(balance, "amount", quiet=True)
-                check_that_in(
-                    balance,
-                    "amount", is_(value_amount), quiet=True
-                )
-                if not self.validator.is_asset_id(balance["asset_id"]):
-                    lcc.log_error("Wrong format of 'asset_id', got: {}".format(result["asset_id"]))
-                else:
-                    lcc.log_info("'asset_id' has correct format: asset_object_type")
-            policy = result["policy"]
-            if check_that("policy", policy, has_length(2)):
-                first_element = policy[0]
-                second_element = policy[1]
-                # todo: first_element='0' - come from bitshares. Remove when corrected in Echo
-                check_that("first element", first_element, is_(0), quiet=True)
-                if not self.validator.is_iso8601(second_element["begin_timestamp"]):
-                    lcc.log_error(
-                        "Wrong format of 'begin_timestamp', got: {}".format(second_element["begin_timestamp"]))
-                else:
-                    lcc.log_info("'begin_timestamp' has correct format: iso8601")
-                check_that_in(
-                    second_element,
-                    "vesting_cliff_seconds", is_integer(),
-                    "vesting_duration_seconds", is_integer(),
-                    "begin_balance", is_(value_amount),
-                    quiet=True
-                )
-                self.check_uint256_numbers(second_element, "begin_balance", quiet=True)
+        for i, vesting_balance in enumerate(get_vesting_balances_results):
+            lcc.set_step("Checking vesting balance #{}".format(i))
+            self.object_validator.validate_vesting_balance_object(self, vesting_balance)
+
+        lcc.set_step("Get vesting balance object")
+        params = [vesting_balance["id"] for vesting_balance in get_vesting_balances_results]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with params: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_vesting_balances', 'get_objects'"
+        )
+        check_that(
+            "get_object result of vesting_balance",
+            get_objects_results, equal_to(get_vesting_balances_results),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")

@@ -52,18 +52,23 @@ class CheckERC20Token(BaseTest):
         erc20_symbol = get_random_valid_asset_name
 
         lcc.set_step("Deploy ERC20 contract in the Ethereum network")
-        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(self.web3,
-                                                                          eth_address=self.eth_account.address,
-                                                                          contract_abi=self.erc20_abi,
-                                                                          contract_bytecode=self.erc20_contract_code)
+        erc20_contract = self.eth_trx.deploy_contract_in_ethereum_network(
+            self.web3,
+            eth_address=self.eth_account.address,
+            contract_abi=self.erc20_abi,
+            contract_bytecode=self.erc20_contract_code
+        )
         lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(erc20_contract.address))
 
         lcc.set_step("Perform register erc20 token operation")
-        self.utils.perform_sidechain_erc20_register_token_operation(self, account=self.echo_acc0,
-                                                                    eth_addr=erc20_contract.address,
-                                                                    name=contract_name,
-                                                                    symbol=erc20_symbol,
-                                                                    database_api_id=self.__database_api_identifier)
+        self.utils.perform_sidechain_erc20_register_token_operation(
+            self,
+            account=self.echo_acc0,
+            eth_addr=erc20_contract.address,
+            name=contract_name,
+            symbol=erc20_symbol,
+            database_api_id=self.__database_api_identifier
+        )
         lcc.log_info("Registration of ERC20 token completed successfully")
 
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
@@ -79,7 +84,11 @@ class CheckERC20Token(BaseTest):
             "Call method 'check_erc20_token' with erc20_contract_id='{}' parameter".format(erc20_contract_id))
 
         lcc.set_step("Check simple work of method 'check_erc20_token'")
-        require_that("'erc20_token'", result, is_true(), quiet=True)
+        require_that(
+            "'erc20_token'",
+            result, is_true(),
+            quiet=True
+        )
 
 
 @lcc.prop("positive", "type")
@@ -129,4 +138,8 @@ class PositiveTesting(BaseTest):
             "Call method 'check_erc20_token' with erc20_contract_id='{}' parameter".format(contract_id))
 
         lcc.set_step("Check simple work of method 'check_erc20_token'")
-        require_that("'erc20_token'", result, is_false(), quiet=True)
+        require_that(
+            "'erc20_token'",
+            result, is_false(),
+            quiet=True
+        )

@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, check_that, has_length, is_dict, is_integer, has_entry, is_list
-
+from lemoncheesecake.matching import require_that, check_that, has_length, equal_to, has_entry
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Method 'get_chain_properties'"
+    "description": "Methods: 'get_chain_properties', 'get_objects' (chain property object)"
 }
 
 
 @lcc.prop("main", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "database_api", "database_api_globals", "get_chain_properties")
-@lcc.suite("Check work of method 'get_chain_properties'", rank=1)
+@lcc.tags(
+    "api", "database_api", "database_api_globals", "get_chain_properties",
+    "database_api_objects", "get_objects"
+)
+@lcc.suite("Check work of methods: 'get_chain_properties', 'get_objects' (chain property object)", rank=1)
 class GetChainProperties(BaseTest):
 
     def __init__(self):
@@ -25,38 +27,38 @@ class GetChainProperties(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test("Simple work of method 'get_chain_properties'")
+    @lcc.test("Simple work of methods: 'get_chain_properties', 'get_objects' (chain property object)")
     def method_main_check(self):
         lcc.set_step("Get chain properties")
         response_id = self.send_request(self.get_request("get_chain_properties"), self.__database_api_identifier)
-        response = self.get_response(response_id)
+        get_chain_properties_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_chain_properties'")
 
         lcc.set_step("Check main fields")
-        if check_that("chain_properties", response["result"], has_length(4)):
-            if not self.validator.is_chain_property_object_id(response["result"]["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(response["result"]["id"]))
-            else:
-                lcc.log_info("'id' has correct format: chain_property_object_type")
-            if not self.validator.is_hex(response["result"]["chain_id"]):
-                lcc.log_error("Wrong format of 'chain_id', got: {}".format(response["result"]["chain_id"]))
-            else:
-                lcc.log_info("'chain_id' has correct format: hex")
-            check_that_in(
-                response["result"],
-                "immutable_parameters", is_dict(),
-                "extensions", is_list(),
-                quiet=True
-            )
+        self.object_validator.validate_chain_properties_object(self, get_chain_properties_results)
 
-        lcc.set_step("Check 'immutable_parameters'")
-        immutable_parameters = response["result"]["immutable_parameters"]
-        if check_that("immutable_parameters", immutable_parameters, has_length(1)):
-            check_that_in(
-                immutable_parameters,
-                "min_committee_member_count", is_integer(),
-                quiet=True
-            )
+        lcc.set_step("Get chain properties object")
+        params = [get_chain_properties_results["id"]]
+        response_id = self.send_request(self.get_request("get_objects", [params]),
+                                        self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
+        lcc.log_info("Call method 'get_objects' with param: {}".format(params))
+
+        lcc.set_step("Check length of received objects")
+        require_that(
+            "'list of received objects'",
+            get_objects_results, has_length(len(params)),
+            quiet=True
+        )
+
+        lcc.set_step(
+            "Check the identity of returned results of api-methods: 'get_chain_properties', 'get_objects'"
+        )
+        require_that(
+            'results',
+            get_objects_results[0], equal_to(get_chain_properties_results),
+            quiet=True
+        )
 
 
 @lcc.prop("negative", "type")
@@ -90,5 +92,6 @@ class NegativeTesting(BaseTest):
             response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_chain_properties' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response, has_entry("error"),
+                quiet=True
             )

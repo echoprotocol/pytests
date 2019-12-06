@@ -18,8 +18,10 @@ env:
     - INIT4_PK=5JMgujU9Zmz85buhkPQyEMXLvK7FZ6giSLjRT25uf1tpV6uPULS
     - MIGRATION_RESULT=""
   jobs:
-    - PYTESTS_FILTERS=database_api GENESIS_FILE=genesis.json
-    - PYTESTS_FILTERS=^database_api:connection_to_apis GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=scenarios:asset_api:network_broadcast_api:registration_api:connection_to_apis GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=operations:history_api GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=database_api_first_pipeline GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=database_api_second_pipeline GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=committee_member_update_global_parameters GENESIS_FILE=genesis_update_global_parameters.json
 
 install:  pip3 install -r requirements.txt

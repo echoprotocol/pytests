@@ -3,7 +3,6 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_integer, is_not
 
 from common.base_test import BaseTest
-from common.validation import Validator
 
 SUITE = {
     "description": "Method 'request_registration_task'"
@@ -19,7 +18,6 @@ class RequestRegistrationTask(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.validator = Validator()
 
     def setup_suite(self):
         super().setup_suite()
@@ -40,12 +38,12 @@ class RequestRegistrationTask(BaseTest):
         lcc.log_info("Get method response.")
 
         lcc.set_step("Check method response fields")
-        if not self.validator.is_hex(result["block_id"]):
+        if not self.type_validator.is_hex(result["block_id"]):
             lcc.log_error("Wrong format of 'block_id', got: '{}'".format(result["block_id"]))
         else:
             lcc.log_info("Block_id '{}' has correct format: hex".format(result["block_id"]))
         check_that("'rand_num not 0'", result["rand_num"], is_not(0))
-        if not self.validator.is_digit(result["rand_num"]):
+        if not self.type_validator.is_digit(result["rand_num"]):
             lcc.log_error("Wrong format of 'rand_num', got: {}".format(result["rand_num"]))
         else:
             lcc.log_info("'rand_num' has correct format: int")
