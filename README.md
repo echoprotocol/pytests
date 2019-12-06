@@ -291,7 +291,7 @@ For more information about filters see `test_runner.py` script.
 - [x] [get_registrar](https://docs.echo.org/api-reference/echo-node-api/registration-api#get_registrar)
 
 
-### Operations:
+### [Operations:](https://docs.echo.org/api-reference/echo-operations)
 
 #### [List of Account Management Operations](https://docs.echo.org/api-reference/echo-operations/account-management)
 
