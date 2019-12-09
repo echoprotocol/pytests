@@ -108,14 +108,14 @@ class PositiveTesting(BaseTest):
         notice = self.get_notice(subscription_callback_id, log_response=False)
         block_num = notice["block_num"]
         lcc.log_info("Get {} block with transfer operation from returned notice".format(block_num))
-
+        self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get rewards from block with transfer operation")
-        response_id = self.send_request(self.get_request("get_block_rewards", [block_num - 1]),
+        response_id = self.send_request(self.get_request("get_block_rewards", [block_num]),
                                         self.__database_api_identifier)
         rewards = self.get_response(response_id)["result"]["rewards"]
         lcc.log_info("Rewards from block taken successfully")
         lcc.set_step("Get block producers")
-        response_id = self.send_request(self.get_request("get_block", [block_num - 1]),
+        response_id = self.send_request(self.get_request("get_block", [block_num]),
                                         self.__database_api_identifier)
         cert = self.get_response(response_id)["result"]["cert"]
         lcc.log_info("Block producers taken successfully")
