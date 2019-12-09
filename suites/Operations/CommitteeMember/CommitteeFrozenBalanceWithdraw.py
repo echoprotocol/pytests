@@ -3,7 +3,8 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
-from project import INIT0_PK, REQUIRED_DEPOSIT_AMOUNT
+from project import INIT0_PK, REQUIRED_DEPOSIT_AMOUNT, COMMITTEE_FREEZE_DURATION_SECONDS
+import time
 
 SUITE = {
     "description": "Operation 'committee_frozen_balance_withdraw'"
@@ -40,7 +41,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
     @lcc.test("Simple work of operation 'committee_frozen_balance_withdraw'")
     def method_main_check(self, get_random_integer):
         amount_to_freeze = REQUIRED_DEPOSIT_AMOUNT + get_random_integer
-
+        wait_time = COMMITTEE_FREEZE_DURATION_SECONDS + 5
         lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [self.committee_member_id]),
                                         self.__database_api_identifier)
@@ -67,7 +68,13 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
             echo=self.echo, committee_member_account=self.init0,
             amount=current_frozen_balance - REQUIRED_DEPOSIT_AMOUNT - 1, asset_id=self.echo_asset, signer=INIT0_PK)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        self.produce_block(self.__database_api_identifier)
+        time.sleep(wait_time)
+        self.produce_block(self.__database_api_identifier)
+        try:
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        except Exception as e:
+            lcc.log_info("{}".format(e))
         if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
             raise Exception("Balance is not withdrawn")
         lcc.log_info("Committee member balance have been withdrawn")

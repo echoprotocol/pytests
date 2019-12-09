@@ -935,7 +935,7 @@ class ObjectValidator(object):
             )
             check_that(
                 "committee_frozen_balance_to_activate",
-                parameters["committee_frozen_balance_to_activate"], is_integer(),
+                int(parameters["committee_frozen_balance_to_activate"]), is_integer(),
                 quiet=True
             )
 

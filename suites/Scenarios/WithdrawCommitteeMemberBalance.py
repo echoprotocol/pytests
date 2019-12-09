@@ -3,7 +3,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
-from project import INIT0_PK
+from project import INIT0_PK, COMMITTEE_FREEZE_DURATION_SECONDS
 import time
 SUITE = {
     "description": "Operation 'withdraw_committee_member_balance'"
@@ -40,7 +40,7 @@ class WithdrawCommitteeMemberBalance(BaseTest):
     def method_main_check(self, get_random_integer):
         minimal_frozen_balance = 100000000001
         amount_to_freeze = 100000000100
-
+        wait_time = COMMITTEE_FREEZE_DURATION_SECONDS + 5
         lcc.set_step("Get first active committee member id and account id")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"]["active_committee_members"][0]
@@ -84,7 +84,7 @@ class WithdrawCommitteeMemberBalance(BaseTest):
             # todo: change error message check after changing the error message
             lcc.log_info("{}".format(e))
         self.produce_block(self.__database_api_identifier)
-        time.sleep(50)
+        time.sleep(wait_time)
         self.produce_block(self.__database_api_identifier)
         try:
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
