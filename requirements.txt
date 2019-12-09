@@ -10,4 +10,3 @@ terminaltables
 websocket-client
 echopy-lib
 web3
-typing_extensions
