@@ -374,7 +374,7 @@
         "block_emission_amount": 0,
         "block_producer_reward_ratio": 5000,
         "committee_frozen_balance_to_activate": 100000000000,
-        "committee_freeze_duration_seconds": 50,
+        "committee_freeze_duration_seconds": 0,
         "frozen_balances_multipliers": [
             [
                 90,
