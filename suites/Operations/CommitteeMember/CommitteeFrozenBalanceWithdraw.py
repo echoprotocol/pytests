@@ -44,9 +44,9 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [self.committee_member_id]),
                                         self.__database_api_identifier)
-        current_frozen_balance = self.get_response(response_id)["result"]["amount"]
+        current_frozen_balance = int(self.get_response(response_id)["result"]["amount"])
         lcc.log_info("{} account, has frozen balance amount: {}".format(self.init0, current_frozen_balance))
-        if int(current_frozen_balance) <= REQUIRED_DEPOSIT_AMOUNT + 1:
+        if current_frozen_balance <= REQUIRED_DEPOSIT_AMOUNT + 1:
             lcc.log_info("Not enought asset to withdraw frozen balance")
             lcc.set_step("Freeze asset of committee_member: '{}' account". format(self.init0))
             operation = self.echo_ops.get_committee_frozen_balance_deposit_operation(
@@ -58,7 +58,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
                 raise Exception("Balance is not freezed")
             response_id = self.send_request(self.get_request("get_committee_frozen_balance", [self.committee_member_id]),
                                             self.__database_api_identifier)
-            current_frozen_balance = self.get_response(response_id)["result"]["amount"]
+            current_frozen_balance = int(self.get_response(response_id)["result"]["amount"])
             lcc.log_info("Account {} frozen balance updated, frozen balance amount: {}".format(
                          self.init0, current_frozen_balance))
 
