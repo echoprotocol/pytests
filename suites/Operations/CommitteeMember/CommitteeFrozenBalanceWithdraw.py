@@ -75,10 +75,10 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         lcc.set_step("Check that frozen balance have been withdrawn")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [self.committee_member_id]),
                                         self.__database_api_identifier)
-        frozen_balance_after_withdraw = self.get_response(response_id)["result"]["amount"]
+        frozen_balance_after_withdraw = int(self.get_response(response_id)["result"]["amount"])
         lcc.log_info("{}".format(frozen_balance_after_withdraw))
         check_that(
             "frozen balance",
             frozen_balance_after_withdraw, equal_to(REQUIRED_DEPOSIT_AMOUNT + 1),
-            quiet=True
+            quiet=False
         )
