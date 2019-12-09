@@ -461,7 +461,6 @@
             "price": 1,
             "gas_amount": 1000
         },
-        "committee_freeze_duration_seconds": 10,
         "extensions": []
     },
     "initial_accounts": [

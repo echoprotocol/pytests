@@ -88,10 +88,10 @@ class WithdrawCommitteeMemberBalance(BaseTest):
         self.produce_block(self.__database_api_identifier)
         try:
             broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
+                raise Exception("Balance is not withdrawn")
         except Exception as e:
-            lcc.log_info("{}".format(e))
-        if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
-            raise Exception("Balance is not withdrawn")
+            lcc.log_error("{}".format(e))
         lcc.log_info("Committee member balance have been withdrawn")
 
         lcc.set_step("Check that frozen balance have been withdrawn")
