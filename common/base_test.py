@@ -23,7 +23,7 @@ from common.object_validation import ObjectValidator
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG, NATHAN_PK, INIT4_PK
+    GANACHE_PK, DEBUG, NATHAN_PK, INIT3_PK
 
 
 class BaseTest(object):
@@ -659,10 +659,10 @@ class BaseTest(object):
 
         operation = self.echo_ops.get_transfer_operation(
             echo=self.echo,
-            from_account_id=committee_members_info[4]["account_id"],
+            from_account_id=committee_members_info[3]["account_id"],
             to_account_id=committee_members_info[0]["account_id"],
             amount=1,
-            signer=INIT4_PK
+            signer=INIT3_PK
         )
         collected_operation = self.collect_operations(operation, database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
