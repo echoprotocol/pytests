@@ -746,7 +746,7 @@ class Utils(object):
                 return response
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            base_test.produce_block(database_api_id)
             return self.get_erc20_account_deposits(base_test, account_id, database_api_id, wait_time,
                                                    previous_account_deposits=previous_account_deposits,
                                                    temp_count=temp_count)
@@ -764,7 +764,7 @@ class Utils(object):
             lcc.log_info("Waited for release of '{}' block(s). Wait time: '{}' seconds".format(temp_count, wait_time))
         temp_count += 1
         if temp_count <= BLOCKS_NUM_TO_WAIT:
-            wait_time += self.set_timeout_until_num_blocks_released(base_test, database_api_id, print_log=False)
+            base_test.produce_block(database_api_id)
             return self.get_erc20_account_withdrawals(base_test, account_id, database_api_id, wait_time,
                                                       previous_account_withdrawals=previous_account_withdrawals,
                                                       temp_count=temp_count)

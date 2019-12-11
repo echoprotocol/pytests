@@ -316,7 +316,7 @@
     ],
     "proposal_create_operation": [
         16,
-        {   
+        {
             "fee": {
                 "amount": 0,
                 "asset_id": "1.3.0"
@@ -331,7 +331,7 @@
     "proposal_update_operation": [
         17,
         {
-        "fee": {
+            "fee": {
                 "amount": 0,
                 "asset_id": "1.3.0"
             },
@@ -344,8 +344,7 @@
             "extensions": []
         }
     ],
-    "proposal_delete_operation":
-    [
+    "proposal_delete_operation": [
         18,
         {
             "fee": {
@@ -408,10 +407,10 @@
             "extensions": []
         }
     ],
-   "committee_member_activate_operation": [
+    "committee_member_activate_operation": [
         22,
         {
-          "fee": {
+            "fee": {
                 "amount": 0,
                 "asset_id": "1.3.0"
             },
@@ -420,16 +419,16 @@
         }
     ],
     "committee_member_deactivate_operation": [
-       23,
-       {
-           "fee": {
-               "amount": 0,
-               "asset_id": "1.3.0"
-           },
-           "committee_to_deactivate": "1.4.0",
-           "extensions": []
-       }
-   ],
+        23,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "committee_to_deactivate": "1.4.0",
+            "extensions": []
+        }
+    ],
     "committee_frozen_balance_deposit_operation": [
         24,
         {
@@ -446,7 +445,7 @@
             "extensions": []
         }
     ],
-    "committee_frozen_balance_withdraw_operation":[
+    "committee_frozen_balance_withdraw_operation": [
         25,
         {
             "fee": {
@@ -760,6 +759,17 @@
             "name": "",
             "symbol": "",
             "decimals": 0,
+            "extensions": []
+        }
+    ],
+    "sidechain_eth_update_contract_address": [
+        46,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "new_addr": "0e7057518879d5DE1F842b77e8F6F3e22931a1be",
             "extensions": []
         }
     ],

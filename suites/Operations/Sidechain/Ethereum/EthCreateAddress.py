@@ -37,7 +37,6 @@ class EthCreateAddress(BaseTest):
 
     @lcc.test("Simple work of operation 'sidechain_eth_create_address'")
     def sidechain_eth_create_address_operation(self, get_random_valid_account_name):
-
         new_account = get_random_valid_account_name
 
         lcc.set_step("Create and get new account")

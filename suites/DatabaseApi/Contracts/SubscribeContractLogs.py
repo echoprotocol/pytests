@@ -56,7 +56,7 @@ class SubscribeContractLogs(BaseTest):
                                                  value_amount=value_amount)
 
         lcc.set_step("Subscribe to created contract")
-        params = [subscription_callback_id, [[contract_id, []]]]
+        params = [subscription_callback_id, {contract_id: []}]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -116,7 +116,7 @@ class PositiveTesting(BaseTest):
         self.set_all_values = self.get_byte_code("dynamic_fields", self.setAllValues_method_name)
 
     def subscribe_contract_logs(self, callback, contract_id):
-        params = [callback, [[contract_id, []]]]
+        params = [callback, {contract_id: []}]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -390,6 +390,8 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             # todo: remove if. Bug: "ECHO-680"
             if i == 4:
+                continue
+            if type(random_values[i]) is  dict:
                 continue
             response_id = self.send_request(
                 self.get_request("subscribe_contract_logs", [subscription_callback_id, random_values[i]]),

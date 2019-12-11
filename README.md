@@ -14,6 +14,7 @@ Software Requirements: Python 3.7 or later
     $ virtualenv <ENVIRONMENT_NAME>
     $ .\<ENVIRONMENT_NAME>\Scripts\activate
     $ pip3 install -r requirements.txt
+    $ export GENESIS_FILE=genesis.json
 
 ##### Linux
     $ git clone https://github.com/echoprotocol/pytests.git
@@ -21,6 +22,7 @@ Software Requirements: Python 3.7 or later
     $ virtualenv <ENVIRONMENT_NAME> -p python3.7
     $ source <ENVIRONMENT_NAME>/bin/activate
     $ pip3 install -r requirements.txt
+    $ export GENESIS_FILE=genesis.json
     
 ##### Mac OS
 *please see Linux installation*
@@ -174,6 +176,7 @@ For more information about filters see `test_runner.py` script.
 - [x] [set_pending_transaction_callback](https://docs.echo.org/api-reference/echo-node-api/database-api#set_pending_transaction_callback-callback)
 - [x] [set_block_applied_callback ](https://docs.echo.org/api-reference/echo-node-api/database-api#set_block_applied_callback-callback)
 - [x] [cancel_all_subscriptions](https://docs.echo.org/api-reference/echo-node-api/database-api#cancel_all_subscriptions)
+- [ ] [unsubscribe_contract_logs](https://docs.echo.org/api-reference/echo-node-api/database-api#unsubscribe_contract_logs)
 
 [Blocks and transactions:](https://docs.echo.org/api-reference/echo-node-api/database-api#blocks-and-transactions)
 - [x] [get_block_header](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_header-block_num)

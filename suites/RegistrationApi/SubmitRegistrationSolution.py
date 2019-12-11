@@ -162,15 +162,17 @@ class NegativeTesting(BaseTest):
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
 
+    @lcc.tags("qa")
     @lcc.test("Register account with wrong 'account name'")
-    @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
+    # @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
     def submit_registration_solution_with_wrong_account_name(self, get_random_integer, get_random_valid_account_name):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "A"
         generate_keys = self.generate_keys()
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
-        expected_error_message = "Assert Exception: is_valid_name( name ): "
+        expected_error_message = "Assert Exception: is_valid_name( name ): '{}' is not a valid account name".format(
+            account_name)
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, public_key, public_key, solution, rand_num]

@@ -171,6 +171,8 @@ class PositiveTesting(BaseTest):
         current_frozen_balance = self.get_response(response_id)["result"]["amount"]
         check_that("frozen balance", frozen_balance + amount_to_freeze, equal_to(current_frozen_balance))
 
+
+    @lcc.disabled()
     @lcc.test("Compare get_committee_frozen_balance with get_objects methods")
     @lcc.depends_on(
         "DatabaseApi.Balances.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance.method_main_check"
