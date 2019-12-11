@@ -335,7 +335,7 @@ class TypeValidator(object):
         return True
 
     def is_operation_id(self, value):
-        return self.is_uint8(value) and value < 49
+        return self.is_uint8(value) and value < 60
 
     def is_base58(self, value):
         return bool(self.base58_regex.match(value))
