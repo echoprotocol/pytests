@@ -155,7 +155,8 @@ class ERC20(BaseTest):
                                                                                        self.eth_account_address))
 
         lcc.set_step("Second: Get ERC20 account deposits")
-        self.produce_block(self.__database_api_identifier)
+        import time
+        time.sleep(3)
         deposits = self.utils.get_erc20_account_deposits(self, self.new_account, self.__database_api_identifier,
                                                          previous_account_deposits=deposits)["result"]
         require_that("'account deposits'", deposits, has_length(len(erc20_deposit_amounts)))

@@ -153,7 +153,8 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     # todo: uncomment and add checks. BUG -1473
-    # @lcc.test("Check contract logs in notice with two transactions")
+    @lcc.test("Check contract logs in notice with two transactions")
+    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notices_with_two_transactions(self, get_random_integer):
         subscription_callback_id = value_amount = get_random_integer
@@ -222,7 +223,9 @@ class PositiveTesting(BaseTest):
         check_that("'notices log'", data_notice_1["log"], equal_to(data_notice_2["log"]))
         check_that("'notices data'", data_notice_1["data"], equal_to(data_notice_2["data"]))
 
+    # todo: uncomment and add checks. BUG -1473
     @lcc.test("Check contract logs in notices contract call that make two different logs")
+    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notice_contract_call_that_make_two_different_logs(self, get_random_integer,
                                                                                  get_random_string):

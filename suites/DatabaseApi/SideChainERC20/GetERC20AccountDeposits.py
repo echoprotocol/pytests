@@ -178,6 +178,8 @@ class GetERC20AccountDeposits(BaseTest):
             quiet=True
         )
 
+        import time
+        time.sleep(3)
         lcc.set_step("Second: Get ERC20 account deposits")
         get_erc20_account_deposits_results = self.utils.get_erc20_account_deposits(
             self,
@@ -210,9 +212,8 @@ class GetERC20AccountDeposits(BaseTest):
 
         lcc.set_step("Get erc20 deposits by id using 'get_objects'")
         params = [deposit["id"] for deposit in get_erc20_account_deposits_results]
-        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier,
-                                        debug_mode=True)
-        get_objects_results = self.get_response(response_id, log_response=True)["result"]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
+        get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check length of received objects")
