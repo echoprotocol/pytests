@@ -898,12 +898,12 @@ class ObjectValidator(object):
                                'sidechain_erc20_issue', 'sidechain_erc20_burn', 'sidechain_btc_create_address',
                                'sidechain_btc_create_intermediate_deposit', 'sidechain_btc_intermediate_deposit',
                                'sidechain_btc_deposit', 'sidechain_btc_withdraw', 'sidechain_btc_approve_withdraw',
-                               'sidechain_btc_aggregate', 'sidechain_erc20_register_token', 'sidechain_btc_approve_aggregate']
+                               'sidechain_btc_aggregate', 'sidechain_erc20_approve_token_withdraw', 'sidechain_btc_approve_aggregate']
         no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create',
                              'contract_internal_call', 'contract_selfdestruct']
         account_create_fee_operations = ["account_create"]
         asset_create_fee_operations = ["asset_create"]
-        pool_fee_operations = ["sidechain_erc20_approve_token_withdraw"]
+        pool_fee_operations = ["sidechain_erc20_register_token"]
 
         if check_that(
             "global properties",
@@ -999,7 +999,7 @@ class ObjectValidator(object):
             for fee_type in checking_operations_fee_types:
                 all_checking_operations.extend(fee_type)
             check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
-                       has_length(len(base_test.all_operations)))
+                       has_length(60))
 
         fee_with_price_per_kbyte_operations_ids, only_fee_operations_ids, no_fee_operations_ids,\
             account_create_fee_operations_ids, asset_create_fee_operations_ids,\
