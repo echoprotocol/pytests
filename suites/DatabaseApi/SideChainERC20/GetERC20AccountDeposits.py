@@ -210,8 +210,9 @@ class GetERC20AccountDeposits(BaseTest):
 
         lcc.set_step("Get erc20 deposits by id using 'get_objects'")
         params = [deposit["id"] for deposit in get_erc20_account_deposits_results]
-        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
-        get_objects_results = self.get_response(response_id)["result"]
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier,
+                                        debug_mode=True)
+        get_objects_results = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check length of received objects")
@@ -220,8 +221,11 @@ class GetERC20AccountDeposits(BaseTest):
             get_objects_results, has_length(len(params)),
             quiet=True
         )
+        lcc.log_warning(str(get_erc20_account_deposits_results))
         lcc.set_step("Compare erc20 deposits in 'get_erc20_deposits' with method 'get_objects'")
         for i, deposit in enumerate(get_erc20_account_deposits_results):
+            del deposit["approves"]
+            del get_objects_results[i]["approves"]
             lcc.set_step("Compare #{}: deposit in 'get_erc20_deposits' with method 'get_objects'".format(i))
             require_that(
                 "result",

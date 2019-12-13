@@ -3,7 +3,7 @@ import random
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, equal_to, is_str, check_that, has_entry, has_length, require_that, \
-    is_true, is_integer
+    is_true, is_integer, is_none
 
 from common.base_test import BaseTest
 
@@ -44,8 +44,9 @@ class GetContractLogs(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'get_contract_logs'")
-    def method_main_check(self, get_random_integer_up_to_ten):
+    def method_main_check(self, get_random_integer_up_to_ten, get_random_integer):
         value_amount = get_random_integer_up_to_ten
+        subscription_callback_id = get_random_integer
         max_limit = 1000
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
@@ -63,10 +64,15 @@ class GetContractLogs(BaseTest):
         lcc.log_info("Method 'getPennie' performed successfully, block_num: '{}'".format(block_num))
 
         lcc.set_step("Get contract logs from '{}' block to max_limit '{}'".format(_from, max_limit))
-        params = [{"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
+        params = [subscription_callback_id, {"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         response = self.get_response(response_id)
-        logs = response["result"]
+        require_that(
+            "'expired transaction result'",
+            response["result"], is_none()
+        )
+
+        logs = self.get_notice(subscription_callback_id)
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
 
         lcc.set_step("Check contract logs")
@@ -123,9 +129,9 @@ class PositiveTesting(BaseTest):
         lcc.log_info("head block number: {}".format(head_block_number))
         return head_block_number
 
-    def get_contract_logs(self, contract_id=None, _list=[], _from=None, limit=100, params=None):
+    def get_contract_logs(self, callback_id, contract_id=None, _list=[], _from=None, limit=100, params=None):
         if params is None:
-            params = [{"contracts": [contract_id], "topics": _list, "from_block": _from, "to_block": limit}]
+            params = [callback_id, {"contracts": [contract_id], "topics": _list, "from_block": _from, "to_block": limit}]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         return self.get_response(response_id, log_response=True)["result"]
 
@@ -150,6 +156,7 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_two_identical_contract_calls(self, get_random_integer):
         value_amount = get_random_integer
+        callback_id = get_random_integer
         call_count, _from, max_limit = 2, 1, 100
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
@@ -168,7 +175,7 @@ class PositiveTesting(BaseTest):
             lcc.log_info("Method #'{}' 'getPennie' performed successfully, block_num: '{}'".format(i, block_num))
 
         lcc.set_step("Get contract logs after two identical contract calls")
-        params = [{"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
+        params = [callback_id, {"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
         get_contract_logs_results = self.get_contract_logs(params=params)
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
 
@@ -373,6 +380,7 @@ class NegativeTesting(BaseTest):
     @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
     def check_contract_logs_with_negative_parameter_limit(self, get_random_integer):
         value_amount = get_random_integer
+        callback_id = get_random_integer
         max_limit = 100
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
@@ -394,7 +402,7 @@ class NegativeTesting(BaseTest):
         lcc.log_info("negative block number: {}".format(negative_block_num))
 
         lcc.set_step("Get contract logs with 'limit' param is negative block number")
-        params = [contract_id, _from, negative_block_num]
+        params = [callback_id, contract_id, _from, negative_block_num]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         response = self.get_response(response_id, negative=True)
         lcc.log_info(
