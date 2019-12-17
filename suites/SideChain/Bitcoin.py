@@ -125,3 +125,34 @@ class Bitcoin(BaseTest):
         response_id = self.send_request(self.get_request("get_account_withdrawals", params),
                                         self.__database_api_identifier)
         deposits = self.get_response(response_id, log_response=True)
+
+        lcc.set_step("Get history of new account and echo_acc0 account")
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
+        limit = 100
+        params = [self.new_account, stop, limit, start]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
+        new_acc_ids = [dict["op"][0] for dict in result]
+
+        params = [self.echo_acc0, stop, limit, start]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
+        acc0_ids = [dict["op"][0] for dict in result]
+        external_virtual_op_ids = set(new_acc_ids + acc0_ids)
+        lcc.log_info(str("Accounts operations ids: {}".format(external_virtual_op_ids)))
+
+        lcc.set_step("Get history of committee member account")
+        params = ["1.2.6", stop, limit, start]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
+        internal_ids = set([dict["op"][0] for dict in result])
+        lcc.log_info(str("Committee member account operations ids: {}".format(internal_ids)))
+
+        lcc.set_step("Check that external and virtual operations logs separate from internal operation logs")
+        fist_sidechain_op_id = 38
+        last_sidechain_op_id = 64
+        for op_id in external_virtual_op_ids:
+            if op_id in internal_ids and op_id < last_sidechain_op_id and op_id > fist_sidechain_op_id:
+                raise Exception("Wrong work of method get_contract_history, get id: {}".format(op_id))
+
