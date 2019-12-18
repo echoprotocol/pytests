@@ -184,7 +184,6 @@ For more information about filters see `test_runner.py` script.
 - [x] [get_block](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block-block_num)
 - [x] [get_block_tx_number](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_tx_number-id)
 - [x] [get_block_virtual_ops](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_virtual_ops-block_num)
-- [x] [get_block_rewards](https://docs.echo.org/api-reference/echo-node-api/database-api#get_block_rewards-block_num)
 - [x] [get_transaction](https://docs.echo.org/api-reference/echo-node-api/database-api#get_transaction-block_num-trx_in_block)
 - [x] [get_recent_transaction_by_id](https://docs.echo.org/api-reference/echo-node-api/database-api#get_recent_transaction_by_id-id)
 
