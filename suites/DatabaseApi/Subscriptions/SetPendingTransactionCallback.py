@@ -2,7 +2,7 @@
 from copy import deepcopy
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_none, equal_to, is_not_none
+from lemoncheesecake.matching import check_that, is_none, equal_to, require_that
 
 from common.base_test import BaseTest
 
@@ -71,14 +71,18 @@ class SetPendingTransactionCallback(BaseTest):
         operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
                                                          to_account_id=self.echo_acc1)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Transfer operation performed successfully")
 
         lcc.set_step("Get notices about pending transaction")
-        notice = self.get_notice(subscription_callback_id, operation_id=operation[0], log_response=False)
+        notice = self.get_notice(subscription_callback_id, operation_id=operation[0])
 
         lcc.set_step("Check subscribe pending transaction")
-        check_that("'notice about pending transaction'", notice, is_not_none(), quiet=True)
+        broadcasted_operation = broadcast_result["trx"]["operations"][0]
+        require_that("'notice about pending transaction: operation'", broadcasted_operation,
+                     equal_to(notice["operations"][0]), quiet=True)
+        require_that("'notice about pending transaction:signatures '", broadcast_result["trx"]["signatures"],
+                     equal_to(notice["signatures"]), quiet=True)
 
 
 @lcc.prop("positive", "type")
@@ -141,7 +145,8 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Check work of method with perform transfer operation")
-    @lcc.depends_on("DatabaseApi.Subscriptions.SetPendingTransactionCallback.SetPendingTransactionCallback.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.Subscriptions.SetPendingTransactionCallback.SetPendingTransactionCallback.method_main_check")
     def check_notice_about_pending_transfer_transaction(self, get_random_integer):
         subscription_callback_id = get_random_integer
 
@@ -163,7 +168,8 @@ class PositiveTesting(BaseTest):
                    equal_to(self.get_trx_from_broadcast_result(broadcast_result)), quiet=True)
 
     @lcc.test("Check work of method with perform contract operations")
-    @lcc.depends_on("DatabaseApi.Subscriptions.SetPendingTransactionCallback.SetPendingTransactionCallback.method_main_check")
+    @lcc.depends_on(
+        "DatabaseApi.Subscriptions.SetPendingTransactionCallback.SetPendingTransactionCallback.method_main_check")
     def check_notice_about_pending_contract_transactions(self, get_random_integer):
         subscription_callback_id = get_random_integer
 
