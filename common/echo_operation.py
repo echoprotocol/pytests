@@ -407,7 +407,8 @@ class EchoOperations(object):
         return [operation_id, proposal_update_props, signer]
 
     def get_proposal_delete_operation(self, echo, fee_paying_account, using_owner_authority, proposal,
-                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None, debug_mode=False):
+                                      fee_amount=0, fee_asset_id="1.3.0", extensions=None, signer=None,
+                                      debug_mode=False):
         if extensions is None:
             extensions = []
         operation_id = echo.config.operation_ids.PROPOSAL_DELETE
@@ -474,7 +475,7 @@ class EchoOperations(object):
                                                                 signer, debug_mode=False):
         operation_id = echo.config.operation_ids.COMMITTEE_MEMBER_UPDATE_GLOBAL_PARAMETERS
         committee_member_update_global_parameters_props = echo.api.database.get_global_properties()
-        committee_member_update_global_parameters_props["new_parameters"] =\
+        committee_member_update_global_parameters_props["new_parameters"] = \
             committee_member_update_global_parameters_props.pop("parameters")
 
         committee_member_update_global_parameters_props["new_parameters"]["echorand_config"].update(
@@ -507,7 +508,8 @@ class EchoOperations(object):
             return [operation_id, committee_frozen_balance_deposit_props, committee_member_account]
         return [operation_id, committee_frozen_balance_deposit_props, signer]
 
-    def get_committee_frozen_balance_withdraw_operation(self, echo, committee_member_account, amount=0, asset_id="1.3.0",
+    def get_committee_frozen_balance_withdraw_operation(self, echo, committee_member_account, amount=0,
+                                                        asset_id="1.3.0",
                                                         fee_amount=0, fee_asset_id="1.3.0", extensions=None,
                                                         signer=None, debug_mode=False):
         if extensions is None:

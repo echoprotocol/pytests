@@ -117,7 +117,7 @@ class GetAccountDeposits(BaseTest):
                 operation_in_history[1],
                 "fee", equal_to(sidechain_issue_operations[i][1]["fee"]),
                 "account", equal_to(sidechain_issue_operations[i][1]["account"]),
-                "deposit_id", starts_with(self.get_object_type(self.echo.config.object_types.DEPOSIT_ETH)),
+                "deposit_id", starts_with(self.get_object_type(self.echo.config.object_types.ETH_DEPOSIT)),
                 quiet=True
             )
             self.check_uint256_numbers(
@@ -166,7 +166,7 @@ class GetAccountDeposits(BaseTest):
                 operation_in_history[1],
                 "fee", equal_to(sidechain_issue_operations[i][1]["fee"]),
                 "account", equal_to(sidechain_issue_operations[i][1]["account"]),
-                "deposit_id", starts_with(self.get_object_type(self.echo.config.object_types.DEPOSIT_ETH)),
+                "deposit_id", starts_with(self.get_object_type(self.echo.config.object_types.ETH_DEPOSIT)),
                 quiet=True
             )
             self.check_uint256_numbers(

@@ -3,8 +3,8 @@ import codecs
 import json
 import os
 import time
-from datetime import datetime, timedelta
 from copy import deepcopy
+from datetime import datetime, timedelta
 
 import lemoncheesecake.api as lcc
 from Crypto.Hash import keccak
@@ -16,14 +16,14 @@ from websocket import create_connection
 
 from common.echo_operation import EchoOperations
 from common.ethereum_transaction import EthereumTransactions
-from common.receiver import Receiver
-from common.utils import Utils
-from common.type_validation import TypeValidator
 from common.object_validation import ObjectValidator
+from common.receiver import Receiver
+from common.type_validation import TypeValidator
+from common.utils import Utils
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
     DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG, NATHAN_PK, INIT4_PK
+    GANACHE_PK, DEBUG, INIT4_PK
 
 
 class BaseTest(object):
@@ -278,10 +278,13 @@ class BaseTest(object):
         except IndexError as index:
             lcc.log_error("Notice: This index does not exist: '{}'".format(index))
 
-    def get_trx_completed_response(self, id_response, debug_mode=False):
+    def get_trx_completed_response(self, id_response, mode='evm', debug_mode=False):
         # Receive answer from server that transaction completed
         response = self.get_response(id_response, debug_mode=debug_mode)
-        transaction_excepted = response.get("result")[1].get("exec_res").get("excepted")
+        if mode == "evm":
+            transaction_excepted = response.get("result")[1].get("exec_res").get("excepted")
+        if mode == "x86":
+            return response
         if transaction_excepted != "None":
             lcc.log_error("Transaction not completed. Excepted: '{}'".format(transaction_excepted))
             raise Exception("Transaction not completed")
@@ -590,7 +593,7 @@ class BaseTest(object):
                                       debug_mode)
         return list_operations
 
-    def get_contract_result(self, broadcast_result, database_api_identifier, debug_mode=False):
+    def get_contract_result(self, broadcast_result, database_api_identifier, mode="evm", debug_mode=False):
         contract_result = self.get_operation_results_ids(broadcast_result)
         if len([contract_result]) != 1:
             lcc.log_error("Need one contract id, got:\n{}".format(contract_result))
@@ -602,7 +605,7 @@ class BaseTest(object):
             raise Exception("Wrong format of contract result id")
         response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
                                         database_api_identifier, debug_mode=debug_mode)
-        return self.get_trx_completed_response(response_id, debug_mode=debug_mode)
+        return self.get_trx_completed_response(response_id, mode, debug_mode=debug_mode)
 
     def get_next_maintenance_time(self, database_api_identifier):
         response_id = self.send_request(self.get_request("get_dynamic_global_properties"), database_api_identifier)

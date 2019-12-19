@@ -56,7 +56,7 @@ class SubscribeContractLogs(BaseTest):
                                                  value_amount=value_amount)
 
         lcc.set_step("Subscribe to created contract")
-        params = [subscription_callback_id, [[contract_id, []]]]
+        params = [subscription_callback_id, {contract_id: []}]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -116,7 +116,7 @@ class PositiveTesting(BaseTest):
         self.set_all_values = self.get_byte_code("dynamic_fields", self.setAllValues_method_name)
 
     def subscribe_contract_logs(self, callback, contract_id):
-        params = [callback, [[contract_id, []]]]
+        params = [callback, {contract_id: []}]
         response_id = self.send_request(self.get_request("subscribe_contract_logs", params),
                                         self.__database_api_identifier)
         response = self.get_response(response_id)
@@ -153,7 +153,8 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     # todo: uncomment and add checks. BUG -1473
-    # @lcc.test("Check contract logs in notice with two transactions")
+    @lcc.test("Check contract logs in notice with two transactions")
+    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notices_with_two_transactions(self, get_random_integer):
         subscription_callback_id = value_amount = get_random_integer
@@ -222,7 +223,9 @@ class PositiveTesting(BaseTest):
         check_that("'notices log'", data_notice_1["log"], equal_to(data_notice_2["log"]))
         check_that("'notices data'", data_notice_1["data"], equal_to(data_notice_2["data"]))
 
+    # todo: uncomment and add checks. BUG -1473
     @lcc.test("Check contract logs in notices contract call that make two different logs")
+    @lcc.disabled()
     @lcc.depends_on("DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notice_contract_call_that_make_two_different_logs(self, get_random_integer,
                                                                                  get_random_string):
@@ -390,6 +393,8 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             # todo: remove if. Bug: "ECHO-680"
             if i == 4:
+                continue
+            if type(random_values[i]) is  dict:
                 continue
             response_id = self.send_request(
                 self.get_request("subscribe_contract_logs", [subscription_callback_id, random_values[i]]),

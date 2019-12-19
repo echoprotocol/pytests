@@ -59,7 +59,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.13.6
+    image: echoprotocol/echo:0.14.0-rc.0
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/

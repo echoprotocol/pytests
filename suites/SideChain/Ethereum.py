@@ -20,6 +20,7 @@ class Ethereum(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.__history_api_identifier = None
         self.echo_acc0 = None
         self.new_account = None
         self.eth_address = None
@@ -68,6 +69,7 @@ class Ethereum(BaseTest):
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
+        self.__history_api_identifier = self.get_identifier("history")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
                                                                            self.__registration_api_identifier))
@@ -225,8 +227,7 @@ class Ethereum(BaseTest):
         lcc.set_step("Create multiple account address for new account")
         for i in range(addresses_count):
             self.utils.perform_account_address_create_operation(self, self.echo_acc0, label + str(i),
-                                                                self.__database_api_identifier,
-                                                                log_broadcast=True)
+                                                                self.__database_api_identifier)
 
         lcc.set_step("Get addresses of account in the network and store addresses")
         _from, limit = 0, 100
@@ -243,7 +244,7 @@ class Ethereum(BaseTest):
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-1],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
-                                                          amount_asset_id=self.eth_asset, log_broadcast=True)
+                                                          amount_asset_id=self.eth_asset)
 
         lcc.set_step("Get account balance after transfer and store")
         recipient_balance_after_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
@@ -264,7 +265,7 @@ class Ethereum(BaseTest):
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-2],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
-                                                          amount_asset_id=self.eth_asset, log_broadcast=True)
+                                                          amount_asset_id=self.eth_asset)
 
         lcc.set_step("Get account balance after second transfer and store")
         recipient_balance_after_second_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
@@ -284,3 +285,33 @@ class Ethereum(BaseTest):
         withdraw_amount = self.get_random_amount(_to=recipient_balance_after_second_transfer, amount_type=int)
         lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.echo_acc0))
         self.withdraw_eth_to_ethereum_address(self.echo_acc0, withdraw_amount)
+
+        lcc.set_step("Get history of new account and echo_acc0 account")
+        operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
+        stop, start = operation_history_obj, operation_history_obj
+        limit = 100
+        params = [self.new_account, stop, limit, start]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
+        new_acc_ids = [dict["op"][0] for dict in result]
+
+        params = [self.echo_acc0, stop, limit, start]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
+        acc0_ids = [dict["op"][0] for dict in result]
+        external_virtual_op_ids = set(new_acc_ids + acc0_ids)
+        lcc.log_info(str("Accounts operations ids: {}".format(external_virtual_op_ids)))
+
+        lcc.set_step("Get history of committee member account")
+        params = ["1.2.6", stop, limit, start]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
+        internal_ids = set([dict["op"][0] for dict in result])
+        lcc.log_info(str("Committee member account operations ids: {}".format(internal_ids)))
+
+        lcc.set_step("Check that external and virtual operations logs separate from internal operation logs")
+        fist_sidechain_op_id = 38
+        last_sidechain_op_id = 64
+        for op_id in external_virtual_op_ids:
+            if op_id in internal_ids and op_id < last_sidechain_op_id and op_id > fist_sidechain_op_id:
+                raise Exception("Wrong work of method get_contract_history, get id: {}".format(op_id))

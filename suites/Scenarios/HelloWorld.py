@@ -63,7 +63,6 @@ class HelloWorld(BaseTest):
                                                                 value_amount=self.value_amount,
                                                                 value_asset_id=self.echo_asset)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        lcc.log_debug(str(collected_operation))
         self.utils.perform_transfer_operations(
             self,
             self.echo_acc0,
@@ -74,6 +73,7 @@ class HelloWorld(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
         contract_id = self.get_contract_id(contract_result)
+
         lcc.set_step("Call 'greet' method")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.account_id,
                                                               bytecode=self.greet, callee=contract_id)

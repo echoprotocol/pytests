@@ -178,6 +178,8 @@ class GetERC20AccountDeposits(BaseTest):
             quiet=True
         )
 
+        import time
+        time.sleep(3)
         lcc.set_step("Second: Get ERC20 account deposits")
         get_erc20_account_deposits_results = self.utils.get_erc20_account_deposits(
             self,
@@ -220,8 +222,11 @@ class GetERC20AccountDeposits(BaseTest):
             get_objects_results, has_length(len(params)),
             quiet=True
         )
+        lcc.log_warning(str(get_erc20_account_deposits_results))
         lcc.set_step("Compare erc20 deposits in 'get_erc20_deposits' with method 'get_objects'")
         for i, deposit in enumerate(get_erc20_account_deposits_results):
+            del deposit["approves"]
+            del get_objects_results[i]["approves"]
             lcc.set_step("Compare #{}: deposit in 'get_erc20_deposits' with method 'get_objects'".format(i))
             require_that(
                 "result",

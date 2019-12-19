@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list,\
-    is_str, is_, is_bool, greater_than, greater_than_or_equal_to, is_in
+from lemoncheesecake.matching import has_length, is_integer, check_that_in, check_that, is_dict, is_list, \
+    is_str, is_, is_bool, greater_than, greater_than_or_equal_to, is_in, require_that
 
 
 class ObjectValidator(object):
@@ -514,7 +514,7 @@ class ObjectValidator(object):
     def validate_deposit_eth_object(self, base_test, deposit_eth_object):
         if check_that(
             "'deposit eth'",
-            deposit_eth_object, has_length(7),
+            deposit_eth_object, has_length(9),
             quiet=True
         ):
             if not base_test.type_validator.is_deposit_eth_id(deposit_eth_object["id"]):
@@ -530,7 +530,9 @@ class ObjectValidator(object):
                 deposit_eth_object,
                 "deposit_id", greater_than(0),
                 "is_approved", is_bool(),
+                "is_sent", is_bool(),
                 "approves", is_list(),
+                "echo_block_number", is_integer(),
                 "extensions", is_list(),
                 quiet=True
             )
@@ -538,7 +540,7 @@ class ObjectValidator(object):
     def validate_withdraw_eth_object(self, base_test, withdraw_eth_object):
         if check_that(
             "'withdraw eth'",
-            withdraw_eth_object, has_length(8),
+            withdraw_eth_object, has_length(10),
             quiet=True
         ):
             if not base_test.type_validator.is_withdraw_eth_id(withdraw_eth_object["id"]):
@@ -557,7 +559,9 @@ class ObjectValidator(object):
                 withdraw_eth_object,
                 "withdraw_id", greater_than_or_equal_to(0),
                 "is_approved", is_bool(),
+                "is_sent", is_bool(),
                 "approves", is_list(),
+                "echo_block_number", is_integer(),
                 "extensions", is_list(),
                 quiet=True
             )
@@ -596,7 +600,7 @@ class ObjectValidator(object):
     def validate_erc20_deposit_object(self, base_test, erc20_deposit_object):
         if check_that(
             "'erc20 deposit'",
-            erc20_deposit_object, has_length(8),
+            erc20_deposit_object, has_length(10),
             quiet=True
         ):
             if not base_test.type_validator.is_deposit_erc20_id(erc20_deposit_object["id"]):
@@ -618,7 +622,9 @@ class ObjectValidator(object):
                 "erc20_addr", is_str(),
                 "value", is_str(),
                 "is_approved", is_bool(),
+                "is_sent", is_bool(),
                 "approves", is_list(),
+                "echo_block_number", is_integer(),
                 "extensions", is_list(),
                 quiet=True
             )
@@ -626,7 +632,7 @@ class ObjectValidator(object):
     def validate_erc20_withdraw_object(self, base_test, erc20_withdraw_object):
         if check_that(
             "'erc20 withdrawal'",
-            erc20_withdraw_object, has_length(9),
+            erc20_withdraw_object, has_length(11),
             quiet=True
         ):
             if not base_test.type_validator.is_withdraw_erc20_id(erc20_withdraw_object["id"]):
@@ -652,7 +658,9 @@ class ObjectValidator(object):
                 "withdraw_id", greater_than_or_equal_to(0),
                 "value", is_str(),
                 "is_approved", is_bool(),
+                "is_sent", is_bool(),
                 "approves", is_list(),
+                "echo_block_number", is_integer(),
                 "extensions", is_list(),
                 quiet=True
             )
@@ -662,7 +670,7 @@ class ObjectValidator(object):
         def validate_sidechain_config(base_test, sidechain_config, eth_params, eth_methods):
             if check_that(
                 "sidechain config",
-                sidechain_config, has_length(19),
+                sidechain_config, has_length(22),
                 quiet=True
             ):
                 for eth_param in eth_params:
@@ -703,12 +711,14 @@ class ObjectValidator(object):
                     quiet=True
                 ):
                     check_that_in(
-                        sidechain_config["fines"], "generate_eth_address", is_(-10), quiet=True
+                        sidechain_config["fines"], "create_eth_address", is_integer(), quiet=True
                     )
                 check_that_in(
                     sidechain_config,
                     "satoshis_per_byte", is_integer(),
                     "coefficient_waiting_blocks", is_integer(),
+                    "btc_deposit_withdrawal_min", is_integer(),
+                    "btc_deposit_withdrawal_fee", is_integer(),
                     quiet=True
                 )
                 base_test.check_uint64_numbers(
@@ -716,6 +726,18 @@ class ObjectValidator(object):
                     "gas_price",
                     quiet=True
                 )
+                if check_that(
+                    "eth_update_contract_address",
+                    sidechain_config["eth_update_contract_address"], has_length(2),
+                    quiet=True
+                ):
+                    check_that_in(
+                        sidechain_config["eth_update_contract_address"], "method", is_str(), quiet=True
+                    )
+                    check_that_in(
+                        sidechain_config["eth_update_contract_address"], "gas", is_integer(), quiet=True
+                    )
+
 
         def validate_erc20_config(base_test, erc20_config, erc20_methods):
             if check_that(
@@ -870,16 +892,15 @@ class ObjectValidator(object):
                                "sidechain_eth_create_address", "sidechain_eth_deposit", "sidechain_eth_withdraw",
                                "sidechain_eth_approve_withdraw", "contract_fund_pool", "contract_whitelist",
                                "sidechain_erc20_deposit_token", "sidechain_erc20_withdraw_token",
-                               "sidechain_erc20_approve_token_withdraw",
                                'committee_member_activate', 'committee_member_deactivate',
                                'committee_frozen_balance_deposit', 'committee_frozen_balance_withdraw',
                                'sidechain_eth_approve_address', 'sidechain_issue', 'sidechain_burn',
                                'sidechain_erc20_issue', 'sidechain_erc20_burn', 'sidechain_btc_create_address',
                                'sidechain_btc_create_intermediate_deposit', 'sidechain_btc_intermediate_deposit',
                                'sidechain_btc_deposit', 'sidechain_btc_withdraw', 'sidechain_btc_approve_withdraw',
-                               'sidechain_btc_aggregate']
+                               'sidechain_btc_aggregate', 'sidechain_erc20_approve_token_withdraw', 'sidechain_btc_approve_aggregate']
         no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create',
-                             'contract_internal_call', 'contract_selfdestruct', 'block_reward']
+                             'contract_internal_call', 'contract_selfdestruct']
         account_create_fee_operations = ["account_create"]
         asset_create_fee_operations = ["asset_create"]
         pool_fee_operations = ["sidechain_erc20_register_token"]
@@ -925,7 +946,7 @@ class ObjectValidator(object):
                 "block_emission_amount", is_integer(),
                 "frozen_balances_multipliers", is_list(),
                 "committee_maintenance_intervals_to_deposit", is_integer(),
-                "committee_freeze_duration_seconds", is_integer(),
+                "committee_balance_unfreeze_duration_seconds", is_integer(),
                 "echorand_config", is_dict(),
                 "sidechain_config", is_dict(),
                 "erc20_config", is_dict(),
@@ -963,22 +984,22 @@ class ObjectValidator(object):
                         quiet=True
                     )
 
-            # todo: uncomment when current_fees of btc operations will be added
-            # lcc.set_step("Check the count of fees for operations")
-            # fee_parameters = current_fees["parameters"]
-            # require_that(
-            #     "count of fees for operations",
-            #     fee_parameters, has_length(len(base_test.all_operations))
-            # )
+            lcc.set_step("Check the count of fees for operations")
+            fee_parameters = current_fees["parameters"]
+            require_that(
+                "count of fees for operations",
+                fee_parameters, has_length(60)
+            )
 
-            # lcc.set_step("Check that count of checking fees fields equal to all operations")
-            # checking_operations_fee_types = [fee_with_price_per_kbyte_operations, only_fee_operations, no_fee_operations,
-            #                                  account_create_fee_operations, asset_create_fee_operations,
-            #                                  pool_fee_operations]
-            # for fee_type in checking_operations_fee_types:
-            #     all_checking_operations.extend(fee_type)
-            # check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
-            #            has_length(len(base_test.all_operations)))
+            lcc.set_step("Check that count of checking fees fields equal to all operations")
+            checking_operations_fee_types = [fee_with_price_per_kbyte_operations, only_fee_operations, no_fee_operations,
+                                             account_create_fee_operations, asset_create_fee_operations,
+                                             pool_fee_operations]
+            all_checking_operations = []
+            for fee_type in checking_operations_fee_types:
+                all_checking_operations.extend(fee_type)
+            check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
+                       has_length(60))
 
         fee_with_price_per_kbyte_operations_ids, only_fee_operations_ids, no_fee_operations_ids,\
             account_create_fee_operations_ids, asset_create_fee_operations_ids,\
@@ -1227,7 +1248,7 @@ class ObjectValidator(object):
     def validate_chain_properties_object(self, base_test, chain_properties_object):
         if check_that(
             "chain properties",
-            chain_properties_object, has_length(4),
+            chain_properties_object, has_length(3),
             quiet=True
         ):
             if not base_test.type_validator.is_chain_property_object_id(chain_properties_object["id"]):
@@ -1240,23 +1261,10 @@ class ObjectValidator(object):
                 lcc.log_info("'chain_id' has correct format: hex")
             check_that_in(
                 chain_properties_object,
-                "immutable_parameters", is_dict(),
                 "extensions", is_list(),
                 quiet=True
             )
 
-        lcc.set_step("Check 'immutable_parameters'")
-        immutable_parameters = chain_properties_object["immutable_parameters"]
-        if check_that(
-            "immutable parameters",
-            immutable_parameters, has_length(1),
-            quiet=True
-        ):
-            check_that_in(
-                immutable_parameters,
-                "min_committee_member_count", is_integer(),
-                quiet=True
-            )
 
     def validate_asset_dynamic_data_object(self, base_test, asset_dynamic_data_object):
         if check_that(
@@ -1419,7 +1427,7 @@ class ObjectValidator(object):
                 "removed_ops", is_integer(),
                 "total_blocks", is_integer(),
                 "total_core_in_orders", is_integer(),
-                "generated_eth_address", is_bool(),
+                "created_eth_address", is_bool(),
                 "committeeman_rating", is_integer(),
                 "extensions", is_list(),
                 quiet=True
@@ -1527,9 +1535,10 @@ class ObjectValidator(object):
             )
 
     def validate_contract_statistics_object(self, base_test, contract_statistics_object):
+        lcc.log_warning(str(contract_statistics_object))
         if check_that(
             "contract statistics object",
-            contract_statistics_object, has_length(5),
+            contract_statistics_object, has_length(6),
             quiet=True
         ):
             if not base_test.type_validator.is_contract_statistics_id(contract_statistics_object["id"]):
@@ -1548,6 +1557,8 @@ class ObjectValidator(object):
             check_that_in(
                 contract_statistics_object,
                 "total_ops", is_integer(),
+                "removed_ops", is_integer(),
                 "extensions", is_list(),
                 quiet=True
             )
+

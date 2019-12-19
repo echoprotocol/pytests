@@ -127,7 +127,7 @@ class GetAccountWithdrawals(BaseTest):
                 operation_in_history[1],
                 "fee", equal_to(sidechain_burn_operations[i][1]["fee"]),
                 "account", equal_to(sidechain_burn_operations[i][1]["account"]),
-                "withdraw_id", starts_with(self.get_object_type(self.echo.config.object_types.WITHDRAW_ETH)),
+                "withdraw_id", starts_with(self.get_object_type(self.echo.config.object_types.ETH_WITHDRAW)),
                 quiet=True
             )
             self.check_uint256_numbers(
@@ -181,7 +181,7 @@ class GetAccountWithdrawals(BaseTest):
                 operation_in_history[1],
                 "fee", equal_to(sidechain_burn_operations[i][1]["fee"]),
                 "account", equal_to(sidechain_burn_operations[i][1]["account"]),
-                "withdraw_id", starts_with(self.get_object_type(self.echo.config.object_types.WITHDRAW_ETH)),
+                "withdraw_id", starts_with(self.get_object_type(self.echo.config.object_types.ETH_WITHDRAW)),
                 quiet=True
             )
             self.check_uint256_numbers(
