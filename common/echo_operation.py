@@ -516,7 +516,7 @@ class EchoOperations(object):
             extensions = []
         operation_id = echo.config.operation_ids.COMMITTEE_FROZEN_BALANCE_WITHDRAW
         committee_frozen_balance_withdraw_props = deepcopy(
-            self.get_operation_json("committee_frozen_balance_deposit_operation"))
+            self.get_operation_json("committee_frozen_balance_withdraw_operation"))
         committee_frozen_balance_withdraw_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         committee_frozen_balance_withdraw_props.update({"committee_member_account": committee_member_account})
         committee_frozen_balance_withdraw_props["amount"].update({"amount": amount, "asset_id": asset_id})

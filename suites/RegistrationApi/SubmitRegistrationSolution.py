@@ -6,7 +6,8 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_integer, is_true, equal_to, is_false, has_item
 
 from common.base_test import BaseTest
-from fixtures.base_fixtures import RANGE_OF_STR, get_random_valid_account_name
+from fixtures.base_fixtures import RANGE_OF_STR, get_random_valid_account_name, get_random_eth_address, \
+    get_random_btc_public_key, get_random_integer
 
 SUITE = {
     "description": "Method 'submit_registration_solution'"
@@ -162,9 +163,8 @@ class NegativeTesting(BaseTest):
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
 
-    @lcc.tags("qa")
     @lcc.test("Register account with wrong 'account name'")
-    # @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
+    @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
     def submit_registration_solution_with_wrong_account_name(self, get_random_integer, get_random_valid_account_name):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "A"
@@ -277,6 +277,53 @@ class NegativeTesting(BaseTest):
                                         self.__registration_api_identifier)
         result = self.get_response(response_id)["result"]
         check_that("result", result, equal_to(False))
+        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
+                                        self.__database_api_identifier)
+        result = self.get_response(response_id)["result"]
+        check_that("account creation state", result, equal_to(None))
+
+    @lcc.test("Register account with wrong name: 'ethereum address', 'BTC public key', 'echo address'")
+    @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
+    def submit_registration_solution_with_wrong_names(self):
+        account_names = [get_random_eth_address(), get_random_btc_public_key(), self.generate_keys()[1]]
+        checks = ['ethereum address', 'BTC public key', 'echo public key']
+
+        for i, account_name in enumerate(account_names):
+            callback = get_random_integer()
+            generate_keys = self.generate_keys()
+            public_key = generate_keys[1]
+            rand_num, solution = self.prepare_rand_num_and_task_solution()
+            expected_error_message = "Assert Exception: is_valid_name( name ): " \
+                                     "'{}' is not a valid account name".format(account_name)
+
+            lcc.set_step("Check that 'submit_registration_solution' crashes with name = '{}'".format(checks[i]))
+            account_params = [callback, account_name, public_key, public_key, solution, rand_num]
+            response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
+                                            self.__registration_api_identifier)
+            error = self.get_response(response_id, negative=True)["error"]["message"]
+            check_that("result", error, equal_to(expected_error_message))
+            response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
+                                            self.__database_api_identifier)
+            result = self.get_response(response_id)["result"]
+            check_that("account creation state", result, equal_to(None))
+
+    @lcc.test("Register account with name + '/'")
+    @lcc.depends_on("RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
+    def submit_registration_solution_with_wrong_solution(self, get_random_integer, get_random_valid_account_name):
+        callback = get_random_integer
+        account_name = get_random_valid_account_name + "/"
+        generate_keys = self.generate_keys()
+        public_key = generate_keys[1]
+        rand_num, solution = self.prepare_rand_num_and_task_solution()
+        expected_error_message = "Assert Exception: is_valid_name( name ): " \
+                                 "'{}' is not a valid account name".format(account_name)
+
+        lcc.set_step("Check that 'submit_registration_solution' completed successfully")
+        account_params = [callback, account_name, public_key, public_key, solution, rand_num]
+        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
+                                        self.__registration_api_identifier, debug_mode=True)
+        error = self.get_response(response_id, negative=True)["error"]
+        check_that("error message", error["message"], equal_to(expected_error_message))
         response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]

@@ -171,7 +171,7 @@ class ChangeActiveCommitteeMember(BaseTest):
             lcc.log_info("Voting finished.")
 
             lcc.set_step("Set timer for sidechain")
-            time.sleep(30)
+            time.sleep(5)
             self.produce_block(self.__database_api_identifier)
             lcc.log_info("Timer expired")
 

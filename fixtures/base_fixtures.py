@@ -10,7 +10,7 @@ RANGE_OF_STR = 7
 RANGE_OF_LENGTH = 5
 RANGE_OF_STR_FOR_ETH_ADDRESS = 20
 RANGE_OF_STR_FOR_BTC_PUBLIC_KEY = 33
-
+RANGE_OF_STR_FOR_ECHO_PUBLIC_KEY = 22
 
 @lcc.fixture(scope="test")
 def get_random_integer():
@@ -145,7 +145,6 @@ def get_random_btc_public_key():
     random_hex_string = ''.join(hex(ord(x))[2:] for x in random_string)
     lcc.log_info("Generated random hex string: {}".format(random_hex_string))
     return random_hex_string
-
 
 @lcc.fixture(scope="test")
 def get_random_not_hex_string():
