@@ -131,7 +131,8 @@ class PositiveTesting(BaseTest):
 
     def get_contract_logs(self, callback_id, contract_id=None, _list=[], _from=None, limit=100, params=None):
         if params is None:
-            params = [callback_id, {"contracts": [contract_id], "topics": _list, "from_block": _from, "to_block": limit}]
+            params = [callback_id,
+                      {"contracts": [contract_id], "topics": _list, "from_block": _from, "to_block": limit}]
         response_id = self.send_request(self.get_request("get_contract_logs", params), self.__database_api_identifier)
         return self.get_response(response_id, log_response=True)["result"]
 
@@ -446,3 +447,37 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Check contract logs")
         check_that("'get_contract_logs' return error message with '{}' params".format(params),
                    response, has_entry("error"), quiet=True)
+
+    @lcc.test("Call method with parameter 'limit' equal zero")
+    @lcc.depends_on("DatabaseApi.Contracts.GetContractLogs.GetContractLogs.method_main_check")
+    def method_main_check(self, get_random_integer_up_to_ten, get_random_integer):
+        value_amount = get_random_integer_up_to_ten
+        subscription_callback_id = get_random_integer
+        max_limit = 0
+        error = "Assert Exception: !opts.to_block || *opts.to_block > 0: to_block must be greater than zero"
+
+        lcc.set_step("Create contract in the Echo network and get it's contract id")
+        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
+                                                 self.__database_api_identifier,
+                                                 value_amount=value_amount)
+
+        lcc.set_step("Call contract method getPennie and get trx block number")
+        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
+                                                              bytecode=self.getPennie, callee=contract_id)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                   log_broadcast=False)
+        block_num = broadcast_result["block_num"]
+        _from = 1
+        lcc.log_info("Method 'getPennie' performed successfully, block_num: '{}'".format(block_num))
+
+        lcc.set_step("Get contract logs from '{}' block to max_limit '{}'".format(_from, max_limit))
+        params = [subscription_callback_id,
+                  {"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": max_limit}]
+        response_id = self.send_request(self.get_request("get_contract_logs", params),
+                                        self.__database_api_identifier)
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        require_that(
+            "'expired transaction result'",
+            message, equal_to(error)
+        )
