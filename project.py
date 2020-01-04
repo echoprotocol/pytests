@@ -107,6 +107,9 @@ ETH_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["ETH_asset_id"]
 ETH_CONTRACT_ADDRESS = "0x" + GENESIS["initial_parameters"]["sidechain_config"]["eth_contract_address"]
 UNPAID_FEE_METHOD = "0x19c4518a"
 COMMITTEE = "0x130f679d"
+SATOSHI_PRECISION = 100000000
+SATOSHI_PER_BYTE = GENESIS["initial_parameters"]["sidechain_config"]["satoshis_per_byte"]
+BTC_FEE = GENESIS["initial_parameters"]["sidechain_config"]["btc_deposit_withdrawal_fee"]
 
 ETHEREUM_OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "ethereum_transactions.json")))
 ETHEREUM_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "ethereum_contracts.json")))
