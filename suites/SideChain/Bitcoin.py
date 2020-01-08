@@ -7,10 +7,10 @@ import time
 
 import lemoncheesecake.api as lcc
 import requests
-from lemoncheesecake.matching import check_that, equal_to
+from lemoncheesecake.matching import check_that, equal_to, require_that
 
 from common.base_test import BaseTest
-from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BTC_FEE
+from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BTC_FEE, INIT0_PK
 
 SUITE = {
     "description": "Entering the currency bitcoin in the network ECHO to the account and withdraw that currency"
@@ -91,52 +91,53 @@ class Bitcoin(BaseTest):
     def bitcoin_sidechain_pre_run_scenario(self):
         backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
         deposit_amount = 5
-        withdrawal_amount = 10000
+        withdrawal_amount = 100000
         balance_before_deposit = 0
 
-        # lcc.set_step("Sent 10 btc coins to new address in BTC network")
-        # new_adress = self.btc_call('getnewaddress')
-        #
-        # # generate 101 block by new address
-        # self.btc_call('generatetoaddress', 101, new_adress)
-        #
-        # # send 10 btc coins to new address
-        # self.btc_call('sendtoaddress', new_adress, 10.00)
-        #
-        # # generate blocks for aggregation in sidechain
-        # for i in range(0, 4):
-        #     self.btc_call('generate', 1)
-        #
-        # # get new address balance in BTC network
-        # balance = self.btc_call('getreceivedbyaddress', new_adress)
-        # require_that("btc network balance", balance, equal_to(10))
+        lcc.set_step("Sent 10 btc coins to new address in BTC network")
+        new_adress = self.btc_call('getnewaddress')
 
-        # lcc.log_info("Perform sidechain_btc_create_address_operation for account {}".format(self.echo_acc0))
-        # operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account=self.echo_acc0,
-        #                                                                      backup_address=backup_address)
-        # collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        # operation_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-        #                                            log_broadcast=True)["trx"]["operation_results"][0][1]
-        # lcc.log_info("Operation result id: {}".format(operation_result))
+        # generate 101 block by new address
+        self.btc_call('generatetoaddress', 101, new_adress)
 
-        # lcc.log_info("Get btc address ")
-        # response_id = self.send_request(self.get_request("get_objects", [["1.19.0"]]), self.__database_api_identifier)
-        # address = self.get_response(response_id)["result"][0]["deposit_address"]["address"]
-        # lcc.log_info("BTC address '{}' of account '{}'".format(address, self.echo_acc0))
+        # send 10 btc coins to new address
+        self.btc_call('sendtoaddress', new_adress, 10.00)
 
-        # lcc.set_step("Get {} account btc asset balance".format(self.echo_acc0))
-        # params = [self.echo_acc0, ["1.3.2"]]
-        # response_id = self.send_request(self.get_request("get_account_balances", params),
-        #                                 self.__database_api_identifier)
-        # balance_before_deposit = self.get_response(response_id)["result"][0]["amount"]
-        # lcc.log_info("'{}' account btc balance = {}".format(self.echo_acc0, balance_before_deposit))
+        # generate blocks for aggregation in sidechain
+        for i in range(0, 4):
+            self.btc_call('generate', 1)
 
-        # #transfer 5 btc coins from btc network to echo network
-        # self.btc_call('sendtoaddress', address, deposit_amount)
-        #
-        # # generate blocks for aggregation in sidechain
-        # for i in range(0, 10):
-        #     self.btc_call('generate', 1)
+        # get new address balance in BTC network
+        balance = self.btc_call('getreceivedbyaddress', new_adress)
+        require_that("btc network balance", balance, equal_to(10))
+
+        lcc.log_info("Perform sidechain_btc_create_address_operation for account {}".format(self.echo_acc0))
+        operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account=self.echo_acc0,
+                                                                             backup_address=backup_address)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        operation_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                   log_broadcast=True)["trx"]["operation_results"][0][1]
+        lcc.log_info("Operation result id: {}".format(operation_result))
+
+        lcc.log_info("Get btc address ")
+        response_id = self.send_request(self.get_request("get_objects", [["1.19.0"]]), self.__database_api_identifier)
+        address = self.get_response(response_id)["result"][0]["deposit_address"]["address"]
+        lcc.log_info("BTC address '{}' of account '{}'".format(address, self.echo_acc0))
+
+        lcc.set_step("Get {} account btc asset balance".format(self.echo_acc0))
+        params = [self.echo_acc0, ["1.3.2"]]
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        balance_before_deposit = self.get_response(response_id)["result"][0]["amount"]
+        lcc.log_info("'{}' account btc balance = {}".format(self.echo_acc0, balance_before_deposit))
+
+        #transfer 5 btc coins from btc network to echo network
+        self.btc_call('sendtoaddress', address, deposit_amount)
+
+        # generate blocks for aggregation in sidechain
+        for i in range(0, 5):
+            time.sleep(3)
+            self.btc_call('generate', 1)
 
         lcc.log_info("Get {} account btc asset balance".format(self.echo_acc0))
         params = [self.echo_acc0, ["1.3.2"]]
@@ -148,14 +149,14 @@ class Bitcoin(BaseTest):
 
         # todo: ECHO-1241, ECHO-1428
 
-        # lcc.log_info("Create BTC address for '1.2.6' account")
-        # operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account="1.2.6",
-        #                                                                      backup_address=backup_address,
-        #                                                                      signer=INIT0_PK)
-        # collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        # operation_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-        #                                            log_broadcast=True)["trx"]["operation_results"][0][1]
-        # lcc.log_info("Operation result id: {}".format(operation_result))
+        lcc.log_info("Create BTC address for '1.2.6' account")
+        operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account="1.2.6",
+                                                                             backup_address=backup_address,
+                                                                             signer=INIT0_PK)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        operation_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                   log_broadcast=True)["trx"]["operation_results"][0][1]
+        lcc.log_info("Operation result id: {}".format(operation_result))
 
         lcc.log_info("Get btc address of '1.2.6' account")
         response_id = self.send_request(self.get_request("get_objects", [["1.19.2"]]), self.__database_api_identifier)
@@ -170,8 +171,8 @@ class Bitcoin(BaseTest):
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
 
         # generate blocks for aggregation in sidechain
-        for i in range(0, 1):
-            time.sleep(2)
+        for i in range(0, 5):
+            time.sleep(3)
             self.btc_call('generate', 1)
 
         lcc.set_step("Get account btc asset balance")
