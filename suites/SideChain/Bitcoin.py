@@ -92,9 +92,8 @@ class Bitcoin(BaseTest):
         backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
         deposit_amount = 5
         withdrawal_amount = 100000
-        balance_before_deposit = 0
 
-        lcc.set_step("Sent 10 btc coins to new address in BTC network")
+        lcc.set_step("Create new address in BTC network")
         new_adress = self.btc_call('getnewaddress')
 
         # generate 101 block by new address
@@ -104,7 +103,8 @@ class Bitcoin(BaseTest):
         self.btc_call('sendtoaddress', new_adress, 10.00)
 
         # generate blocks for aggregation in sidechain
-        for i in range(0, 4):
+        for i in range(0, 5):
+            time.sleep(3)
             self.btc_call('generate', 1)
 
         # get new address balance in BTC network
@@ -120,7 +120,8 @@ class Bitcoin(BaseTest):
         lcc.log_info("Operation result id: {}".format(operation_result))
 
         lcc.log_info("Get btc address ")
-        response_id = self.send_request(self.get_request("get_objects", [["1.19.0"]]), self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_objects", [[operation_result]]),
+                                        self.__database_api_identifier)
         address = self.get_response(response_id)["result"][0]["deposit_address"]["address"]
         lcc.log_info("BTC address '{}' of account '{}'".format(address, self.echo_acc0))
 
@@ -131,7 +132,7 @@ class Bitcoin(BaseTest):
         balance_before_deposit = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("'{}' account btc balance = {}".format(self.echo_acc0, balance_before_deposit))
 
-        #transfer 5 btc coins from btc network to echo network
+        # transfer 5 btc coins from btc network to echo network
         self.btc_call('sendtoaddress', address, deposit_amount)
 
         # generate blocks for aggregation in sidechain
