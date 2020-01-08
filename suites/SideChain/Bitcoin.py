@@ -7,7 +7,8 @@ import time
 
 import lemoncheesecake.api as lcc
 import requests
-from lemoncheesecake.matching import check_that, equal_to, require_that
+from lemoncheesecake.matching import check_that, equal_to, require_that, is_, is_true, check_that_in, has_length, \
+    greater_than_or_equal_to, is_bool, is_integer, is_list, greater_than
 
 from common.base_test import BaseTest
 from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BTC_FEE, INIT0_PK
@@ -91,7 +92,9 @@ class Bitcoin(BaseTest):
     def bitcoin_sidechain_pre_run_scenario(self):
         backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
         deposit_amount = 5
-        withdrawal_amount = 100000
+        withdrawal_amount = 1000000
+        withdraw_ids, withdraw_values = [], []
+        deposit_ids, deposit_values = [], []
 
         lcc.set_step("Create new address in BTC network")
         new_adress = self.btc_call('getnewaddress')
@@ -115,8 +118,8 @@ class Bitcoin(BaseTest):
         operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account=self.echo_acc0,
                                                                              backup_address=backup_address)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        operation_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=True)["trx"]["operation_results"][0][1]
+        operation_result = \
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)["trx"]["operation_results"][0][1]
         lcc.log_info("Operation result id: {}".format(operation_result))
 
         lcc.log_info("Get btc address ")
@@ -145,10 +148,9 @@ class Bitcoin(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         balance_after_deposit = self.get_response(response_id)["result"][0]["amount"]
+        deposit_values.append(balance_after_deposit)
         check_that("account balance", balance_after_deposit,
                    equal_to(balance_before_deposit + deposit_amount * SATOSHI_PRECISION - SATOSHI_PER_BYTE * BTC_FEE))
-
-        # todo: ECHO-1241, ECHO-1428
 
         lcc.log_info("Create BTC address for '1.2.6' account")
         operation = self.echo_ops.get_sidechain_btc_create_address_operation(echo=self.echo, account="1.2.6",
@@ -160,7 +162,8 @@ class Bitcoin(BaseTest):
         lcc.log_info("Operation result id: {}".format(operation_result))
 
         lcc.log_info("Get btc address of '1.2.6' account")
-        response_id = self.send_request(self.get_request("get_objects", [["1.19.2"]]), self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_objects", [[operation_result]]),
+                                        self.__database_api_identifier)
         new_btc_address = self.get_response(response_id, log_response=True)["result"][0]["deposit_address"]["address"]
         lcc.log_info("BTC address '{}' of account '1.2.6'".format(new_btc_address))
 
@@ -169,7 +172,8 @@ class Bitcoin(BaseTest):
                                                                        btc_address=new_btc_address,
                                                                        value=withdrawal_amount)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
+        withdraw_values.append(withdrawal_amount)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         # generate blocks for aggregation in sidechain
         for i in range(0, 5):
@@ -191,77 +195,73 @@ class Bitcoin(BaseTest):
         check_that("account balance", balance,
                    equal_to(withdrawal_amount - 2 * BTC_FEE * SATOSHI_PER_BYTE))
 
-        # lcc.set_step("Get btc_withdraws")
-        # params = [["1.22.0", "1.22.1", "1.22.2", "1.22.3", "1.22.4"]]
-        # response_id = self.send_request(self.get_request("get_objects", params),
-        #                                 self.__database_api_identifier, debug_mode=True)
-        # btc_withdraws = self.get_response(response_id, log_response=True)["result"]
-        #
-        # for i, withdraw in enumerate(btc_withdraws):
-        #     lcc.log_info("withdraw: {}".format(params[0][i]))
-        #     if check_that("'btc_withdraw'", withdraw, is_not_none()):
-        #         check_that("'btc_withdraw'", withdraw, has_length(8))
-        #         check_that("'account'", withdraw["account"], equal_to(self.echo_acc0))
-        #         check_that("'btc address'", withdraw["btc_addr"], equal_to(btc_address))
-        #         check_that("'value'", withdraw["value"], equal_to(amount))
-        #         check_that("'is_approved'", withdraw["is_approved"], is_false())
-        #
-        # lcc.set_step("Get btc_aggregatings")
-        # params = [["1.23.0", "1.23.1", "1.23.2", "1.23.3", "1.23.4", "1.23.5"]]
-        # response_id = self.send_request(self.get_request("get_objects", params),
-        #                                 self.__database_api_identifier, debug_mode=True)
-        # btc_aggregatings = self.get_response(response_id, log_response=True)["result"]
-        # for i, aggregating in enumerate(btc_aggregatings):
-        #     lcc.log_info("withdraw: {}".format(params[0][i]))
-        #     if check_that("'btc_aggregating'", aggregating, is_not_none()):
-        #         if check_that("'btc_aggregating'", aggregating, has_length(14)):
-        #             check_that("'cpfp_depth'", aggregating["cpfp_depth"], equal_to(i))
-        #             check_that("'is_approved'", aggregating["is_approved"], is_false())
-        #         else:
-        #             check_that("'btc_aggregating'", aggregating, has_length(15))
-        #             check_that("'cpfp_depth'", aggregating["cpfp_depth"], equal_to(i))
-        #             # check_that("'previous_aggregation'", aggregating["previous_aggregation"], is_str())
-        #             check_that("'is_approved'", aggregating["is_approved"], is_false())
-        #
-        # params = [self.echo_acc0, "btc"]
-        # response_id = self.send_request(self.get_request("get_account_deposits", params),
-        #                                 self.__database_api_identifier)
-        # deposits = self.get_response(response_id, log_response=True)
-        #
-        # params = [self.echo_acc0, "btc"]
-        # response_id = self.send_request(self.get_request("get_account_withdrawals", params),
-        #                                 self.__database_api_identifier)
-        # deposits = self.get_response(response_id, log_response=True)
-        #
-        # lcc.set_step("Get history of new account and echo_acc0 account")
-        # operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
-        # stop, start = operation_history_obj, operation_history_obj
-        # limit = 100
-        # params = [self.new_account, stop, limit, start]
-        # response_id = self.send_request(self.get_request("get_account_history", params),
-        # self.__history_api_identifier)
-        # result = self.get_response(response_id)["result"]
-        # new_acc_ids = [dict["op"][0] for dict in result]
-        #
-        # params = [self.echo_acc0, stop, limit, start]
-        # response_id = self.send_request(self.get_request("get_account_history", params),
-        # self.__history_api_identifier)
-        # result = self.get_response(response_id)["result"]
-        # acc0_ids = [dict["op"][0] for dict in result]
-        # external_virtual_op_ids = set(new_acc_ids + acc0_ids)
-        # lcc.log_info(str("Accounts operations ids: {}".format(external_virtual_op_ids)))
-        #
-        # lcc.set_step("Get history of committee member account")
-        # params = ["1.2.6", stop, limit, start]
-        # response_id = self.send_request(self.get_request("get_account_history", params),
-        # self.__history_api_identifier)
-        # result = self.get_response(response_id)["result"]
-        # internal_ids = set([dict["op"][0] for dict in result])
-        # lcc.log_info(str("Committee member account operations ids: {}".format(internal_ids)))
-        #
-        # lcc.set_step("Check that external and virtual operations logs separate from internal operation logs")
-        # fist_sidechain_op_id = 38
-        # last_sidechain_op_id = 64
-        # for op_id in external_virtual_op_ids:
-        #     if op_id in internal_ids and op_id < last_sidechain_op_id and op_id > fist_sidechain_op_id:
-        #         raise Exception("Wrong work of method get_contract_history, get id: {}".format(op_id))
+        lcc.set_step("Get deposits of account {}".format(self.echo_acc0))
+        params = [self.echo_acc0, "btc"]
+        response_id = self.send_request(self.get_request("get_account_deposits", params),
+                                        self.__database_api_identifier)
+        get_account_deposits_results = self.get_response(response_id, log_response=True)["result"]
+        lcc.log_info("Call method 'get_account_deposits' of new account '{}'".format(self.echo_acc0))
+
+        lcc.set_step("Check simple work of method 'get_account_deposits'")
+        for i, deposit in enumerate(get_account_deposits_results):
+            if check_that(
+                    "'deposit eth'",
+                    deposit[i], has_length(8),
+                    quiet=True
+            ):
+                if not self.type_validator.is_btc_deposit_id(deposit[i]["id"]):
+                    lcc.log_error("Wrong format of 'id', got: {}".format(deposit[i]["id"]))
+                else:
+                    lcc.log_info("'id' has correct format: deposit_eth_object_type")
+                if not self.type_validator.is_account_id(deposit[i]["account"]):
+                    lcc.log_error("Wrong format of 'account', got: {}".format(deposit[i]["account"]))
+                else:
+                    lcc.log_info("'account' has correct format: account_id")
+
+                check_that_in(
+                    deposit[i],
+                    "deposit_id", greater_than(0),
+                    "is_approved", is_bool(),
+                    "is_sent", is_bool(),
+                    "approves", is_list(),
+                    "echo_block_number", is_integer(),
+                    "extensions", is_list(),
+                    quiet=True
+                )
+
+        lcc.set_step("Get withdrawals of account {}".format(self.echo_acc0))
+        params = [self.echo_acc0, "btc"]
+        response_id = self.send_request(self.get_request("get_account_withdrawals", params),
+                                        self.__database_api_identifier)
+        get_account_withdrawals_results = self.get_response(response_id, log_response=True)["result"]
+        lcc.log_info("Call method 'get_account_withdrawals' of account '{}'".format(self.echo_acc0))
+
+        lcc.set_step("Check simple work of method 'get_account_withdrawals'")
+        for i, withdraw in enumerate(get_account_withdrawals_results):
+            lcc.set_step("Check account withdraw #{}".format(i))
+            if check_that(
+                    "'withdraw eth'",
+                    withdraw[i], has_length(8),
+                    quiet=True
+            ):
+                if not self.type_validator.is_btc_withdraw_id(withdraw[i]["id"]):
+                    lcc.log_error("Wrong format of 'id', got: {}".format(withdraw["id"]))
+                else:
+                    lcc.log_info("'id' has correct format: withdraw_eth_object_type")
+                if not self.type_validator.is_btc_public_key(withdraw[i]["eth_addr"]):
+                    lcc.log_error("Wrong format of 'btc_public_key', got: {}".format(withdraw[i]["eth_addr"]))
+                else:
+                    lcc.log_info("'btc_public_key' has correct format: btc_public_key")
+                if not self.type_validator.is_account_id(withdraw[i]["account"]):
+                    lcc.log_error("Wrong format of 'account', got: {}".format(withdraw[i]["account"]))
+                else:
+                    lcc.log_info("'account' has correct format: account_id")
+                check_that_in(
+                    withdraw[i],
+                    "is_approved", is_bool(),
+                    "is_sent", is_bool(),
+                    "value", is_integer(),
+                    "echo_block_number", is_integer(),
+                    "extensions", is_list(),
+                    quiet=True
+                )

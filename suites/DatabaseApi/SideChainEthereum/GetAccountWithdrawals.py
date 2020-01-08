@@ -199,7 +199,7 @@ class GetAccountWithdrawals(BaseTest):
         params = [new_account, "eth"]
         response_id = self.send_request(self.get_request("get_account_withdrawals", params),
                                         self.__database_api_identifier)
-        get_account_withdrawals_results = self.get_response(response_id)["result"]
+        get_account_withdrawals_results = self.get_response(response_idz)["result"]
         lcc.log_info("Call method 'get_account_withdrawals' of new account '{}'".format(new_account))
 
         lcc.set_step("Check simple work of method 'get_account_withdrawals'")

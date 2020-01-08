@@ -193,7 +193,7 @@ class TypeValidator(object):
         if self.is_string(value):
             return bool(self.btc_intermediate_deposit_id_regex.match(value))
 
-    def is_deposit_id(self, value):
+    def is_btc_deposit_id(self, value):
         if self.is_string(value):
             return bool(self.btc_deposit_id_regex.match(value))
 
