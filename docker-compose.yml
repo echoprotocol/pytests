@@ -6,7 +6,7 @@ services:
     image: ruimarinho/bitcoin-core:0.18
     command: "-printtoconsole -regtest=1 -rpcbind=0.0.0.0 -rpcallowip=0.0.0.0/0 -rpcuser=test -rpcpassword=test -deprecatedrpc=generate"
     ports:
-      - '18443:18443'
+      - "0.0.0.0:18443:18443"
 
   ganache:
     image: trufflesuite/ganache-cli:latest
