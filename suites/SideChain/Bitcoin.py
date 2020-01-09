@@ -49,7 +49,7 @@ class Bitcoin(BaseTest):
         rpcPort = 18443
         rpcUser = 'test'
         rpcPassword = 'test'
-        serverURL = 'http://' + rpcUser + ':' + rpcPassword + '@localhost:' + str(rpcPort)
+        serverURL = 'http://' + rpcUser + ':' + rpcPassword + '@0.0.0.0:' + str(rpcPort)
         self.btc_url = serverURL
         self._session = requests.Session()
         self._headers = {'content-type': 'application/json'}
