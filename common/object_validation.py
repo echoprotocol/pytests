@@ -540,7 +540,7 @@ class ObjectValidator(object):
     def validate_withdraw_eth_object(self, base_test, withdraw_eth_object):
         if check_that(
             "'withdraw eth'",
-            withdraw_eth_object, has_length(10),
+            withdraw_eth_object, has_length(11),
             quiet=True
         ):
             if not base_test.type_validator.is_withdraw_eth_id(withdraw_eth_object["id"]):
@@ -561,6 +561,8 @@ class ObjectValidator(object):
                 "is_approved", is_bool(),
                 "is_sent", is_bool(),
                 "approves", is_list(),
+                "value", is_integer(),
+                "fee", is_integer(),
                 "echo_block_number", is_integer(),
                 "extensions", is_list(),
                 quiet=True
@@ -670,7 +672,7 @@ class ObjectValidator(object):
         def validate_sidechain_config(base_test, sidechain_config, eth_params, eth_methods):
             if check_that(
                 "sidechain config",
-                sidechain_config, has_length(22),
+                sidechain_config, has_length(23),
                 quiet=True
             ):
                 for eth_param in eth_params:
@@ -719,6 +721,7 @@ class ObjectValidator(object):
                     "coefficient_waiting_blocks", is_integer(),
                     "btc_deposit_withdrawal_min", is_integer(),
                     "btc_deposit_withdrawal_fee", is_integer(),
+                    "eth_withdrawal_fee", is_integer(),
                     quiet=True
                 )
                 base_test.check_uint64_numbers(

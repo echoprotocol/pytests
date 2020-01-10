@@ -193,7 +193,7 @@ class TypeValidator(object):
         if self.is_string(value):
             return bool(self.btc_intermediate_deposit_id_regex.match(value))
 
-    def is_deposit_id(self, value):
+    def is_btc_deposit_id(self, value):
         if self.is_string(value):
             return bool(self.btc_deposit_id_regex.match(value))
 
@@ -367,6 +367,12 @@ class TypeValidator(object):
         if not self.is_hex(value):
             return False
         if len(value) == 66:
+            return True
+
+    def is_btc_address(self, value):
+        if not self.is_base58(value):
+            return False
+        if len(value) == 35:
             return True
 
     def is_digit(self, value):

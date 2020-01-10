@@ -189,7 +189,7 @@ class ERC20(BaseTest):
         params = [self.new_account, operation_id, start, stop, limit]
         response_id = self.send_request(self.get_request("get_account_history_operations", params),
                                         self.__history_api_identifier)
-        history_operations = self.get_response(response_id, log_response=True)["result"]
+        history_operations = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_account_history' with: account='{}', operation_id='{}', stop='{}', limit='{}', "
             "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start))
@@ -371,6 +371,9 @@ class ERC20(BaseTest):
         lcc.set_step("Check that external and virtual operations logs separate from internal operation logs")
         fist_sidechain_op_id = 38
         last_sidechain_op_id = 64
+        sidechain_issue_op_id = 47
+        sidechain_btc_create_address_op_id = 57
         for op_id in external_virtual_op_ids:
-            if op_id in internal_ids and op_id < last_sidechain_op_id and op_id > fist_sidechain_op_id:
+            if op_id in internal_ids and op_id < last_sidechain_op_id and op_id > fist_sidechain_op_id and op_id != \
+                    sidechain_issue_op_id and op_id != sidechain_btc_create_address_op_id:
                 raise Exception("Wrong work of method get_contract_history, get id: {}".format(op_id))
