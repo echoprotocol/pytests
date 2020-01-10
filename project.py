@@ -102,6 +102,7 @@ MAIN_TEST_ACCOUNT_COUNT = 1
 BLOCK_RELEASE_INTERVAL = 5
 BLOCKS_NUM_TO_WAIT = 10
 REQUIRED_DEPOSIT_AMOUNT = GENESIS["initial_parameters"]["committee_frozen_balance_to_activate"]
+COMMITTEE_FREEZE_DURATION_SECONDS = int(GENESIS["initial_parameters"]["committee_balance_unfreeze_duration_seconds"])
 BASE_ASSET_SYMBOL, ETH_ASSET_SYMBOL = "ECHO", "EETH"
 ETH_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["ETH_asset_id"]
 ETH_CONTRACT_ADDRESS = "0x" + GENESIS["initial_parameters"]["sidechain_config"]["eth_contract_address"]

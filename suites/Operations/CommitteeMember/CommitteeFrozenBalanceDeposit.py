@@ -19,6 +19,7 @@ class CommitteeFrozenBalanceDeposit(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.init0 = None
+        self.committee_members_info = None
 
     def setup_suite(self):
         super().setup_suite()
