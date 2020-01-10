@@ -189,7 +189,7 @@ class ERC20(BaseTest):
         params = [self.new_account, operation_id, start, stop, limit]
         response_id = self.send_request(self.get_request("get_account_history_operations", params),
                                         self.__history_api_identifier)
-        history_operations = self.get_response(response_id, log_response=True)["result"]
+        history_operations = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_account_history' with: account='{}', operation_id='{}', stop='{}', limit='{}', "
             "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start))
@@ -350,24 +350,21 @@ class ERC20(BaseTest):
         stop, start = operation_history_obj, operation_history_obj
         limit = 100
         params = [self.new_account, stop, limit, start]
-        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier,
-                                        debug_mode=True)
-        result = self.get_response(response_id, log_response=True)["result"]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
         new_acc_ids = [dict["op"][0] for dict in result]
 
         params = [self.echo_acc0, stop, limit, start]
-        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier,
-                                        debug_mode=True)
-        result = self.get_response(response_id, log_response=True)["result"]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
         acc0_ids = [dict["op"][0] for dict in result]
         external_virtual_op_ids = set(new_acc_ids + acc0_ids)
         lcc.log_info(str("Accounts operations ids: {}".format(external_virtual_op_ids)))
 
         lcc.set_step("Get history of committee member account")
         params = ["1.2.6", stop, limit, start]
-        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier,
-                                        debug_mode=True)
-        result = self.get_response(response_id, log_response=True)["result"]
+        response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
+        result = self.get_response(response_id)["result"]
         internal_ids = set([dict["op"][0] for dict in result])
         lcc.log_info(str("Committee member account operations ids: {}".format(internal_ids)))
 
