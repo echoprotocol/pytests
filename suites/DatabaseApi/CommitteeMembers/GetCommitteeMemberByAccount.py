@@ -33,7 +33,7 @@ class GetCommitteeMemberByAccount(BaseTest):
 
         lcc.set_step("Get list of active committee members")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        active_committee_members = self.get_response(response_id, log_response=True)["result"]["active_committee_members"]
+        active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
         for member in active_committee_members:
             active_committee_members_ids.append(member[0])
         lcc.log_info("Active committee members ids: '{}'".format(active_committee_members_ids))
@@ -52,8 +52,8 @@ class GetCommitteeMemberByAccount(BaseTest):
         for i, account_id in enumerate(account_ids):
             lcc.set_step("Call method 'get_committee_member_by_account' for active committee member #'{}'".format(i))
             response_id = self.send_request(self.get_request("get_committee_member_by_account", [account_id]),
-                                            self.__database_api_identifier, debug_mode=True)
-            committee_member = self.get_response(response_id, log_response=True)["result"]
+                                            self.__database_api_identifier)
+            committee_member = self.get_response(response_id)["result"]
             lcc.log_info("Call method 'get_committee_member_by_account' with param='{}'".format(account_id))
 
             lcc.set_step("Check method 'get_committee_members_by_account' result")
