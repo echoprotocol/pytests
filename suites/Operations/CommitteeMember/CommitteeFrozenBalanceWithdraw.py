@@ -184,8 +184,11 @@ class NegativeTesting(BaseTest):
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
 
         #todo: Add error handler
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        lcc.log_error(str(broadcast_result))
+        try:
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            lcc.log_error("Check about duration does not work")
+        except:
+            lcc.log_error(str(broadcast_result))
 
         sleep(COMMITTEE_FREEZE_DURATION_SECONDS)
         self.produce_block(self.__database_api_identifier)
@@ -194,8 +197,7 @@ class NegativeTesting(BaseTest):
             if not self.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Balance is not withdrawn")
         except Exception as e:
-            lcc.log_error("{}".format(e))
-        lcc.log_info("Committee member balance have been withdrawn")
+            lcc.log_info("{}".format(e))
 
         operation = broadcast_result["trx"]["operations"][0][1]
         frozen_balance_withdrawal = operation["amount"]["amount"]
