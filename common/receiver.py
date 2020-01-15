@@ -42,9 +42,9 @@ class Receiver(object):
             lcc.log_error(
                 "Wrong 'id' expected '{}', but received:\n{}".format(id_response, json.dumps(response, indent=4)))
             raise Exception("Wrong 'id'")
-        if response.get("jsonrpc") != "2.0":
-            lcc.log_error("Wrong data received: {}".format(json.dumps(response, indent=4)))
-            raise Exception("Wrong response")
+        # if response.get("jsonrpc") != "2.0":
+        #     lcc.log_error("Wrong data received: {}".format(json.dumps(response, indent=4)))
+        #     raise Exception("Wrong response")
         if negative:
             return self.get_negative_result(response, print_log)
         return self.get_positive_result(response, print_log)
