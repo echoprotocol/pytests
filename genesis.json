@@ -425,7 +425,8 @@
             "_creator_count": 5,
             "_verifier_count": 7,
             "_ok_threshold": 5,
-            "_max_bba_steps": 12
+            "_max_bba_steps": 12,
+            "_round_attempts": 100
         },
         "sidechain_config": {
             "eth_contract_address": "c87395b45C1c199F25a6c2Be43515C41d53751Af",
