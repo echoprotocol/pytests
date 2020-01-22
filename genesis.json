@@ -403,7 +403,7 @@
         "block_emission_amount": 0,
         "block_producer_reward_ratio": 0,
         "committee_frozen_balance_to_activate": 1000,
-        "committee_balance_unfreeze_duration_seconds": 5,
+        "committee_balance_unfreeze_duration_seconds": 1,
         "frozen_balances_multipliers": [
             [
                 90,
@@ -426,7 +426,7 @@
             "_verifier_count": 7,
             "_ok_threshold": 5,
             "_max_bba_steps": 12,
-            "_round_attempts": 100
+            "_round_attempts": 10
         },
         "sidechain_config": {
             "eth_contract_address": "c87395b45C1c199F25a6c2Be43515C41d53751Af",

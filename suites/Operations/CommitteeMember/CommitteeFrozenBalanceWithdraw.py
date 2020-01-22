@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import time
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
-from project import INIT0_PK, REQUIRED_DEPOSIT_AMOUNT
+from project import INIT0_PK, REQUIRED_DEPOSIT_AMOUNT, UNFREEZE_DURATION_SECONDS
 
 SUITE = {
     "description": "Operation 'committee_frozen_balance_withdraw'"
@@ -66,6 +67,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
             withdraw_amount = current_frozen_balance - REQUIRED_DEPOSIT_AMOUNT
 
         lcc.set_step("Withdraw balance of active committee member")
+        time.sleep(UNFREEZE_DURATION_SECONDS)
         operation = self.echo_ops.get_committee_frozen_balance_withdraw_operation(
             echo=self.echo, committee_member_account=self.init0,
             amount=withdraw_amount, asset_id=self.echo_asset, signer=INIT0_PK)
