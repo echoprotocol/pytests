@@ -706,7 +706,7 @@ class EchoOperations(object):
             return [operation_id, account_address_create_props, owner]
         return [operation_id, account_address_create_props, signer]
 
-    def get_transfer_to_address_operation(self, echo, from_account_id, to_address, fee_amount=0, fee_asset_id="1.3.0",
+    def get_transfer_to_address_operation(self, echo, from_account_id, to_address, fee_asset_id, fee_amount=0,
                                           amount=1, amount_asset_id="1.3.0", extensions=None, signer=None,
                                           debug_mode=False):
         if extensions is None:

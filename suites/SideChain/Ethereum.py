@@ -244,7 +244,9 @@ class Ethereum(BaseTest):
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-1],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
-                                                          amount_asset_id=self.eth_asset)
+                                                          amount_asset_id=self.eth_asset,
+                                                          fee_asset_id=self.eth_asset,
+                                                          )
 
         lcc.set_step("Get account balance after transfer and store")
         recipient_balance_after_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
@@ -265,7 +267,9 @@ class Ethereum(BaseTest):
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-2],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
-                                                          amount_asset_id=self.eth_asset)
+                                                          amount_asset_id=self.eth_asset,
+                                                          fee_asset_id=self.eth_asset,
+                                                          log_broadcast=True)
 
         lcc.set_step("Get account balance after second transfer and store")
         recipient_balance_after_second_transfer = self.utils.get_eth_balance(self, self.echo_acc0,

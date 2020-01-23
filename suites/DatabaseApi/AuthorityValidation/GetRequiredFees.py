@@ -95,6 +95,46 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    @lcc.test("Check response of method with eth_asset")
+    @lcc.depends_on("DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
+    def get_required_fee_in_eth_asset(self):
+        lcc.set_step("Get required fee for default 'transfer_operation'")
+        response_id = self.send_request(self.get_request("get_required_fees", [
+            [self.echo_ops.get_operation_json("transfer_operation", example=True),
+             self.echo_ops.get_operation_json("transfer_operation", example=True)],
+            self.eth_asset]), self.__database_api_identifier)
+        results = self.get_response(response_id)["result"]
+        lcc.log_info("Get required fee for two default 'transfer_operation' in one list operations")
+
+        lcc.set_step("Check simple work of method 'get_required_fees'")
+        for result in results:
+            check_that_in(
+                result,
+                "amount", is_integer(),
+                "asset_id", is_(self.eth_asset),
+                quiet=True
+            )
+
+    @lcc.test("Check response of method with btc_asset")
+    @lcc.depends_on("DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
+    def get_required_fee_in_btc_asset(self):
+        lcc.set_step("Get required fee for default 'transfer_operation'")
+        response_id = self.send_request(self.get_request("get_required_fees", [
+            [self.echo_ops.get_operation_json("transfer_operation", example=True),
+             self.echo_ops.get_operation_json("transfer_operation", example=True)],
+            self.btc_asset]), self.__database_api_identifier)
+        results = self.get_response(response_id)["result"]
+        lcc.log_info("Get required fee for two default 'transfer_operation' in one list operations")
+
+        lcc.set_step("Check simple work of method 'get_required_fees'")
+        for result in results:
+            check_that_in(
+                result,
+                "amount", is_integer(),
+                "asset_id", is_(self.btc_asset),
+                quiet=True
+            )
+
     @lcc.test("Fee equal to get_required_fee in transfer operation")
     @lcc.depends_on("DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
     def fee_equal_to_get_required_fee(self):

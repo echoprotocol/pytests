@@ -105,6 +105,7 @@ REQUIRED_DEPOSIT_AMOUNT = GENESIS["initial_parameters"]["committee_frozen_balanc
 UNFREEZE_DURATION_SECONDS = GENESIS["initial_parameters"]["committee_balance_unfreeze_duration_seconds"]
 BASE_ASSET_SYMBOL, ETH_ASSET_SYMBOL = "ECHO", "EETH"
 ETH_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["ETH_asset_id"]
+BTC_ASSET_ID = GENESIS["initial_parameters"]["sidechain_config"]["BTC_asset_id"]
 ETH_CONTRACT_ADDRESS = "0x" + GENESIS["initial_parameters"]["sidechain_config"]["eth_contract_address"]
 UNPAID_FEE_METHOD = "0x19c4518a"
 COMMITTEE = "0x130f679d"
