@@ -140,9 +140,9 @@ class NegativeTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    def get_error_message(self, response_id):
+    def get_error_message(self, response_id, log_response=False):
         try:
-            self.get_response(response_id)
+            self.get_response(response_id, log_response)
         except Exception as e:
             ans = json.loads(str(e)[26:], strict=False)
             return ans["error"]["message"]
@@ -179,6 +179,8 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
+    # todo: Bug ECHO-1743 ("trx.expiration" < "now")
+    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong expiration time")
     @lcc.depends_on(
@@ -211,5 +213,5 @@ class NegativeTesting(BaseTest):
         params = [subscription_callback_id, signed_tx]
         response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
                                         self.__network_broadcast_identifier)
-        error_message = self.get_error_message(response_id)
+        error_message = self.get_error_message(response_id, log_response=True)
         check_that("message", error_message, equal_to(expected_message))

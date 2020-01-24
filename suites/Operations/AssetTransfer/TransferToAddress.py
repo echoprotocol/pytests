@@ -68,7 +68,8 @@ class TransferToAddress(BaseTest):
 
         lcc.set_step("Perform transfer to address operation")
         operation = self.echo_ops.get_transfer_to_address_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                    to_address=to_address, amount=new_asset_amount)
+                                                                    to_address=to_address, amount=new_asset_amount,
+                                                                    fee_asset_id=self.echo_asset)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Operation transfer to address broadcasted successfully")
