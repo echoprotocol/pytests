@@ -9,7 +9,7 @@ SUITE = {
 }
 
 # todo: Undisabled when ECHO-1750 will be done
-# @lcc.disabled()
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "deploy_solidity_contract")
 @lcc.suite("Check scenario 'deploy_solidity_contract'")
