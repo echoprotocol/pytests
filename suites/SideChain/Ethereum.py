@@ -5,6 +5,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
+from project import MIN_ETH_WITHDRAW
 
 SUITE = {
     "description": "Entering the currency ethereum in the network ECHO to the account and withdraw that currency"
@@ -150,9 +151,9 @@ class Ethereum(BaseTest):
         )
 
         lcc.set_step("Withdraw eth from ECHO network to Ethereum network")
-        min_withdraw_amount = 8000
-        lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(min_withdraw_amount, self.new_account))
-        self.withdraw_eth_to_ethereum_address(self.new_account, min_withdraw_amount)
+        min_eth_withdraw_amount = MIN_ETH_WITHDRAW
+        lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(min_eth_withdraw_amount, self.new_account))
+        self.withdraw_eth_to_ethereum_address(self.new_account, min_eth_withdraw_amount)
 
     @lcc.test("The scenario transferring eeth between accounts")
     @lcc.depends_on("SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")

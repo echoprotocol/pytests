@@ -5,6 +5,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
+from project import MIN_ETH_WITHDRAW
 
 SUITE = {
     "description": "Operation 'sidechain_eth_withdraw'"
@@ -44,7 +45,7 @@ class SidechainEthWithdraw(BaseTest):
     def get_random_amount(_from=None, _to=None, amount_type=None):
         if amount_type == float:
             if (_from and _to) is None:
-                _from, _to = 0.01, 0.1
+                _from, _to = MIN_ETH_WITHDRAW, MIN_ETH_WITHDRAW+0.1
             return random.uniform(_from, _to)
         if amount_type == int:
             if _from is None:
