@@ -117,8 +117,8 @@ class SidechainEthWithdraw(BaseTest):
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
 
         lcc.set_step("Get balance after withdraw and check that withdraw operation broadcasted successfully")
-        recipient_balance_after_withdraw = self.utils.get_eth_balance(self, self.echo_acc0,
+        recipient_balance_after_withdraw = int(self.utils.get_eth_balance(self, self.echo_acc0,
                                                                       self.__database_api_identifier,
-                                                                      ethereum_balance)
+                                                                      ethereum_balance))
         check_that("eth balance", recipient_balance_after_withdraw,
                    equal_to(recipient_balance_after_transfer - withdraw_amount))
