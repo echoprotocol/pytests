@@ -2,7 +2,7 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, check_that_in, is_true, check_that, equal_to, starts_with,\
+from lemoncheesecake.matching import is_, check_that_in, is_true, check_that, equal_to, starts_with, \
     require_that_in, require_that, has_length
 
 from common.base_test import BaseTest
@@ -31,7 +31,9 @@ class GetAccountWithdrawals(BaseTest):
         self.echo_acc0 = None
 
     @staticmethod
-    def get_random_eth_amount(_to, _from=MIN_ETH_WITHDRAW):
+    def get_random_eth_amount(_to=None, _from=MIN_ETH_WITHDRAW):
+        if _to == None:
+            _to = 1
         return round(random.uniform(_from, _to))
 
     def setup_suite(self):
@@ -59,7 +61,7 @@ class GetAccountWithdrawals(BaseTest):
     @lcc.test("Simple work of methods: 'get_account_withdrawals', 'get_objects' (withdraw eth object)")
     def method_main_check(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
-        eth_amount = self.get_random_amount(amount_type=float)
+        eth_amount = self.get_random_eth_amount()
         withdraw_ids, withdraw_values = [], []
         sidechain_burn_operations = []
 
