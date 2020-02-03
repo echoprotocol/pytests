@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_not_none, equal_to
 
 from common.base_test import BaseTest
-import json
 
 SUITE = {
     "description": "Method 'broadcast_transaction_synchronous'"
@@ -85,7 +86,6 @@ class BroadcastTransactionSynchronous(BaseTest):
                    updated_account_balance - account_balance, equal_to(transfer_amount))
 
 
-
 @lcc.prop("negative", "type")
 @lcc.tags("api", "network_broadcast_api", "broadcast_transaction_synchronous")
 @lcc.suite("Negative testing of method 'broadcast_transaction_synchronous'", rank=3)
@@ -163,6 +163,8 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
+    # todo: Bug ECHO-1743 ("trx.expiration" < "now")
+    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_synchronous' with wrong expiration time")
     @lcc.depends_on(

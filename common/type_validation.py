@@ -34,7 +34,7 @@ class TypeValidator(object):
     btc_deposit_id_regex = re.compile(r"^1\.21\.(0|[1-9]\d*)$")
     btc_withdraw_id_regex = re.compile(r"^1\.22\.(0|[1-9]\d*)$")
     btc_aggregating_id_regex = re.compile(r"^1\.23\.(0|[1-9]\d*)$")
-
+    evm_address_id_regex = re.compile(r"^1\.24\.(0|[1-9]\d*)$")
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")

@@ -706,7 +706,7 @@ class EchoOperations(object):
             return [operation_id, account_address_create_props, owner]
         return [operation_id, account_address_create_props, signer]
 
-    def get_transfer_to_address_operation(self, echo, from_account_id, to_address, fee_amount=0, fee_asset_id="1.3.0",
+    def get_transfer_to_address_operation(self, echo, from_account_id, to_address, fee_asset_id, fee_amount=0,
                                           amount=1, amount_asset_id="1.3.0", extensions=None, signer=None,
                                           debug_mode=False):
         if extensions is None:
@@ -736,6 +736,21 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, generate_eth_address_props, account]
         return [operation_id, generate_eth_address_props, signer]
+
+    def get_evm_address_register_operation(self, echo, account, evm_address, fee_amount=0, fee_asset_id="1.3.0",
+                                           extensions=None, signer=None, debug_mode=False):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.EVM_ADDRESS_REGISTER
+        evm_address_register_props = self.get_operation_json("evm_address_register_operation")
+        evm_address_register_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        evm_address_register_props.update({"owner": account, "evm_address": evm_address, "extensions": extensions})
+        if debug_mode:
+            lcc.log_debug(
+                "EVM address register operation: \n{}".format(json.dumps(evm_address_register_props, indent=4)))
+        if signer is None:
+            return [operation_id, evm_address_register_props, account]
+        return [operation_id, evm_address_register_props, signer]
 
     def get_sidechain_eth_withdraw_operation(self, echo, account, eth_addr, value, fee_amount=0, fee_asset_id="1.3.0",
                                              extensions=None, signer=None, debug_mode=False):

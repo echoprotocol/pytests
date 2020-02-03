@@ -2,10 +2,11 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_, check_that_in, is_true, check_that, equal_to, starts_with,\
+from lemoncheesecake.matching import is_, check_that_in, is_true, check_that, equal_to, starts_with, \
     require_that_in, require_that, has_length
 
 from common.base_test import BaseTest
+from project import MIN_ETH_WITHDRAW
 
 SUITE = {
     "description": "Methods: 'get_account_withdrawals', 'get_objects' (withdraw eth object)"
@@ -30,7 +31,9 @@ class GetAccountWithdrawals(BaseTest):
         self.echo_acc0 = None
 
     @staticmethod
-    def get_random_amount(_to, _from=0.01):
+    def get_random_eth_amount(_to=None, _from=MIN_ETH_WITHDRAW):
+        if _to == None:
+            _to = 1
         return round(random.uniform(_from, _to))
 
     def setup_suite(self):
@@ -58,9 +61,8 @@ class GetAccountWithdrawals(BaseTest):
     @lcc.test("Simple work of methods: 'get_account_withdrawals', 'get_objects' (withdraw eth object)")
     def method_main_check(self, get_random_valid_account_name):
         new_account = get_random_valid_account_name
-        eth_amount = 0.01
-        withdraw_ids = []
-        withdraw_values = []
+        eth_amount = self.get_random_eth_amount()
+        withdraw_ids, withdraw_values = [], []
         sidechain_burn_operations = []
 
         lcc.set_step("Create and get new account")
@@ -93,7 +95,7 @@ class GetAccountWithdrawals(BaseTest):
         lcc.log_info("Account '{}' balance in ethereum is '{}'".format(new_account, ethereum_balance))
 
         lcc.set_step("First withdraw eth from ECHO network to Ethereum network")
-        withdraw_amount = self.get_random_amount(_to=int(ethereum_balance))
+        withdraw_amount = self.get_random_eth_amount(_to=int(ethereum_balance))
         withdraw_values.append(withdraw_amount)
         self.utils.perform_sidechain_eth_withdraw_operation(self, new_account, self.eth_address, withdraw_amount,
                                                             self.__database_api_identifier)
@@ -147,7 +149,7 @@ class GetAccountWithdrawals(BaseTest):
         lcc.log_info("Account '{}' updated balance in ethereum is '{}'".format(new_account, ethereum_balance))
 
         lcc.set_step("Second withdraw eth from ECHO network to Ethereum network")
-        withdraw_amount = self.get_random_amount(_to=int(ethereum_balance))
+        withdraw_amount = self.get_random_eth_amount(_to=int(ethereum_balance))
         withdraw_values.append(withdraw_amount)
         self.utils.perform_sidechain_eth_withdraw_operation(self, new_account, self.eth_address, withdraw_amount,
                                                             self.__database_api_identifier)

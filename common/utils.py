@@ -190,23 +190,25 @@ class Utils(object):
                                                         broadcast_with_callback=broadcast_with_callback)
         return broadcast_result
 
-    def perform_transfer_to_address_operations(self, base_test, account_1, to_address, database_api_id,
+    def perform_transfer_to_address_operations(self, base_test, account_1, to_address, database_api_id, fee_asset_id,
                                                transfer_amount=1, amount_asset_id="1.3.0", operation_count=1,
                                                get_only_fee=False, log_broadcast=False):
         operation = base_test.echo_ops.get_transfer_to_address_operation(echo=base_test.echo, from_account_id=account_1,
                                                                          to_address=to_address, amount=transfer_amount,
-                                                                         amount_asset_id=amount_asset_id)
-        if account_1 != base_test.echo_acc0:
-            temp_operation = deepcopy(operation)
-            temp_operation[1]["from_account_id"] = base_test.echo_acc0
-            broadcast_result = self.add_balance_for_operations(base_test, account_1, temp_operation, database_api_id,
-                                                               transfer_amount=transfer_amount,
-                                                               operation_count=operation_count,
-                                                               get_only_fee=get_only_fee,
-                                                               log_broadcast=log_broadcast)
-            if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
-                raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
-        collected_operation = base_test.collect_operations(operation, database_api_id)
+                                                                         amount_asset_id=amount_asset_id,
+                                                                         fee_asset_id=fee_asset_id)
+        # if account_1 != base_test.echo_acc0:
+        #     temp_operation = deepcopy(operation)
+        #     temp_operation[1]["from_account_id"] = base_test.echo_acc0
+        #     broadcast_result = self.add_balance_for_operations(base_test, account_1, temp_operation, database_api_id,
+        #                                                        transfer_amount=transfer_amount,
+        #                                                        operation_count=operation_count,
+        #                                                        get_only_fee=get_only_fee,
+        #                                                        fee_asset_id=fee_asset_id,
+        #                                                        log_broadcast=log_broadcast)
+        #     if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
+        #         raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
+        collected_operation = base_test.collect_operations(operation, database_api_id, fee_asset_id=fee_asset_id)
         if operation_count == 1:
             broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
                                                             log_broadcast=log_broadcast)

@@ -563,7 +563,7 @@
         31,
         {
             "fee": {
-                "amount": 0,
+                "amount": 200,
                 "asset_id": "1.3.0"
             },
             "registrar": "1.2.0",
@@ -846,6 +846,18 @@
             },
             "btc_addr": "2N5a7rmQazzjpUiUbmCEYruxUnZH3Uannup",
             "value": 0
+        }
+    ],
+    "evm_address_register_operation": [
+        65,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "owner": "1.2.0",
+            "evm_address": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
+            "extensions": []
         }
     ]
 }

@@ -59,7 +59,8 @@ class TransferAssetViaContactAddresses(BaseTest):
         lcc.set_step("Create multiple account address for new account")
         for i in range(addresses_count):
             self.utils.perform_account_address_create_operation(self, new_account, label + str(i),
-                                                                self.__database_api_identifier)
+                                                                self.__database_api_identifier
+                                                                )
 
         lcc.set_step("Get addresses of created account in the network and store addresses")
         _from, limit = 0, 100
@@ -74,7 +75,9 @@ class TransferAssetViaContactAddresses(BaseTest):
         lcc.set_step("Transfer assets via first account_address")
         self.utils.perform_transfer_to_address_operations(self, self.echo_acc0, account_addresses[0],
                                                           self.__database_api_identifier,
-                                                          transfer_amount=transfer_amount, log_broadcast=True)
+                                                          transfer_amount=transfer_amount,
+                                                          fee_asset_id=self.echo_asset
+                                                          )
 
         lcc.set_step("Get account balance after transfer and store")
         balance_after_transfer = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)
@@ -92,7 +95,8 @@ class TransferAssetViaContactAddresses(BaseTest):
         amount = transfer_amount + transfer_amount
         self.utils.perform_transfer_to_address_operations(self, self.echo_acc0, account_addresses[1],
                                                           self.__database_api_identifier, transfer_amount=amount,
-                                                          log_broadcast=True)
+                                                          fee_asset_id=self.echo_asset
+                                                          )
 
         lcc.set_step("Get account balance after second transfer and store")
         balance_after_second_transfer = self.utils.get_account_balances(self, new_account,
@@ -109,7 +113,7 @@ class TransferAssetViaContactAddresses(BaseTest):
 
         lcc.set_step("Transfer assets received to account address")
         self.utils.perform_transfer_operations(self, new_account, self.echo_acc0, self.__database_api_identifier,
-                                               transfer_amount=withdraw_amount, get_only_fee=True, log_broadcast=True)
+                                               transfer_amount=withdraw_amount, get_only_fee=True)
         lcc.log_info("From the account of the recipient transferred assets to the account sender")
 
         lcc.set_step("Get account balance after return to sender")
@@ -124,7 +128,8 @@ class TransferAssetViaContactAddresses(BaseTest):
         amount = transfer_amount + withdraw_amount
         self.utils.perform_transfer_to_address_operations(self, self.echo_acc0, account_addresses[0],
                                                           self.__database_api_identifier, transfer_amount=amount,
-                                                          log_broadcast=True)
+                                                          fee_asset_id=self.echo_asset
+                                                          )
 
         lcc.set_step("Get account balance after transfer and store")
         balance_after_transfer = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)

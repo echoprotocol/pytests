@@ -22,7 +22,7 @@ from common.type_validation import TypeValidator
 from common.utils import Utils
 from pre_run_scripts.pre_deploy import pre_deploy_echo
 from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
-    DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
+    BTC_ASSET_ID, DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
     GANACHE_PK, DEBUG, INIT4_PK
 
 
@@ -42,6 +42,7 @@ class BaseTest(object):
         self.object_validator = ObjectValidator()
         self.echo_asset = "1.3.0"
         self.eth_asset = ETH_ASSET_ID
+        self.btc_asset = BTC_ASSET_ID
         # Declare all default accounts
         self.accounts = ["{}{}".format(
             ACCOUNT_PREFIX, account_num) for account_num in range(DEFAULT_ACCOUNTS_COUNT)]

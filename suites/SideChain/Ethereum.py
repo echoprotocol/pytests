@@ -5,6 +5,7 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 from common.base_test import BaseTest
+from project import MIN_ETH_WITHDRAW
 
 SUITE = {
     "description": "Entering the currency ethereum in the network ECHO to the account and withdraw that currency"
@@ -26,6 +27,7 @@ class Ethereum(BaseTest):
         self.eth_address = None
         self.eth_account_address = None
         self.temp_count = 0
+        self.withdraw_fee = 4000000000000000
 
     @staticmethod
     def get_random_amount(_from=None, _to=None, amount_type=None):
@@ -48,7 +50,6 @@ class Ethereum(BaseTest):
         lcc.set_step("Withdraw eth to ethereum address")
         self.utils.perform_sidechain_eth_withdraw_operation(self, from_account, self.eth_address,
                                                             withdraw_amount, self.__database_api_identifier)
-
         lcc.set_step("Get updated address balance in ethereum network")
         eth_address_balance_after_withdraw = \
             self.utils.get_updated_address_balance_in_eth_network(self, self.eth_address, eth_address_balance,
@@ -59,7 +60,8 @@ class Ethereum(BaseTest):
         check_that(
             "'updated address balance in ethereum'",
             int(eth_address_balance_after_withdraw),
-            equal_to(int(eth_address_balance) + self.utils.convert_eeth_to_currency(withdraw_amount, currency="wei"))
+            equal_to(int(eth_address_balance) + self.utils.convert_eeth_to_currency(withdraw_amount,
+                                                                                    currency="wei") - self.withdraw_fee)
         )
 
     def setup_suite(self):
@@ -149,9 +151,9 @@ class Ethereum(BaseTest):
         )
 
         lcc.set_step("Withdraw eth from ECHO network to Ethereum network")
-        withdraw_amount = self.get_random_amount(_to=ethereum_balance_second_in, amount_type=int)
-        lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.new_account))
-        self.withdraw_eth_to_ethereum_address(self.new_account, withdraw_amount)
+        min_eth_withdraw_amount = MIN_ETH_WITHDRAW
+        lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(min_eth_withdraw_amount, self.new_account))
+        self.withdraw_eth_to_ethereum_address(self.new_account, min_eth_withdraw_amount)
 
     @lcc.test("The scenario transferring eeth between accounts")
     @lcc.depends_on("SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
@@ -244,7 +246,9 @@ class Ethereum(BaseTest):
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-1],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
-                                                          amount_asset_id=self.eth_asset)
+                                                          amount_asset_id=self.eth_asset,
+                                                          fee_asset_id=self.eth_asset,
+                                                          )
 
         lcc.set_step("Get account balance after transfer and store")
         recipient_balance_after_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
@@ -265,7 +269,8 @@ class Ethereum(BaseTest):
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-2],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
-                                                          amount_asset_id=self.eth_asset)
+                                                          amount_asset_id=self.eth_asset,
+                                                          fee_asset_id=self.eth_asset)
 
         lcc.set_step("Get account balance after second transfer and store")
         recipient_balance_after_second_transfer = self.utils.get_eth_balance(self, self.echo_acc0,

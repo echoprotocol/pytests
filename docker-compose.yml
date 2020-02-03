@@ -9,7 +9,7 @@ services:
       - '18443:18443'
 
   ganache:
-    image: trufflesuite/ganache-cli:latest
+    image: trufflesuite/ganache-cli:v6.8.2
     entrypoint:
       - node
       - /app/ganache-core.docker.cli.js
@@ -59,7 +59,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.14.1
+    image: echoprotocol/echo:0.16.0-rc.1
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/

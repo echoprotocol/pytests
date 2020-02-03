@@ -28,7 +28,7 @@ class HistoryApi(object):
         lcc.set_step("Check History api identifier. Call history api method 'get_account_history'")
         params = ["1.2.0", "1.6.0", 3, "1.6.0"]
         response_id = base.send_request(base.get_request("get_account_history", params), api_identifier)
-        response = base.get_response(response_id, log_response=True)
+        response = base.get_response(response_id)
 
         check_that(
             "'call method 'get_account_history''",
@@ -37,7 +37,7 @@ class HistoryApi(object):
 
         lcc.set_step("Check that History api identifier is unique")
         response_id = base.send_request(base.get_request("get_account_history", params), api_identifier + 1)
-        response = base.get_response(response_id, negative=True, log_response=True)
+        response = base.get_response(response_id, negative=True)
 
         check_that(
             "'using another identifier gives an error'",

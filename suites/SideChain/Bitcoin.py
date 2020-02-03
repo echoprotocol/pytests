@@ -157,7 +157,8 @@ class Bitcoin(BaseTest):
                                                                              signer=INIT0_PK)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         operation_result = \
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)["trx"]["operation_results"][0][1]
+            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)["trx"]["operation_results"][0][
+                1]
         lcc.log_info("Operation result id: {}".format(operation_result))
 
         lcc.log_info("Get btc address of '1.2.6' account")
@@ -169,8 +170,10 @@ class Bitcoin(BaseTest):
         lcc.log_info("Perform sidechain_btc_withdraw_operation")
         operation = self.echo_ops.get_sidechain_btc_withdraw_operation(echo=self.echo, account=self.echo_acc0,
                                                                        btc_address=new_btc_address,
-                                                                       value=withdrawal_amount)
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+                                                                       value=withdrawal_amount,
+                                                                       fee_asset_id=self.btc_asset)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier,
+                                                      fee_asset_id=self.btc_asset)
         withdraw_values.append(withdrawal_amount)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
 

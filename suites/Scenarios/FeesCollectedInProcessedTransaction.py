@@ -69,10 +69,10 @@ class FeesCollectedInProcessedTransaction(BaseTest):
         lcc.set_step("Check 'fees_collected' amount in broadcast")
         operations_fees = 0
         operations_from_broadcast_result = broadcast_result["trx"]["operations"]
+        fee = broadcast_result["trx"]["fees_collected"][0]["amount"]
         for operation in operations_from_broadcast_result:
             operations_fees += operation[1]["fee"]["amount"]
-        require_that("'fees_collected'", broadcast_result["trx"]["fees_collected"], equal_to(operations_fees),
-                     quiet=True)
+        require_that("'fees_collected'", fee, equal_to(operations_fees))
 
         lcc.set_step("Get transaction by method 'get_transaction'")
         broadcast_transaction_block_num = broadcast_result["block_num"]
@@ -89,5 +89,4 @@ class FeesCollectedInProcessedTransaction(BaseTest):
         operations_from_response = result["operations"]
         for operation in operations_from_response:
             operations_fees += operation[1]["fee"]["amount"]
-        require_that("'fees_collected'", result["fees_collected"], equal_to(operations_fees),
-                     quiet=True)
+        require_that("'fees_collected'", result["fees_collected"][0]["amount"], equal_to(operations_fees))
