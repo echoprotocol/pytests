@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_, is_none
 
 from common.base_test import BaseTest
 

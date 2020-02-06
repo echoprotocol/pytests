@@ -4,6 +4,7 @@ import lemoncheesecake.api as lcc
 
 from common.base_test import BaseTest
 from fixtures.base_fixtures import get_random_valid_account_name
+
 SUITE = {
     "description": "Checks fee changes after registration of several accounts"
 }

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_, is_integer, is_str, check_that_in, is_true
+
 from common.base_test import BaseTest
+
 SUITE = {
     "description": "Testing contract creation and calling its methods"
 }
