@@ -369,6 +369,12 @@ class TypeValidator(object):
         if len(value) == 66:
             return True
 
+    def is_privkey(self, value):
+        if not self.is_hex(value):
+            return False
+        if len(value) == 66:
+            return True
+
     def is_btc_address(self, value):
         if not self.is_base58(value):
             return False
