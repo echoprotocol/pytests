@@ -363,6 +363,21 @@ class TypeValidator(object):
         else:
             return len(value) == 40
 
+    def is_eth_block_number(self, value):
+        if not self.is_hex(value):
+            return False
+        if value[:2] == "0x":
+            return len(value) == 4
+        else:
+            return len(value) == 4
+
+    def is_eth_balance(self, value):
+        if value[:2] == "0x":
+            if not self.is_hex(value):
+                return False
+            else:
+                return True
+
     def is_btc_public_key(self, value):
         if not self.is_hex(value):
             return False

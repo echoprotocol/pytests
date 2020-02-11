@@ -4,7 +4,7 @@ import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
     is_true, \
-    check_that, is_false
+    check_that, is_false, not_equal_to
 
 from common.base_test import BaseTest
 
@@ -26,6 +26,10 @@ class TestRPC(BaseTest):
         self.account_address = None
         self.time = None
         self.SHA3_hash = None
+        self.contract_address = None
+        self.null_hash = None
+        self.contract = None
+        self.new_account_address = None
 
     def rpc_call(self, method, params):
         payload = {
@@ -50,13 +54,26 @@ class TestRPC(BaseTest):
             )
             return response
 
+    def create_contract(self):
+        payload = self.rpc_call("personal_sendTransaction",
+                                [{
+                                    "from": self.account_address,
+                                    "data": self.contract,
+                                }, ""]
+                                )
+        trx_hash = self.get_response(payload)["result"]
+        return trx_hash
+
     def setup_suite(self):
         self.rpcPort = 19999
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
+        self.null_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
         self.account_address = "0x0000000000000000000000000000000000000006"
-        self.time = "0xf"
+        self.contract_address = "0x0100000000000000000000000000000000000001"
+        self.time = "0xffff"
         self.SHA3_hash = "0x68656c6c6f20776f726c64"
+        self.contract = self.get_byte_code("piggy", "code")
 
     def teardown_suite(self):
         pass
@@ -104,6 +121,8 @@ class TestRPC(BaseTest):
             lcc.log_error("Wrong format of 'result', got: {}".format(response["result"]))
         else:
             lcc.log_info("'result' has correct format: address")
+            self.new_account_address = response["result"]
+            return self.new_account_address
 
     @lcc.test("Check method 'personal_listAccounts'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -163,6 +182,15 @@ class TestRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
+    @lcc.test("Check method 'personal_sendTransaction'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
+    def personal_send_transaction(self):
+        value = "0xffff"
+        payload = self.rpc_call("presonal_sendTransaction",
+                                [{"from": self.account_address, "to": self.new_account_address, "value": value}])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], is_false())
+
     # todo: BUG ECHO-1774. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_sign'")
@@ -175,6 +203,8 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'result' has correct format: hex")
 
+    # todo: BUG ECHO-1764. Undisabled
+    @lcc.disabled()
     @lcc.test("Check method 'eth_sendTransaction'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_send_transaction(self):
@@ -182,9 +212,11 @@ class TestRPC(BaseTest):
                                 [{
                                     "from": "0x0000000000000000000000000000000000000006",
                                     "to": "0x0000000000000000000000000000000000000007",
+                                    "value": "0xfff"
                                 }]
                                 )
         response = self.get_response(payload)
+        require_that("'result'", response["result"], not_equal_to(self.null_hash))
         if not self.type_validator.is_hex(response["result"]):
             lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
         else:
@@ -241,9 +273,121 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'net_peerCount'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def net_peer_count(self):
+        p2p_quantity = "0x00"
         payload = self.rpc_call("net_peerCount", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("0x00"))
+        require_that("'result'", response["result"], equal_to(p2p_quantity))
 
+    @lcc.test("Check method 'eth_protocolVersion'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_protocol_version(self):
+        eth_version = "0x3f"
+        payload = self.rpc_call("eth_protocolVersion", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to(eth_version))
+
+    @lcc.test("Check method 'eth_syncing'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_syncing(self):
+        payload = self.rpc_call("eth_syncing", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], is_false())
+
+    # todo: BUG ECHO-1784. Undisabled
+    @lcc.disabled()
+    @lcc.test("Check method 'eth_coinbase'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_coinbase(self):
+        payload = self.rpc_call("eth_coinbase", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to(self.account_address))
+
+    @lcc.test("Check method 'eth_mining'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_mining(self):
+        payload = self.rpc_call("eth_mining", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], is_true())
+
+    @lcc.test("Check method 'eth_gasPrice'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_gas_price(self):
+        gas_price = "0x01"
+        payload = self.rpc_call("eth_gasPrice", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to(gas_price))
+
+    @lcc.test("Check method 'eth_block_number'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_block_number(self):
+        payload = self.rpc_call("eth_blockNumber", [])
+        response = self.get_response(payload)
+        if not self.type_validator.is_eth_block_number(response["result"]):
+            lcc.log_error("Wrong format of 'eth_blockNumber', got: '{}'".format(response["result"]))
+        else:
+            lcc.log_info("'result' has correct format: eth_blockNumber")
+
+    @lcc.test("Check method 'eth_getBalance'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_get_balance(self):
+        payload = self.rpc_call("eth_getBalance", [self.account_address, "latest"])
+        response = self.get_response(payload)
+        if not self.type_validator.is_eth_balance(response["result"]):
+            lcc.log_error("Wrong format of 'eth_balance', got: '{}'".format(response["result"]))
+        else:
+            lcc.log_info("'result' has correct format: eth_balance")
+
+    @lcc.test("Check method 'eth_getStorageAt'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_send_transaction")
+    def eth_get_storage_at(self):
+        self.create_contract()
+        payload = self.rpc_call("eth_getStorageAt", [self.contract_address, "0x01", "latest"])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], not_equal_to(self.null_hash))
+
+    # todo: BUG ECHO-1781. Undisabled
+    @lcc.disabled()
+    @lcc.test("Check method 'eth_getTransactionCount'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_get_transaction_count(self):
+        payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to("0x01"))
+
+    @lcc.test("Check method 'eth_getBlockTransactionCountByHash'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_get_block_transaction_count_by_hash(self):
+        hash = self.create_contract()
+        payload = self.rpc_call("eth_getBlockTransactionCountByHash", [hash])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to("0x01"))
+
+    @lcc.test("Check method 'eth_getCode'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_get_code(self):
+        self.create_contract()
+        payload = self.rpc_call("eth_getCode", [self.contract_address, "0x02"])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"][2:], equal_to(self.contract))
+
+    @lcc.test("Check method 'eth_sendRawTransaction'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_send_raw_transaction(self):
+        hash = self.create_contract()
+        payload = self.rpc_call("eth_sendRawTransaction", [hash])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to("0x01"))
+
+    @lcc.test("Check method 'eth_call'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_call(self):
+        payload = self.rpc_call("eth_call",
+                                [{
+                                    "from": self.account_address,
+                                    "data": self.contract,
+                                }]
+                                )
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], not_equal_to(self.null_hash))
 
 
