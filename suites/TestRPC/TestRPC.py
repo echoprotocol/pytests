@@ -25,6 +25,7 @@ class TestRPC(BaseTest):
         self.passphrase = None
         self.account_address = None
         self.time = None
+        self.SHA3_hash = None
 
     def rpc_call(self, method, params):
         payload = {
@@ -55,6 +56,7 @@ class TestRPC(BaseTest):
         self.passphrase = "Account"
         self.account_address = "0x0000000000000000000000000000000000000006"
         self.time = "0xf"
+        self.SHA3_hash = "0x68656c6c6f20776f726c64"
 
     def teardown_suite(self):
         pass
@@ -192,14 +194,56 @@ class TestRPC(BaseTest):
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def personal_send_transaction(self):
         payload = self.rpc_call("personal_sendTransaction",
-                                [{
-                                    "from": "0x0000000000000000000000000000000000000006",
-                                    "to": "0x0000000000000000000000000000000000000007"}, {
-                                    "passphrase": self.passphrase}
-                                ]
+                                [{'from': '0x0000000000000000000000000000000000000006',
+                                  'to': '0x0000000000000000000000000000000000000007',
+                                  "value": "0xf"},
+                                 "Account", ]
                                 )
         response = self.get_response(payload)
         if not self.type_validator.is_hex(response["result"]):
             lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
         else:
             lcc.log_info("'result' has correct format: hex")
+
+    @lcc.test("Check method 'web3_clientVersion'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def web3_client_version(self):
+        result = "ECHO/0.16.0-rc.2-1-g08e87ae9/Linux.64-bit"
+        payload = self.rpc_call("web3_clientVersion", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to(result))
+
+    @lcc.test("Check method 'web3_sha3'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def web3_sha3(self):
+        payload = self.rpc_call("web3_sha3", [self.SHA3_hash])
+        response = self.get_response(payload)
+        if not self.type_validator.is_SHA3_256(response["result"]):
+            lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
+        else:
+            lcc.log_info("'result' has correct format: hex")
+
+    @lcc.test("Check method 'net_version'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def net_version(self):
+        echo_devnet = "3"
+        payload = self.rpc_call("net_version", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to(echo_devnet))
+
+    @lcc.test("Check method 'net_listening'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def net_listening(self):
+        payload = self.rpc_call("net_listening", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], is_true())
+
+    @lcc.test("Check method 'net_peerCount'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def net_peer_count(self):
+        payload = self.rpc_call("net_peerCount", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to("0x00"))
+
+
+

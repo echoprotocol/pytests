@@ -369,6 +369,12 @@ class TypeValidator(object):
         if len(value) == 66:
             return True
 
+    def is_SHA3_256(self, value):
+        if not self.is_hex(value):
+            return False
+        if len(value) == 66:
+            return True
+
     def is_privkey(self, value):
         if not self.is_hex(value):
             return False
@@ -389,4 +395,3 @@ class TypeValidator(object):
             return boolean
         else:
             return False
-
