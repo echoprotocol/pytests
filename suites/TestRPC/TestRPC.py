@@ -30,6 +30,7 @@ class TestRPC(BaseTest):
         self.null_trx_hash = None
         self.contract = None
         self.new_account_address = None
+        self.value = None
 
     def rpc_call(self, method, params):
         payload = {
@@ -54,6 +55,13 @@ class TestRPC(BaseTest):
             )
             return response
 
+    def transfer(self):
+        payload = self.rpc_call("personal_sendTransaction",
+                                [{"from": self.account_address, "to": self.new_account_address, "value": self.value},
+                                 ""])
+        trx_hash = self.get_response(payload)["result"]
+        return trx_hash
+
     def create_contract(self):
         payload = self.rpc_call("personal_sendTransaction",
                                 [{
@@ -61,8 +69,140 @@ class TestRPC(BaseTest):
                                     "data": self.contract,
                                 }, ""]
                                 )
-        trx_trx_hash = self.get_response(payload)["result"]
-        return trx_trx_hash
+        trx_hash = self.get_response(payload)["result"]
+        return trx_hash
+
+    def validate_block(self, result):
+        if require_that("'result'", result, has_length(19)):
+            if not self.type_validator.is_eth_hash(result["number"]):
+                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
+            else:
+                lcc.log_info("'result' has correct format: number")
+            if not self.type_validator.is_eth_hash(result["hash"]):
+                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
+            else:
+                lcc.log_info("'result' has correct format: hash")
+            if not self.type_validator.is_eth_hash(result["hash"]):
+                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
+            else:
+                lcc.log_info("'result' has correct format: hash")
+            if not self.type_validator.is_eth_hash(result["parentHash"]):
+                lcc.log_error("Wrong format of 'parentHash', got: '{}'".format(result["parentHash"]))
+            else:
+                lcc.log_info("'result' has correct format: parentHash")
+            if not self.type_validator.is_eth_hash(result["nonce"]):
+                lcc.log_error("Wrong format of 'nonce', got: '{}'".format(result["nonce"]))
+            else:
+                lcc.log_info("'result' has correct format: nonce")
+            if not self.type_validator.is_eth_hash(result["nonce"]):
+                lcc.log_error("Wrong format of 'nonce', got: '{}'".format(result["nonce"]))
+            else:
+                lcc.log_info("'result' has correct format: nonce")
+            if not self.type_validator.is_eth_hash(result["sha3Uncles"]):
+                lcc.log_error("Wrong format of 'sha3Uncles', got: '{}'".format(result["sha3Uncles"]))
+            else:
+                lcc.log_info("'result' has correct format: sha3Uncles")
+            if not self.type_validator.is_eth_hash(result["logsBloom"]):
+                lcc.log_error("Wrong format of 'logsBloom', got: '{}'".format(result["logsBloom"]))
+            else:
+                lcc.log_info("'result' has correct format: logsBloom")
+            if not self.type_validator.is_eth_hash(result["transactionsRoot"]):
+                lcc.log_error("Wrong format of 'transactionsRoot', got: '{}'".format(result["transactionsRoot"]))
+            else:
+                lcc.log_info("'result' has correct format: transactionsRoot")
+            if not self.type_validator.is_eth_hash(result["stateRoot"]):
+                lcc.log_error("Wrong format of 'stateRoot', got: '{}'".format(result["stateRoot"]))
+            else:
+                lcc.log_info("'result' has correct format: stateRoot")
+            if not self.type_validator.is_eth_hash(result["receiptsRoot"]):
+                lcc.log_error("Wrong format of 'receiptsRoot', got: '{}'".format(result["receiptsRoot"]))
+            else:
+                lcc.log_info("'result' has correct format: receiptsRoot")
+            if not self.type_validator.is_eth_hash(result["miner"]):
+                lcc.log_error("Wrong format of 'receiptsRoot', got: '{}'".format(result["miner"]))
+            else:
+                lcc.log_info("'result' has correct format: miner")
+            if not self.type_validator.is_eth_hash(result["difficulty"]):
+                lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(result["difficulty"]))
+            else:
+                lcc.log_info("'result' has correct format: difficulty")
+            if not self.type_validator.is_eth_hash(result["totalDifficulty"]):
+                lcc.log_error("Wrong format of 'totalDifficulty', got: '{}'".format(result["totalDifficulty"]))
+            else:
+                lcc.log_info("'result' has correct format: totalDifficulty")
+            if not self.type_validator.is_eth_hash(result["extraData"]):
+                lcc.log_error("Wrong format of 'extraData', got: '{}'".format(result["extraData"]))
+            else:
+                lcc.log_info("'result' has correct format: extraData")
+            if not self.type_validator.is_eth_hash(result["size"]):
+                lcc.log_error("Wrong format of 'size', got: '{}'".format(result["size"]))
+            else:
+                lcc.log_info("'result' has correct format: size")
+            if not self.type_validator.is_eth_hash(result["gasLimit"]):
+                lcc.log_error("Wrong format of 'gasLimit', got: '{}'".format(result["gasLimit"]))
+            else:
+                lcc.log_info("'result' has correct format: gasLimit")
+            if not self.type_validator.is_eth_hash(result["gasUsed"]):
+                lcc.log_error("Wrong format of 'gasUsed', got: '{}'".format(result["gasUsed"]))
+            else:
+                lcc.log_info("'result' has correct format: gasUsed")
+            if not self.type_validator.is_eth_hash(result["timestamp"]):
+                lcc.log_error("Wrong format of 'timestamp', got: '{}'".format(result["timestamp"]))
+            else:
+                lcc.log_info("'result' has correct format: timestamp")
+            check_that("transactions", result["uncles"], is_list())
+            if len(result["transactions"]) > 0:
+                if check_that("transactions", result["transactions"][0], has_length(14)):
+                    for transaction in result["transactions"]:
+                        if not self.type_validator.is_SHA3_256(transaction["blockHash"]):
+                            lcc.log_error("Wrong format of 'blockHash', got: '{}'".format(transaction["blockHash"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["blockNumber"]):
+                            lcc.log_error("Wrong format of 'blockNumber', got: '{}'".format(transaction["blockNumber"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["gas"]):
+                            lcc.log_error("Wrong format of 'gas', got: '{}'".format(transaction["gas"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["gasPrice"]):
+                            lcc.log_error("Wrong format of 'gasPrice', got: '{}'".format(transaction["gasPrice"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_SHA3_256(transaction["hash"]):
+                            lcc.log_error("Wrong format of 'hash', got: '{}'".format(transaction["hash"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["nonce"]):
+                            lcc.log_error("Wrong format of 'nonce', got: '{}'".format(transaction["nonce"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["to"]):
+                            lcc.log_error("Wrong format of 'to', got: '{}'".format(transaction["to"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["transactionIndex"]):
+                            lcc.log_error(
+                                "Wrong format of 'transactionIndex', got: '{}'".format(transaction["transactionIndex"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        check_that("value", transaction["value"], equal_to(self.value))
+                        if not self.type_validator.is_eth_hash(transaction["v"]):
+                            lcc.log_error(
+                                "Wrong format of 'v', got: '{}'".format(transaction["v"]))
+                        else:
+                            lcc.log_info("'result' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["r"]):
+                            lcc.log_error(
+                                "Wrong format of 'r', got: '{}'".format(transaction["r"]))
+                        else:
+                            lcc.log_info("'r' has correct format: eth_hash")
+                        if not self.type_validator.is_eth_hash(transaction["s"]):
+                            lcc.log_error(
+                                "Wrong format of 's', got: '{}'".format(transaction["s"]))
+                        else:
+                            lcc.log_info("'s' has correct format: eth_hash")
 
     def setup_suite(self):
         self.rpcPort = 19999
@@ -73,6 +213,7 @@ class TestRPC(BaseTest):
         self.contract_address = "0x0100000000000000000000000000000000000001"
         self.time = "0xffff"
         self.SHA3_trx_hash = "0x68656c6c6f20776f726c64"
+        self.value = "0xffff"
         self.contract = self.get_byte_code("piggy", "code")
 
     def teardown_suite(self):
@@ -185,9 +326,8 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'personal_sendTransaction'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def personal_send_transaction(self):
-        value = "0xffff"
         payload = self.rpc_call("presonal_sendTransaction",
-                                [{"from": self.account_address, "to": self.new_account_address, "value": value}])
+                                [{"from": self.account_address, "to": self.new_account_address, "value": self.value}])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
@@ -240,7 +380,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.16.0-rc.2-1-g08e87ae9/Linux.64-bit"
+        result = "ECHO/0.16.0-rc.2-22-gfaf58664/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -341,7 +481,9 @@ class TestRPC(BaseTest):
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_send_transaction")
     def eth_get_storage_at(self):
         self.create_contract()
-        payload = self.rpc_call("eth_getStorageAt", [self.contract_address, "0x01", "latest"])
+        payload = self.rpc_call("eth_getStorageAt", [self.contract_address,
+                                                     "0x0",
+                                                     "latest"])
         response = self.get_response(payload)
         require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
 
@@ -357,8 +499,11 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_getBlockTransactionCountByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_block_transaction_count_by_trx_hash(self):
-        trx_hash = self.create_contract()
-        payload = self.rpc_call("eth_getBlockTransactionCountByHash", [trx_hash])
+        self.transfer()
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        block_hash = self.get_response(
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        payload = self.rpc_call("eth_getBlockTransactionCountByHash", [block_hash])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to("0x01"))
 
@@ -368,8 +513,10 @@ class TestRPC(BaseTest):
         self.create_contract()
         payload = self.rpc_call("eth_getCode", [self.contract_address, "0x02"])
         response = self.get_response(payload)
-        require_that("'result'", response["result"][2:], equal_to(self.contract))
+        require_that("'result'", response["result"][2:], equal_to(self.contract[166:]))
 
+    # todo: BUG ECHO-1786. Undisabled
+    @lcc.disabled()
     @lcc.test("Check method 'eth_sendRawTransaction'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_send_raw_transaction(self):
@@ -379,16 +526,17 @@ class TestRPC(BaseTest):
         require_that("'result'", response["result"], equal_to("0x01"))
 
     @lcc.test("Check method 'eth_call'")
-    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def eth_call(self):
+        data = "0x"
         payload = self.rpc_call("eth_call",
                                 [{
                                     "from": self.account_address,
-                                    "data": self.contract,
+                                    "to": self.new_account_address
                                 }]
                                 )
         response = self.get_response(payload)
-        require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
+        require_that("'result'", response["result"], equal_to(data))
 
     @lcc.test("Check method 'eth_estimateGas'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -408,25 +556,27 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_getBlockByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.eth_block_number")
     def eth_get_block_by_trx_hash(self):
-        trx_hash = self.create_contract()
-        payload = self.rpc_call("eth_getBlockByHash", [trx_hash, True])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("ggg"))
+        self.transfer()
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        block_hash = self.get_response(
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        payload = self.rpc_call("eth_getBlockByHash", [block_hash, True])
+        result = self.get_response(payload)["result"]
+        self.validate_block(result)
 
     @lcc.test("Check method 'eth_getBlockByNumber'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.eth_block_number")
     def eth_get_block_by_number(self):
+        self.transfer()
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
-        payload = self.rpc_call("eth_getBlockByNumber", [block_id, True])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("ggg"))
+        payload = self.rpc_call("eth_getBlockByNumber", [block_id["result"], True])
+        result = self.get_response(payload)["result"]
+        self.validate_block(result)
 
-    # todo: BUG ECHO-1777. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_by_hash(self):
-        trx_hash = self.create_contract()
+        trx_hash = self.transfer()
         payload = self.rpc_call("eth_getTransactionByHash", [trx_hash])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to("ggg"))
@@ -434,17 +584,22 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_getTransactionByBlockHashAndIndex'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_by_hash_and_index(self):
-        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
-        payload = self.rpc_call("eth_getTransactionByHash", [block_id, "0x0"])
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))["result"]
+        payload = self.rpc_call("eth_getTransactionByBlockHashAndIndex", [block_id, "0x00"])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to("ggg"))
 
-    # todo: BUG ECHO-1777. Undisabled
+    # todo: BUG ECHO-1788. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionReceipt'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_receipt(self):
-        trx_hash = self.create_contract()
+        # todo: BUG ECHO-1788. Uncomment and delete pending trx getting process
+        # trx_hash = self.create_contract()
+        self.transfer()
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        trx_hash = self.get_response(
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["transactions"][0]["hash"]
         payload = self.rpc_call("eth_getTransactionReceipt", [trx_hash])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to("ggg"))
@@ -456,5 +611,3 @@ class TestRPC(BaseTest):
         payload = self.rpc_call("eth_pendingTransactions", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_list())
-
-

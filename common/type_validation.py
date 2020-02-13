@@ -378,6 +378,13 @@ class TypeValidator(object):
             else:
                 return True
 
+    def is_eth_hash(self, value):
+        if value[:2] == "0x":
+            if not self.is_hex(value):
+                return False
+            else:
+                return True
+
     def is_btc_public_key(self, value):
         if not self.is_hex(value):
             return False
