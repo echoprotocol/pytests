@@ -101,6 +101,16 @@ services:
       - ganache
       - bitcoin
 
+  testrpc:
+    image: echoprotocol/echo-testrpc:0.16.0-rc.4
+    command:
+      '--rpc-endpoint=0.0.0.0:19999'
+    ports:
+      - 19999:19999
+
+
+
+
 
 volumes:
   testrpc:

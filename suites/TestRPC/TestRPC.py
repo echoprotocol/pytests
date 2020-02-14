@@ -207,10 +207,8 @@ class TestRPC(BaseTest):
                     for transaction in result["transactions"]:
                         self.validate_transaction(transaction)
 
-
-
     def setup_suite(self):
-        self.rpcPort = 19999
+        self.rpcPort = 6666
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -487,7 +485,7 @@ class TestRPC(BaseTest):
     def eth_get_storage_at(self):
         self.create_contract()
         payload = self.rpc_call("eth_getStorageAt", [self.contract_address,
-                                                     "0x0",
+                                                     "0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9",
                                                      "latest"])
         response = self.get_response(payload)
         require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
@@ -617,7 +615,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_pendingTransactions'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_pending_transactions(self):
-        trx_hash = self.create_contract()
+        self.create_contract()
         payload = self.rpc_call("eth_pendingTransactions", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_list())
