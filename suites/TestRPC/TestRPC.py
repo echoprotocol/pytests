@@ -72,6 +72,58 @@ class TestRPC(BaseTest):
         trx_hash = self.get_response(payload)["result"]
         return trx_hash
 
+    def validate_transaction(self, transaction):
+        if require_that("transactions", transaction, has_length(14)):
+            if not self.type_validator.is_SHA3_256(transaction["blockHash"]):
+                lcc.log_error("Wrong format of 'blockHash', got: '{}'".format(transaction["blockHash"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["blockNumber"]):
+                lcc.log_error("Wrong format of 'blockNumber', got: '{}'".format(transaction["blockNumber"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["gas"]):
+                lcc.log_error("Wrong format of 'gas', got: '{}'".format(transaction["gas"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["gasPrice"]):
+                lcc.log_error("Wrong format of 'gasPrice', got: '{}'".format(transaction["gasPrice"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_SHA3_256(transaction["hash"]):
+                lcc.log_error("Wrong format of 'hash', got: '{}'".format(transaction["hash"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["nonce"]):
+                lcc.log_error("Wrong format of 'nonce', got: '{}'".format(transaction["nonce"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["to"]):
+                lcc.log_error("Wrong format of 'to', got: '{}'".format(transaction["to"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["transactionIndex"]):
+                lcc.log_error(
+                    "Wrong format of 'transactionIndex', got: '{}'".format(transaction["transactionIndex"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            check_that("value", transaction["value"], equal_to(self.value))
+            if not self.type_validator.is_eth_hash(transaction["v"]):
+                lcc.log_error(
+                    "Wrong format of 'v', got: '{}'".format(transaction["v"]))
+            else:
+                lcc.log_info("'result' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["r"]):
+                lcc.log_error(
+                    "Wrong format of 'r', got: '{}'".format(transaction["r"]))
+            else:
+                lcc.log_info("'r' has correct format: eth_hash")
+            if not self.type_validator.is_eth_hash(transaction["s"]):
+                lcc.log_error(
+                    "Wrong format of 's', got: '{}'".format(transaction["s"]))
+            else:
+                lcc.log_info("'s' has correct format: eth_hash")
+
     def validate_block(self, result):
         if require_that("'result'", result, has_length(19)):
             if not self.type_validator.is_eth_hash(result["number"]):
@@ -150,59 +202,12 @@ class TestRPC(BaseTest):
                 lcc.log_error("Wrong format of 'timestamp', got: '{}'".format(result["timestamp"]))
             else:
                 lcc.log_info("'result' has correct format: timestamp")
-            check_that("transactions", result["uncles"], is_list())
-            if len(result["transactions"]) > 0:
-                if check_that("transactions", result["transactions"][0], has_length(14)):
+            if check_that("uncles", result["uncles"], is_list()):
+                if len(result["transactions"]) > 0:
                     for transaction in result["transactions"]:
-                        if not self.type_validator.is_SHA3_256(transaction["blockHash"]):
-                            lcc.log_error("Wrong format of 'blockHash', got: '{}'".format(transaction["blockHash"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["blockNumber"]):
-                            lcc.log_error("Wrong format of 'blockNumber', got: '{}'".format(transaction["blockNumber"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["gas"]):
-                            lcc.log_error("Wrong format of 'gas', got: '{}'".format(transaction["gas"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["gasPrice"]):
-                            lcc.log_error("Wrong format of 'gasPrice', got: '{}'".format(transaction["gasPrice"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_SHA3_256(transaction["hash"]):
-                            lcc.log_error("Wrong format of 'hash', got: '{}'".format(transaction["hash"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["nonce"]):
-                            lcc.log_error("Wrong format of 'nonce', got: '{}'".format(transaction["nonce"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["to"]):
-                            lcc.log_error("Wrong format of 'to', got: '{}'".format(transaction["to"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["transactionIndex"]):
-                            lcc.log_error(
-                                "Wrong format of 'transactionIndex', got: '{}'".format(transaction["transactionIndex"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        check_that("value", transaction["value"], equal_to(self.value))
-                        if not self.type_validator.is_eth_hash(transaction["v"]):
-                            lcc.log_error(
-                                "Wrong format of 'v', got: '{}'".format(transaction["v"]))
-                        else:
-                            lcc.log_info("'result' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["r"]):
-                            lcc.log_error(
-                                "Wrong format of 'r', got: '{}'".format(transaction["r"]))
-                        else:
-                            lcc.log_info("'r' has correct format: eth_hash")
-                        if not self.type_validator.is_eth_hash(transaction["s"]):
-                            lcc.log_error(
-                                "Wrong format of 's', got: '{}'".format(transaction["s"]))
-                        else:
-                            lcc.log_info("'s' has correct format: eth_hash")
+                        self.validate_transaction(transaction)
+
+
 
     def setup_suite(self):
         self.rpcPort = 19999
@@ -573,21 +578,26 @@ class TestRPC(BaseTest):
         result = self.get_response(payload)["result"]
         self.validate_block(result)
 
+    # todo: BUG ECHO-1792. Undisabled
+    @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_by_hash(self):
         trx_hash = self.transfer()
         payload = self.rpc_call("eth_getTransactionByHash", [trx_hash])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("ggg"))
+        result = self.get_response(payload)["result"]
+        self.validate_block(result)
 
     @lcc.test("Check method 'eth_getTransactionByBlockHashAndIndex'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_by_hash_and_index(self):
-        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))["result"]
-        payload = self.rpc_call("eth_getTransactionByBlockHashAndIndex", [block_id, "0x00"])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("ggg"))
+        self.transfer()
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        block_hash = self.get_response(
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        payload = self.rpc_call("eth_getTransactionByBlockHashAndIndex", [block_hash, "0x00"])
+        result = self.get_response(payload)["result"]
+        self.validate_transaction(result)
 
     # todo: BUG ECHO-1788. Undisabled
     @lcc.disabled()
