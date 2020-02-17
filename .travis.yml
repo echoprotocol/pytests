@@ -35,6 +35,7 @@ before_script:
   - docker-compose up -d bitcoin
   - docker-compose up -d ganache
   - docker-compose up -d echo
+  - docker-compose up -d testrpc
   - docker ps -a
 script:
   - python3 test_runner.py

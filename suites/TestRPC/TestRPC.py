@@ -208,7 +208,7 @@ class TestRPC(BaseTest):
                         self.validate_transaction(transaction)
 
     def setup_suite(self):
-        self.rpcPort = 6666
+        self.rpcPort = 19999
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -383,7 +383,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.16.0-rc.2-22-gfaf58664/Linux.64-bit"
+        result = "ECHO/0.16.0-rc.4/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -480,6 +480,7 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'result' has correct format: eth_balance")
 
+    @lcc.disabled()
     @lcc.test("Check method 'eth_getStorageAt'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_send_transaction")
     def eth_get_storage_at(self):
@@ -531,11 +532,14 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_call'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def eth_call(self):
+        # cycle for link contract to account's address
+        for i in range(5):
+            self.create_contract()
         data = "0x"
         payload = self.rpc_call("eth_call",
                                 [{
-                                    "from": self.account_address,
-                                    "to": self.new_account_address
+                                    "from": self.new_account_address,
+                                    "to": self.account_address
                                 }]
                                 )
         response = self.get_response(payload)
