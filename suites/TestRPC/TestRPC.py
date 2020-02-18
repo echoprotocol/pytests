@@ -39,14 +39,10 @@ class TestRPC(BaseTest):
             "jsonrpc": "2.0",
             "id": 0,
         }
-        lcc.log_debug("request")
-        lcc.log_debug(str(payload))
         return payload
 
     def get_response(self, payload):
         response = requests.post(self.test_rcp_url, json=payload).json()
-        lcc.log_debug("response")
-        lcc.log_debug(str(response))
         if require_that("json-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -208,7 +204,7 @@ class TestRPC(BaseTest):
                         self.validate_transaction(transaction)
 
     def setup_suite(self):
-        self.rpcPort = 19999
+        self.rpcPort = 56453
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -284,17 +280,19 @@ class TestRPC(BaseTest):
     def personal_list_raw_accounts(self):
         payload = self.rpc_call("personal_listRawAccounts", [])
         results = self.get_response(payload)["result"]
-        result = results[0]
-        if not self.type_validator.is_eth_address(result["address"]):
-            lcc.log_error("Wrong format of 'address', got: {}".format(result["address"]))
-        else:
-            lcc.log_info("'result' has correct format: address")
-        if not self.type_validator.is_privkey(result["privkey"]):
-            lcc.log_error("Wrong format of 'privkey', got: {}".format(result["privkey"]))
-        else:
-            lcc.log_info("'result' has correct format: privkey")
-        check_that("passphrase", result["passphrase"], equal_to(""))
-        for result in results[1:]:
+        lcc.set_step("Check initialized accounts")
+        for result in results[:2]:
+            if not self.type_validator.is_eth_address(result["address"]):
+                lcc.log_error("Wrong format of 'address', got: {}".format(result["address"]))
+            else:
+                lcc.log_info("'result' has correct format: address")
+            if not self.type_validator.is_privkey(result["privkey"]):
+                lcc.log_error("Wrong format of 'privkey', got: {}".format(result["privkey"]))
+            else:
+                lcc.log_info("'result' has correct format: privkey")
+            check_that("passphrase", result["passphrase"], equal_to(""))
+        lcc.set_step("Check created accounts")
+        for result in results[2:]:
             if not self.type_validator.is_eth_address(result["address"]):
                 lcc.log_error("Wrong format of 'address', got: {}".format(result["address"]))
             else:
@@ -329,10 +327,15 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'personal_sendTransaction'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def personal_send_transaction(self):
-        payload = self.rpc_call("presonal_sendTransaction",
-                                [{"from": self.account_address, "to": self.new_account_address, "value": self.value}])
+        payload = self.rpc_call("personal_sendTransaction",
+                                [{"from": self.account_address, "to": self.new_account_address, "value": self.value},
+                                 "Account"]
+                                )
         response = self.get_response(payload)
-        require_that("'result'", response["result"], is_false())
+        if not self.type_validator.is_hex(response["result"]):
+            lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
+        else:
+            lcc.log_info("'result' has correct format: hex")
 
     # todo: BUG ECHO-1774. Undisabled
     @lcc.disabled()
@@ -360,21 +363,6 @@ class TestRPC(BaseTest):
                                 )
         response = self.get_response(payload)
         require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
-        if not self.type_validator.is_hex(response["result"]):
-            lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
-        else:
-            lcc.log_info("'result' has correct format: hex")
-
-    @lcc.test("Check method 'personal_sendTransaction'")
-    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
-    def personal_send_transaction(self):
-        payload = self.rpc_call("personal_sendTransaction",
-                                [{'from': '0x0000000000000000000000000000000000000006',
-                                  'to': '0x0000000000000000000000000000000000000007',
-                                  "value": "0xf"},
-                                 "Account", ]
-                                )
-        response = self.get_response(payload)
         if not self.type_validator.is_hex(response["result"]):
             lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
         else:
@@ -514,6 +502,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_getCode'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_code(self):
+        self.create_contract()
         self.create_contract()
         payload = self.rpc_call("eth_getCode", [self.contract_address, "0x02"])
         response = self.get_response(payload)
