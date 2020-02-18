@@ -106,6 +106,7 @@ services:
     image: echoprotocol/echo-testrpc:0.16.0-rc.4
     command:
       '--rpc-endpoint=0.0.0.0:19999
+      --plugin=history
       --accounts 2'
     ports:
       - 56453:19999

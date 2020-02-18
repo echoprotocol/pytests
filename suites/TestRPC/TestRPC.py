@@ -479,14 +479,15 @@ class TestRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
 
-    # todo: BUG ECHO-1781. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionCount'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_count(self):
         payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("0x01"))
+        if not self.type_validator.is_eth_hash(response["result"]):
+            lcc.log_error("Wrong format of 'count', got: '{}'".format(response["result"]))
+        else:
+            lcc.log_info("'count' has correct format: eth_hash")
 
     @lcc.test("Check method 'eth_getBlockTransactionCountByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")

@@ -292,8 +292,6 @@ class JsonRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
-    # todo: BUG ECHO-1784. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_coinbase'")
     @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
     def eth_coinbase(self):
