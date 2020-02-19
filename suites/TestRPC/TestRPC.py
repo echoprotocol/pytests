@@ -418,8 +418,6 @@ class TestRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
-    # todo: BUG ECHO-1784. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_coinbase'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_coinbase(self):
