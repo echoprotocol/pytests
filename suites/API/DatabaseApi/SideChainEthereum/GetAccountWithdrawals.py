@@ -198,7 +198,6 @@ class GetAccountWithdrawals(BaseTest):
             )
 
         lcc.set_step("Get withdrawals of created account")
-        self.produce_block(self.__database_api_identifier)
         params = [new_account, "eth"]
         response_id = self.send_request(self.get_request("get_account_withdrawals", params),
                                         self.__database_api_identifier)
@@ -213,10 +212,9 @@ class GetAccountWithdrawals(BaseTest):
             require_that_in(
                 withdraw,
                 "account", is_(new_account),
-                "is_approved", is_true(),
-                "value", is_(withdraw_values[i]),
-                quiet=True
-            )
+                "is_approved", is_true()
+                )
+            require_that("value", str(withdraw["value"]), equal_to(str(withdraw_values[i])))
 
         lcc.set_step("Get withdraw by id using 'get_objects'")
         params = withdraw_ids
