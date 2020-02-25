@@ -244,7 +244,7 @@ class BaseTest(object):
             lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
         return method["id"]
 
-    def get_response(self, id_response, negative=False, log_response=False, debug_mode=False):
+    def get_response(self, id_response, negative=False, debug_mode=False, log_response=False):
         # Receive answer from server
         try:
             if debug_mode:

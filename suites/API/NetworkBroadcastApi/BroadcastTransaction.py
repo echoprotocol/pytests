@@ -73,6 +73,7 @@ class BroadcastTransaction(BaseTest):
         check_that("'broadcast_transaction' result", result, is_none(), quiet=True)
 
         lcc.set_step("Get account balance after transfer transaction broadcast")
+        self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_account_balances", [account_id, [self.echo_asset]]),
                                         self.__database_api_identifier)
         updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
