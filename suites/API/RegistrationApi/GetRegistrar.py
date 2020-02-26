@@ -43,6 +43,7 @@ class GetRegistrar(BaseTest):
 
         lcc.set_step("Create new account and get registrar account")
         self.echo.register_account(callback, account_name, public_key, public_key)
+        self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
                                         self.__database_api_identifier)
         registrar = self.get_response(response_id)["result"]["registrar"]

@@ -87,6 +87,7 @@ class BroadcastTransactionWithCallback(BaseTest):
         check_that("'broadcast_transaction_with_callback' result", response["result"], is_none(), quiet=True)
 
         lcc.set_step("Get account balance after transfer transaction broadcast")
+        self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_account_balances", [account_id, [self.echo_asset]]),
                                         self.__database_api_identifier)
         updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
@@ -140,9 +141,10 @@ class NegativeTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    def get_error_message(self, response_id, log_response=False):
+    def get_error_message(self, response_id, debug_mode=False, log_response=False):
         try:
-            self.get_response(response_id, log_response)
+            response = self.get_response(response_id, debug_mode, log_response)
+            return response
         except Exception as e:
             ans = json.loads(str(e)[26:], strict=False)
             return ans["error"]["message"]
@@ -178,8 +180,6 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
-    # todo: Bug ECHO-1743 ("trx.expiration" < "now")
-    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong expiration time")
     @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
@@ -188,7 +188,7 @@ class NegativeTesting(BaseTest):
                                                                              get_random_valid_account_name):
         subscription_callback_id = get_random_integer
         transfer_amount = get_random_integer_up_to_ten
-        expiration_time_offset = 10
+        expiration_time_offset = 500
         expected_message = "Assert Exception: now <= trx.expiration: "
         account_names = get_random_valid_account_name
 
@@ -211,5 +211,5 @@ class NegativeTesting(BaseTest):
         params = [subscription_callback_id, signed_tx]
         response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
                                         self.__network_broadcast_identifier)
-        error_message = self.get_error_message(response_id, log_response=True)
+        error_message = self.get_error_message(response_id, debug_mode=True)["error"]["message"]
         check_that("message", error_message, equal_to(expected_message))

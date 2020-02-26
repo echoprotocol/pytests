@@ -59,7 +59,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.16.0-rc.4
+    image: echoprotocol/echo:0.17.0-rc.0
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -103,7 +103,7 @@ services:
       - bitcoin
 
   testrpc:
-    image: echoprotocol/echo-testrpc:0.16.0-rc.4
+    image: echoprotocol/echo-testrpc:0.17.0-rc.0
     command:
       '--rpc-endpoint=0.0.0.0:19999
       --accounts 2'

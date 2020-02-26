@@ -231,13 +231,6 @@ class TestRPC(BaseTest):
                 "error", equal_to(message)
             )
 
-    @lcc.test("Check method 'eth_mining'")
-    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
-    def eth_mining(self):
-        payload = self.rpc_call("eth_mining", [])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], is_true())
-
     @lcc.test("Check method 'miner_stop'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def miner_stop(self):
@@ -248,9 +241,16 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'miner_start'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.miner_stop")
     def miner_start(self):
-        payload = self.rpc_call("miner_stop", ["0x0"])
+        payload = self.rpc_call("miner_start", ["0x0"])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_none())
+
+    @lcc.test("Check method 'eth_mining'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.miner_start")
+    def eth_mining(self):
+        payload = self.rpc_call("eth_mining", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], is_true())
 
     @lcc.test("Check method 'personal_newAccount'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -371,7 +371,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.16.0-rc.4/Linux.64-bit"
+        result = "ECHO/0.17.0-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -432,13 +432,6 @@ class TestRPC(BaseTest):
         payload = self.rpc_call("eth_coinbase", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(self.account_address))
-
-    @lcc.test("Check method 'eth_mining'")
-    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
-    def eth_mining(self):
-        payload = self.rpc_call("eth_mining", [])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], is_true())
 
     @lcc.test("Check method 'eth_gasPrice'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
