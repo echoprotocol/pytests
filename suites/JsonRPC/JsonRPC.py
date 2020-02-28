@@ -241,10 +241,18 @@ class JsonRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.16.0-rc.4/Linux.64-bit"
+        result = "ECHO/0.17.0-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
+
+    @lcc.test("Check method 'eth_chain_id'")
+    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    def eth_chain_id(self):
+        chain_id = "0xc5baa05a82d607bdbd50d3ac1cbca45536e5c09bf2c1e91334131fb3d4f59262"
+        payload = self.rpc_call("eth_chainId", [])
+        response = self.get_response(payload)
+        require_that("'result'", response["result"], equal_to(chain_id))
 
     @lcc.test("Check method 'web3_sha3'")
     @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
@@ -294,8 +302,6 @@ class JsonRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
-    # todo: BUG ECHO-1784. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_coinbase'")
     @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
     def eth_coinbase(self):
