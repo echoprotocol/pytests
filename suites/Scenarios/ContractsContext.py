@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, check_that_in, is_dict, has_length, require_that, equal_to
 
 from common.base_test import BaseTest
 
@@ -46,57 +47,68 @@ class ContractsContext(BaseTest):
         self.utils.get_contract_id(self, self.echo_acc0, self.contract_callee,
                                    self.__database_api_identifier,
                                    value_asset_id=self.echo_asset,
-                                   supported_asset_id=self.echo_asset,
-                                   log_broadcast=True)
+                                   supported_asset_id=self.echo_asset)
 
         lcc.set_step("Create contract 'Callee' with asset id: {}".format(self.eth_asset))
         self.utils.get_contract_id(self, self.echo_acc0, self.contract_callee,
                                    self.__database_api_identifier,
                                    value_asset_id=self.eth_asset,
-                                   supported_asset_id=self.eth_asset,
-                                   log_broadcast=True)
+                                   supported_asset_id=self.eth_asset)
 
         lcc.set_step("Create contract 'Caller'")
         caller_contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract_caller,
                                                         self.__database_api_identifier,
-                                                        value_asset_id=self.eth_asset,
-                                                        log_broadcast=True)
+                                                        value_asset_id=self.eth_asset)
 
-        lcc.set_step("Perform operations using a new account. caller_contract contract operation count equal to limit")
+        lcc.set_step("Perform contact call operation with echo_asset_hex")
+        echo_asset_id_hex = "0000000000000000000000000000000000000000000000000000000000000000"
         broadcast_result = self.utils.perform_contract_call_operation(self, self.echo_acc0,
                                                                       method_bytecode=(
-                                                                                  self.func_call_callee),
+                                                                              self.func_call_callee_with_context +
+                                                                              echo_asset_id_hex),
+                                                                      database_api_id=self.__database_api_identifier,
+                                                                      contract_id=caller_contract_id)
+        contract_result_id = self.get_operation_results_ids(broadcast_result)
+        response_id = self.send_request(self.get_request("get_contract_result", [contract_result_id]),
+                                        self.__database_api_identifier)
+        contract_result = self.get_trx_completed_response(response_id)["result"]
+        if check_that("contract_result", contract_result[1], has_length(2)):
+            check_that_in(
+                contract_result[1],
+                "exec_res", is_dict(),
+                "tr_receipt", is_dict(),
+                quiet=True
+            )
+
+        lcc.set_step("Perform contact call operation with eth_asset_hex")
+        eth_asset_id_hex = "0000000000000000000000000000000000000000000000000000000000000001"
+        broadcast_result = self.utils.perform_contract_call_operation(self, self.echo_acc0,
+                                                                      method_bytecode=(
+                                                                              self.func_call_callee_with_context +
+                                                                              eth_asset_id_hex),
                                                                       database_api_id=self.__database_api_identifier,
                                                                       contract_id=caller_contract_id,
-                                                                      log_broadcast=True)
-        contract_result = self.get_operation_results_ids(broadcast_result)
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
+                                                                      value_asset_id=self.eth_asset)
+        contract_result_id = self.get_operation_results_ids(broadcast_result)
+        response_id = self.send_request(self.get_request("get_contract_result", [contract_result_id]),
                                         self.__database_api_identifier)
-        contract_id_16 = self.get_trx_completed_response(response_id, debug_mode=True)
+        contract_result = self.get_trx_completed_response(response_id)["result"]
+        if check_that("contract_result", contract_result[1], has_length(2)):
+            check_that_in(
+                contract_result[1],
+                "exec_res", is_dict(),
+                "tr_receipt", is_dict(),
+                quiet=True
+            )
 
-        lcc.set_step("Perform operations using a new account. caller_contract contract operation count equal to limit")
-        asset_id_hex = "0000000000000000000000000000000000000000000000000000000000000000"
-        broadcast_result = self.utils.perform_contract_call_operation(self, self.echo_acc0,
-                                                                      method_bytecode=(
-                                                                                  self.func_call_callee_with_context + asset_id_hex),
-                                                                      database_api_id=self.__database_api_identifier,
-                                                                      contract_id=caller_contract_id,
-                                                                      log_broadcast=True)
-        contract_result = self.get_operation_results_ids(broadcast_result)
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
-                                        self.__database_api_identifier)
-        contract_id_16 = self.get_trx_completed_response(response_id, debug_mode=True)
+        lcc.set_step("Perform call Callee contract")
 
-        lcc.set_step("Perform operations using a new account. caller_contract contract operation count equal to limit")
-        asset_id_hex = "0000000000000000000000000000000000000000000000000000000000000001"
-        broadcast_result = self.utils.perform_contract_call_operation(self, self.echo_acc0,
-                                                                      method_bytecode=(
-                                                                                  self.func_call_callee + asset_id_hex),
-                                                                      database_api_id=self.__database_api_identifier,
-                                                                      contract_id=caller_contract_id
-                                                                      ,
-                                                                      log_broadcast=True)
-        contract_result = self.get_operation_results_ids(broadcast_result)
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
+        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
+                                                              bytecode=self.func_call_callee,
+                                                              callee=caller_contract_id)
+        response_id = self.send_request(self.get_request("get_required_fees", [[operation], self.echo_asset]),
                                         self.__database_api_identifier)
-        contract_id_16 = self.get_trx_completed_response(response_id, debug_mode=True)
+        response = \
+            self.get_response(response_id, negative=True)["error"]["data"]["stack"][0]["data"]["e"]["excepted"]
+        error_massage = "InvalidAssetType"
+        require_that("'error massage'", response, equal_to(error_massage))
