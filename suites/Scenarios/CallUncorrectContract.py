@@ -57,21 +57,17 @@ class CallUncorrectContract(BaseTest):
                                         self.__database_api_identifier)
         trx_completed_response = self.get_trx_completed_response(response_id)
         if require_that('contract call', trx_completed_response["result"], is_list()):
-            for contract_result in trx_completed_response["result"]:
-                check_that_in(
-                    contract_result[1],
-                    "exec_res", is_dict(),
-                    "tr_receipt", is_dict(),
-                    quiet=True
-                )
-                exec_res = contract_result[1]["exec_res"]
-                if check_that("exec_res", exec_res, has_length(6)):
-                    require_that_in(
-                        exec_res,
-                        "excepted", equal_to("None"),
-                        "code_deposit", equal_to("Success"),
-                        quiet=True
-                    )
+            check_that_in(
+                trx_completed_response["result"][1],
+                "exec_res", is_dict(),
+                "tr_receipt", is_dict(),
+                quiet=True
+            )
+            exec_res = trx_completed_response["result"][1]["exec_res"]
+            check_that("exec_res", exec_res, has_length(6))
+            tr_receipt = trx_completed_response["result"][1]["tr_receipt"]
+            check_that("tr_receipt", tr_receipt, has_length(4))
+
 
 
 
