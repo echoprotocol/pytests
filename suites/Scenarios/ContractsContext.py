@@ -10,7 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "contract_context")
+@lcc.tags("contract_context")
 @lcc.suite("Check scenario 'Contract calls with different asset ids'")
 class ContractsContext(BaseTest):
 
