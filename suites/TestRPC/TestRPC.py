@@ -13,6 +13,8 @@ SUITE = {
 }
 
 
+#  todo: undisabled, when TestRPC will be public
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")
@@ -303,6 +305,17 @@ class TestRPC(BaseTest):
                 lcc.log_info("'result' has correct format: privkey")
             check_that("passphrase", result["passphrase"], equal_to(self.passphrase))
 
+    @lcc.test("Check method 'eth_accounts'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def eth_accounts(self):
+        payload = self.rpc_call("eth_accounts", [])
+        results = self.get_response(payload)["result"]
+        for account_address in results:
+            if not self.type_validator.is_eth_address(account_address):
+                lcc.log_error("Wrong format of 'address', got: {}".format(account_address))
+            else:
+                lcc.log_info("'result' has correct format: address")
+
     @lcc.test("Check method 'personal_lockAccount'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def personal_lock_account(self):
@@ -371,7 +384,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.17.0-rc.0/Linux.64-bit"
+        result = "ECHO/0.17.0-rc.1/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
