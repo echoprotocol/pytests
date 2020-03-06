@@ -637,9 +637,8 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'difficulty' has correct format: eth_hash")
 
-    @lcc.tags("qa")
     @lcc.test("Check method 'echo_submitRegistrationSolution'")
-    # @lcc.depends_on("TestRPC.TestRPC.TestRPC.echo_request_registration_task")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.echo_request_registration_task")
     def echo_submit_registration_solution(self, get_random_valid_account_name):
         payload = self.rpc_call("echo_requestRegistrationTask", [])
         response = self.get_response(payload)["result"]
