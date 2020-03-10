@@ -184,9 +184,9 @@ class Ethereum(BaseTest):
             "Transfer operation performed, transfer amount: '{}' '{}' assets".format(transfer_amount, self.eth_asset))
 
         lcc.set_step("Get recipient balance in ethereum after transfer")
-        recipient_balance_after_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
-                                                                      self.__database_api_identifier,
-                                                                      ethereum_balance)
+        recipient_balance_after_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
+                                                                          self.__database_api_identifier,
+                                                                          ethereum_balance))
         lcc.log_info("Recipient '{}' balance after "
                      "transfer in ethereum is '{}'".format(self.echo_acc0, recipient_balance_after_transfer))
 
@@ -194,7 +194,7 @@ class Ethereum(BaseTest):
         check_that(
             "'updated balance in ethereum'",
             recipient_balance_after_transfer,
-            equal_to(recipient_balance + transfer_amount)
+            equal_to(int(recipient_balance) + transfer_amount)
         )
 
         lcc.set_step("Withdraw eth from ECHO network to Ethereum network")
@@ -217,7 +217,7 @@ class Ethereum(BaseTest):
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
 
         lcc.set_step("Get account balance in ethereum")
-        ethereum_balance = self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier)
+        ethereum_balance = int(self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier))
         lcc.log_info("Account '{}' balance in ethereum is '{}'".format(self.new_account, ethereum_balance))
 
         lcc.set_step("Get recipient balance in ethereum before transfer")
@@ -251,9 +251,9 @@ class Ethereum(BaseTest):
                                                           )
 
         lcc.set_step("Get account balance after transfer and store")
-        recipient_balance_after_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
-                                                                      self.__database_api_identifier,
-                                                                      ethereum_balance)
+        recipient_balance_after_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
+                                                                          self.__database_api_identifier,
+                                                                          ethereum_balance))
         lcc.log_info("Recipient '{}' balance after "
                      "transfer in ethereum is '{}'".format(self.echo_acc0, recipient_balance_after_transfer))
 
@@ -261,7 +261,7 @@ class Ethereum(BaseTest):
         check_that(
             "'updated recipient balance in ethereum'",
             recipient_balance_after_transfer,
-            equal_to(recipient_balance + transfer_amount)
+            equal_to(int(recipient_balance) + transfer_amount)
         )
 
         lcc.set_step("Transfer assets via second account_address")
@@ -273,9 +273,9 @@ class Ethereum(BaseTest):
                                                           fee_asset_id=self.eth_asset)
 
         lcc.set_step("Get account balance after second transfer and store")
-        recipient_balance_after_second_transfer = self.utils.get_eth_balance(self, self.echo_acc0,
+        recipient_balance_after_second_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
                                                                              self.__database_api_identifier,
-                                                                             recipient_balance_after_transfer)
+                                                                             recipient_balance_after_transfer))
         lcc.log_info("Recipient '{}' balance after second "
                      "transfer in ethereum is '{}'".format(self.echo_acc0, recipient_balance_after_second_transfer))
 

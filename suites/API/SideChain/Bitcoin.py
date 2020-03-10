@@ -90,7 +90,7 @@ class Bitcoin(BaseTest):
     def bitcoin_sidechain_pre_run_scenario(self):
         backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
         deposit_amount = 5
-        withdrawal_amount = 1000000
+        withdrawal_amount = 23000000
         withdraw_ids, withdraw_values = [], []
         deposit_ids, deposit_values = [], []
 
@@ -275,8 +275,7 @@ class Bitcoin(BaseTest):
                     withdraw,
                     "is_approved", is_bool(),
                     "is_sent", is_bool(),
-                    "value", equal_to(1000000),
+                    "value", equal_to(withdrawal_amount),
                     "echo_block_number", is_integer(),
-                    "extensions", is_list(),
-                    quiet=True
+                    "extensions", is_list()
                 )
