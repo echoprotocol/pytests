@@ -42,13 +42,11 @@ class JsonRPC(BaseTest):
             "id": 0,
         }
         lcc.log_debug("request")
-        lcc.log_debug(str(payload))
         return payload
 
     def get_response(self, payload):
         response = requests.post(self.test_rcp_url, json=payload).json()
         lcc.log_debug("response")
-        lcc.log_debug(str(response))
         if require_that("json-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -506,3 +504,42 @@ class JsonRPC(BaseTest):
         payload = self.rpc_call("eth_pendingTransactions", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_list())
+
+    @lcc.test("Check method 'echo_requestRegistrationTask'")
+    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    def echo_request_registration_task(self):
+        payload = self.rpc_call("echo_requestRegistrationTask", [])
+        response = self.get_response(payload)["result"]
+        if not self.type_validator.is_eth_hash(response["blockId"]):
+            lcc.log_error("Wrong format of 'blockId', got: '{}'".format(response["blockId"]))
+        else:
+            lcc.log_info("'blockId' has correct format: eth_hash")
+        if not self.type_validator.is_eth_hash(response["randNum"]):
+            lcc.log_error("Wrong format of 'randNum', got: '{}'".format(response["randNum"]))
+        else:
+            lcc.log_info("'randNum' has correct format: eth_hash")
+        if not self.type_validator.is_eth_hash(response["difficulty"]):
+            lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(response["difficulty"]))
+        else:
+            lcc.log_info("'difficulty' has correct format: eth_hash")
+
+    @lcc.test("Check method 'echo_submitRegistrationSolution'")
+    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.echo_request_registration_task")
+    def echo_submit_registration_solution(self, get_random_valid_account_name):
+        payload = self.rpc_call("echo_requestRegistrationTask", [])
+        response = self.get_response(payload)["result"]
+        block_id_right160 = response["blockId"][26:]
+        rand_num_decimal = int(response["randNum"].lstrip("0x"), 16)
+        difficulty = int(response["difficulty"].lstrip("0x"), 16)
+        nonce = self.echo.solve_registration_task(block_id_right160, rand_num_decimal, difficulty)
+        nonce_hex = hex(nonce)
+        account_name = get_random_valid_account_name
+        active_key = echorand_key = "ECHOHCcqrvESxeg4Kmmpr73FdQSQR6TbusCMsHeuXvx2rM1G"
+        rand_num = response["randNum"]
+        payload = self.rpc_call("echo_submitRegistrationSolution",
+                                [account_name, active_key, echorand_key, nonce_hex, rand_num])
+        response = self.get_response(payload)
+        if not self.type_validator.is_eth_hash(response["result"]):
+            lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(response["difficulty"]))
+        else:
+            lcc.log_info("'difficulty' has correct format: eth_hash")
