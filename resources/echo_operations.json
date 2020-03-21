@@ -563,7 +563,7 @@
         31,
         {
             "fee": {
-                "amount": 0,
+                "amount": 200,
                 "asset_id": "1.3.0"
             },
             "registrar": "1.2.0",

@@ -244,7 +244,7 @@ class BaseTest(object):
             lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
         return method["id"]
 
-    def get_response(self, id_response, negative=False, log_response=False, debug_mode=False):
+    def get_response(self, id_response, negative=False, debug_mode=False, log_response=False):
         # Receive answer from server
         try:
             if debug_mode:
@@ -279,9 +279,9 @@ class BaseTest(object):
         except IndexError as index:
             lcc.log_error("Notice: This index does not exist: '{}'".format(index))
 
-    def get_trx_completed_response(self, id_response, mode='evm', debug_mode=False):
+    def get_trx_completed_response(self, id_response, mode='evm', negative=False, debug_mode=False):
         # Receive answer from server that transaction completed
-        response = self.get_response(id_response, debug_mode=debug_mode)
+        response = self.get_response(id_response, negative=negative, debug_mode=debug_mode)
         if mode == "evm":
             transaction_excepted = response.get("result")[1].get("exec_res").get("excepted")
         if mode == "x86":
