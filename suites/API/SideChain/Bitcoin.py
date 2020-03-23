@@ -11,7 +11,7 @@ from lemoncheesecake.matching import check_that, equal_to, require_that, check_t
     is_bool, is_integer, is_list, is_dict
 
 from common.base_test import BaseTest
-from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BTC_FEE, INIT0_PK
+from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BTC_FEE, INIT0_PK, BTC_WITHDRAWAL_MIN
 
 SUITE = {
     "description": "Entering the currency bitcoin in the network ECHO to the account and withdraw that currency"
@@ -90,7 +90,7 @@ class Bitcoin(BaseTest):
     def bitcoin_sidechain_pre_run_scenario(self):
         backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
         deposit_amount = 5
-        withdrawal_amount = 1000000
+        withdrawal_amount = BTC_WITHDRAWAL_MIN * BTC_FEE
         withdraw_ids, withdraw_values = [], []
         deposit_ids, deposit_values = [], []
 
@@ -275,7 +275,7 @@ class Bitcoin(BaseTest):
                     withdraw,
                     "is_approved", is_bool(),
                     "is_sent", is_bool(),
-                    "value", equal_to(1000000),
+                    "value", equal_to(withdrawal_amount),
                     "echo_block_number", is_integer(),
                     "extensions", is_list(),
                     quiet=True

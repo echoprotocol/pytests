@@ -239,7 +239,6 @@ class BaseTest(object):
                 lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
             return method["id"]
         method = self.__call_method(request, api_identifier)
-        lcc.log_debug(str(method))
         self.ws.send(json.dumps(method))
         if debug_mode:
             lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
