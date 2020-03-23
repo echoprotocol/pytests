@@ -239,6 +239,7 @@ class BaseTest(object):
                 lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
             return method["id"]
         method = self.__call_method(request, api_identifier)
+        lcc.log_debug(str(method))
         self.ws.send(json.dumps(method))
         if debug_mode:
             lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
@@ -466,6 +467,7 @@ class BaseTest(object):
 
     def register_account(self, account_name, registration_api_identifier, database_api_identifier,
                          debug_mode=False):
+        evm_address = None
         public_key = self.store_new_account(account_name)
         self.__id += 1
         callback = self.__id
@@ -476,7 +478,7 @@ class BaseTest(object):
         solution = self.solve_registration_task(pow_algorithm_data["block_id"],
                                                 pow_algorithm_data["rand_num"],
                                                 pow_algorithm_data["difficulty"])
-        account_params = [callback, account_name, public_key, public_key, solution, pow_algorithm_data["rand_num"]]
+        account_params = [callback, account_name, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]]
         response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         registration_api_identifier)
         response = self.get_response(response_id, debug_mode=debug_mode)
