@@ -110,6 +110,7 @@ class PositiveTesting(BaseTest):
     def use_method_with_created_account(self, get_random_valid_account_name, get_random_integer):
         new_account_name = get_random_valid_account_name
         callback = get_random_integer
+        evm_address = None
 
         lcc.set_step("Register an account in the ECHO network and store his data")
         generate_keys = self.generate_keys()
@@ -120,7 +121,7 @@ class PositiveTesting(BaseTest):
         solution = self.solve_registration_task(pow_algorithm_data["block_id"],
                                                 pow_algorithm_data["rand_num"],
                                                 pow_algorithm_data["difficulty"])
-        account_params = [callback, new_account_name, echorand_key, echorand_key, solution,
+        account_params = [callback, new_account_name, echorand_key, echorand_key, evm_address, solution,
                           pow_algorithm_data["rand_num"]]
         response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         self.__registration_api_identifier)
@@ -186,6 +187,7 @@ class NegativeTesting(BaseTest):
     def call_method_with_private_key(self, get_random_valid_account_name, get_random_integer):
         new_account_name = get_random_valid_account_name
         callback = get_random_integer
+        evm_address = None
 
         lcc.set_step("Register an account in the ECHO network and store his data")
         generate_keys = self.generate_keys()
@@ -197,7 +199,7 @@ class NegativeTesting(BaseTest):
         solution = self.solve_registration_task(pow_algorithm_data["block_id"],
                                                 pow_algorithm_data["rand_num"],
                                                 pow_algorithm_data["difficulty"])
-        account_params = [callback, new_account_name, private_key, echorand_key, solution,
+        account_params = [callback, new_account_name, private_key, echorand_key, evm_address, solution,
                           pow_algorithm_data["rand_num"]]
         response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         self.__registration_api_identifier)

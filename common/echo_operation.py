@@ -904,7 +904,6 @@ class EchoOperations(object):
         if len(list_operations) > 1:
             list_operations = [item for sublist in list_operations for item in sublist]
         for operation in list_operations:
-            lcc.log_debug(str(operation))
             tx.add_operation(name=operation[0], props=operation[1])
         if return_operations:
             return tx.operations

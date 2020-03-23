@@ -91,7 +91,7 @@ class CommitteeMemberActivate(BaseTest):
             signer=INIT0_PK
         )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
             raise Exception("Operation 'proposal_created' failed while broadcast")
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
