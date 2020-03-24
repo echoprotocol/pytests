@@ -13,8 +13,6 @@ SUITE = {
 }
 
 
-# todo: undisabled after whole autotest's cover
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("json_rpc")
 @lcc.suite("Check JSON PRC interface")

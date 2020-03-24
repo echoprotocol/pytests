@@ -59,7 +59,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.17.1-rc.8
+    image: echoprotocol/echo:0.16.1-rc.2
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -110,10 +110,6 @@ services:
 #      --accounts 2'
 #    ports:
 #      - 56453:19999
-
-
-
-
 
 volumes:
   testrpc:
