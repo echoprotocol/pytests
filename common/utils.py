@@ -134,9 +134,11 @@ class Utils(object):
         return {"contract_id": base_test.get_contract_id(contract_id_16), "broadcast_result": broadcast_result}
 
     def perform_contract_call_operation(self, base_test, registrar, method_bytecode, database_api_id,
-                                        contract_id, operation_count=1, get_only_fee=False, log_broadcast=False):
+                                        contract_id, value_asset_id="1.3.0", operation_count=1, get_only_fee=False,
+                                        log_broadcast=False):
         operation = base_test.echo_ops.get_contract_call_operation(echo=base_test.echo, registrar=registrar,
-                                                                   bytecode=method_bytecode, callee=contract_id)
+                                                                   bytecode=method_bytecode, callee=contract_id,
+                                                                   value_asset_id=value_asset_id)
         if registrar != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             broadcast_result = self.add_balance_for_operations(base_test, registrar, temp_operation, database_api_id,

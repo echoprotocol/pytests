@@ -67,7 +67,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
             withdraw_amount = current_frozen_balance - REQUIRED_DEPOSIT_AMOUNT
 
         lcc.set_step("Withdraw balance of active committee member")
-        time.sleep(UNFREEZE_DURATION_SECONDS)
+        time.sleep(UNFREEZE_DURATION_SECONDS+1)
         operation = self.echo_ops.get_committee_frozen_balance_withdraw_operation(
             echo=self.echo, committee_member_account=self.init0,
             amount=withdraw_amount, asset_id=self.echo_asset, signer=INIT0_PK)

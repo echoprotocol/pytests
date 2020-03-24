@@ -244,7 +244,7 @@ class BaseTest(object):
             lcc.log_debug("Send:\n{}".format(json.dumps(method, indent=4)))
         return method["id"]
 
-    def get_response(self, id_response, negative=False, log_response=False, debug_mode=False):
+    def get_response(self, id_response, negative=False, debug_mode=False, log_response=False):
         # Receive answer from server
         try:
             if debug_mode:
@@ -279,9 +279,9 @@ class BaseTest(object):
         except IndexError as index:
             lcc.log_error("Notice: This index does not exist: '{}'".format(index))
 
-    def get_trx_completed_response(self, id_response, mode='evm', debug_mode=False):
+    def get_trx_completed_response(self, id_response, mode='evm', negative=False, debug_mode=False):
         # Receive answer from server that transaction completed
-        response = self.get_response(id_response, debug_mode=debug_mode)
+        response = self.get_response(id_response, negative=negative, debug_mode=debug_mode)
         if mode == "evm":
             transaction_excepted = response.get("result")[1].get("exec_res").get("excepted")
         if mode == "x86":
@@ -466,6 +466,7 @@ class BaseTest(object):
 
     def register_account(self, account_name, registration_api_identifier, database_api_identifier,
                          debug_mode=False):
+        evm_address = None
         public_key = self.store_new_account(account_name)
         self.__id += 1
         callback = self.__id
@@ -476,7 +477,7 @@ class BaseTest(object):
         solution = self.solve_registration_task(pow_algorithm_data["block_id"],
                                                 pow_algorithm_data["rand_num"],
                                                 pow_algorithm_data["difficulty"])
-        account_params = [callback, account_name, public_key, public_key, solution, pow_algorithm_data["rand_num"]]
+        account_params = [callback, account_name, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]]
         response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         registration_api_identifier)
         response = self.get_response(response_id, debug_mode=debug_mode)

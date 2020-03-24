@@ -42,6 +42,7 @@ class Receiver(object):
             lcc.log_error(
                 "Wrong 'id' expected '{}', but received:\n{}".format(id_response, json.dumps(response, indent=4)))
             raise Exception("Wrong 'id'")
+        # todo: uncomment if field "jsonrpc" have to be in all response
         # if response.get("jsonrpc") != "2.0":
         #     lcc.log_error("Wrong data received: {}".format(json.dumps(response, indent=4)))
         #     raise Exception("Wrong response")

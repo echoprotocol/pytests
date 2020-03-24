@@ -562,12 +562,14 @@ class ObjectValidator(object):
                 "is_approved", is_bool(),
                 "is_sent", is_bool(),
                 "approves", is_list(),
-                "value", is_integer(),
                 "fee", is_integer(),
                 "echo_block_number", is_integer(),
-                "extensions", is_list(),
-                quiet=True
+                "extensions", is_list()
             )
+            if not base_test.type_validator.is_digit(withdraw_eth_object["value"]):
+                lcc.log_error("Wrong format of 'value', got: {}".format(withdraw_eth_object["value"]))
+            else:
+                lcc.log_info("'value' has correct format: digit")
 
     def validate_erc20_token_object(self, base_test, erc20_token_object):
         if check_that(
