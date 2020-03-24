@@ -35,11 +35,10 @@ class NetworkNodeApi(BaseTest):
                 response["result"],
                 "listening_on", equal_to(self.endpoint),
                 "accept_incoming_connections", is_true(),
-                "node_public_key", equal_to("02226199775521ceba2d7ad6719ac1d06179ee2e795e4cf747d717c60e83244cd2"),
-                "node_id", equal_to("aec011d480e9cee3b69346a40039f4040d938336d909d94c28a27700af2513a703"),
+                "node_public_key", equal_to("03fbc0a5cdc90ddd08eb6489571fe9b696d0ce5698665d63c350f53c5a4ccb1500"),
+                "node_id", equal_to("ff84d963e13a5f6947635121e5b854fa67532b626aac325e9dd84be6b9261651e1"),
                 "firewalled", equal_to("unknown"),
-                "connection_count", equal_to(0),
-                quiet=True
+                "connection_count", equal_to(0)
             )
 
     @lcc.test("Check method 'add_node'")
@@ -73,8 +72,7 @@ class NetworkNodeApi(BaseTest):
                 "endpoint", equal_to(self.endpoint),
                 "last_connection_disposition", equal_to("last_connection_handshaking_failed"),
                 "number_of_successful_connection_attempts", is_integer(),
-                "number_of_failed_connection_attempts", is_integer(),
-                quiet=True
+                "number_of_failed_connection_attempts", is_integer()
             )
             if not self.type_validator.is_iso8601(result["last_seen_time"]):
                 lcc.log_error(
