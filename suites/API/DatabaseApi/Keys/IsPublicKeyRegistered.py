@@ -69,6 +69,7 @@ class PositiveTesting(BaseTest):
     def register_new_account(self, get_random_valid_account_name, get_random_integer):
         callback = get_random_integer
         new_account = get_random_valid_account_name
+        evm_address = None
 
         lcc.set_step("Generate public key")
         public_key = self.generate_keys()[1]
@@ -87,7 +88,7 @@ class PositiveTesting(BaseTest):
         solution = self.solve_registration_task(pow_algorithm_data["block_id"],
                                                 pow_algorithm_data["rand_num"],
                                                 pow_algorithm_data["difficulty"])
-        account_params = [callback, new_account, public_key, public_key, solution, pow_algorithm_data["rand_num"]]
+        account_params = [callback, new_account, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]]
         response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
                                         self.__registration_api_identifier)
         response = self.get_response(response_id)

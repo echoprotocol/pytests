@@ -473,7 +473,7 @@
             "gas_price": 4000000000,
             "satoshis_per_byte": 23,
             "coefficient_waiting_blocks": 0,
-            "btc_deposit_withdrawal_min": 100000,
+            "btc_deposit_withdrawal_min": 120000,
             "btc_deposit_withdrawal_fee": 1000,
             "eth_withdrawal_fee": 1000000
         },

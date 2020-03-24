@@ -51,7 +51,7 @@ class OverrideTransfer(BaseTest):
 
         lcc.set_step("Create asset and get new asset id")
         operation = self.echo_ops.get_asset_create_operation(echo=self.echo, issuer=self.echo_acc0,
-                                                             symbol=new_asset, flags=4)
+                                                             symbol=new_asset, flags=2)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
                                                    log_broadcast=False)
@@ -83,6 +83,7 @@ class OverrideTransfer(BaseTest):
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
         lcc.log_info("'override_transfer' operation broadcasted successfully")
+
         lcc.set_step("Check new asset holder")
         response_id = self.send_request(self.get_request("get_asset_holders", [new_asset, _start, _limit]),
                                         self.__asset_api_identifier)

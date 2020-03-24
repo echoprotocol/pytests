@@ -25,7 +25,7 @@ env:
     - PYTESTS_FILTERS=committee_member_update_global_parameters:contract_context GENESIS_FILE=genesis_update_global_parameters.json
 #  todo: uncomment, when TestRPC will be public
 #    - PYTESTS_FILTERS=test_rpc GENESIS_FILE=genesis.json
-    - PYTESTS_FILTERS=json_rpc GENESIS_FILE=genesis.json
+#    - PYTESTS_FILTERS=json_rpc GENESIS_FILE=genesis.json
 
 install:  pip3 install -r requirements.txt
 services:

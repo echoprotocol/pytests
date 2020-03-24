@@ -168,7 +168,7 @@
             "new_issuer": "1.2.0",
             "new_options": {
                 "max_supply": "1000000000000000",
-                "issuer_permissions": 15,
+                "issuer_permissions": 0,
                 "flags": 0,
                 "core_exchange_rate": {
                     "base": {

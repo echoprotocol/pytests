@@ -147,7 +147,7 @@ class EchoOperations(object):
             return [operation_id, account_whitelist_props, authorizing_account]
         return [operation_id, account_whitelist_props, signer]
 
-    def get_asset_create_operation(self, echo, issuer, symbol, precision=0, fee_amount=0, fee_asset_id="1.3.0",
+    def get_asset_create_operation(self, echo, issuer, symbol, precision=1, fee_amount=0, fee_asset_id="1.3.0",
                                    max_supply="1000000000000000", issuer_permissions=0, flags=0, base_amount=1,
                                    base_asset_id="1.3.0", quote_amount=1, quote_asset_id="1.3.1",
                                    whitelist_authorities=None, blacklist_authorities=None, description="",
@@ -186,7 +186,7 @@ class EchoOperations(object):
         return [operation_id, asset_create_props, signer]
 
     def get_asset_update_operation(self, echo, issuer, asset_to_update, fee_amount=0, fee_asset_id="1.3.0",
-                                   max_supply="1000000000000000", issuer_permissions=79, flags=0, base_amount=1,
+                                   max_supply="1000000000000000", issuer_permissions=15, flags=0, base_amount=1,
                                    base_asset_id="1.3.0", quote_amount=1, quote_asset_id="1.3.1",
                                    whitelist_authorities=None, blacklist_authorities=None, description="",
                                    extensions=None, new_issuer=None, new_options=False, signer=None, debug_mode=False):
