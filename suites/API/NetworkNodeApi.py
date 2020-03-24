@@ -28,18 +28,25 @@ class NetworkNodeApi(BaseTest):
 
         lcc.set_step("Check network node api identifier. Call network node api method 'get_info'")
         response_id = self.send_request(self.get_request("get_info", []), self.api_identifier)
-        response = self.get_response(response_id)
+        result = self.get_response(response_id, log_response=True)["result"]
 
-        if require_that("'call method 'get_info''", response["result"], has_length(6), quiet=True):
+        if require_that("'call method 'get_info''", result, has_length(6), quiet=True):
             check_that_in(
-                response["result"],
+                result,
                 "listening_on", equal_to(self.endpoint),
                 "accept_incoming_connections", is_true(),
-                "node_public_key", equal_to("03fbc0a5cdc90ddd08eb6489571fe9b696d0ce5698665d63c350f53c5a4ccb1500"),
-                "node_id", equal_to("ff84d963e13a5f6947635121e5b854fa67532b626aac325e9dd84be6b9261651e1"),
                 "firewalled", equal_to("unknown"),
                 "connection_count", equal_to(0)
             )
+        if not self.type_validator.is_SHA3_256(result["node_public_key"]):
+            lcc.log_error(
+                "Wrong format of 'node_public_key', got: '{}'".format(result["node_public_key"]))
+        else:
+            lcc.log_info("'node_public_key' has correct format: eth_hash")
+        if not self.type_validator.is_SHA3_256(result["node_id"]):
+            lcc.log_error("Wrong format of 'node_id', got: '{}'".format(result["node_id"]))
+        else:
+            lcc.log_info("'node_id' has correct format: eth_hash")
 
     @lcc.test("Check method 'add_node'")
     @lcc.depends_on("API.NetworkNodeApi.NetworkNodeApi.connection_to_network_node_api")
@@ -113,8 +120,3 @@ class NetworkNodeApi(BaseTest):
             "'call method 'add_node''",
             result, is_none(), quiet=True
         )
-
-
-
-
-

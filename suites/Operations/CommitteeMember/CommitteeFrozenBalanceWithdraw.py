@@ -65,10 +65,12 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
             current_frozen_balance = self.get_response(response_id)["result"]["amount"]
             lcc.log_info("Account {} frozen balance updated, frozen balance amount: {}".format(
                          self.init0, current_frozen_balance))
-            withdraw_amount = current_frozen_balance - REQUIRED_DEPOSIT_AMOUNT - 1
+            withdraw_amount = current_frozen_balance - REQUIRED_DEPOSIT_AMOUNT
 
         lcc.set_step("Withdraw balance of active committee member")
         time.sleep(UNFREEZE_DURATION_SECONDS+1)
+        if withdraw_amount == 0:
+            withdraw_amount = 1
         operation = self.echo_ops.get_committee_frozen_balance_withdraw_operation(
             echo=self.echo, committee_member_account=self.init0,
             amount=withdraw_amount, asset_id=self.echo_asset, signer=INIT0_PK)
@@ -84,6 +86,5 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         frozen_balance_after_withdraw = self.get_response(response_id)["result"]["amount"]
         check_that(
             "frozen balance",
-            frozen_balance_after_withdraw, equal_to(REQUIRED_DEPOSIT_AMOUNT),
-            quiet=True
+            frozen_balance_after_withdraw, equal_to(REQUIRED_DEPOSIT_AMOUNT)
         )
