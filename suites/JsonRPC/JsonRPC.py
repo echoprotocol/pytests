@@ -533,11 +533,12 @@ class JsonRPC(BaseTest):
         difficulty = int(response["difficulty"].lstrip("0x"), 16)
         nonce = self.echo.solve_registration_task(block_id_right160, rand_num_decimal, difficulty)
         nonce_hex = hex(nonce)
+        evm_address = None
         account_name = get_random_valid_account_name
         active_key = echorand_key = "ECHOHCcqrvESxeg4Kmmpr73FdQSQR6TbusCMsHeuXvx2rM1G"
         rand_num = response["randNum"]
         payload = self.rpc_call("echo_submitRegistrationSolution",
-                                [account_name, active_key, echorand_key, nonce_hex, rand_num])
+                                [account_name, active_key, echorand_key, evm_address, nonce_hex, rand_num])
         response = self.get_response(payload)
         if not self.type_validator.is_eth_hash(response["result"]):
             lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(response["difficulty"]))
