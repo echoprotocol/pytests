@@ -40,7 +40,7 @@ class TestRPC(BaseTest):
         payload = {
             "method": method,
             "params": params,
-            "jsonrpc": "2.0",
+            "EthRPC": "2.0",
             "id": 0,
         }
         return payload
@@ -51,7 +51,7 @@ class TestRPC(BaseTest):
             require_that_in(
                 response,
                 "id", is_integer(),
-                "jsonrpc", equal_to("2.0")
+                "EthRPC", equal_to("2.0")
             )
             return response
 
@@ -223,7 +223,7 @@ class TestRPC(BaseTest):
             require_that_in(
                 response,
                 "id", is_none(),
-                "jsonrpc", equal_to("2.0"),
+                "EthRPC", equal_to("2.0"),
                 "error", equal_to(message)
             )
 
