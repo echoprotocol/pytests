@@ -112,7 +112,7 @@ class Ethereum(BaseTest):
     @lcc.test("The scenario entering eth assets to the echo account")
     @lcc.depends_on("API.SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
     def ethereum_in_scenario(self):
-        min_eth_amount = 0.01
+        min_eth_amount = 0.008
         eth_amount = self.get_random_amount(amount_type=float)
 
         lcc.set_step("Get unpaid fee for ethereum address creation")
