@@ -16,7 +16,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("json_rpc")
 @lcc.suite("Check JSON PRC interface")
-class JsonRPC(BaseTest):
+class EthRPC(BaseTest):
 
     def __init__(self):
         super().__init__()
@@ -36,7 +36,7 @@ class JsonRPC(BaseTest):
         payload = {
             "method": method,
             "params": params,
-            "jsonrpc": "2.0",
+            "EthRPC": "2.0",
             "id": 0,
         }
         lcc.log_debug("request")
@@ -49,7 +49,7 @@ class JsonRPC(BaseTest):
             require_that_in(
                 response,
                 "id", is_integer(),
-                "jsonrpc", equal_to("2.0")
+                "EthRPC", equal_to("2.0")
             )
             return response
 
@@ -230,12 +230,12 @@ class JsonRPC(BaseTest):
             require_that_in(
                 response,
                 "id", is_none(),
-                "jsonrpc", equal_to("2.0"),
+                "EthRPC", equal_to("2.0"),
                 "error", equal_to(message)
             )
 
     @lcc.test("Check method 'web3_clientVersion'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def web3_client_version(self):
         result = "ECHO/0.17.0-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
@@ -243,7 +243,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(result))
 
     @lcc.test("Check method 'eth_chain_id'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_chain_id(self):
         chain_id = "0xc5baa05a82d607bdbd50d3ac1cbca45536e5c09bf2c1e91334131fb3d4f59262"
         payload = self.rpc_call("eth_chainId", [])
@@ -251,7 +251,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(chain_id))
 
     @lcc.test("Check method 'web3_sha3'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def web3_sha3(self):
         payload = self.rpc_call("web3_sha3", [self.SHA3_trx_hash])
         response = self.get_response(payload)
@@ -261,7 +261,7 @@ class JsonRPC(BaseTest):
             lcc.log_info("'result' has correct format: hex")
 
     @lcc.test("Check method 'net_version'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def net_version(self):
         echo_devnet = "3"
         payload = self.rpc_call("net_version", [])
@@ -269,14 +269,14 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(echo_devnet))
 
     @lcc.test("Check method 'net_listening'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def net_listening(self):
         payload = self.rpc_call("net_listening", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_true())
 
     @lcc.test("Check method 'net_peerCount'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def net_peer_count(self):
         p2p_quantity = "0x00"
         payload = self.rpc_call("net_peerCount", [])
@@ -284,7 +284,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(p2p_quantity))
 
     @lcc.test("Check method 'eth_protocolVersion'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_protocol_version(self):
         eth_version = "0x3f"
         payload = self.rpc_call("eth_protocolVersion", [])
@@ -292,21 +292,21 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(eth_version))
 
     @lcc.test("Check method 'eth_syncing'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_syncing(self):
         payload = self.rpc_call("eth_syncing", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
     @lcc.test("Check method 'eth_coinbase'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_coinbase(self):
         payload = self.rpc_call("eth_coinbase", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(self.account_address))
 
     @lcc.test("Check method 'eth_gasPrice'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_gas_price(self):
         gas_price = "0x01"
         payload = self.rpc_call("eth_gasPrice", [])
@@ -314,7 +314,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(gas_price))
 
     @lcc.test("Check method 'eth_block_number'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_block_number(self):
         payload = self.rpc_call("eth_blockNumber", [])
         response = self.get_response(payload)
@@ -324,7 +324,7 @@ class JsonRPC(BaseTest):
             lcc.log_info("'result' has correct format: eth_blockNumber")
 
     @lcc.test("Check method 'eth_getBalance'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_balance(self):
         payload = self.rpc_call("eth_getBalance", [self.account_address, "latest"])
         response = self.get_response(payload)
@@ -335,7 +335,7 @@ class JsonRPC(BaseTest):
 
     @lcc.disabled()
     @lcc.test("Check method 'eth_getStorageAt'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_storage_at(self):
         self.create_contract()
         payload = self.rpc_call("eth_getStorageAt", [self.contract_address,
@@ -347,14 +347,14 @@ class JsonRPC(BaseTest):
     # todo: BUG ECHO-1781. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionCount'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_transaction_count(self):
         payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to("0x01"))
 
     @lcc.test("Check method 'eth_getBlockTransactionCountByHash'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_block_transaction_count_by_trx_hash(self):
         self.transfer()
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
@@ -365,7 +365,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to("0x01"))
 
     @lcc.test("Check method 'eth_getCode'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_code(self):
         self.create_contract()
         payload = self.rpc_call("eth_getCode", [self.contract_address, "0x02"])
@@ -375,7 +375,7 @@ class JsonRPC(BaseTest):
     # # todo: BUG ECHO-1786. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_sendRawTransaction'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_send_raw_transaction(self):
         trx_hash = {
             "ref_block_num": 50,
@@ -409,7 +409,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to("0x01"))
 
     @lcc.test("Check method 'eth_call'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_call(self):
         # cycle for link contract to account's address
         for i in range(5):
@@ -425,7 +425,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to(data))
 
     @lcc.test("Check method 'eth_estimateGas'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_estimate_gas(self):
         payload = self.rpc_call("eth_estimateGas",
                                 [{
@@ -440,7 +440,7 @@ class JsonRPC(BaseTest):
             lcc.log_info("'result' has correct format: gas")
 
     @lcc.test("Check method 'eth_getBlockByHash'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.eth_block_number")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.eth_block_number")
     def eth_get_block_by_trx_hash(self):
         self.transfer()
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
@@ -451,7 +451,7 @@ class JsonRPC(BaseTest):
         self.validate_block(result)
 
     @lcc.test("Check method 'eth_getBlockByNumber'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.eth_block_number")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.eth_block_number")
     def eth_get_block_by_number(self):
         self.transfer()
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
@@ -462,7 +462,7 @@ class JsonRPC(BaseTest):
     # todo: BUG ECHO-1792. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionByHash'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_transaction_by_hash(self):
         trx_hash = self.transfer()
         payload = self.rpc_call("eth_getTransactionByHash", [trx_hash])
@@ -470,7 +470,7 @@ class JsonRPC(BaseTest):
         self.validate_block(result)
 
     @lcc.test("Check method 'eth_getTransactionByBlockHashAndIndex'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_transaction_by_hash_and_index(self):
         self.transfer()
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
@@ -483,7 +483,7 @@ class JsonRPC(BaseTest):
     # todo: BUG ECHO-1788. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionReceipt'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_get_transaction_receipt(self):
         # todo: BUG ECHO-1788. Uncomment and delete pending trx getting process
         # trx_hash = self.create_contract()
@@ -496,7 +496,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], equal_to("ggg"))
 
     @lcc.test("Check method 'eth_pendingTransactions'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def eth_pending_transactions(self):
         self.create_contract()
         payload = self.rpc_call("eth_pendingTransactions", [])
@@ -504,7 +504,7 @@ class JsonRPC(BaseTest):
         require_that("'result'", response["result"], is_list())
 
     @lcc.test("Check method 'echo_requestRegistrationTask'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.main_check")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.main_check")
     def echo_request_registration_task(self):
         payload = self.rpc_call("echo_requestRegistrationTask", [])
         response = self.get_response(payload)["result"]
@@ -522,7 +522,7 @@ class JsonRPC(BaseTest):
             lcc.log_info("'difficulty' has correct format: eth_hash")
 
     @lcc.test("Check method 'echo_submitRegistrationSolution'")
-    @lcc.depends_on("JsonRPC.JsonRPC.JsonRPC.echo_request_registration_task")
+    @lcc.depends_on("EthRPC.EthRPC.EthRPC.echo_request_registration_task")
     def echo_submit_registration_solution(self, get_random_valid_account_name):
         payload = self.rpc_call("echo_requestRegistrationTask", [])
         response = self.get_response(payload)["result"]
