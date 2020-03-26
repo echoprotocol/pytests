@@ -36,6 +36,8 @@ class Ethereum(BaseTest):
                 _from, _to = 0.01, 0.1
             return random.uniform(_from, _to)
         if amount_type == int:
+            if _to == MIN_ETH_WITHDRAW:
+                return MIN_ETH_WITHDRAW
             if _from is None:
                 _from = MIN_ETH_WITHDRAW
             return random.randrange(_from, _to)
