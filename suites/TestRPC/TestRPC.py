@@ -2,6 +2,7 @@
 
 import lemoncheesecake.api as lcc
 import requests
+import time
 from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
     is_true, \
     check_that, is_false, not_equal_to, is_list
@@ -34,7 +35,8 @@ class TestRPC(BaseTest):
         self.new_account_address = None
         self.value = None
 
-    def rpc_call(self, method, params):
+    def rpc_call(self, method, params, pause=1):
+        time.sleep(pause)
         payload = {
             "method": method,
             "params": params,
@@ -75,42 +77,42 @@ class TestRPC(BaseTest):
             if not self.type_validator.is_SHA3_256(transaction["blockHash"]):
                 lcc.log_error("Wrong format of 'blockHash', got: '{}'".format(transaction["blockHash"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'blockHash' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["blockNumber"]):
                 lcc.log_error("Wrong format of 'blockNumber', got: '{}'".format(transaction["blockNumber"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'blockNumber' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["gas"]):
                 lcc.log_error("Wrong format of 'gas', got: '{}'".format(transaction["gas"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'gas' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["gasPrice"]):
                 lcc.log_error("Wrong format of 'gasPrice', got: '{}'".format(transaction["gasPrice"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'gasPrice' has correct format: eth_hash")
             if not self.type_validator.is_SHA3_256(transaction["hash"]):
                 lcc.log_error("Wrong format of 'hash', got: '{}'".format(transaction["hash"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'hash' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["nonce"]):
                 lcc.log_error("Wrong format of 'nonce', got: '{}'".format(transaction["nonce"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'nonce' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["to"]):
                 lcc.log_error("Wrong format of 'to', got: '{}'".format(transaction["to"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'to' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["transactionIndex"]):
                 lcc.log_error(
                     "Wrong format of 'transactionIndex', got: '{}'".format(transaction["transactionIndex"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'transactionIndex' has correct format: eth_hash")
             check_that("value", transaction["value"], equal_to(self.value))
             if not self.type_validator.is_eth_hash(transaction["v"]):
                 lcc.log_error(
                     "Wrong format of 'v', got: '{}'".format(transaction["v"]))
             else:
-                lcc.log_info("'result' has correct format: eth_hash")
+                lcc.log_info("'v' has correct format: eth_hash")
             if not self.type_validator.is_eth_hash(transaction["r"]):
                 lcc.log_error(
                     "Wrong format of 'r', got: '{}'".format(transaction["r"]))
@@ -127,79 +129,71 @@ class TestRPC(BaseTest):
             if not self.type_validator.is_eth_hash(result["number"]):
                 lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
             else:
-                lcc.log_info("'result' has correct format: number")
+                lcc.log_info("'number' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["hash"]):
-                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
+                lcc.log_error("Wrong format of 'hash', got: '{}'".format(result["hash"]))
             else:
-                lcc.log_info("'result' has correct format: hash")
-            if not self.type_validator.is_eth_hash(result["hash"]):
-                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
-            else:
-                lcc.log_info("'result' has correct format: hash")
+                lcc.log_info("'hash' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["parentHash"]):
                 lcc.log_error("Wrong format of 'parentHash', got: '{}'".format(result["parentHash"]))
             else:
-                lcc.log_info("'result' has correct format: parentHash")
+                lcc.log_info("'parentHash' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["nonce"]):
                 lcc.log_error("Wrong format of 'nonce', got: '{}'".format(result["nonce"]))
             else:
-                lcc.log_info("'result' has correct format: nonce")
-            if not self.type_validator.is_eth_hash(result["nonce"]):
-                lcc.log_error("Wrong format of 'nonce', got: '{}'".format(result["nonce"]))
-            else:
-                lcc.log_info("'result' has correct format: nonce")
+                lcc.log_info("'nonce' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["sha3Uncles"]):
                 lcc.log_error("Wrong format of 'sha3Uncles', got: '{}'".format(result["sha3Uncles"]))
             else:
-                lcc.log_info("'result' has correct format: sha3Uncles")
+                lcc.log_info("'result' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["logsBloom"]):
                 lcc.log_error("Wrong format of 'logsBloom', got: '{}'".format(result["logsBloom"]))
             else:
-                lcc.log_info("'result' has correct format: logsBloom")
+                lcc.log_info("'result' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["transactionsRoot"]):
                 lcc.log_error("Wrong format of 'transactionsRoot', got: '{}'".format(result["transactionsRoot"]))
             else:
-                lcc.log_info("'result' has correct format: transactionsRoot")
+                lcc.log_info("'transactionsRoot' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["stateRoot"]):
                 lcc.log_error("Wrong format of 'stateRoot', got: '{}'".format(result["stateRoot"]))
             else:
-                lcc.log_info("'result' has correct format: stateRoot")
+                lcc.log_info("'stateRoot' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["receiptsRoot"]):
                 lcc.log_error("Wrong format of 'receiptsRoot', got: '{}'".format(result["receiptsRoot"]))
             else:
-                lcc.log_info("'result' has correct format: receiptsRoot")
+                lcc.log_info("'receiptsRoot' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["miner"]):
-                lcc.log_error("Wrong format of 'receiptsRoot', got: '{}'".format(result["miner"]))
+                lcc.log_error("Wrong format of 'miner', got: '{}'".format(result["miner"]))
             else:
-                lcc.log_info("'result' has correct format: miner")
+                lcc.log_info("'miner' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["difficulty"]):
                 lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(result["difficulty"]))
             else:
-                lcc.log_info("'result' has correct format: difficulty")
+                lcc.log_info("'difficulty' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["totalDifficulty"]):
                 lcc.log_error("Wrong format of 'totalDifficulty', got: '{}'".format(result["totalDifficulty"]))
             else:
-                lcc.log_info("'result' has correct format: totalDifficulty")
+                lcc.log_info("'totalDifficulty' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["extraData"]):
                 lcc.log_error("Wrong format of 'extraData', got: '{}'".format(result["extraData"]))
             else:
-                lcc.log_info("'result' has correct format: extraData")
+                lcc.log_info("'extraData' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["size"]):
                 lcc.log_error("Wrong format of 'size', got: '{}'".format(result["size"]))
             else:
-                lcc.log_info("'result' has correct format: size")
+                lcc.log_info("'size' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["gasLimit"]):
                 lcc.log_error("Wrong format of 'gasLimit', got: '{}'".format(result["gasLimit"]))
             else:
-                lcc.log_info("'result' has correct format: gasLimit")
+                lcc.log_info("'gasLimit' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["gasUsed"]):
                 lcc.log_error("Wrong format of 'gasUsed', got: '{}'".format(result["gasUsed"]))
             else:
-                lcc.log_info("'result' has correct format: gasUsed")
+                lcc.log_info("'gasUsed' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["timestamp"]):
                 lcc.log_error("Wrong format of 'timestamp', got: '{}'".format(result["timestamp"]))
             else:
-                lcc.log_info("'result' has correct format: timestamp")
+                lcc.log_info("'timestamp' has correct format: hash")
             if check_that("uncles", result["uncles"], is_list()):
                 if len(result["transactions"]) > 0:
                     for transaction in result["transactions"]:
@@ -437,8 +431,6 @@ class TestRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_false())
 
-    # todo: BUG ECHO-1784. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_coinbase'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_coinbase(self):
@@ -485,14 +477,15 @@ class TestRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
 
-    # todo: BUG ECHO-1781. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionCount'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_count(self):
         payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("0x01"))
+        if not self.type_validator.is_eth_hash(response["result"]):
+            lcc.log_error("Wrong format of 'count', got: '{}'".format(response["result"]))
+        else:
+            lcc.log_info("'count' has correct format: eth_hash")
 
     @lcc.test("Check method 'eth_getBlockTransactionCountByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -559,10 +552,10 @@ class TestRPC(BaseTest):
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.eth_block_number")
     def eth_get_block_by_trx_hash(self):
         self.transfer()
-        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", [], pause=0))
         block_hash = self.get_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
-        payload = self.rpc_call("eth_getBlockByHash", [block_hash, True])
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True], pause=0))["result"]["hash"]
+        payload = self.rpc_call("eth_getBlockByHash", [block_hash, True], pause=0)
         result = self.get_response(payload)["result"]
         self.validate_block(result)
 
@@ -575,15 +568,13 @@ class TestRPC(BaseTest):
         result = self.get_response(payload)["result"]
         self.validate_block(result)
 
-    # todo: BUG ECHO-1792. Undisabled
-    @lcc.disabled()
     @lcc.test("Check method 'eth_getTransactionByHash'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_by_hash(self):
         trx_hash = self.transfer()
         payload = self.rpc_call("eth_getTransactionByHash", [trx_hash])
         result = self.get_response(payload)["result"]
-        self.validate_block(result)
+        self.validate_transaction(result)
 
     @lcc.test("Check method 'eth_getTransactionByBlockHashAndIndex'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
