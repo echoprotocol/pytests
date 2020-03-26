@@ -2,6 +2,6 @@
 import lemoncheesecake.api as lcc
 
 
-@lcc.suite("JsonRPC")
-class JsonRPC:
+@lcc.suite("EthRPC")
+class EthRPC:
     pass
