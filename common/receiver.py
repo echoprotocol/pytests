@@ -43,7 +43,7 @@ class Receiver(object):
                 "Wrong 'id' expected '{}', but received:\n{}".format(id_response, json.dumps(response, indent=4)))
             raise Exception("Wrong 'id'")
         # todo: uncomment if field "EthRPC" have to be in all response
-        # if response.get("EthRPC") != "2.0":
+        # if response.get("jsonrpc") != "2.0":
         #     lcc.log_error("Wrong data received: {}".format(json.dumps(response, indent=4)))
         #     raise Exception("Wrong response")
         if negative:
