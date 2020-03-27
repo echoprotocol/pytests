@@ -22,7 +22,9 @@ env:
     - PYTESTS_FILTERS=operations:history_api GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=database_api_first_pipeline GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=database_api_second_pipeline GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=broadcast_thousands_transactions GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=committee_member_update_global_parameters:contract_context GENESIS_FILE=genesis_update_global_parameters.json
+
 #  todo: uncomment, when TestRPC will be public
 #    - PYTESTS_FILTERS=test_rpc GENESIS_FILE=genesis.json
 #    - PYTESTS_FILTERS=json_rpc GENESIS_FILE=genesis.json

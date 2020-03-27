@@ -11,10 +11,8 @@ SUITE = {
 }
 
 
-@lcc.tags("TASK ECHOT-280")
-@lcc.disabled()
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "broadcast_thousands_transactions")
+@lcc.tags("broadcast_thousands_transactions")
 @lcc.suite("Check scenario 'broadcast_thousands_transactions'", rank=1)
 class BroadcastThousandsTransactions(BaseTest):
 
@@ -44,9 +42,11 @@ class BroadcastThousandsTransactions(BaseTest):
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
+        self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier,
+                self.__network_broadcast_identifier))
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
@@ -58,48 +58,39 @@ class BroadcastThousandsTransactions(BaseTest):
         super().teardown_suite()
 
     @lcc.test("The scenario describes creating many calling contract operations in chain")
-    def create_many_calling_contract_operations(self):
-        number_of_transactions = self.get_random_limit_integer(2000, 3000)
-        operations = []
-        all_transactions, trx_operations = [], []
+    def create_many_calling_contract_operations(self, get_random_integer):
+        subscription_callback_id = get_random_integer
+        number_of_transactions = self.get_random_limit_integer(10000, 11000)
+        all_transactions, trx_operations, signed_trx, operations = [], [], [], []
 
         lcc.set_step("Create and collect {} operations".format(number_of_transactions))
-        for amount_value in range(number_of_transactions):
+        self.produce_block(self.__database_api_identifier)
+        start_broadcast_block = self.get_head_block_num()
+        lcc.log_info("Broadcasting start block number {}".format(start_broadcast_block + 1))
+        for i in range(number_of_transactions):
             transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
                                                                       from_account_id=self.echo_acc0,
-                                                                      to_account_id=self.echo_acc1,
-                                                                      amount=amount_value + 1)
+                                                                      to_account_id=self.echo_acc1, amount=i + 1)
+            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
+            signed_trx.append(self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                      no_broadcast=True))
             operations.append(transfer_operation)
-        start_broadcast_block = self.get_head_block_num()
+        lcc.log_info("{} transactions prepared".format(number_of_transactions))
 
         lcc.set_step("Broadcast transactions")
-        for transaction_num in range(number_of_transactions):
-            collected_operation = self.collect_operations(
-                operations[transaction_num],
-                self.__database_api_identifier
-            )
-            self.echo_ops.broadcast(
-                echo=self.echo,
-                list_operations=collected_operation,
-                broadcast_with_callback=True,
-                log_broadcast=False
-            )
-        end_broadcast_block = self.get_head_block_num()
+        while True:
+            for signed_tx in signed_trx:
+                params = [subscription_callback_id, signed_tx]
+                response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
+                                                self.__network_broadcast_identifier)
+                self.get_response(response_id)
+            break
 
-        print("1")
-        while True:
-            if start_broadcast_block <= self.get_head_block_num():
-                if len(self.get_block(start_broadcast_block)["transactions"]):
-                    break
-                start_broadcast_block += 1
-        print("2")
-        while True:
-            if end_broadcast_block <= self.get_head_block_num():
-                if not len(self.get_block(end_broadcast_block)["transactions"]):
-                    break
-                end_broadcast_block += 1
-        print("3")
-        for block_num in range(start_broadcast_block, end_broadcast_block):
+        self.produce_block(self.__database_api_identifier)
+        end_broadcast_block = self.get_head_block_num()
+        lcc.log_info("Brodcasting finish block number {}".format(end_broadcast_block))
+
+        for block_num in range(start_broadcast_block + 1, end_broadcast_block + 1):
             transactions = self.get_block(block_num)["transactions"]
             all_transactions.extend(transactions)
             for trx in all_transactions:
