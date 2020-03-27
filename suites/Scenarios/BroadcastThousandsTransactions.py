@@ -12,7 +12,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "broadcast_thousands_transactions")
+@lcc.tags("broadcast_thousands_transactions")
 @lcc.suite("Check scenario 'broadcast_thousands_transactions'", rank=1)
 class BroadcastThousandsTransactions(BaseTest):
 
@@ -60,7 +60,7 @@ class BroadcastThousandsTransactions(BaseTest):
     @lcc.test("The scenario describes creating many calling contract operations in chain")
     def create_many_calling_contract_operations(self, get_random_integer):
         subscription_callback_id = get_random_integer
-        number_of_transactions = self.get_random_limit_integer(1000, 1500)
+        number_of_transactions = self.get_random_limit_integer(10000, 11000)
         all_transactions, trx_operations, signed_trx, operations = [], [], [], []
 
         lcc.set_step("Create and collect {} operations".format(number_of_transactions))
