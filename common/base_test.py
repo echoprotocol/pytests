@@ -279,7 +279,7 @@ class BaseTest(object):
         except IndexError as index:
             lcc.log_error("Notice: This index does not exist: '{}'".format(index))
 
-    def get_trx_completed_response(self, id_response, mode='evm', negative=False, debug_mode=False):
+    def get_trx_completed_response(self, id_response, mode="evm", negative=False, debug_mode=False):
         # Receive answer from server that transaction completed
         response = self.get_response(id_response, negative=negative, debug_mode=debug_mode)
         if mode == "evm":
