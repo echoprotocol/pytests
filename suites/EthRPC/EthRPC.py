@@ -419,7 +419,7 @@ class EthRPC(BaseTest):
                                 [{
                                     "from": self.new_account_address,
                                     "to": self.account_address
-                                }]
+                                }, "latest"]
                                 )
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(data))
