@@ -378,6 +378,15 @@ class TypeValidator(object):
             else:
                 return True
 
+    def check_hash_by_bytes(self, value, bytes):
+        if value[:2] == "0x":
+            if not self.is_hex(value):
+                return False
+            if not len(value[2:]) == bytes*2:
+                return False
+            else:
+                return True
+
     def is_eth_hash(self, value):
         if value[:2] == "0x":
             if not self.is_hex(value):
