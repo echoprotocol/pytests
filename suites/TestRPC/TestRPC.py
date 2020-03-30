@@ -592,7 +592,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_getTransactionReceipt'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_get_transaction_receipt(self):
-        trx_hash = self.create_contract()
+        self.create_contract()
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
         trx_hash = self.get_response(
             self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["transactions"][0]["hash"]
@@ -627,7 +627,6 @@ class TestRPC(BaseTest):
             else:
                 lcc.log_info("'logsBloom' has correct format: trx_hash")
             check_that('status', result["status"], equal_to("0x01"))
-
 
     @lcc.test("Check method 'eth_pendingTransactions'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -676,3 +675,33 @@ class TestRPC(BaseTest):
             lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(response["difficulty"]))
         else:
             lcc.log_info("'difficulty' has correct format: eth_hash")
+
+    @lcc.test("Check method 'evm_increaseTime'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def evm_increase_time(self):
+        payload = self.rpc_call("evm_increaseTime", [60])
+        response = self.get_response(payload)["result"]
+        if not self.type_validator.is_eth_hash(response["result"]):
+            lcc.log_error("Wrong format of 'increaseTime', got: '{}'".format(response["increaseTime"]))
+        else:
+            lcc.log_info("'increaseTime' has correct format: eth_hash")
+
+    @lcc.test("Check method 'evm_mine'")
+    @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
+    def evm_increase_time(self):
+        lcc.log_info("Get block number before method ''evm_mine")
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        block_number_before = self.get_response(
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["number"]
+
+        lcc.log_info("Call method 'evm_mine'")
+        payload = self.rpc_call("evm_mine", [])
+        result = self.get_response(payload)["result"]
+        require_that('result', result, is_none())
+
+        lcc.log_info("Get block number after method ''evm_mine")
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
+        block_number_after = self.get_response(
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["number"]
+        lcc.log_info("Block number {}".format(block_number_after))
+        require_that('block nums are different', int(block_number_after, 16) > int(block_number_before, 16), is_true())
