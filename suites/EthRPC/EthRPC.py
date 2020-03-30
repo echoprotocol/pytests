@@ -45,7 +45,7 @@ class EthRPC(BaseTest):
     def get_response(self, payload):
         response = requests.post(self.test_rcp_url, json=payload).json()
         lcc.log_debug("response")
-        if require_that("json-rpc response", response, has_length(3)):
+        if require_that("eth-rpc response", response, has_length(3)):
             require_that_in(
                 response,
                 "id", is_integer(),
