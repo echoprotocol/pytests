@@ -200,16 +200,16 @@ class TestRPC(BaseTest):
                         self.validate_transaction(transaction)
 
     def setup_suite(self):
-        self.rpcPort = 56453
+        self.rpcPort = 19999
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
-        self.account_address = "0x0000000000000000000000000000000000000006"
+        self.account_address = "0x000000000000000000000000000000000000000a"
         self.contract_address = "0x0100000000000000000000000000000000000001"
         self.time = "0xffff"
         self.SHA3_trx_hash = "0x68656c6c6f20776f726c64"
         self.value = "0xffff"
-        self.contract = self.get_byte_code("piggy", "code")
+        self.contract = self.get_byte_code("code_contract_Callee", "code")
 
     def teardown_suite(self):
         pass
@@ -344,13 +344,16 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'result' has correct format: hex")
 
-    # todo: BUG ECHO-1774. Undisabled
-    @lcc.disabled()
+    # # todo: BUG ECHO-1837. Undisabled
     @lcc.test("Check method 'eth_sign'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_sign(self):
-        payload = self.rpc_call("eth_sign", [self.account_address, "0xdeadbeaf"])
+        unvalid_hex_encoded_signutrare = \
+            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        initial_account = "0x000000000000000000000000000000000000000b"
+        payload = self.rpc_call("eth_sign", [initial_account, "0xdeadbaaf"])
         response = self.get_response(payload)
+        require_that("'result'", response["result"], not_equal_to(unvalid_hex_encoded_signutrare))
         if not self.type_validator.is_hex(response["result"]):
             lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
         else:
@@ -378,7 +381,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.17.0-rc.2/Linux.64-bit"
+        result = "ECHO/0.17.1-rc.9/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -505,7 +508,7 @@ class TestRPC(BaseTest):
         self.create_contract()
         payload = self.rpc_call("eth_getCode", [self.contract_address, "0x02"])
         response = self.get_response(payload)
-        require_that("'result'", response["result"][2:], equal_to(self.contract[166:]))
+        require_that("'result'", response["result"][2:], equal_to(self.contract[58:]))
 
     # todo: BUG ECHO-1786. Undisabled
     @lcc.disabled()
@@ -521,14 +524,13 @@ class TestRPC(BaseTest):
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def eth_call(self):
         # cycle for link contract to account's address
-        for i in range(5):
-            self.create_contract()
+        self.create_contract()
         data = "0x"
         payload = self.rpc_call("eth_call",
                                 [{
                                     "from": self.new_account_address,
-                                    "to": self.account_address
-                                }]
+                                    "to": "0x0100000000000000000000000000000000000000"
+                                }, "latest"]
                                 )
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(data))
@@ -639,13 +641,13 @@ class TestRPC(BaseTest):
         nonce = self.echo.solve_registration_task(block_id_right160, rand_num_decimal, difficulty)
         nonce_hex = hex(nonce)
         account_name = get_random_valid_account_name
+        evm_address = None
         active_key = echorand_key = "ECHOHCcqrvESxeg4Kmmpr73FdQSQR6TbusCMsHeuXvx2rM1G"
         rand_num = response["randNum"]
         payload = self.rpc_call("echo_submitRegistrationSolution",
-                                [account_name, active_key, echorand_key, nonce_hex, rand_num])
+                                [account_name, active_key, echorand_key, evm_address, nonce_hex, rand_num])
         response = self.get_response(payload)
         if not self.type_validator.is_eth_hash(response["result"]):
             lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(response["difficulty"]))
         else:
             lcc.log_info("'difficulty' has correct format: eth_hash")
-
