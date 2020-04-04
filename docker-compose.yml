@@ -97,7 +97,7 @@ services:
       - 56451:6311
       - 56454:8092
     volumes:
-      - ./${GENESIS_FILE}:/echo/genesis.json
+      - ./echo/genesis.json
     depends_on:
       - ganache
       - bitcoin
