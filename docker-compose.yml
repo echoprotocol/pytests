@@ -36,7 +36,7 @@ services:
     depends_on:
       - ganache
     volumes:
-      - ./${GENESIS_FILE}:/app/genesis.json
+      - ./app/genesis.json
 
 
   pytests:
