@@ -313,12 +313,9 @@ class EchoOperations(object):
             return [operation_id, asset_fund_fee_pool_props, from_account]
         return [operation_id, asset_fund_fee_pool_props, signer]
 
-    def get_asset_publish_feed_operation(self, echo, publisher, asset_id, maintenance_collateral_ratio=1750,
-                                         maximum_short_squeeze_ratio=1500, settlement_base_amount=0,
-                                         settlement_base_asset_id="1.3.0", settlement_quote_amount=0,
-                                         settlement_quote_asset_id="1.3.0", exchange_base_amount=0,
-                                         exchange_base_asset_id="1.3.0", exchange_quote_amount=0,
-                                         exchange_quote_asset_id="1.3.0", fee_amount=0, fee_asset_id="1.3.0",
+    def get_asset_publish_feed_operation(self, echo, publisher, asset_id, quote_amount=1, quote_asset_id="1.3.0",
+                                         base_amount=1, base_asset_id="1.3.0",
+                                         fee_amount=0, fee_asset_id="1.3.0",
                                          extensions=None, signer=None, debug_mode=False):
         if extensions is None:
             extensions = []
@@ -326,16 +323,10 @@ class EchoOperations(object):
         asset_publish_feed_props = self.get_operation_json("asset_publish_feed_operation")
         asset_publish_feed_props["fee"].update({"amount": fee_amount, "fee_asset_id": fee_asset_id})
         asset_publish_feed_props.update({"publisher": publisher, "asset_id": asset_id, "extensions": extensions})
-        asset_publish_feed_props["feed"].update({"maintenance_collateral_ratio": maintenance_collateral_ratio,
-                                                 "maximum_short_squeeze_ratio": maximum_short_squeeze_ratio})
-        asset_publish_feed_props["feed"]["settlement_price"]["base"].update({"amount": settlement_base_amount,
-                                                                             "asset_id": settlement_base_asset_id})
-        asset_publish_feed_props["feed"]["settlement_price"]["quote"].update({"amount": settlement_quote_amount,
-                                                                              "asset_id": settlement_quote_asset_id})
-        asset_publish_feed_props["feed"]["core_exchange_rate"]["base"].update({"amount": exchange_base_amount,
-                                                                               "asset_id": exchange_base_asset_id})
-        asset_publish_feed_props["feed"]["core_exchange_rate"]["quote"].update({"amount": exchange_quote_amount,
-                                                                                "asset_id": exchange_quote_asset_id})
+        asset_publish_feed_props["core_exchange_rate"]["base"].update(
+            {"amount": base_amount, "asset_id": base_asset_id})
+        asset_publish_feed_props["core_exchange_rate"]["quote"].update(
+            {"amount": quote_amount, "asset_id": quote_asset_id})
         if debug_mode:
             lcc.log_debug("Asset publish feed operation: \n{}".format(
                 json.dumps([operation_id, asset_publish_feed_props], indent=4)))

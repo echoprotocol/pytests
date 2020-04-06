@@ -469,9 +469,9 @@
             },
             "waiting_blocks": 0,
             "gas_price": 4000000000,
-            "satoshis_per_byte": 23,
-            "coefficient_waiting_blocks": 0,
-            "btc_deposit_withdrawal_min": 120000,
+            "satoshis_per_byte": 12,
+            "coefficient_waiting_blocks": 100,
+            "btc_deposit_withdrawal_min": 10000,
             "btc_deposit_withdrawal_fee": 1000,
             "eth_withdrawal_fee": 1000000
         },
@@ -496,6 +496,8 @@
             "price": 1,
             "gas_amount": 1000
         },
+        "committee_balance_unfreeze_duration_seconds": 1,
+        "committee_frozen_balance_to_activate": 1000,
         "extensions": []
     },
     "initial_accounts": [
