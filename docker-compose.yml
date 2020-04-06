@@ -36,7 +36,7 @@ services:
     depends_on:
       - ganache
     volumes:
-      - ./genesis.json:/app/genesis.json
+      - ./${GENESIS_FILE}:/app/genesis.json
 
 
   pytests:
@@ -97,7 +97,7 @@ services:
       - 56451:6311
       - 56454:8092
     volumes:
-      - ./genesis.json:/app/genesis.json
+      - ./${GENESIS_FILE}:/echo/genesis.json
     depends_on:
       - ganache
       - bitcoin

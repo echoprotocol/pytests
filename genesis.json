@@ -283,7 +283,7 @@
                 [
                     46,
                     {
-                        "fee": 0
+                        "fee": 100
                     }
                 ],
                 [
@@ -402,8 +402,6 @@
         "max_authority_depth": 2,
         "block_emission_amount": 0,
         "block_producer_reward_ratio": 0,
-        "committee_frozen_balance_to_activate": 1000,
-        "committee_balance_unfreeze_duration_seconds": 1,
         "frozen_balances_multipliers": [
             [
                 90,
@@ -540,7 +538,7 @@
             "precision": 6,
             "max_supply": "1000000000000000",
             "accumulated_fees": 0,
-            "is_bitasset": false,
+            "is_bitasset": true,
             "collateral_records": [],
             "core_exchange_rate": {
                 "base": {
@@ -560,7 +558,7 @@
             "precision": 8,
             "max_supply": "21000000",
             "accumulated_fees": 0,
-            "is_bitasset": false,
+            "is_bitasset": true,
             "collateral_records": [],
             "core_exchange_rate": {
                 "base": {
