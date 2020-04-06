@@ -1318,7 +1318,7 @@ class ObjectValidator(object):
 
         if check_that(
                 "asset bitasset data",
-                asset_bitasset_data_object, has_length(8),
+                asset_bitasset_data_object, has_length(6),
                 quiet=True
         ):
             if not base_test.type_validator.is_bitasset_id(asset_bitasset_data_object["id"]):
@@ -1335,28 +1335,10 @@ class ObjectValidator(object):
             if check_that_in(
                     asset_bitasset_data_object,
                     "feeds", is_list(),
-                    "current_feed", is_dict(),
                     "options", is_dict(),
-                    "settlement_price", is_dict(),
-                    "settlement_fund", is_integer(),
                     "extensions", is_list(),
                     quiet=True
             ):
-                current_feed = asset_bitasset_data_object["current_feed"]
-                if check_that(
-                        "current feed",
-                        current_feed, has_length(4),
-                        quiet=True
-                ):
-                    for key in ["settlement_price", "core_exchange_rate"]:
-                        validate_price_object(base_test, current_feed[key])
-                    check_that_in(
-                        current_feed,
-                        "maintenance_collateral_ratio", is_integer(),
-                        "maximum_short_squeeze_ratio", is_integer(),
-                        quiet=True
-                    )
-
                 options = asset_bitasset_data_object["options"]
                 if check_that(
                         "options",
@@ -1375,13 +1357,6 @@ class ObjectValidator(object):
                         "extensions", is_list(),
                         quiet=True
                     )
-                settlement_price = asset_bitasset_data_object["settlement_price"]
-                if check_that(
-                        "settlement price",
-                        settlement_price, has_length(2),
-                        quiet=True
-                ):
-                    validate_price_object(base_test, settlement_price)
 
     def validate_account_balance_object(self, base_test, account_balance_object):
         if check_that(
