@@ -355,7 +355,7 @@ class PositiveTesting(BaseTest):
         params = [notice_part["id"] for notice_part in notice]
         response_id = self.send_request(self.get_request("get_objects", [params]),
                                         self.__database_api_identifier)
-        get_objects_results = self.get_response(response_id)["result"]
+        get_objects_results = self.get_response(response_id, log_response=True)["result"]
         lcc.log_info("Call method 'get_objects' with param: {}".format(params))
 
         lcc.set_step("Check length of received objects")
@@ -367,6 +367,7 @@ class PositiveTesting(BaseTest):
 
         for i, contract_history_object in enumerate(get_objects_results):
             lcc.set_step("Check contract history object #{}: {}".format(i, params[i]))
+
             self.object_validator.validate_contract_history_object(self, contract_history_object)
 
         lcc.set_step("Check the identity of returned results of api-methods: 'subscribe_contracts', 'get_objects'")

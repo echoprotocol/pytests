@@ -1488,37 +1488,40 @@ class ObjectValidator(object):
             )
 
     def validate_contract_history_object(self, base_test, contract_history_object):
-        if check_that(
-                "contract history object",
-                contract_history_object, has_length(6),
-                quiet=True
-        ):
-            if not base_test.type_validator.is_contract_history_id(contract_history_object["id"]):
-                lcc.log_error("Wrong format of 'id', got: {}".format(contract_history_object["id"]))
+        if len(contract_history_object) == 7:
+            if not base_test.type_validator.is_operation_history_id(contract_history_object["parent_op_id"]):
+                lcc.log_error("Wrong format of 'id', got: {}".format(contract_history_object["parent_op_id"]))
             else:
-                lcc.log_info("'id' has correct format: contract_history_id")
-            if not base_test.type_validator.is_contract_id(contract_history_object["contract"]):
-                lcc.log_error("Wrong format of 'contract', got: {}".format(contract_history_object["contract"]))
-            else:
-                lcc.log_info("'contract' has correct format: contract_id")
-            if not base_test.type_validator.is_operation_history_id(contract_history_object["operation_id"]):
-                lcc.log_error("Wrong format of 'operation_id', got: {}".format(
-                    contract_history_object["operation_id"]))
-            else:
-                lcc.log_info("'operation_id' has correct format: operation_history_id")
-            if not base_test.type_validator.is_contract_history_id(contract_history_object["next"]):
-                lcc.log_error("Wrong format of 'next', got: {}".format(contract_history_object["next"]))
-            else:
-                lcc.log_info("'next' has correct format: contract_history_id")
-            check_that_in(
-                contract_history_object,
-                "sequence", is_integer(),
-                "extensions", is_list(),
-                quiet=True
-            )
+                lcc.log_info("'id' has correct format: parent_op_id")
+        else:
+            if check_that(
+                    "contract history object",
+                    contract_history_object, has_length(6), quiet=True):
+                if not base_test.type_validator.is_contract_history_id(contract_history_object["id"]):
+                    lcc.log_error("Wrong format of 'id', got: {}".format(contract_history_object["id"]))
+                else:
+                    lcc.log_info("'id' has correct format: contract_history_id")
+                if not base_test.type_validator.is_contract_id(contract_history_object["contract"]):
+                    lcc.log_error("Wrong format of 'contract', got: {}".format(contract_history_object["contract"]))
+                else:
+                    lcc.log_info("'contract' has correct format: contract_id")
+                if not base_test.type_validator.is_operation_history_id(contract_history_object["operation_id"]):
+                    lcc.log_error("Wrong format of 'operation_id', got: {}".format(
+                        contract_history_object["operation_id"]))
+                else:
+                    lcc.log_info("'operation_id' has correct format: operation_history_id")
+                if not base_test.type_validator.is_contract_history_id(contract_history_object["next"]):
+                    lcc.log_error("Wrong format of 'next', got: {}".format(contract_history_object["next"]))
+                else:
+                    lcc.log_info("'next' has correct format: contract_history_id")
+                check_that_in(
+                    contract_history_object,
+                    "sequence", is_integer(),
+                    "extensions", is_list(),
+                    quiet=True
+                )
 
     def validate_contract_statistics_object(self, base_test, contract_statistics_object):
-        lcc.log_warning(str(contract_statistics_object))
         if check_that(
                 "contract statistics object",
                 contract_statistics_object, has_length(6),

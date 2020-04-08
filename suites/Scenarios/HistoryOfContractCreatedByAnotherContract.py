@@ -11,7 +11,6 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("Bug ECHO-812")
 @lcc.tags("scenarios", "history_of_contract_created_by_another_contract")
 @lcc.suite("Check scenario 'Contract history that was created using another contract'")
 class HistoryOfContractCreatedByAnotherContract(BaseTest):
