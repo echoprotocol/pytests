@@ -2,6 +2,7 @@ test:
   variables:
     MIGRATION_RESULT: ""
   before_script:
+    - docker network ls
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker-compose down -v
