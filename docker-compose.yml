@@ -31,7 +31,7 @@ services:
 
 
   migrate:
-    image: echoprotocol/sidechain-smartcontracts:0.8.3
+    image: echoprotocol/sidechain-smartcontracts:0.18.0
     command: /bin/sh -c "sleep 5; npm run migrate -- --network docker;"
     depends_on:
       - ganache
@@ -102,14 +102,13 @@ services:
       - ganache
       - bitcoin
 
-#  todo: uncomment, when TestRPC will be public
-#  testrpc:
-#    image: echoprotocol/echo-testrpc:0.17.0-rc.2
-#    command:
-#      '--rpc-endpoint=0.0.0.0:19999
-#      --accounts 2'
-#    ports:
-#      - 56453:19999
+  testrpc:
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.18.0-rc.8
+    command:
+      '--rpc-endpoint=0.0.0.0:19999
+      --accounts 2'
+    ports:
+      - 56453:19999
 
 volumes:
   testrpc:

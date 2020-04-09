@@ -14,8 +14,6 @@ SUITE = {
 }
 
 
-#  todo: undisabled, when TestRPC will be public
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")

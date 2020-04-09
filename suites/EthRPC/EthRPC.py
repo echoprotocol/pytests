@@ -36,7 +36,7 @@ class EthRPC(BaseTest):
         payload = {
             "method": method,
             "params": params,
-            "EthRPC": "2.0",
+            "jsonrpc": "2.0",
             "id": 0,
         }
         lcc.log_debug("request")
@@ -49,7 +49,7 @@ class EthRPC(BaseTest):
             require_that_in(
                 response,
                 "id", is_integer(),
-                "EthRPC", equal_to("2.0")
+                "jsonrpc", equal_to("2.0")
             )
             return response
 
@@ -230,7 +230,7 @@ class EthRPC(BaseTest):
             require_that_in(
                 response,
                 "id", is_none(),
-                "EthRPC", equal_to("2.0"),
+                "jsonrpc", equal_to("2.0"),
                 "error", equal_to(message)
             )
 
