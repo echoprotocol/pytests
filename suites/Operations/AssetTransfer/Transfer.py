@@ -56,6 +56,7 @@ class Transfer(BaseTest):
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("'transfer' operation broadcasted successfully")
+
         lcc.set_step("Check that asset was transferred")
         response_id = self.send_request(self.get_request("get_account_balances", [self.echo_acc1, [self.echo_asset]]),
                                         self.__database_api_identifier)

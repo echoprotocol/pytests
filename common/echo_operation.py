@@ -885,6 +885,44 @@ class EchoOperations(object):
             return [operation_id, create_btc_withdraw_props, account]
         return [operation_id, create_btc_withdraw_props, signer]
 
+    def did_create_operation(self, echo, registrar, essence, public_keys, fee_asset_id="1.3.0", fee_amount=0,
+                             signer=None, debug_mode=False):
+        operation_id = echo.config.operation_ids.DID_CREATE
+        did_create_props = self.get_operation_json("did_create_operation")
+        did_create_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        did_create_props.update({"registrar": registrar, "essence": essence, "public_keys": [public_keys]})
+        if debug_mode:
+            lcc.log_debug("DID create operation: \n{}".format(json.dumps(did_create_props, indent=4)))
+        if signer is None:
+            return [operation_id, did_create_props, registrar]
+        return [operation_id, did_create_props, signer]
+
+    def did_update_operation(self, echo, registrar, essence, pub_keys_to_delete="", pub_keys_to_add="",
+                             fee_asset_id="1.3.0", fee_amount=0, signer=None, debug_mode=False):
+        operation_id = echo.config.operation_ids.DID_UPDATE
+        did_update_props = self.get_operation_json("did_update_operation")
+        did_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        did_update_props.update(
+            {"registrar": registrar, "essence": essence, "pub_keys_to_delete": [pub_keys_to_delete],
+             "pub_keys_to_add": [pub_keys_to_add]})
+        if debug_mode:
+            lcc.log_debug("DID update operation: \n{}".format(json.dumps(did_update_props, indent=4)))
+        if signer is None:
+            return [operation_id, did_update_props, registrar]
+        return [operation_id, did_update_props, signer]
+
+    def did_delete_operation(self, echo, registrar, did_identifier, fee_asset_id="1.3.0", fee_amount=0,
+                             signer=None, debug_mode=False):
+        operation_id = echo.config.operation_ids.DID_DELETE
+        did_delete_props = self.get_operation_json("did_update_operation")
+        did_delete_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+        did_delete_props.update({"registrar": registrar, "did_identifier": did_identifier})
+        if debug_mode:
+            lcc.log_debug("DID delete operation: \n{}".format(json.dumps(did_delete_props, indent=4)))
+        if signer is None:
+            return [operation_id, did_delete_props, registrar]
+        return [operation_id, did_delete_props, signer]
+
     def broadcast(self, echo, list_operations, return_operations=False, expiration=None, no_broadcast=False,
                   get_signed_tx=False, log_broadcast=False, debug_mode=False, broadcast_with_callback=False):
         tx = echo.create_transaction()

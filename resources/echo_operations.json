@@ -847,5 +847,41 @@
             "evm_address": "62bd9ce7112d42663c6293ec48a5de3b575bb356",
             "extensions": []
         }
+    ],
+    "did_create_operation": [
+        66,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "registrar": "1.2.0",
+            "essence": "0.0.0",
+            "public_keys": []
+        }
+    ],
+    "did_update_operation": [
+        67,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "registrar": "1.2.12",
+            "did_identifier": "1.25.0",
+            "pub_keys_to_delete": [],
+            "pub_keys_to_add": []
+        }
+    ],
+    "did_delete_operation": [
+        68,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "registrar": "1.2.0",
+            "did_identifier": "1.25.0"
+        }
     ]
 }
