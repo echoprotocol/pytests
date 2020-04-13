@@ -2,7 +2,6 @@
 
 import lemoncheesecake.api as lcc
 import requests
-import time
 from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
     is_true, \
     check_that, is_false, not_equal_to, is_list
@@ -33,8 +32,7 @@ class TestRPC(BaseTest):
         self.new_account_address = None
         self.value = None
 
-    def rpc_call(self, method, params, pause=1):
-        time.sleep(pause)
+    def rpc_call(self, method, params):
         payload = {
             "method": method,
             "params": params,
@@ -198,7 +196,7 @@ class TestRPC(BaseTest):
                         self.validate_transaction(transaction)
 
     def setup_suite(self):
-        self.rpcPort = 19999
+        self.rpcPort = 56453
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"

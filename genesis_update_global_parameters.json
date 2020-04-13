@@ -427,7 +427,7 @@
             "_round_attempts": 70
         },
         "sidechain_config": {
-            "eth_contract_address": "c87395b45C1c199F25a6c2Be43515C41d53751Af",
+            "eth_contract_address": "F663f3e27B5c5beaf7A0b4A7355BF69DfC5671E8",
             "eth_committee_update_method": {
                 "method": "f1e3eb60",
                 "gas": 1000000
@@ -468,9 +468,9 @@
                 "create_eth_address": -10
             },
             "waiting_blocks": 0,
-            "gas_price": 4000000000,
+            "gas_price": 0,
             "satoshis_per_byte": 12,
-            "coefficient_waiting_blocks": 100,
+            "coefficient_waiting_blocks": 0,
             "btc_deposit_withdrawal_min": 10000,
             "btc_deposit_withdrawal_fee": 1000,
             "eth_withdrawal_fee": 1000000
@@ -497,6 +497,7 @@
             "gas_amount": 1000
         },
         "committee_balance_unfreeze_duration_seconds": 1,
+        "committee_frozen_balance_to_activate": 1000,
         "extensions": []
     },
     "initial_accounts": [

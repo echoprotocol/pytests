@@ -102,13 +102,13 @@ services:
       - ganache
       - bitcoin
 
-#  testrpc:
-#    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.18.0-rc.8
-#    command:
-#      '--rpc-endpoint=0.0.0.0:19999
-#      --accounts 2'
-#    ports:
-#      - 56453:19999
+  testrpc:
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.18.0-rc.8
+    command:
+      '--rpc-endpoint=0.0.0.0:19999
+      --accounts 2'
+    ports:
+      - 56453:19999
 
 volumes:
   testrpc:
