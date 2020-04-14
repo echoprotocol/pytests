@@ -897,14 +897,14 @@ class EchoOperations(object):
             return [operation_id, did_create_props, registrar]
         return [operation_id, did_create_props, signer]
 
-    def did_update_operation(self, echo, registrar, essence, pub_keys_to_delete="", pub_keys_to_add="",
+    def did_update_operation(self, echo, registrar, did_identifier, pub_keys_to_delete=[], pub_keys_to_add=[],
                              fee_asset_id="1.3.0", fee_amount=0, signer=None, debug_mode=False):
         operation_id = echo.config.operation_ids.DID_UPDATE
         did_update_props = self.get_operation_json("did_update_operation")
         did_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         did_update_props.update(
-            {"registrar": registrar, "essence": essence, "pub_keys_to_delete": [pub_keys_to_delete],
-             "pub_keys_to_add": [pub_keys_to_add]})
+            {"registrar": registrar, "did_identifier": did_identifier, "pub_keys_to_delete":pub_keys_to_delete,
+             "pub_keys_to_add": pub_keys_to_add})
         if debug_mode:
             lcc.log_debug("DID update operation: \n{}".format(json.dumps(did_update_props, indent=4)))
         if signer is None:

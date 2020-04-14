@@ -35,6 +35,7 @@ class TypeValidator(object):
     btc_withdraw_id_regex = re.compile(r"^1\.22\.(0|[1-9]\d*)$")
     btc_aggregating_id_regex = re.compile(r"^1\.23\.(0|[1-9]\d*)$")
     evm_address_id_regex = re.compile(r"^1\.24\.(0|[1-9]\d*)$")
+    did_object_id_regex = re.compile(r"^1\.25\.(0|[1-9]\d*)$")
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")
@@ -204,6 +205,10 @@ class TypeValidator(object):
     def is_btc_aggregating_id(self, value):
         if self.is_string(value):
             return bool(self.btc_aggregating_id_regex.match(value))
+
+    def is_did_object_id(self, value):
+        if self.is_string(value):
+            return bool(self.did_object_id_regex.match(value))
 
     def is_global_object_id(self, value):
         if self.is_string(value):
