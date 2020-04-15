@@ -388,7 +388,7 @@
             ],
             "scale": 10000
         },
-        "maintenance_interval": 4000,
+        "maintenance_interval": 50,
         "maintenance_duration_seconds": 10,
         "committee_proposal_review_period": 5,
         "maximum_transaction_size": 2097152,

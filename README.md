@@ -105,6 +105,8 @@ For more information about filters see `test_runner.py` script.
 │   │   ├── CallContractNoChangingState.py
 │   │   ├── CheckERC20Token.py
 │   │   └── ...
+│   ├── DID Api
+│   │   └── Get_did_object.py
 │   ├── HistoryApi
 │   │   ├── GetAccountHistory.py
 │   │   ├── GetAccountHistoryOperations.py
@@ -217,6 +219,11 @@ For more information about filters see `test_runner.py` script.
 - [x] [subscribe_contract_logs](https://docs.echo.org/api-reference/echo-node-api/database-api#subscribe_contract_logs-callback-contract_id)
 - [x] [get_contract_result](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_result-id)
 - [x] [call_contract_no_changing_state](https://docs.echo.org/api-reference/echo-node-api/database-api#call_contract_no_changing_state-contract_id-caller-value-code)
+
+[Contracts:](https://docs.echo.org/api-reference/echo-node-api/database-api#contracts)
+- [x] [did_create]
+- [x] [did_delete]
+- [x] [did_update]
 
 [Balances:](https://docs.echo.org/api-reference/echo-node-api/database-api#balances)
 - [x] [get_account_balances](https://docs.echo.org/api-reference/echo-node-api/database-api#get_account_balances-id-assets)
