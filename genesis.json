@@ -388,7 +388,7 @@
             ],
             "scale": 10000
         },
-        "maintenance_interval": 50,
+        "maintenance_interval": 5000,
         "maintenance_duration_seconds": 10,
         "committee_proposal_review_period": 5,
         "maximum_transaction_size": 2097152,
@@ -401,7 +401,7 @@
         "fee_liquidation_threshold": 10000000,
         "max_authority_depth": 2,
         "block_emission_amount": 0,
-        "block_producer_reward_ratio": 0,
+        "block_producer_reward_ratio": 5000,
         "frozen_balances_multipliers": [
             [
                 90,

@@ -30,7 +30,7 @@ class GetConfig(BaseTest):
     def method_main_check(self):
         lcc.set_step("Get config")
         response_id = self.send_request(self.get_request("get_config"), self.__database_api_identifier)
-        response = self.get_response(response_id)
+        response = self.get_response(response_id, log_response=True)
         lcc.log_info("Call method 'get_config'")
 
         lcc.set_step("Check main fields")
@@ -46,16 +46,14 @@ class GetConfig(BaseTest):
                         "ECHO_MAX_INSTANCE_ID", "ECHO_100_PERCENT", "ECHO_1_PERCENT",
                         "ECHO_DEFAULT_PRICE_FEED_LIFETIME", "ECHO_DEFAULT_MAX_AUTHORITY_MEMBERSHIP",
                         "ECHO_DEFAULT_MAX_ASSET_WHITELIST_AUTHORITIES", "ECHO_DEFAULT_MAX_ASSET_FEED_PUBLISHERS",
-                        "ECHO_COLLATERAL_RATIO_DENOM", "ECHO_MIN_COLLATERAL_RATIO", "ECHO_MAX_COLLATERAL_RATIO",
-                        "ECHO_DEFAULT_MAINTENANCE_COLLATERAL_RATIO", "ECHO_DEFAULT_MAX_SHORT_SQUEEZE_RATIO",
-                        "ECHO_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC",
+                        "ECHO_COLLATERAL_RATIO_DENOM", "ECHO_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC",
                         "ECHO_DEFAULT_COMMITTEE_PROPOSAL_REVIEW_PERIOD_SEC", "ECHO_MAX_URL_LENGTH",
                         "ECHO_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT", "ECHO_DEFAULT_MINIMUM_FEEDS",
                         "ECHO_REVERSIBLE_BLOCKS_COUNT", "ECHO_DEFAULT_COMMITTEE_BALANCE_UNFREEZE_DURATION_SECONDS"]
 
         echo_config_accounts = ["ECHO_COMMITTEE_ACCOUNT", "ECHO_RELAXED_COMMITTEE_ACCOUNT", "ECHO_NULL_ACCOUNT",
                                 "ECHO_TEMP_ACCOUNT", "ECHO_NULL_AUTHORITY_ACCOUNT", "ECHO_PROXY_TO_SELF_ACCOUNT"]
-        if check_that("config", response["result"], has_length(49)):
+        if check_that("config", response["result"], has_length(45)):
             for echo_config_symbol in echo_config_symbols:
                 check_that_in(
                     response["result"],

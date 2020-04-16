@@ -77,7 +77,7 @@ class NetworkNodeApi(BaseTest):
             check_that_in(
                 result,
                 "endpoint", equal_to(self.endpoint),
-                "last_connection_disposition", equal_to("last_connection_handshaking_failed"),
+                "last_connection_disposition", equal_to("never_attempted_to_connect"),
                 "number_of_successful_connection_attempts", is_integer(),
                 "number_of_failed_connection_attempts", is_integer()
             )
