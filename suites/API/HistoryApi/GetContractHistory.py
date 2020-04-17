@@ -93,10 +93,12 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.__history_api_identifier = None
+        self.__network_broadcast_identifier = None
         self.echo_acc0 = None
         self.echo_acc1 = None
         self.contract = self.get_byte_code("piggy", "code")
         self.get_pennie = self.get_byte_code("piggy", "pennieReturned()")
+        self.greet = self.get_byte_code("piggy", "greet()")
         self.broadcast_result = None
 
     def get_contract_history(self, contract_id, stop, limit, start, negative=False):
@@ -112,10 +114,11 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         self.__history_api_identifier = self.get_identifier("history")
+        self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}', "
-            "history='{}'".format(self.__database_api_identifier, self.__registration_api_identifier,
-                                  self.__history_api_identifier))
+            "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier,
+                self.__network_broadcast_identifier))
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
@@ -154,18 +157,19 @@ class PositiveTesting(BaseTest):
             response["result"][0]["op"][0], is_integer(self.echo.config.operation_ids.CONTRACT_CREATE)
         )
 
-    # todo: uncomment when bug ECHO-1462 will be fixed
     @lcc.test("Check limit number of operations to retrieve")
     @lcc.depends_on("API.HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
-    @lcc.disabled()
-    def limit_operations_to_retrieve(self, get_random_valid_account_name, get_random_integer_up_to_fifty):
+    def limit_operations_to_retrieve(self, get_random_valid_account_name, get_random_integer):
         new_account = get_random_valid_account_name
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         stop, start = operation_history_obj, operation_history_obj
         min_limit = 1
         max_limit = 100
         contract_create_op_count = 1
-        contract_call_op_count = transfer_op_count = 5
+        contract_call_op_count = internal_contract_call_op_count = 1
+        signed_trx = []
+        subscription_callback_id = get_random_integer
+
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
                                           self.__registration_api_identifier)
@@ -173,18 +177,16 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Perform create contract operation")
         contract_id = self.utils.get_contract_id(self, new_account, self.contract, self.__database_api_identifier,
                                                  value_amount=max_limit)
-
-        lcc.set_step("Perform operations using a new account. Call contract operation count equal to limit")
         self.utils.perform_contract_call_operation(self, new_account, self.get_pennie,
-                                                   self.__database_api_identifier, contract_id, transfer_op_count)
-        lcc.log_info("Fill contract history with '{}' number of contract transfer operations".format(transfer_op_count))
+                                                   self.__database_api_identifier, contract_id)
 
         lcc.set_step(
             "Check that count of new contract history with the maximum limit")
         response = self.get_contract_history(contract_id, stop, max_limit, start)
         check_that(
             "'number of history results'",
-            response["result"], has_length(contract_call_op_count + contract_create_op_count)
+            response["result"],
+            has_length(contract_call_op_count + internal_contract_call_op_count + contract_create_op_count)
         )
 
         lcc.set_step("Check minimum list length contract history")
@@ -195,24 +197,39 @@ class PositiveTesting(BaseTest):
         )
 
         lcc.set_step("Perform operations using a new account to create max_limit operations")
-        limit = max_limit - contract_call_op_count - contract_create_op_count
-        self.utils.perform_contract_call_operation(self, new_account, self.get_pennie,
-                                                   self.__database_api_identifier, contract_id, limit)
-        lcc.log_info("Fill contract history with '{}' number of contract transfer operations".format(limit))
+        transfer_amount_for_pay_fee_op = self.echo_ops.get_transfer_operation(echo=self.echo,
+                                                                              from_account_id=self.echo_acc0,
+                                                                              to_account_id=new_account, amount=1000000)
+        collected_operation = self.collect_operations(transfer_amount_for_pay_fee_op, self.__database_api_identifier)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
+
+        for i in range(max_limit):
+            contract_call_operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=new_account,
+                                                                                bytecode=self.greet, callee=contract_id,
+                                                                                value_asset_id="1.3.0",
+                                                                                value_amount=i + 1)
+            collected_operation = self.collect_operations(contract_call_operation, self.__database_api_identifier)
+            signed_trx.append(self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                      no_broadcast=True))
+        for signed_tx in signed_trx:
+            response_id = self.send_request(
+                self.get_request("broadcast_transaction_with_callback", [subscription_callback_id, signed_tx]),
+                self.__network_broadcast_identifier)
+            self.get_response(response_id)
+        lcc.log_info("Fill contract history with '{}' number of contract call operations".format(max_limit))
 
         lcc.set_step(
             "Check that count of new contract history with the limit = max_limit is equal to max_limit")
+        self.produce_block(self.__database_api_identifier)
         response = self.get_contract_history(contract_id, stop, max_limit, start)
         check_that(
             "'number of history results'",
             response["result"], has_length(max_limit)
         )
 
-    # todo: uncomment when bug ECHO-1462 will be fixed
     @lcc.test("Check stop and start IDs of the operations in contract history")
     @lcc.depends_on("API.HistoryApi.GetContractHistory.GetContractHistory.method_main_check")
-    @lcc.disabled()
-    def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_fifty):
+    def stop_and_start_operations(self, get_random_integer):
         value_amount = get_random_integer
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         stop, start = operation_history_obj, operation_history_obj
@@ -228,36 +245,33 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Perform one call contract operation")
         contract_create_op_count = contract_call_op_count = transfer_op_count = 1
         bd_result = self.utils.perform_contract_call_operation(self, self.echo_acc0, self.get_pennie,
-                                                               self.__database_api_identifier, contract_id,
-                                                               transfer_op_count)
+                                                               self.__database_api_identifier, contract_id)
         lcc.log_info("Fill contract history with '{}' number of contract transfer operations".format(transfer_op_count))
 
         contract_call_operation = bd_result["trx"]["operations"][0]
         operations.append(contract_call_operation)
         operations.append(contract_create_operation)
 
-        limit = contract_call_op_count + contract_create_op_count
+        limit = 100
         lcc.set_step("Get contract history. Limit: '{}'".format(limit))
         response = self.get_contract_history(contract_id, stop, limit, start)
 
         lcc.set_step("Check contract history to see added operation and store operation id")
-        for i in range(limit):
+        for i in range(len(operations)):
             operation = operations[i]
             lcc.log_info("Check operation #{}:".format(i))
             require_that(
                 "'contract history'",
-                response["result"][i]["op"], is_list(operation)
+                response["result"][i + 1]["op"], is_list(operation)
             )
 
         lcc.set_step("Store operation id for 'stop' parameter")
-        operation_id = response["result"][limit - 1]["id"]
+        operation_id = response["result"][len(operations) - 1]["id"]
         lcc.log_info("Stop operation id is '{}'".format(operation_id))
 
         lcc.set_step("Perform another operations")
-        contract_call_op_count = transfer_op_count = get_random_integer_up_to_fifty
         bd_result = self.utils.perform_contract_call_operation(self, self.echo_acc0, self.get_pennie,
-                                                               self.__database_api_identifier, contract_id,
-                                                               transfer_op_count)
+                                                               self.__database_api_identifier, contract_id)
         lcc.log_info("Fill contract history with '{}' number of contract transfer operations".format(transfer_op_count))
 
         operations.remove(contract_create_operation)
@@ -265,19 +279,22 @@ class PositiveTesting(BaseTest):
             contract_call_operation = bd_result["trx"]["operations"][0]
             operations.append(contract_call_operation)
 
-        limit = contract_call_op_count + limit - contract_create_op_count
         stop = operation_id
         lcc.set_step("Get contract history. Stop: '{}', limit: '{}'".format(stop, limit))
-        response = self.get_contract_history(contract_id, stop, limit, start)
-
-        lcc.set_step("Check contract history to see added operations and store operation ids")
-        for i in range(limit):
-            lcc.log_info("Check operation #{}:".format(i))
-            require_that(
-                "'contract history'",
-                response["result"][i]["op"], is_list(operations[i])
-            )
-            operation_ids.append(response["result"][i]["id"])
+        response = self.get_contract_history(contract_id, stop, limit, start)["result"]
+        i = 0
+        for op in response:
+            if op["op"][0] == 32:
+                require_that(
+                    "'contract history'",
+                    op["op"], is_list(operations[i])
+                )
+                i += 1
+                operation_ids.append(op["id"])
+            else:
+                require_that(
+                    "'contract history'",
+                    op["op"][0], equal_to(34))
 
         stop = operation_id
         start = operation_ids[0]
@@ -285,7 +302,7 @@ class PositiveTesting(BaseTest):
         results = self.get_contract_history(contract_id, stop, limit, start)["result"]
 
         lcc.set_step("Check contract history to see operations from the selected ids interval")
-        for i, result in enumerate(results):
+        for i, result in enumerate(results[:1]):
             lcc.log_info("Check operation #{}:".format(i))
             require_that_in(
                 result,
