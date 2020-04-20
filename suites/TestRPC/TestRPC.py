@@ -12,7 +12,7 @@ SUITE = {
     "description": "Run ECHO test node and check TestPRC methods"
 }
 
-
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")

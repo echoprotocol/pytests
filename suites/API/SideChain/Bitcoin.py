@@ -17,7 +17,7 @@ SUITE = {
     "description": "Entering the currency bitcoin in the network ECHO to the account and withdraw that currency"
 }
 
-
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_bitcoin", "scenarios_bitcoin")
 @lcc.suite("Check scenario 'BtcToEcho and EchoToBtc'")
