@@ -172,9 +172,9 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Compare get_committee_frozen_balance with get_objects methods")
     @lcc.depends_on(
-        "API.DatabaseApi.Balances.GetCommitteeFrozenBalance.GetCommitteeFrozenBalance"
+        "API.DatabaseApi.Balances.GetCommitteeFrozenBalance.PositiveTesting"
         ".perform_next_frozen_committee_frozen_balance_deposit_operation"
-        )
+    )
     def compare_get_committee_frozen_balance_with_get_objects_methods(self):
         iterator = 0
         committee_member_id = '1.4.0'
