@@ -16,6 +16,7 @@ test:
     - docker-compose up -d ganache
     - docker-compose up -d bitcoin
     - docker-compose up -d echo
+    - docker ps -a
     - docker-compose up --exit-code-from pytests pytests
   after_script:
     - docker-compose down -v

@@ -5,7 +5,7 @@ import lemoncheesecake.api as lcc
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": " Testing correct work of contract with 'eth_accuracy:True'"
+    "description": "Testing correct work of contract with 'eth_accuracy:True'"
 }
 
 @lcc.tags("Manual testing")
@@ -46,7 +46,7 @@ class EthAccuracy(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("The scenario describes the mechanism of changing contract owner")
+    @lcc.test("The scenario describes the work of contract with 'eth_accuracy:True'")
     def eth_accuracy(self):
         echo_accuracy_amount = 1
         contract_ids = []
@@ -55,9 +55,15 @@ class EthAccuracy(BaseTest):
         for i in ["one", "two"]:
             lcc.set_step("Create contract in the Echo network and get its contract id")
             contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
-                                                     self.__database_api_identifier, eth_accuracy=True)
+                                                     self.__database_api_identifier,value_amount=1, eth_accuracy=True,
+                                                     log_broadcast=True)
             lcc.log_info("contract id: {}".format(contract_id))
             contract_ids.append(contract_id)
+
+            response_id = self.send_request(
+                self.get_request("get_account_balances", [self.echo_acc0, [self.echo_asset]]),
+                self.__database_api_identifier)
+            total_balance = self.get_response(response_id, log_response=True)
 
             lcc.set_step(
                 "Call 'payable' method = add {} assets to contact {}".format(echo_accuracy_amount, contract_id))
@@ -65,15 +71,16 @@ class EthAccuracy(BaseTest):
                                                                   bytecode="", callee=contract_id,
                                                                   value_amount=echo_accuracy_amount)
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                       log_broadcast=True)
 
             lcc.set_step("Call 'balanceof()' method = Get contact {} balance".format(contract_id))
             operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                                   bytecode=self.balance, callee=contract_id)
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                       log_broadcast=True)
             contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
-            # lcc.log_info("contract result: {}".format(contract_result))
             contract_output = self.get_contract_output(contract_result, output_type=int)
             lcc.log_info("contract_output: {}".format(contract_output))
 
