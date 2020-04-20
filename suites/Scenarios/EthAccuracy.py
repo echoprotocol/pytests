@@ -55,7 +55,7 @@ class EthAccuracy(BaseTest):
         for i in ["one", "two"]:
             lcc.set_step("Create contract in the Echo network and get its contract id")
             contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
-                                                     self.__database_api_identifier,value_amount=1, eth_accuracy=True,
+                                                     self.__database_api_identifier, eth_accuracy=True,
                                                      log_broadcast=True)
             lcc.log_info("contract id: {}".format(contract_id))
             contract_ids.append(contract_id)
@@ -93,7 +93,7 @@ class EthAccuracy(BaseTest):
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               value_amount=0, bytecode=bytecode,
                                                               callee=contract_ids[0])
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier,fee_amount=200, debug_mode=True)
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier, fee_amount=200, debug_mode=True)
         lcc.log_debug(str(collected_operation))
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation,
                                                    log_broadcast=True)
@@ -127,6 +127,6 @@ class EthAccuracy(BaseTest):
         contract_output = self.get_contract_output(contract_result, output_type=int)
         lcc.log_info("contract_output: {}".format(contract_output))
 
-        response_id = self.send_request(self.get_request("get_contract_result", ["1.12.98"]),
-                                        self.__database_api_identifier)
-        result = self.get_response(response_id, log_response=True)
+        # response_id = self.send_request(self.get_request("get_contract_result", ["1.12.98"]),
+        #                                 self.__database_api_identifier)
+        # result = self.get_response(response_id, log_response=True)
