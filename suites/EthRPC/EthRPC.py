@@ -12,6 +12,8 @@ SUITE = {
     "description": "Run tests for JSON PRC interface of ECHO node"
 }
 
+
+# todo: undisabled on github
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc")

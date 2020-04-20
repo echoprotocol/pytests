@@ -12,6 +12,8 @@ SUITE = {
     "description": "Run ECHO test node and check TestPRC methods"
 }
 
+
+# todo: undisabled on github
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
