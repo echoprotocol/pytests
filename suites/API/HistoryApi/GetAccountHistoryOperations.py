@@ -218,7 +218,6 @@ class PositiveTesting(BaseTest):
                 response["result"], has_length(operation_count)
             )
 
-    @lcc.tags("qa")
     @lcc.test("Check limit number of operations to retrieve")
     @lcc.depends_on("API.HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def limit_operations_to_retrieve(self, get_random_valid_account_name):
