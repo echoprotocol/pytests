@@ -218,8 +218,7 @@ class PositiveTesting(BaseTest):
                 response["result"], has_length(operation_count)
             )
 
-    # todo: fixed errors
-    @lcc.disabled()
+    @lcc.tags("qa")
     @lcc.test("Check limit number of operations to retrieve")
     @lcc.depends_on("API.HistoryApi.GetAccountHistoryOperations.GetAccountHistoryOperations.method_main_check")
     def limit_operations_to_retrieve(self, get_random_valid_account_name):
@@ -228,9 +227,7 @@ class PositiveTesting(BaseTest):
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         stop, start = operation_history_obj, operation_history_obj
         min_limit = 1
-        # todo: change '6' to '100'. Bug: "ECHO-1128"
-        max_limit = 6
-        # todo: change 'max_limit' to  'get_random_integer_up_to_hundred' fixture. Bug: "ECHO-1128"
+        max_limit = 99
         operation_count = max_limit
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
