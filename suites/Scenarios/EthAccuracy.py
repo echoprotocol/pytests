@@ -103,9 +103,10 @@ class EthAccuracy(BaseTest):
 
         lcc.set_step("Call 'withdraw()' to contract address method with {} amount of contract {}".format(
             withdraw_amount, contract_ids[0]))
+        contract_id_hex = hex(int(contract_ids[1].split(".")[-1])).split("x")[-1]
         bytecode = (str(
             self.withdraw) +
-                    "000000000000000000000000010000000000000000000000000000000000001c00000000000000000000000000000000000000000000000000000002540BE400")
+                    "00000000000000000000000001000000000000000000000000000000000000" + contract_id_hex + "00000000000000000000000000000000000000000000000000000002540BE400")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               value_amount=0, bytecode=bytecode,
                                                               callee=contract_ids[0])
@@ -118,11 +119,38 @@ class EthAccuracy(BaseTest):
         lcc.log_info(" {}".format(contract_result))
         self.produce_block(self.__database_api_identifier)
 
-        lcc.set_step("Call 'withdraw()' to account address method with {} amount of contract {}".format(
+        lcc.set_step("Get contact {} balance after withdrawal to contract address".format(contract_ids[1]))
+        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
+                                                              bytecode=self.balance,
+                                                              callee=contract_ids[1])
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
+        contract_output = self.get_contract_output(contract_result, output_type=int)
+        check_that("contract balance", contract_output, equal_to(eth_accuracy_balance*2))
+
+        lcc.set_step("Get contact {} balance after withdrawal to contract address".format(contract_ids[0]))
+        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
+                                                              bytecode=self.balance,
+                                                              callee=contract_ids[0])
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
+        contract_output = self.get_contract_output(contract_result, output_type=int)
+        check_that("contract balance", contract_output, equal_to(0))
+
+        lcc.set_step("Get balances of '1.2.6' account before withdrawal")
+        params = ["1.2.9", ["1.3.0"]]
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        balance = self.get_response(response_id)["result"][0]["amount"]
+        lcc.log_info("Balance is {}".format(balance))
+
+        lcc.set_step("Call 'withdraw()' to '1.2.6' account address method with {} amount of contract {}".format(
             withdraw_amount, contract_ids[1]))
         bytecode = (str(
             self.withdraw) +
-                    "000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000002540BE400")
+                    "000000000000000000000000000000000000000000000000000000000000000900000000000000000000000000000000000000000000000000000002540BE400")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               value_amount=0, bytecode=bytecode,
                                                               callee=contract_ids[1])
@@ -135,17 +163,7 @@ class EthAccuracy(BaseTest):
         lcc.log_info(" {}".format(contract_result))
         self.produce_block(self.__database_api_identifier)
 
-        lcc.set_step("Get contact {} balance after withdrawal to contract address".format(contract_id[0]))
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.balance,
-                                                              callee=contract_ids[0])
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
-        contract_output = self.get_contract_output(contract_result, output_type=int)
-        check_that("contract balance", contract_output, equal_to(0))
-
-        lcc.set_step("Get contact {} balance after withdrawal to account address".format(contract_id[1]))
+        lcc.set_step("Get contact {} balance after withdrawal to account address".format(contract_ids[1]))
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               bytecode=self.balance,
                                                               callee=contract_ids[1])
@@ -153,4 +171,11 @@ class EthAccuracy(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
         contract_output = self.get_contract_output(contract_result, output_type=int)
-        check_that("contract balance", contract_output, equal_to(0))
+        check_that("contract balance", contract_output, equal_to(eth_accuracy_balance))
+
+        lcc.set_step("Get balances of '1.2.6' account after withdrawal")
+        params = ["1.2.9", ["1.3.0"]]
+        response_id = self.send_request(self.get_request("get_account_balances", params),
+                                        self.__database_api_identifier)
+        updated_balance = self.get_response(response_id)["result"][0]["amount"]
+        check_that("contract balance", int(updated_balance), equal_to(int(balance)+1))
