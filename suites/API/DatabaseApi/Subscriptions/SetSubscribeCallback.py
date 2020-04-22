@@ -10,8 +10,6 @@ SUITE = {
 }
 
 
-@lcc.tags("TASK ECHOT-280")
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_subscriptions", "set_subscribe_callback")
@@ -59,40 +57,8 @@ class SetSubscribeCallback(BaseTest):
             is_none(),
         )
 
-        lcc.set_step("Get notice and check results id of the new block")
-        notice_of_new_block1 = self.get_notice(subscription_callback_id, object_id=self.get_object_type(
-            self.echo.config.object_types.BLOCK_RESULT))
-        check_that(
-            "''results_id' of a new block'",
-            notice_of_new_block1["results_id"],
-            is_list(is_([])),
-        )
 
-        lcc.set_step("Get notice and check results id of the next new block")
-        notice_of_new_block2 = self.get_notice(subscription_callback_id, object_id=self.get_object_type(
-            self.echo.config.object_types.BLOCK_RESULT))
-        check_that(
-            "''results_id' of a new block'",
-            notice_of_new_block2["results_id"],
-            is_list(is_([])),
-        )
-
-        lcc.set_step("Check neighboring blocks")
-        require_that(
-            "'block and its neighboring block do not match'",
-            notice_of_new_block1 != notice_of_new_block2, is_(True),
-        )
-        block1 = notice_of_new_block1["id"]
-        block1 = int(block1.split(".")[2])
-        block2 = notice_of_new_block2["id"]
-        block2 = int(block2.split(".")[2])
-        check_that(
-            "'block_id and its neighboring block_id differ by one'",
-            block2 - block1, greater_than_or_equal_to(1),
-        )
-
-
-@lcc.tags("TASK ECHOT-280")
+@lcc.tags("Manual testing with wsdump")
 @lcc.disabled()
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_subscriptions", "set_subscribe_callback")
@@ -193,8 +159,6 @@ class PositiveTesting(BaseTest):
         )
 
     @lcc.test("Check notices of created contract")
-    @lcc.tags("Manual testing using wsdimp.py")
-    @lcc.disabled()
     @lcc.depends_on("API.DatabaseApi.Subscriptions.SetSubscribeCallback.SetSubscribeCallback.method_main_check")
     def check_contract_notices(self, get_random_integer):
         lcc.set_step("Set subscribe callback")

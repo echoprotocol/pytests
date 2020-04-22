@@ -177,7 +177,6 @@ class PositiveTesting(BaseTest):
         _from = 0
         params = [callback_id,
                   {"contracts": [contract_id], "topics": [], "from_block": _from, "to_block": block_num + 1}]
-        lcc.log_debug(str(params))
         result = self.get_contract_logs(params=params)
         require_that("'result'", result, is_none())
         lcc.log_info("Call method 'get_contract_logs' with params: '{}'".format(params))
@@ -243,6 +242,7 @@ class PositiveTesting(BaseTest):
                 get_contract_logs_results[i] != get_contract_logs_results[i + 1],
                 is_true()
             )
+
 
 @lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_contracts", "get_contract_logs")
