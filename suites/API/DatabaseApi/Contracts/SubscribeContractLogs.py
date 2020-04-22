@@ -105,6 +105,7 @@ class PositiveTesting(BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.__network_broadcast_identifier = None
         self.echo_acc0 = None
         self.piggy_contract = self.get_byte_code("piggy", "code")
         self.getPennie = self.get_byte_code("piggy", "pennieReturned()")
@@ -130,9 +131,11 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
+        self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier,
+                self.__network_broadcast_identifier))
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
@@ -152,12 +155,11 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # todo: uncomment and add checks. BUG -1473
     @lcc.test("Check contract logs in notice with two transactions")
-    @lcc.disabled()
     @lcc.depends_on("API.DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notices_with_two_transactions(self, get_random_integer):
         subscription_callback_id = value_amount = get_random_integer
+        signed_trx = []
 
         lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
@@ -166,20 +168,29 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Subscribe to created contract")
         self.subscribe_contract_logs(subscription_callback_id, contract_id)
 
-        lcc.set_step("Perform twice calling contract method getPennie")
+        lcc.set_step("Perform twice calling contract methods")
         operation_getpennie = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                                         bytecode=self.getPennie, callee=contract_id)
         operation_greet = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                                     bytecode=self.greet, callee=contract_id)
         for operation in [operation_getpennie, operation_greet]:
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True,
-                                    broadcast_with_callback=True)
-        lcc.log_info("Method 'getPennie' performed successfully")
+            signed_trx.append(self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
+                                                      no_broadcast=True))
+        while True:
+            for signed_tx in signed_trx:
+                params = [subscription_callback_id, signed_tx]
+                response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
+                                                self.__network_broadcast_identifier)
+                self.get_response(response_id)
+            break
+        lcc.log_info("Methods 'getPennie', 'greet()' performed successfully")
 
-        lcc.set_step("First: Get notices about updates of created contract")
-        notice = self.get_notice(subscription_callback_id)
-        notice = self.get_notice(subscription_callback_id)
+        lcc.set_step("Get notices about updates of created contract")
+        self.get_notice(subscription_callback_id, log_response=False)
+        for i in range(len(signed_trx)):
+            notice = self.get_notice(subscription_callback_id, log_response=False)
+            check_that('callee', notice["trx"]["operations"][0][1]["callee"], equal_to(contract_id))
 
     @lcc.test("Check contract logs in notices two identical contract calls")
     @lcc.depends_on("API.DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
@@ -223,9 +234,7 @@ class PositiveTesting(BaseTest):
         check_that("'notices log'", data_notice_1["log"], equal_to(data_notice_2["log"]))
         check_that("'notices data'", data_notice_1["data"], equal_to(data_notice_2["data"]))
 
-    # todo: uncomment and add checks. BUG -1473
     @lcc.test("Check contract logs in notices contract call that make two different logs")
-    @lcc.disabled()
     @lcc.depends_on("API.DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notice_contract_call_that_make_two_different_logs(self, get_random_integer,
                                                                                  get_random_string):
@@ -356,9 +365,6 @@ class NegativeTesting(BaseTest):
         random_type_names = list(get_all_random_types.keys())
         random_values = list(get_all_random_types.values())
         for i in range(len(get_all_random_types)):
-            # todo: remove if. Bug: "ECHO-680"
-            if i == 4:
-                continue
             response_id = self.send_request(
                 self.get_request("subscribe_contract_logs", [random_values[i]]),
                 self.__database_api_identifier)
@@ -372,9 +378,6 @@ class NegativeTesting(BaseTest):
         random_type_names = list(get_all_random_types.keys())
         random_values = list(get_all_random_types.values())
         for i in range(len(get_all_random_types)):
-            # todo: remove if. Bug: "ECHO-680"
-            if i == 4:
-                continue
             if type(random_values[i]) is int or type(random_values[i]) is float or type(random_values[i]) is bool:
                 continue
             response_id = self.send_request(
@@ -391,9 +394,6 @@ class NegativeTesting(BaseTest):
         random_type_names = list(get_all_random_types.keys())
         random_values = list(get_all_random_types.values())
         for i in range(len(get_all_random_types)):
-            # todo: remove if. Bug: "ECHO-680"
-            if i == 4:
-                continue
             if type(random_values[i]) is  dict:
                 continue
             response_id = self.send_request(

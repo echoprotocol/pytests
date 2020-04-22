@@ -209,8 +209,6 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check that create asset operation added to account history")
         if self.is_operation_completed(broadcast_result, expected_static_variant=1):
-            # todo: remove 'limit'. Bug: "ECHO-1128"
-            limit = 1
             response = self.get_account_history_operations(new_account, create_asset_operation_id, start, stop,
                                                            limit)
             check_that(

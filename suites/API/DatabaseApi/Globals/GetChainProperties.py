@@ -78,19 +78,17 @@ class NegativeTesting(BaseTest):
         lcc.log_info("Database API identifier is '{}'".format(self.__api_identifier))
 
     @lcc.test("Call method with params of all types")
-    @lcc.tags("Bug: 'ECHO-680'")
     @lcc.depends_on("API.DatabaseApi.Globals.GetChainProperties.GetChainProperties.method_main_check")
     def call_method_with_params(self, get_all_random_types):
         lcc.set_step("Call method with all types of params")
         random_type_names = list(get_all_random_types.keys())
         random_values = list(get_all_random_types.values())
         for i in range(len(get_all_random_types)):
-            # todo: remove if. Bug: "ECHO-680"
             if i == 4:
                 continue
             response_id = self.send_request(self.get_request("get_chain_properties", random_values[i]),
-                                            self.__api_identifier)
-            response = self.get_response(response_id, negative=True)
+                                            self.__api_identifier, debug_mode=True)
+            response = self.get_response(response_id, negative=True, log_response=True)
             check_that(
                 "'get_chain_properties' return error message with '{}' params".format(random_type_names[i]),
                 response, has_entry("error"),

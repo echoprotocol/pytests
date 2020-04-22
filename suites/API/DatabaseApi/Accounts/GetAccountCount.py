@@ -110,16 +110,12 @@ class NegativeTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Call method with params of all types")
-    @lcc.tags("Bug: 'ECHO-680'")
     @lcc.depends_on("API.DatabaseApi.Accounts.GetAccountCount.GetAccountCount.method_main_check")
     def call_method_with_params(self, get_all_random_types):
         lcc.set_step("Call method with all types of params")
         random_type_names = list(get_all_random_types.keys())
         random_values = list(get_all_random_types.values())
         for i in range(len(get_all_random_types)):
-            # todo: remove if. Bug: "ECHO-680"
-            if i == 4:
-                continue
             response_id = self.send_request(self.get_request("get_account_count", random_values[i]),
                                             self.__api_identifier)
             response = self.get_response(response_id, negative=True)
