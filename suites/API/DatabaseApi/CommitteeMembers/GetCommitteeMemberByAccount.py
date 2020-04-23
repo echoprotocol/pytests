@@ -115,8 +115,8 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Get created committee member")
         response_id = self.send_request(self.get_request("get_committee_member_by_account", [self.new_account_id]),
-                                        self.__database_api_identifier, debug_mode=True)
-        committee_member = self.get_response(response_id, log_response=True)["result"]
+                                        self.__database_api_identifier)
+        committee_member = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_committee_member_by_account' with param='{}'".format(self.new_account_id))
 
         lcc.set_step("Check created committee member in the ECHO network")

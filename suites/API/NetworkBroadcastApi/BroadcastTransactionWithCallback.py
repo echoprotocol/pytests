@@ -211,5 +211,5 @@ class NegativeTesting(BaseTest):
         params = [subscription_callback_id, signed_tx]
         response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
                                         self.__network_broadcast_identifier)
-        error_message = self.get_error_message(response_id, debug_mode=True)["error"]["message"]
+        error_message = self.get_error_message(response_id)["error"]["message"]
         check_that("message", error_message, equal_to(expected_message))
