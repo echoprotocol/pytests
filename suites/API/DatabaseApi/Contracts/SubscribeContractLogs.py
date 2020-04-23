@@ -192,6 +192,8 @@ class PositiveTesting(BaseTest):
             notice = self.get_notice(subscription_callback_id, log_response=False)
             check_that('callee', notice["trx"]["operations"][0][1]["callee"], equal_to(contract_id))
 
+    #todo: undisabled on github
+    @lcc.disabled()
     @lcc.test("Check contract logs in notices two identical contract calls")
     @lcc.depends_on("API.DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notices_two_identical_contract_calls(self, get_random_integer):
@@ -234,6 +236,8 @@ class PositiveTesting(BaseTest):
         check_that("'notices log'", data_notice_1["log"], equal_to(data_notice_2["log"]))
         check_that("'notices data'", data_notice_1["data"], equal_to(data_notice_2["data"]))
 
+    # todo: undisabled on github
+    @lcc.disabled()
     @lcc.test("Check contract logs in notices contract call that make two different logs")
     @lcc.depends_on("API.DatabaseApi.Contracts.SubscribeContractLogs.SubscribeContractLogs.method_main_check")
     def check_contract_logs_in_notice_contract_call_that_make_two_different_logs(self, get_random_integer,

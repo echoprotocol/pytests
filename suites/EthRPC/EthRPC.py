@@ -13,8 +13,8 @@ SUITE = {
 }
 
 
-# #todo: undisabled on github
-# @lcc.disabled()
+#todo: undisabled on github
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc")
 @lcc.suite("Check JSON PRC interface")
