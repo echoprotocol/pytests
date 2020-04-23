@@ -137,7 +137,8 @@ class NegativeTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_synchronous' with wrong signature")
-    @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransactionSynchronous.BroadcastTransactionSynchronous.method_main_check")
+    @lcc.depends_on(
+        "API.NetworkBroadcastApi.BroadcastTransactionSynchronous.BroadcastTransactionSynchronous.method_main_check")
     def check_broadcast_transaction_synchronous_with_wrong_signature(self, get_random_integer_up_to_ten,
                                                                      get_random_valid_account_name):
         transfer_amount = get_random_integer_up_to_ten
@@ -162,11 +163,10 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
-    # todo: Bug ECHO-1743 ("trx.expiration" < "now")
-    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_synchronous' with wrong expiration time")
-    @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransactionSynchronous.BroadcastTransactionSynchronous.method_main_check")
+    @lcc.depends_on(
+        "API.NetworkBroadcastApi.BroadcastTransactionSynchronous.BroadcastTransactionSynchronous.method_main_check")
     def check_broadcast_transaction_synchronous_with_wrong_expiration_time(self, get_random_integer_up_to_ten,
                                                                            get_random_valid_account_name):
         transfer_amount = get_random_integer_up_to_ten

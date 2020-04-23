@@ -8,7 +8,7 @@ SUITE = {
     "description": "Testing contract calls with different asset ids (context)"
 }
 
-# todo: undisabled on github
+#todo: undisabled on github
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("contract_context")

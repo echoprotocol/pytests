@@ -95,7 +95,7 @@ class PositiveTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.tags("TASK ECHOT-280")
+    #todo: undisabled on github
     @lcc.disabled()
     @lcc.test("Check work of 'call_contract_no_changing_state' method, not empty output call contract result "
               "(int and string type)")

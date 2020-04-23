@@ -13,7 +13,7 @@ SUITE = {
 }
 
 
-# todo: undisabled on github
+#todo: undisabled on github
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")

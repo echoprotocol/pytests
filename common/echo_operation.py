@@ -903,7 +903,7 @@ class EchoOperations(object):
         did_update_props = self.get_operation_json("did_update_operation")
         did_update_props["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
         did_update_props.update(
-            {"registrar": registrar, "did_identifier": did_identifier, "pub_keys_to_delete":pub_keys_to_delete,
+            {"registrar": registrar, "did_identifier": did_identifier, "pub_keys_to_delete": pub_keys_to_delete,
              "pub_keys_to_add": pub_keys_to_add})
         if debug_mode:
             lcc.log_debug("DID update operation: \n{}".format(json.dumps(did_update_props, indent=4)))
@@ -924,7 +924,8 @@ class EchoOperations(object):
         return [operation_id, did_delete_props, signer]
 
     def broadcast(self, echo, list_operations, return_operations=False, expiration=None, no_broadcast=False,
-                  get_signed_tx=False, log_broadcast=False, debug_mode=False, broadcast_with_callback=False):
+                  ethrpc_broadcast=False, get_signed_tx=False, log_broadcast=False, debug_mode=False,
+                  broadcast_with_callback=False):
         tx = echo.create_transaction()
         if debug_mode:
             lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))
@@ -947,6 +948,8 @@ class EchoOperations(object):
         tx.sign()
         if no_broadcast:
             return tx.transaction_object.json()
+        if ethrpc_broadcast:
+            return tx.transaction_object
         if broadcast_with_callback:
             broadcast_result = tx.broadcast("1")
         else:

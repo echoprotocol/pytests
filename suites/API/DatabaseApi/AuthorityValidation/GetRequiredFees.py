@@ -283,7 +283,6 @@ class NegativeTesting(BaseTest):
         )
 
     @lcc.test("Call method with wrong params")
-    @lcc.tags("Bug: 'ECHO-681'")
     @lcc.depends_on("API.DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
     def call_method_with_wrong_params(self, get_all_random_types):
         random_type_names = list(get_all_random_types.keys())
@@ -291,7 +290,6 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Call method with wrong params. Wrong param operation")
         for i in range(len(get_all_random_types)):
-            # todo: remove if. Bug: "ECHO-681"
             if i == 4:
                 continue
             response = self.get_required_fees(random_values[i], self.echo_asset, negative=True)
