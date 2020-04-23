@@ -13,8 +13,6 @@ SUITE = {
 }
 
 
-#todo: undisabled on github
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")
@@ -379,7 +377,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.17.1-rc.9/Linux.64-bit"
+        result = "ECHO/0.18.1/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -508,7 +506,6 @@ class TestRPC(BaseTest):
         response = self.get_response(payload)
         require_that("'result'", response["result"][2:], equal_to(self.contract[58:]))
 
-    # todo: BUG ECHO-1786. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_sendRawTransaction'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -552,10 +549,10 @@ class TestRPC(BaseTest):
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.eth_block_number")
     def eth_get_block_by_trx_hash(self):
         self.transfer()
-        block_id = self.get_response(self.rpc_call("eth_blockNumber", [], pause=0))
+        block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
         block_hash = self.get_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True], pause=0))["result"]["hash"]
-        payload = self.rpc_call("eth_getBlockByHash", [block_hash, True], pause=0)
+            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        payload = self.rpc_call("eth_getBlockByHash", [block_hash, True])
         result = self.get_response(payload)["result"]
         self.validate_block(result)
 
@@ -679,14 +676,14 @@ class TestRPC(BaseTest):
     def evm_increase_time(self):
         payload = self.rpc_call("evm_increaseTime", [60])
         response = self.get_response(payload)["result"]
-        if not self.type_validator.is_eth_hash(response["result"]):
-            lcc.log_error("Wrong format of 'increaseTime', got: '{}'".format(response["increaseTime"]))
+        if not self.type_validator.is_eth_hash(response):
+            lcc.log_error("Wrong format of 'increaseTime', got: '{}'".format(response))
         else:
             lcc.log_info("'increaseTime' has correct format: eth_hash")
 
     @lcc.test("Check method 'evm_mine'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
-    def evm_increase_time(self):
+    def evm_mine(self):
         lcc.log_info("Get block number before method ''evm_mine")
         block_id = self.get_response(self.rpc_call("eth_blockNumber", []))
         block_number_before = self.get_response(
