@@ -116,6 +116,8 @@ class NegativeTesting(BaseTest):
         random_type_names = list(get_all_random_types.keys())
         random_values = list(get_all_random_types.values())
         for i in range(len(get_all_random_types)):
+            if i == 4:
+                continue
             response_id = self.send_request(self.get_request("get_account_count", random_values[i]),
                                             self.__api_identifier)
             response = self.get_response(response_id, negative=True)
