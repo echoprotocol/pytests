@@ -372,9 +372,9 @@ class TypeValidator(object):
         if not self.is_hex(value):
             return False
         if value[:2] == "0x":
-            return len(value) == 4
+            return len(value[2:]) == 4
         else:
-            return len(value) == 4
+            return len(value[2:]) == 4
 
     def is_eth_balance(self, value):
         if value[:2] == "0x":

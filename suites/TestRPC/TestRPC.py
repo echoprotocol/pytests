@@ -196,6 +196,7 @@ class TestRPC(BaseTest):
                         self.validate_transaction(transaction)
 
     def setup_suite(self):
+
         self.rpcPort = 56453
         self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
         self.passphrase = "Account"
@@ -340,7 +341,6 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'result' has correct format: hex")
 
-    # # todo: BUG ECHO-1837. Undisabled
     @lcc.test("Check method 'eth_sign'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_sign(self):
@@ -355,7 +355,6 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'result' has correct format: hex")
 
-    # todo: BUG ECHO-1764. Undisabled
     @lcc.disabled()
     @lcc.test("Check method 'eth_sendTransaction'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
