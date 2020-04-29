@@ -517,7 +517,6 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_call'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def eth_call(self):
-        # cycle for link contract to account's address
         self.create_contract()
         data = "0x"
         payload = self.rpc_call("eth_call",
