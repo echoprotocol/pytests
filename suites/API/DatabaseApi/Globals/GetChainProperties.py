@@ -88,7 +88,7 @@ class NegativeTesting(BaseTest):
                 continue
             response_id = self.send_request(self.get_request("get_chain_properties", random_values[i]),
                                             self.__api_identifier)
-            response = self.get_response(response_id, negative=True, log_response=True)
+            response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_chain_properties' return error message with '{}' params".format(random_type_names[i]),
                 response, has_entry("error"),

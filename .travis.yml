@@ -25,9 +25,8 @@ env:
     - PYTESTS_FILTERS=broadcast_thousands_transactions GENESIS_FILE=genesis.json
     - PYTESTS_FILTERS=committee_member_update_global_parameters:contract_context GENESIS_FILE=genesis_update_global_parameters.json
 
-#  todo: uncomment, when TestRPC will be public
-#    - PYTESTS_FILTERS=test_rpc GENESIS_FILE=genesis.json
-#    - PYTESTS_FILTERS=json_rpc GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=test_rpc GENESIS_FILE=genesis.json
+    - PYTESTS_FILTERS=json_rpc GENESIS_FILE=genesis.json
 
 install:  pip3 install -r requirements.txt
 services:
@@ -39,8 +38,7 @@ before_script:
   - docker-compose up -d bitcoin
   - docker-compose up -d ganache
   - docker-compose up -d echo
-#  todo: uncomment, when TestRPC will be public
-#  - docker-compose up -d testrpc
+  - docker-compose up -d testrpc
   - docker ps -a
 script:
   - python3 test_runner.py

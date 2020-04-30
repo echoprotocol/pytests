@@ -1588,6 +1588,7 @@ class ObjectValidator(object):
                     "Wrong format of 'transactionIndex', got: '{}'".format(transaction["transactionIndex"]))
             else:
                 lcc.log_info("'result' has correct format: eth_hash")
+            check_that("input", transaction["input"], equal_to(""))
             check_that("value", transaction["value"], equal_to("0x01"))
             if not self.type_validator.is_eth_hash(transaction["v"]):
                 lcc.log_error(
@@ -1606,28 +1607,19 @@ class ObjectValidator(object):
                 lcc.log_info("'s' has correct format: eth_hash")
 
     def validate_ethrpc_block(self, result):
-        lcc.log_debug(str(result))
         if require_that("'result'", result, has_length(19)):
             if not self.type_validator.is_eth_hash(result["number"]):
                 lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
             else:
                 lcc.log_info("'result' has correct format: number")
             if not self.type_validator.is_eth_hash(result["hash"]):
-                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
-            else:
-                lcc.log_info("'result' has correct format: hash")
-            if not self.type_validator.is_eth_hash(result["hash"]):
-                lcc.log_error("Wrong format of 'number', got: '{}'".format(result["number"]))
+                lcc.log_error("Wrong format of 'hash', got: '{}'".format(result["hash"]))
             else:
                 lcc.log_info("'result' has correct format: hash")
             if not self.type_validator.is_eth_hash(result["parentHash"]):
                 lcc.log_error("Wrong format of 'parentHash', got: '{}'".format(result["parentHash"]))
             else:
                 lcc.log_info("'result' has correct format: parentHash")
-            if not self.type_validator.is_eth_hash(result["nonce"]):
-                lcc.log_error("Wrong format of 'nonce', got: '{}'".format(result["nonce"]))
-            else:
-                lcc.log_info("'result' has correct format: nonce")
             if not self.type_validator.is_eth_hash(result["nonce"]):
                 lcc.log_error("Wrong format of 'nonce', got: '{}'".format(result["nonce"]))
             else:
@@ -1684,7 +1676,8 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'timestamp', got: '{}'".format(result["timestamp"]))
             else:
                 lcc.log_info("'result' has correct format: timestamp")
-            if check_that("uncles", result["uncles"], is_list()):
+            check_that("uncles", result["uncles"], is_list())
+            if check_that("transactions", result["transactions"], is_list()):
                 if len(result["transactions"]) > 0:
                     for transaction in result["transactions"]:
                         self.validate_ethrpc_transaction(transaction)

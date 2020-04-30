@@ -14,7 +14,8 @@ SUITE = {
     "description": "Run 'config part' tests for JSON PRC interface of ECHO node"
 }
 
-
+#todo: undisabled at github
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_config")
 @lcc.suite("Check EthRPC 'config part'")
