@@ -92,8 +92,8 @@ class NegativeTesting(BaseTest):
             if i == 4:
                 continue
             response_id = self.send_request(self.get_request("get_dynamic_global_properties", random_values[i]),
-                                            self.__api_identifier, debug_mode=True)
-            response = self.get_response(response_id, negative=True, log_response=True)
+                                            self.__api_identifier)
+            response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_dynamic_global_properties' return error message with '{}' params".format(
                     random_type_names[i]
