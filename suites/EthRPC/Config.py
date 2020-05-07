@@ -14,8 +14,8 @@ SUITE = {
     "description": "Run 'config part' tests for JSON PRC interface of ECHO node"
 }
 
-#todo: undisabled at github
-@lcc.disabled()
+# #todo: undisabled at github
+# @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_config")
 @lcc.suite("Check EthRPC 'config part'")
@@ -96,7 +96,7 @@ class Config(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.18.1/Linux.64-bit"
+        result = "ECHO/0.19.0-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -104,7 +104,7 @@ class Config(BaseTest):
     @lcc.test("Check method 'eth_chain_id'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_chain_id(self):
-        chain_id = "0x75f7dc68e104b17b7be1d26025392495d7c277245b3029ea7827f101119cee9e"
+        chain_id = "0x900f3dc81b2ceab36f7fc5fcccfaa6edc9356126dc369d3c131ab988c1996bb6"
         payload = self.rpc_call("eth_chainId", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(chain_id))
