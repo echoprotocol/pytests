@@ -11,6 +11,8 @@ SUITE = {
 }
 
 
+# todo: work only for pending transactions echo:0.19.0-rc.0
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_recent_transaction_by_id")
 @lcc.suite("Check work of method 'get_recent_transaction_by_id'", rank=1)
