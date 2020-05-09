@@ -349,6 +349,8 @@ class NegativeTesting(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    # todo: undisabled, when bug ECHO-2036 will be fixed
+    @lcc.disabled()
     @lcc.test("Add to contract fee pool not echo asset")
     @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolBalances.GetContractPoolBalances.method_main_check")
     def add_fee_pool_in_not_echo_asset(self, get_random_valid_asset_name, get_random_integer,

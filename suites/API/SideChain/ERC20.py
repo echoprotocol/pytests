@@ -14,7 +14,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "sidechain", "sidechain_erc20", "scenarios_erc20")
+@lcc.tags("scenarios", "sidechain", "sidechain_erc20", "scenarios_sidechain")
 @lcc.suite("Check scenario 'ERC20ToEcho and ERC20FromEchoToEth'")
 class ERC20(BaseTest):
 

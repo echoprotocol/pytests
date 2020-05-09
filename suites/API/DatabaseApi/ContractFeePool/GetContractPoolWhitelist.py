@@ -139,7 +139,8 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Check work of add and remove accounts to/from whitelist")
-    @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
     def add_remove_accounts_to_from_whitelist(self):
         full_whitelist = []
 
@@ -233,8 +234,11 @@ class PositiveTesting(BaseTest):
         updated_fee_pool_balance = self.get_contract_pool_balance(contract_id)
         check_that("'updated_fee_pool_balance'", updated_fee_pool_balance, equal_to(0))
 
+    # todo: undisabled, when bug ECHO-2036 will be fixed
+    @lcc.disabled()
     @lcc.test("Check work of add and remove accounts to/from blacklist")
-    @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
     def add_remove_accounts_to_from_blacklist(self):
         full_blacklist = []
 
@@ -370,7 +374,8 @@ class NegativeTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Get whitelist of a contract that does not have a fee pool")
-    @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
     def whitelist_without_fee_pool(self):
         lcc.set_step("Create contract in the Echo network and get its contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier)
@@ -384,8 +389,11 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Check simple work of method 'get_contract_pool_whitelist'")
         check_that("'get_contract_pool_whitelist' return error message", response, has_entry("error"), quiet=True)
 
+    # todo: undisabled, when bug ECHO-2036 will be fixed
+    @lcc.disabled()
     @lcc.test("Add account in whitelist and blacklist at the same time")
-    @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
     def account_in_two_lists(self, get_random_integer):
         value_to_pool = get_random_integer
         whitelist, blacklist = [self.echo_acc0], [self.echo_acc0]
@@ -411,7 +419,8 @@ class NegativeTesting(BaseTest):
         lcc.log_info("Can not add account to whitelist and blacklist at the same time")
 
     @lcc.test("Add account in whitelist/blacklist and remove from whitelist/blacklist at the same time")
-    @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
     def add_account_and_remove_in_the_same_time(self, get_random_integer):
         value_to_pool = get_random_integer
         whitelist, blacklist = [self.echo_acc0], [self.echo_acc0]
@@ -448,8 +457,11 @@ class NegativeTesting(BaseTest):
             lcc.log_info(str(e))
         lcc.log_info("Can not add account to blacklist and remove at the same time")
 
+    # todo: undisabled, when bug ECHO-2036 will be fixed
+    @lcc.disabled()
     @lcc.test("Add twice account in whitelist/blacklist and remove from whitelist/blacklist twice")
-    @lcc.depends_on("API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
     def add_twice_account_and_remove_in_the_same_time(self, get_random_integer):
         value_to_pool = get_random_integer
         whitelist, blacklist = [self.echo_acc0, self.echo_acc0], [self.echo_acc0, self.echo_acc0]

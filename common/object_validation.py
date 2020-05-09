@@ -680,7 +680,7 @@ class ObjectValidator(object):
         def validate_sidechain_config(base_test, sidechain_config, eth_params, eth_methods):
             if check_that(
                     "sidechain config",
-                    sidechain_config, has_length(23),
+                    sidechain_config, has_length(24),
                     quiet=True
             ):
                 for eth_param in eth_params:
@@ -730,6 +730,7 @@ class ObjectValidator(object):
                     "btc_deposit_withdrawal_min", is_integer(),
                     "btc_deposit_withdrawal_fee", is_integer(),
                     "eth_withdrawal_fee", is_integer(),
+                    "eth_withdrawal_min", is_integer(),
                     quiet=True
                 )
                 base_test.check_uint64_numbers(
@@ -938,7 +939,7 @@ class ObjectValidator(object):
         parameters = global_properties_object["parameters"]
         if check_that(
                 "parameters",
-                parameters, has_length(24),
+                parameters, has_length(25),
                 quiet=True
         ):
             check_that_in(

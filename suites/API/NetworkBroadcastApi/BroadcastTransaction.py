@@ -85,6 +85,8 @@ class BroadcastTransaction(BaseTest):
                    updated_account_balance - account_balance, equal_to(transfer_amount))
 
 
+# todo: undisabled, when bug ECHO-2036 will be fixed
+@lcc.disabled()
 @lcc.prop("negative", "type")
 @lcc.tags("api", "network_broadcast_api", "broadcast_transaction")
 @lcc.suite("Negative testing of method 'broadcast_transaction'", rank=3)

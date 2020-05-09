@@ -5,7 +5,6 @@ from lemoncheesecake.matching import check_that, equal_to, is_none
 from common.base_test import BaseTest
 import json
 
-
 SUITE = {
     "description": "Method 'broadcast_transaction_with_callback'"
 }
@@ -99,6 +98,8 @@ class BroadcastTransactionWithCallback(BaseTest):
                    updated_account_balance - account_balance, equal_to(transfer_amount))
 
 
+# todo: undisabled, when bug ECHO-2036 will be fixed
+@lcc.disabled()
 @lcc.prop("negative", "type")
 @lcc.tags("api", "network_broadcast_api", "broadcast_transaction_with_callback")
 @lcc.suite("Negative testing of method 'broadcast_transaction_with_callback'", rank=3)
@@ -151,7 +152,8 @@ class NegativeTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong signature")
-    @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
+    @lcc.depends_on(
+        "API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
     def check_broadcast_transaction_with_callback_with_wrong_signature(self, get_random_integer,
                                                                        get_random_integer_up_to_ten,
                                                                        get_random_valid_account_name):
@@ -182,7 +184,8 @@ class NegativeTesting(BaseTest):
 
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong expiration time")
-    @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
+    @lcc.depends_on(
+        "API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
     def check_broadcast_transaction_with_callback_with_wrong_expiration_time(self, get_random_integer,
                                                                              get_random_integer_up_to_ten,
                                                                              get_random_valid_account_name):
