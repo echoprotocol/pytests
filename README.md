@@ -264,6 +264,7 @@ For more information about filters see `test_runner.py` script.
 
 [Sidechain Ethereum:](https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain-ethereum)
 - [x] [get_eth_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_eth_address-account)
+- [x] [get_eth_sidechain_fees]
 
 [Sidechain ERC20:](https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain-erc20)
 - [x] [get_erc20_token](https://docs.echo.org/api-reference/echo-node-api/database-api#get_erc-20-_token-eth_addr)
@@ -274,6 +275,7 @@ For more information about filters see `test_runner.py` script.
 [Sidechain Bitcoin:](https://docs.echo.org/api-reference/echo-node-api/database-api#sidechain-bitcoin)
 - [x] [get_btc_address](https://docs.echo.org/api-reference/echo-node-api/database-api#get_btc_address-account)
 - [x] [get_btc_deposit_script](https://docs.echo.org/api-reference/echo-node-api/database-api#get_btc_deposit_script-address)
+- [x] [get_btc_sidechain_fees]
 
 [Contract Feepool:](https://docs.echo.org/api-reference/echo-node-api/database-api#contract-feepool)
 - [x] [get_contract_pool_balance](https://docs.echo.org/api-reference/echo-node-api/database-api#get_contract_pool_balance-id)
