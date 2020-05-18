@@ -642,7 +642,7 @@ class ObjectValidator(object):
     def validate_erc20_withdraw_object(self, base_test, erc20_withdraw_object):
         if check_that(
                 "'erc20 withdrawal'",
-                erc20_withdraw_object, has_length(11),
+                erc20_withdraw_object, has_length(12),
                 quiet=True
         ):
             if not base_test.type_validator.is_withdraw_erc20_id(erc20_withdraw_object["id"]):
@@ -662,6 +662,11 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'account', got {}".format(erc20_withdraw_object["account"]))
             else:
                 lcc.log_info("'account' has correct format: account_id_type")
+            # todo: uncomment when will be fix bug ECHO-2088
+            # if not base_test.type_validator.is_eth_hash(erc20_withdraw_object["transaction_hash"]):
+            #     lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(erc20_withdraw_object["transaction_hash"]))
+            # else:
+            #     lcc.log_info("'to' has correct format: transaction_hash")
 
             check_that_in(
                 erc20_withdraw_object,
