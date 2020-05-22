@@ -17,7 +17,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")
-class TestRPC(BaseTest):
+class TestRPCC(BaseTest):
 
     def __init__(self):
         super().__init__()
