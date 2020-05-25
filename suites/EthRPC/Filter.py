@@ -76,7 +76,7 @@ class Filter(BaseTest):
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
         self.rpcPort = 56454
-        self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
+        self.test_rcp_url = 'http://0.0.0.0:' + str(self.rpcPort)
         self.account_address = "0x0000000000000000000000000000000000000006"
 
     def teardown_suite(self):

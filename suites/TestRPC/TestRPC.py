@@ -198,7 +198,7 @@ class TestRPC(BaseTest):
     def setup_suite(self):
 
         self.rpcPort = 56453
-        self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
+        self.test_rcp_url = 'http://0.0.0.0:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
         self.account_address = "0x000000000000000000000000000000000000000a"
