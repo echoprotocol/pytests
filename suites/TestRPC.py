@@ -2,6 +2,6 @@
 import lemoncheesecake.api as lcc
 
 
-@lcc.suite("TestRPC")
+@lcc.suite("Test_RPC")
 class TestRPC:
     pass
