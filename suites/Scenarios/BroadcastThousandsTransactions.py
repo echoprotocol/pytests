@@ -10,6 +10,7 @@ SUITE = {
     "description": "Scenario 'Collect and broadcast more than two thousand contract operations in the Echo'"
 }
 
+
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("broadcast_thousands_transactions")

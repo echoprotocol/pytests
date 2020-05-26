@@ -12,7 +12,7 @@ SUITE = {
     "description": "Run 'filter part' tests for JSON PRC interface of ECHO node"
 }
 
-#todo: undisabled at github
+
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_filter")
@@ -78,15 +78,13 @@ class Filter(BaseTest):
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
         self.rpcPort = 56454
-        self.test_rcp_url = 'http://localhost:' + str(self.rpcPort)
+        self.test_rcp_url = 'http://0.0.0.0:' + str(self.rpcPort)
         self.account_address = "0x0000000000000000000000000000000000000006"
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # todo: bug ECHO-1972
-    @lcc.disabled()
     @lcc.test("Check method 'eth_newFilter'")
     def eth_new_filter(self):
         payload = self.rpc_call("eth_newFilter", [{"topics": [""]}])
@@ -169,20 +167,8 @@ class Filter(BaseTest):
         for filter_result in filter_results:
             require_that("filter_result", filter_result, equal_to(block_hash))
 
-
-    # todo: bug ECHO-1972
-    @lcc.disabled()
     @lcc.test("Check method 'eth_getLogs'")
     def eth_get_logs(self):
         payload = self.rpc_call("eth_getLogs", [{"topics": [""]}])
-        filter_id = self.get_ethrpc_response(payload)["result"]
-        require_that("filter_id", int(filter_id, 16), is_integer())
-        self.transfer()
-        payload = self.rpc_call("eth_getFilterChanges", [filter_id])
-        filter_results = self.get_ethrpc_response(payload)["result"]
-        require_that("filter_result", filter_results, not_equal_to([]))
-        block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
-        for filter_result in filter_results:
-            require_that("filter_result", filter_result, equal_to(block_hash))
+        result = self.get_ethrpc_response(payload)["result"]
+        require_that("filter_id", result, is_list())

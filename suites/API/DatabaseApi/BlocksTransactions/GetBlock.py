@@ -43,7 +43,7 @@ class GetBlock(BaseTest):
         block_header = response["result"]
         require_that(
             "'the first full block'",
-            block_header, has_length(14)
+            block_header, has_length(13)
         )
         if not self.type_validator.is_iso8601(block_header["timestamp"]):
             lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
@@ -66,7 +66,6 @@ class GetBlock(BaseTest):
             "vm_root", is_list(),
             "prev_signatures", is_list(),
             "extensions", is_list(),
-            "ed_signature", is_str(),
             "rand", is_str(),
             "cert", is_list(),
             "transactions", is_list(),

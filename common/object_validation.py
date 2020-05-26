@@ -494,7 +494,7 @@ class ObjectValidator(object):
     def validate_eth_address_object(self, base_test, eth_address_object):
         if check_that(
                 "account eth address",
-                eth_address_object, has_length(6),
+                eth_address_object, has_length(7),
                 quiet=True
         ):
             if not base_test.type_validator.is_eth_address_id(eth_address_object["id"]):
@@ -509,6 +509,11 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'eth_addr', got: {}".format(eth_address_object["eth_addr"]))
             else:
                 lcc.log_info("'eth_addr' has correct format: hex")
+            if not base_test.type_validator.is_hex(eth_address_object["transaction_hash"]):
+                lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(
+                    eth_address_object["transaction_hash"]))
+            else:
+                lcc.log_info("'transaction_hash' has correct format: hex")
             check_that_in(
                 eth_address_object,
                 "is_approved", is_bool(),
@@ -520,7 +525,7 @@ class ObjectValidator(object):
     def validate_deposit_eth_object(self, base_test, deposit_eth_object):
         if check_that(
                 "'deposit eth'",
-                deposit_eth_object, has_length(9),
+                deposit_eth_object, has_length(10),
                 quiet=True
         ):
             if not base_test.type_validator.is_deposit_eth_id(deposit_eth_object["id"]):
@@ -531,7 +536,11 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'account', got: {}".format(deposit_eth_object["account"]))
             else:
                 lcc.log_info("'account' has correct format: account_id")
-
+            if not base_test.type_validator.is_hex(deposit_eth_object["transaction_hash"]):
+                lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(
+                    deposit_eth_object["transaction_hash"]))
+            else:
+                lcc.log_info("'transaction_hash' has correct format: hex")
             check_that_in(
                 deposit_eth_object,
                 "deposit_id", greater_than(0),
@@ -546,7 +555,7 @@ class ObjectValidator(object):
     def validate_withdraw_eth_object(self, base_test, withdraw_eth_object):
         if check_that(
                 "'withdraw eth'",
-                withdraw_eth_object, has_length(11),
+                withdraw_eth_object, has_length(12),
                 quiet=True
         ):
             if not base_test.type_validator.is_withdraw_eth_id(withdraw_eth_object["id"]):
@@ -561,6 +570,11 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'account', got: {}".format(withdraw_eth_object["account"]))
             else:
                 lcc.log_info("'account' has correct format: account_id")
+            if not base_test.type_validator.is_hex(withdraw_eth_object["transaction_hash"]):
+                lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(
+                    withdraw_eth_object["transaction_hash"]))
+            else:
+                lcc.log_info("'transaction_hash' has correct format: hex")
             check_that_in(
                 withdraw_eth_object,
                 "withdraw_id", greater_than_or_equal_to(0),
@@ -642,7 +656,7 @@ class ObjectValidator(object):
     def validate_erc20_withdraw_object(self, base_test, erc20_withdraw_object):
         if check_that(
                 "'erc20 withdrawal'",
-                erc20_withdraw_object, has_length(11),
+                erc20_withdraw_object, has_length(12),
                 quiet=True
         ):
             if not base_test.type_validator.is_withdraw_erc20_id(erc20_withdraw_object["id"]):
@@ -662,6 +676,11 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'account', got {}".format(erc20_withdraw_object["account"]))
             else:
                 lcc.log_info("'account' has correct format: account_id_type")
+            # todo: uncomment when will be fix bug ECHO-2088
+            # if not base_test.type_validator.is_eth_hash(erc20_withdraw_object["transaction_hash"]):
+            #     lcc.log_error("Wrong format of 'transaction_hash', got: {}".format(erc20_withdraw_object["transaction_hash"]))
+            # else:
+            #     lcc.log_info("'to' has correct format: transaction_hash")
 
             check_that_in(
                 erc20_withdraw_object,

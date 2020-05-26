@@ -367,7 +367,7 @@ class Utils(object):
         collected_operation = base_test.collect_operations(operation, database_api_id)
         broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
                                                         log_broadcast=log_broadcast)
-        if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
+        if not base_test.is_operation_completed(broadcast_result, expected_static_variant=1):
             raise Exception(
                 "Error: withdraw ethereum from '{}' account is not performed, response:\n{}".format(registrar,
                                                                                                     broadcast_result))

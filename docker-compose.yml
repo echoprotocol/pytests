@@ -56,10 +56,11 @@ services:
     container_name: '631.echo.pytests.${ENV}'
     depends_on:
       - echo
+      - testrpc
 
 
   echo:
-    image: echoprotocol/echo:0.19.0-rc.0
+    image: echoprotocol/echo:0.19.0-rc.1
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -102,8 +103,9 @@ services:
       - ganache
       - bitcoin
 
+
   testrpc:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.19.0-rc.0
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.19.0-rc.1
     command:
       '--rpc-endpoint=0.0.0.0:19999
       --accounts 2'
