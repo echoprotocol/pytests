@@ -12,6 +12,8 @@ SUITE = {
     "description": "Run 'filter part' tests for JSON PRC interface of ECHO node"
 }
 
+
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_filter")
 @lcc.suite("Check EthRPC 'filter part'")
@@ -170,4 +172,3 @@ class Filter(BaseTest):
         payload = self.rpc_call("eth_getLogs", [{"topics": [""]}])
         result = self.get_ethrpc_response(payload)["result"]
         require_that("filter_id", result, is_list())
-
