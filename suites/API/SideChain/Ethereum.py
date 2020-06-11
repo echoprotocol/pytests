@@ -12,7 +12,6 @@ SUITE = {
     "description": "Entering the currency ethereum in the network ECHO to the account and withdraw that currency"
 }
 
-
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_ethereum", "scenario_sidechain")
 @lcc.suite("Check scenario 'EthToEcho and EchoToEth'")
@@ -223,7 +222,7 @@ class Ethereum(BaseTest):
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
 
         lcc.set_step("Get account balance in ethereum")
-        ethereum_balance = self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier)
+        ethereum_balance = int(self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier))
         lcc.log_info("Account '{}' balance in ethereum is '{}'".format(self.new_account, ethereum_balance))
 
         lcc.set_step("Get recipient balance in ethereum before transfer")

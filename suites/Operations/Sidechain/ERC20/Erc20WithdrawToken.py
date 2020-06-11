@@ -7,12 +7,13 @@ from lemoncheesecake.matching import require_that, greater_than, equal_to, has_l
 
 from common.base_test import BaseTest
 
-
 SUITE = {
     "description": "Operation 'sidechain_erc20_withdraw_token'"
 }
 
 
+# todo: bug ECHO-2141
+@lcc.disabled
 @lcc.prop("main", "type")
 @lcc.tags("operations", "sidechain", "sidechain_erc20", "sidechain_erc20_withdraw_token")
 @lcc.suite("Check work of operation 'sidechain_erc20_withdraw_token'", rank=1)

@@ -13,6 +13,8 @@ SUITE = {
 }
 
 
+# todo: bug ECHO-2141
+@lcc.disabled
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_erc20", "scenarios_sidechain")
 @lcc.suite("Check scenario 'ERC20ToEcho and ERC20FromEchoToEth'")
