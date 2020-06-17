@@ -38,12 +38,12 @@ class NetworkNodeApi(BaseTest):
                 "firewalled", equal_to("unknown"),
                 "connection_count", equal_to(0)
             )
-        if not self.type_validator.is_SHA3_256(result["node_public_key"]):
+        if not self.type_validator.is_privkey(result["node_public_key"]):
             lcc.log_error(
                 "Wrong format of 'node_public_key', got: '{}'".format(result["node_public_key"]))
         else:
             lcc.log_info("'node_public_key' has correct format: eth_hash")
-        if not self.type_validator.is_SHA3_256(result["node_id"]):
+        if not self.type_validator.is_privkey(result["node_id"]):
             lcc.log_error("Wrong format of 'node_id', got: '{}'".format(result["node_id"]))
         else:
             lcc.log_info("'node_id' has correct format: eth_hash")

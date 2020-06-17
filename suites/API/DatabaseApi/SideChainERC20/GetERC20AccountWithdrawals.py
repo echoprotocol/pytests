@@ -12,8 +12,6 @@ SUITE = {
 }
 
 
-# todo: bug ECHO-2141
-@lcc.disabled
 @lcc.prop("main", "type")
 @lcc.tags(
     "api", "database_api", "sidechain", "sidechain_erc20",

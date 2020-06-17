@@ -32,7 +32,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         self.init0 = self.committee_members_info[0]["account_id"]
         self.committee_member_id = self.committee_members_info[0]["committee_id"]
         lcc.log_info("Echo  initial accounts: {}, initial committee id: {}".format(
-                     self.init0, self.committee_member_id))
+            self.init0, self.committee_member_id))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -51,7 +51,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         if int(current_frozen_balance) <= REQUIRED_DEPOSIT_AMOUNT:
             lcc.log_info("Not enought asset to withdraw frozen balance")
 
-        lcc.set_step("Freeze asset of committee_member: '{}' account". format(self.init0))
+        lcc.set_step("Freeze asset of committee_member: '{}' account".format(self.init0))
         operation = self.echo_ops.get_committee_frozen_balance_deposit_operation(
             echo=self.echo, committee_member=self.committee_member_id, committee_member_account=self.init0,
             amount=amount_to_freeze, asset_id=self.echo_asset, signer=INIT0_PK)
@@ -63,11 +63,11 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
                                         self.__database_api_identifier)
         current_frozen_balance = self.get_response(response_id)["result"]["amount"]
         lcc.log_info("Account {} frozen balance updated, frozen balance amount: {}".format(
-                     self.init0, current_frozen_balance))
+            self.init0, current_frozen_balance))
         withdraw_amount = current_frozen_balance - REQUIRED_DEPOSIT_AMOUNT
 
         lcc.set_step("Withdraw balance of active committee member")
-        time.sleep(UNFREEZE_DURATION_SECONDS+1)
+        time.sleep(UNFREEZE_DURATION_SECONDS + 1)
         operation = self.echo_ops.get_committee_frozen_balance_withdraw_operation(
             echo=self.echo, committee_member_account=self.init0,
             amount=withdraw_amount, asset_id=self.echo_asset, signer=INIT0_PK)
