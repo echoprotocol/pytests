@@ -11,6 +11,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_frozen_balance_withdraw")
 @lcc.suite("Check work of operation 'committee_frozen_balance_withdraw'", rank=1)
