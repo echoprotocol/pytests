@@ -8,6 +8,7 @@ SUITE = {
     "description": "Testing contract calls with different asset ids (context)"
 }
 
+
 @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("contract_context")
@@ -109,6 +110,7 @@ class ContractsContext(BaseTest):
         response_id = self.send_request(self.get_request("get_required_fees", [[operation], self.echo_asset]),
                                         self.__database_api_identifier)
         response = \
-            self.get_response(response_id, negative=True)["error"]["data"]["stack"][0]["data"]["e"]["excepted"]
+            self.get_response(response_id, log_response=True, negative=True)["error"]["data"]["stack"][0]["data"]["e"][
+                "excepted"]
         error_massage = "InvalidAssetType"
         require_that("'error massage'", response, equal_to(error_massage))

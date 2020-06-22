@@ -257,7 +257,7 @@ class Bitcoin(BaseTest):
         for i, withdraw in enumerate(get_account_withdrawals_results):
             if check_that(
                     "'withdraw btc'",
-                    withdraw, has_length(8),
+                    withdraw, has_length(9),
                     quiet=True
             ):
                 if not self.type_validator.is_btc_withdraw_id(withdraw["id"]):
@@ -272,6 +272,11 @@ class Bitcoin(BaseTest):
                     lcc.log_error("Wrong format of 'btc_address', got: {}".format(withdraw["btc_addr"]))
                 else:
                     lcc.log_info("'btc_address' has correct format: btc_address")
+                if not self.type_validator.is_SHA3_256(withdraw["transaction_id"]):
+                    lcc.log_error("Wrong format of 'transaction_id', got: {}".format(withdraw["transaction_id"]))
+                else:
+                    lcc.log_info("'transaction_id' has correct format: hex")
+
                 check_that_in(
                     withdraw,
                     "is_approved", is_bool(),

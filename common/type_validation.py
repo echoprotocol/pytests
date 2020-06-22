@@ -372,9 +372,9 @@ class TypeValidator(object):
         if not self.is_hex(value):
             return False
         if value[:2] == "0x":
-            return len(value[2:]) == 4
+            return len(value[2:]) == 2
         else:
-            return len(value[2:]) == 4
+            return len(value[2:]) == 2
 
     def is_eth_balance(self, value):
         if value[:2] == "0x":
@@ -408,7 +408,10 @@ class TypeValidator(object):
     def is_SHA3_256(self, value):
         if not self.is_hex(value):
             return False
-        if len(value) == 66:
+        if value[:2] == "0x":
+            if len(value[2:]) == 64:
+                return True
+        if len(value) == 64:
             return True
 
     def is_privkey(self, value):

@@ -10,8 +10,6 @@ SUITE = {
 }
 
 
-# @lcc.tags("Manual testing")
-# @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "eth_accuracy")
 @lcc.suite("Check scenario 'eth_accuracy'")
@@ -106,7 +104,8 @@ class EthAccuracy(BaseTest):
         contract_id_hex = hex(int(contract_ids[1].split(".")[-1])).split("x")[-1]
         bytecode = (str(
             self.withdraw) +
-                    "00000000000000000000000001000000000000000000000000000000000000" + contract_id_hex + "00000000000000000000000000000000000000000000000000000002540BE400")
+                    "00000000000000000000000001000000000000000000000000000000000000" + contract_id_hex +
+                    "00000000000000000000000000000000000000000000000000000002540BE400")
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
                                                               value_amount=0, bytecode=bytecode,
                                                               callee=contract_ids[0])
@@ -127,7 +126,7 @@ class EthAccuracy(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
         contract_output = self.get_contract_output(contract_result, output_type=int)
-        check_that("contract balance", contract_output, equal_to(eth_accuracy_balance*2))
+        check_that("contract balance", contract_output, equal_to(eth_accuracy_balance * 2))
 
         lcc.set_step("Get contact {} balance after withdrawal to contract address".format(contract_ids[0]))
         operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
@@ -178,4 +177,4 @@ class EthAccuracy(BaseTest):
         response_id = self.send_request(self.get_request("get_account_balances", params),
                                         self.__database_api_identifier)
         updated_balance = self.get_response(response_id)["result"][0]["amount"]
-        check_that("contract balance", int(updated_balance), equal_to(int(balance)+1))
+        check_that("contract balance", int(updated_balance), equal_to(int(balance) + 1))

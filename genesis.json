@@ -635,8 +635,5 @@
             "btc_public_key": "039eeae9c2c707b95f024cf012c35c7784356a069a909af05e585a86348897f0c1"
         }
     ],
-    "initial_chain_id": "aa34045518f1469a28fa4578240d5f039afa9959c0b95ce3b39674efa691fb21",
-    "immutable_parameters": {
-        "min_committee_member_count": 5
-    }
+    "initial_chain_id": "aa34045518f1469a28fa4578240d5f039afa9959c0b95ce3b39674efa691fb21"
 }

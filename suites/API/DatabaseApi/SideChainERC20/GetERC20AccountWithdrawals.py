@@ -2,7 +2,7 @@
 import random
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, greater_than, equal_to, has_length, check_that_in,\
+from lemoncheesecake.matching import require_that, greater_than, equal_to, has_length, check_that_in, \
     check_that, is_true
 
 from common.base_test import BaseTest
@@ -18,7 +18,8 @@ SUITE = {
     "database_api_sidechain_erc20", "get_erc20_account_withdrawals",
     "database_api_objects", "get_objects"
 )
-@lcc.suite("Check work of methods: 'get_erc20_account_withdrawals', 'get_objects (withdraw erc20 token object)'", rank=1)
+@lcc.suite("Check work of methods: 'get_erc20_account_withdrawals', 'get_objects (withdraw erc20 token object)'",
+           rank=1)
 class GetERC20AccountWithdrawals(BaseTest):
 
     def __init__(self):

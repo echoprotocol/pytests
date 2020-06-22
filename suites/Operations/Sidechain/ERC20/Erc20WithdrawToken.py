@@ -7,7 +7,6 @@ from lemoncheesecake.matching import require_that, greater_than, equal_to, has_l
 
 from common.base_test import BaseTest
 
-
 SUITE = {
     "description": "Operation 'sidechain_erc20_withdraw_token'"
 }

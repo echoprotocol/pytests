@@ -12,9 +12,10 @@ SUITE = {
     "description": "Run ECHO test node and check TestPRC methods"
 }
 
+
 @lcc.disabled()
 @lcc.prop("main", "type")
-@lcc.tags("testrpc")
+@lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")
 class TestRPC(BaseTest):
 
@@ -43,6 +44,7 @@ class TestRPC(BaseTest):
 
     def get_response(self, payload):
         response = requests.post(self.test_rcp_url, json=payload).json()
+        lcc.log_debug(str(response))
         if require_that("json-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -333,7 +335,7 @@ class TestRPC(BaseTest):
     def personal_send_transaction(self):
         payload = self.rpc_call("personal_sendTransaction",
                                 [{"from": self.account_address, "to": self.new_account_address, "value": self.value},
-                                 "Account"]
+                                 ""]
                                 )
         response = self.get_response(payload)
         if not self.type_validator.is_hex(response["result"]):
@@ -376,7 +378,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.18.1/Linux.64-bit"
+        result = "ECHO/0.19.2-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))

@@ -186,7 +186,7 @@ class Transaction(BaseTest):
         payload = self.rpc_call("eth_call",
                                 [{
                                     "from": "0x0100000000000000000000000000000000000006",
-                                    "to": "0x0100000000000000000000000000000000000007"
+                                    "to": "0x0100000000000000000000000000000000000000"
                                 }, "latest"]
                                 )
         response = self.get_ethrpc_response(payload)
