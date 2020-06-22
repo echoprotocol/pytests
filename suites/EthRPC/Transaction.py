@@ -13,6 +13,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_transaction")
 @lcc.suite("Check EthRPC 'transaction part'")

@@ -15,6 +15,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_config")
 @lcc.suite("Check EthRPC 'config part'")
