@@ -44,7 +44,6 @@ class TestRPC(BaseTest):
 
     def get_response(self, payload):
         response = requests.post(self.test_rcp_url, json=payload).json()
-        lcc.log_debug(str(response))
         if require_that("json-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -378,7 +377,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.19.3-rc.1/Linux.64-bit"
+        result = "ECHO/0.20-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -671,6 +670,8 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'difficulty' has correct format: eth_hash")
 
+    # BUG ECHO-2310
+    @lcc.disabled()
     @lcc.test("Check method 'evm_increaseTime'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def evm_increase_time(self):
@@ -681,6 +682,8 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'increaseTime' has correct format: eth_hash")
 
+    # BUG ECHO-2311
+    @lcc.disabled()
     @lcc.test("Check method 'evm_mine'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def evm_mine(self):
