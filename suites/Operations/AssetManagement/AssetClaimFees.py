@@ -71,6 +71,7 @@ class AssetClaimFees(BaseTest):
         for i in range(transfer_operation_count):
             collected_operation.append(self.collect_operations(operation, self.__database_api_identifier,
                                                                fee_amount=20, fee_asset_id=new_asset_id))
+        lcc.log_info(str(collected_operation))
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("transfer operation broadcasted {} times".format(transfer_operation_count))
 

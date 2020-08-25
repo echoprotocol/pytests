@@ -146,7 +146,7 @@ class Ethereum(BaseTest):
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
 
         lcc.set_step("Get updated account balance in ethereum after second in")
-        time.sleep(2)
+        time.sleep(5)
         ethereum_balance_second_in = int(
             self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier,
                                        ethereum_balance_first_in))
