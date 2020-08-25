@@ -2,7 +2,6 @@ test:
   variables:
     MIGRATION_RESULT: ""
   before_script:
-    - docker ps
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker-compose down -v
@@ -12,9 +11,10 @@ test:
     - export SIDECHAIN_ADDRESS=$(echo \"$MIGRATION_RESULT\" | perl -lne '/SideChain.*contract address:\s+(0x.{40})/ && print $1')
     - sed -i "s/0xc87395b45C1c199F25a6c2Be43515C41d53751Af/$SIDECHAIN_ADDRESS/g" ./genesis.json
     - docker-compose up -d ganache
+    - docker-compose up -d bitcoin
     - docker-compose up -d testrpc
-    - docker ps -a
-    - docker-compose up --exit-code-from pytests bitcoin echo pytests
+    - docker-compose up -d echo
+    - docker-compose up --exit-code-from pytests pytests
   after_script:
     - docker-compose down -v
     - docker-compose rm -fv
