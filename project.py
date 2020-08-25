@@ -48,6 +48,11 @@ if "ETHEREUM_URL" not in os.environ:
 else:
     ETHEREUM_URL = os.environ["ETHEREUM_URL"]
 
+if "BITCOIN_URL" not in os.environ:
+    BITCOIN_URL = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BITCOIN_URL"]
+else:
+    BITCOIN_URL = os.environ["BITCOIN_URL"]
+
 if "NATHAN_PK" not in os.environ:
     NATHAN_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["NATHAN_PK"]
 else:
