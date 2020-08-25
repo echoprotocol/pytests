@@ -53,6 +53,16 @@ if "BITCOIN_URL" not in os.environ:
 else:
     BITCOIN_URL = os.environ["BITCOIN_URL"]
 
+if "ETHRPC_URL" not in os.environ:
+    ETHRPC_URL = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["ETHRPC_URL"]
+else:
+    ETHRPC_URL = os.environ["ETHRPC_URL"]
+
+if "TESTRPC_URL" not in os.environ:
+    TESTRPC_URL = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["TESTRPC_URL"]
+else:
+    TESTRPC_URL = os.environ["TESTRPC_URL"]
+
 if "NATHAN_PK" not in os.environ:
     NATHAN_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["NATHAN_PK"]
 else:
