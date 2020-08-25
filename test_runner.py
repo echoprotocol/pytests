@@ -110,6 +110,7 @@ def process_filters(filters):
             else:
                 command = "{}^{}:type ".format(command, type_filter[0])
 
+    command = '-a scenarios_bitcoin'
     return command
 
 
