@@ -9,6 +9,8 @@ SUITE = {
 }
 
 
+# todo: BUG ECHO-2325
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_tx_number")
@@ -91,12 +93,19 @@ class GetBlockTxNumber(BaseTest):
                                             self.__database_api_identifier)
             new_transactions = self.get_response(response_id)["result"]["transactions"]
             blocks_num.append(block_num + 1)
-            check_that("transactions in blocks number", new_transactions, has_length(trx_to_broadcast))
+            check_that("transactions in blocks number", (transactions + new_transactions), has_length(trx_to_broadcast))
         else:
             check_that("transactions in block number", transactions, has_length(trx_to_broadcast))
         lcc.set_step("Check 'get_block_tx_number' response")
         tx_number = 0
         self.produce_block(self.__database_api_identifier)
+        for block_num in blocks_num:
+            response_id = self.send_request(self.get_request("get_block_header", [block_num + 1]),
+                                            self.__database_api_identifier)
+            block_id = self.get_response(response_id)["result"]["previous"]
+            response_id = self.send_request(self.get_request("get_block_tx_number", [block_id]),
+                                            self.__database_api_identifier)
+            tx_number += self.get_response(response_id)["result"]
         response_id = self.send_request(self.get_request("get_block_header", [block_num + 1]),
                                         self.__database_api_identifier)
         block_id = self.get_response(response_id)["result"]["previous"]

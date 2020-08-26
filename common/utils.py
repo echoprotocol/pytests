@@ -18,7 +18,7 @@ class Utils(object):
         self.waiting_time_result = 0
 
     @staticmethod
-    def add_balance_for_operations(base_test, account, operation, database_api_id, deposit_amount=1, operation_count=1,
+    def add_balance_for_operations(base_test, account, operation, database_api_id, deposit_amount=0, operation_count=1,
                                    transfer_amount=1, only_in_history=False, get_only_fee=False, log_broadcast=False):
         if only_in_history:
             transfer_amount = operation_count * transfer_amount
@@ -169,7 +169,6 @@ class Utils(object):
                                                               to_account_id=account_2, amount=transfer_amount,
                                                               amount_asset_id=amount_asset_id)
         if account_1 != base_test.echo_acc0:
-            lcc.log_debug(str(transfer_amount))
             temp_operation = deepcopy(operation)
             temp_operation[1]["from_account_id"] = base_test.echo_acc0
             broadcast_result = self.add_balance_for_operations(base_test, account_1, temp_operation, database_api_id,
@@ -424,7 +423,7 @@ class Utils(object):
         params = [account, assets]
         response_id = base_test.send_request(base_test.get_request("get_account_balances", params), database_api_id)
         if len(assets) == 1:
-            return base_test.get_response(response_id)["result"][0]
+            return base_test.get_response(response_id, log_response=True)["result"][0]
         return base_test.get_response(response_id)["result"]
 
     def get_eth_balance(self, base_test, account_id, database_api_id, previous_balance=None, wait_time=0, temp_count=0):

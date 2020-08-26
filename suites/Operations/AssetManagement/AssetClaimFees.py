@@ -39,7 +39,8 @@ class AssetClaimFees(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'asset_claim_fees'")
-    def method_main_check(self, get_random_valid_account_name, get_random_valid_asset_name, get_random_integer_up_to_ten):
+    def method_main_check(self, get_random_valid_account_name, get_random_valid_asset_name,
+                          get_random_integer_up_to_ten):
         new_account = get_random_valid_account_name
         new_asset_name = get_random_valid_asset_name
         transfer_operation_count = get_random_integer_up_to_ten
@@ -60,9 +61,19 @@ class AssetClaimFees(BaseTest):
         collected_operation = self.collect_operations(asset_issue_operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("New asset: '{}' added to new account: '{}'".format(new_account, new_asset_id))
-
         lcc.set_step("Broadcast transfer operation to increase 'accumulated_fees' amount")
         collected_operation = []
+
+        self.utils.perform_transfer_operations(self, self.echo_acc0, new_account, self.__database_api_identifier,
+                                               transfer_amount=20)
+        balance_before_transfer = self.utils.get_account_balances(self, new_account,
+                                                                  self.__database_api_identifier,
+                                                                  assets=new_asset_id)["amount"]
+        balance_before_transfer = self.utils.get_account_balances(self, new_account,
+                                                                  self.__database_api_identifier,
+                                                                  assets="1.3.0")["amount"]
+        lcc.log_info("Account balance before transfer {}".format(balance_before_transfer))
+
         operation = self.echo_ops.get_transfer_operation(
             echo=self.echo, from_account_id=new_account,
             to_account_id=self.echo_acc0, amount=1, fee_amount=20,
