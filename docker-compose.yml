@@ -105,7 +105,7 @@ services:
 
 
   testrpc:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.21-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.21-rc.2
     command:
       '--rpc-endpoint=0.0.0.0:19999
       --accounts 2'
@@ -113,7 +113,7 @@ services:
       - 56453:19999
 
   wallet:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.21-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.21-rc.2
     command:
       '-s ws://172.20.0.4:6311
         --chain-id d93a5bc33bd6c7bd3d5e93f5dff6868abafa83800580a54df55af7fe134cbe38

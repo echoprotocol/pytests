@@ -13,7 +13,7 @@ SUITE = {
 }
 
 
-@lcc.disabled()
+# @lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("test_rpc")
 @lcc.suite("Check TestPRC methods of ECHO test node")
@@ -670,8 +670,6 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'difficulty' has correct format: eth_hash")
 
-    # BUG ECHO-2310
-    @lcc.disabled()
     @lcc.test("Check method 'evm_increaseTime'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def evm_increase_time(self):
@@ -682,8 +680,6 @@ class TestRPC(BaseTest):
         else:
             lcc.log_info("'increaseTime' has correct format: eth_hash")
 
-    # BUG ECHO-2311
-    @lcc.disabled()
     @lcc.test("Check method 'evm_mine'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def evm_mine(self):
