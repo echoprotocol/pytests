@@ -277,8 +277,6 @@ class PositiveTesting(BaseTest):
                 "asset_id", equal_to(assets[i])
             )
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Modified begin_timestamp and try to withdraw vesting balance")
     @lcc.depends_on("API.DatabaseApi.Balances.GetVestingBalances.GetVestingBalances.method_main_check")
     def create_vesting_balance_with_begin_timestamp_in_future(self, get_random_valid_asset_name, get_random_integer,
@@ -344,9 +342,6 @@ class PositiveTesting(BaseTest):
         check_that("updated vesting balance amount", updated_vesting_balance_amount,
                    equal_to(vesting_balance_amount - asset_amount))
 
-
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Modified vesting_cliff_seconds and try to withdraw vesting balance")
     @lcc.depends_on("API.DatabaseApi.Balances.GetVestingBalances.GetVestingBalances.method_main_check")
     def create_vesting_balance_with_vesting_cliff_seconds(self, get_random_valid_asset_name, get_random_integer,
@@ -414,9 +409,6 @@ class PositiveTesting(BaseTest):
         check_that("updated vesting balance amount", updated_vesting_balance_amount,
                    equal_to(vesting_balance_amount - asset_amount))
 
-
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Modified vesting_duration_seconds and try to withdraw vesting balance")
     @lcc.depends_on("API.DatabaseApi.Balances.GetVestingBalances.GetVestingBalances.method_main_check")
     def create_vesting_balance_with_vesting_duration_seconds(self, get_random_valid_asset_name, get_random_integer,

@@ -234,8 +234,6 @@ class PositiveTesting(BaseTest):
         updated_fee_pool_balance = self.get_contract_pool_balance(contract_id)
         check_that("'updated_fee_pool_balance'", updated_fee_pool_balance, equal_to(0))
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Check work of add and remove accounts to/from blacklist")
     @lcc.depends_on(
         "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
@@ -389,8 +387,6 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Check simple work of method 'get_contract_pool_whitelist'")
         check_that("'get_contract_pool_whitelist' return error message", response, has_entry("error"), quiet=True)
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Add account in whitelist and blacklist at the same time")
     @lcc.depends_on(
         "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
@@ -457,8 +453,6 @@ class NegativeTesting(BaseTest):
             lcc.log_info(str(e))
         lcc.log_info("Can not add account to blacklist and remove at the same time")
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Add twice account in whitelist/blacklist and remove from whitelist/blacklist twice")
     @lcc.depends_on(
         "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")

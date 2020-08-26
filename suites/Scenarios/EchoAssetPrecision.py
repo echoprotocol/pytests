@@ -12,8 +12,6 @@ SUITE = {
 }
 
 
-# todo: undisabled, when bug ECHO-2036 will be fixed
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "echo_asset_precision")
 @lcc.suite("Check scenario 'Echo asset precision'")
