@@ -41,7 +41,7 @@ class AssetFundFeePool(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'asset_fund_fee_pool'")
-    def method_main_check(self, get_random_valid_account_name, get_random_valid_asset_name, get_random_integer_up_to_ten):
+    def method_main_check(self, get_random_valid_asset_name, get_random_integer_up_to_ten):
         new_asset_name = get_random_valid_asset_name
         value_amount = get_random_integer_up_to_ten
 

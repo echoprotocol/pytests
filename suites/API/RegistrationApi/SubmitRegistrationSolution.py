@@ -179,7 +179,7 @@ class NegativeTesting(BaseTest):
         evm_address = None
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
-        expected_error_message = "Assert Exception: is_valid_name( name ): '{}' is not a valid account name".format(
+        expected_error_message = "Assert Exception: is_valid_name(name): '{}' is not a valid account name".format(
             account_name)
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
@@ -305,7 +305,7 @@ class NegativeTesting(BaseTest):
             generate_keys = self.generate_keys()
             public_key = generate_keys[1]
             rand_num, solution = self.prepare_rand_num_and_task_solution()
-            expected_error_message = "Assert Exception: is_valid_name( name ): " \
+            expected_error_message = "Assert Exception: is_valid_name(name): " \
                                      "'{}' is not a valid account name".format(account_name)
 
             lcc.set_step("Check that 'submit_registration_solution' crashes with name = '{}'".format(checks[i]))
@@ -328,7 +328,7 @@ class NegativeTesting(BaseTest):
         generate_keys = self.generate_keys()
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
-        expected_error_message = "Assert Exception: is_valid_name( name ): " \
+        expected_error_message = "Assert Exception: is_valid_name(name): " \
                                  "'{}' is not a valid account name".format(account_name)
 
         lcc.set_step("Check that 'submit_registration_solution' completed successfully")

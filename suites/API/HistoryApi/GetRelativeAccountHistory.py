@@ -208,7 +208,7 @@ class PositiveTesting(BaseTest):
         )
 
         lcc.set_step("Perform another operations")
-        operation_count = 5
+        operation_count = 1
         broadcast_result = self.utils.perform_transfer_operations(self, self.echo_acc0, self.echo_acc1,
                                                                   self.__database_api_identifier,
                                                                   transfer_amount=transfer_amount_2,

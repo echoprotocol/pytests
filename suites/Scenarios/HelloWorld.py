@@ -144,6 +144,8 @@ class HelloWorld(BaseTest):
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.add_fee_to_account(self.break_piggy, contract_id)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        self.produce_block(self.__database_api_identifier)
+
         lcc.set_step("Get contract balance, must be 0 (zero)")
         response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
                                         self.__database_api_identifier)

@@ -53,9 +53,10 @@ class AccountWhitelist(BaseTest):
                                                                   account_to_list=new_account, new_listing=1)
 
         fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
-        self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
-                                               self.__database_api_identifier, transfer_amount=fee)
-        lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
+        if fee != 0:
+            self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
+                                                   self.__database_api_identifier, transfer_amount=fee)
+            lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
 
         lcc.set_step("Perform 'account_whitelist_operation' to add account to 'whitelisted_accounts'")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
@@ -70,9 +71,10 @@ class AccountWhitelist(BaseTest):
                                                                   account_to_list=new_account, new_listing=2)
 
         fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
-        self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
-                                               self.__database_api_identifier, transfer_amount=fee)
-        lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
+        if fee != 0:
+            self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
+                                                   self.__database_api_identifier, transfer_amount=fee)
+            lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
 
         lcc.set_step("Perform 'account_whitelist_operation' to add account to 'blacklisted_accounts'")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
@@ -87,9 +89,10 @@ class AccountWhitelist(BaseTest):
                                                                   account_to_list=new_account, new_listing=3)
 
         fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
-        self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
-                                               self.__database_api_identifier, transfer_amount=fee)
-        lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
+        if fee != 0:
+            self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
+                                                   self.__database_api_identifier, transfer_amount=fee)
+            lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
 
         lcc.set_step("Perform 'account_whitelist_operation' to add account to either, white and black list")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
@@ -107,9 +110,10 @@ class AccountWhitelist(BaseTest):
                                                                   account_to_list=new_account, new_listing=0)
 
         fee = self.get_required_fee(operation, self.__database_api_identifier).get("amount")
-        self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
-                                               self.__database_api_identifier, transfer_amount=fee)
-        lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
+        if fee != 0:
+            self.utils.perform_transfer_operations(self, self.echo_acc0, new_account,
+                                                   self.__database_api_identifier, transfer_amount=fee)
+            lcc.log_info("Needed amount '{}' to pay fee added to account '{}'".format(fee, new_account))
 
         lcc.set_step("Perform 'account_whitelist_operation' to remove account from any, white and black list")
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)

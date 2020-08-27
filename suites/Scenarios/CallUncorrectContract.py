@@ -10,6 +10,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "call_uncorrect_contract")
 @lcc.suite("Check scenario 'Testing call uncorrect contract call'")
@@ -42,7 +43,6 @@ class CallUncorrectContract(BaseTest):
 
     @lcc.test("The scenario describes the mechanism of creating contract with not hex format of contract code")
     def call_uncorrect_contract(self):
-
         lcc.set_step("Create contract 'Uncorrect contract'")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier,
                                                  value_asset_id=self.echo_asset, supported_asset_id=self.echo_asset)
@@ -67,10 +67,3 @@ class CallUncorrectContract(BaseTest):
             check_that("exec_res", exec_res, has_length(6))
             tr_receipt = trx_completed_response["result"][1]["tr_receipt"]
             check_that("tr_receipt", tr_receipt, has_length(4))
-
-
-
-
-
-
-

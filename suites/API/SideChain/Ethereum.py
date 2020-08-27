@@ -146,7 +146,7 @@ class Ethereum(BaseTest):
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
 
         lcc.set_step("Get updated account balance in ethereum after second in")
-        time.sleep(2)
+        time.sleep(5)
         ethereum_balance_second_in = int(
             self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier,
                                        ethereum_balance_first_in))
@@ -208,8 +208,6 @@ class Ethereum(BaseTest):
         lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.echo_acc0))
         self.withdraw_eth_to_ethereum_address(self.echo_acc0, withdraw_amount)
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("The scenario transferring eeth to account addresses")
     @lcc.depends_on("API.SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
     def transfer_eeth_to_account_address_scenario(self, get_random_string):

@@ -373,7 +373,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.19.3-rc.1/Linux.64-bit"
+        result = "ECHO/0.21-rc.2/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
