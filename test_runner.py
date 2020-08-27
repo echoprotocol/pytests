@@ -109,7 +109,7 @@ def process_filters(filters):
                 command = "{}{}:type ".format(command, type_filter[0])
             else:
                 command = "{}^{}:type ".format(command, type_filter[0])
-    command = '-a get_contract_pool_whitelist '
+
     return command
 
 
