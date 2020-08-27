@@ -421,14 +421,17 @@ class NegativeTesting(BaseTest):
         value_to_pool = get_random_integer
         whitelist, blacklist = [self.echo_acc0], [self.echo_acc0]
 
+        print('1')
         lcc.set_step("Create contract in the Echo network and get its contract id")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract, self.__database_api_identifier)
 
+        print('2')
         lcc.set_step("Add fee pool to new contract")
         self.utils.perform_contract_fund_pool_operation(self, self.echo_acc0, contract_id, value_to_pool,
                                                         self.__database_api_identifier)
         lcc.log_info("Fee pool added to '{}' contract successfully".format(contract_id))
 
+        print('3')
         lcc.set_step("Add one account to whitelist and remove at the same time")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
@@ -441,6 +444,7 @@ class NegativeTesting(BaseTest):
             lcc.log_info(str(e))
         lcc.log_info("Can not add account to whitelist and remove at the same time")
 
+        print('4')
         lcc.set_step("Add one account to blacklist and remove at the same time")
         try:
             self.utils.perform_contract_whitelist_operation(self, self.echo_acc0, contract_id,
