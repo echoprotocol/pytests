@@ -64,16 +64,16 @@ class AssetClaimFees(BaseTest):
         lcc.set_step("Broadcast transfer operation to increase 'accumulated_fees' amount")
         collected_operation = []
 
+        lcc.set_step("Perform 'asset_fund_fee_pool_operation'")
+        asset_fund_fee_pool_operation = self.echo_ops.get_asset_fund_fee_pool_operation(
+            self.echo, from_account=self.echo_acc0, asset_id=new_asset_id, amount=1000)
+        collected_op = self.collect_operations(asset_fund_fee_pool_operation, self.__database_api_identifier)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_op,
+                                log_broadcast=False)
+        lcc.log_info("'asset_fund_fee_pool_operation' broadcasted successfully")
+
         self.utils.perform_transfer_operations(self, self.echo_acc0, new_account, self.__database_api_identifier,
                                                transfer_amount=20)
-        balance_before_transfer = self.utils.get_account_balances(self, new_account,
-                                                                  self.__database_api_identifier,
-                                                                  assets=new_asset_id)["amount"]
-        balance_before_transfer = self.utils.get_account_balances(self, new_account,
-                                                                  self.__database_api_identifier,
-                                                                  assets="1.3.0")["amount"]
-        lcc.log_info("Account balance before transfer {}".format(balance_before_transfer))
-
         operation = self.echo_ops.get_transfer_operation(
             echo=self.echo, from_account_id=new_account,
             to_account_id=self.echo_acc0, amount=1, fee_amount=20,
@@ -82,11 +82,11 @@ class AssetClaimFees(BaseTest):
         for i in range(transfer_operation_count):
             collected_operation.append(self.collect_operations(operation, self.__database_api_identifier,
                                                                fee_amount=20, fee_asset_id=new_asset_id))
-        lcc.log_info(str(collected_operation))
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("transfer operation broadcasted {} times".format(transfer_operation_count))
 
         lcc.set_step("Check that accumulated_fees increased")
+        fee = 20
         claim_amount = fee * transfer_operation_count
         response_id = self.send_request(self.get_request("get_objects", [[new_asset_id]]),
                                         self.__database_api_identifier)
