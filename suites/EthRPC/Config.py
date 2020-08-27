@@ -236,7 +236,6 @@ class Config(BaseTest):
         else:
             lcc.log_info("'difficulty' has correct format: eth_hash")
 
-    @lcc.disabled()
     @lcc.test("Check method 'echo_submitRegistrationSolution'")
     @lcc.depends_on("EthRPC.Config.Config.echo_request_registration_task")
     def echo_submit_registration_solution(self, get_random_valid_account_name):
