@@ -23,7 +23,7 @@ class Utils(object):
         if only_in_history:
             transfer_amount = operation_count * transfer_amount
         if get_only_fee:
-            transfer_amount = 0
+            transfer_amount = transfer_amount
         fee_amount = base_test.get_required_fee(operation, database_api_id)["amount"]
         if type(fee_amount) is str:
             fee_amount = int(fee_amount)

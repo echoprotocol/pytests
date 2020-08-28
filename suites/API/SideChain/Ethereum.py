@@ -278,6 +278,7 @@ class Ethereum(BaseTest):
                                                           amount_asset_id=self.eth_asset,
                                                           fee_asset_id=self.eth_asset)
         lcc.set_step("Get account balance after second transfer and store")
+        time.sleep(5)
         recipient_balance_after_second_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
                                                                                  self.__database_api_identifier,
                                                                                  recipient_balance_after_transfer))
