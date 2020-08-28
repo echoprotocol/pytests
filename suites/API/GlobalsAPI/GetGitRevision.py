@@ -41,7 +41,7 @@ class GeGitRevision(BaseTest):
         lcc.set_step("Call method 'get_git_revision'")
         response_id = self.send_request(self.get_request("get_git_revision", []),
                                         self.__database_api_identifier)
-        result = self.get_response(response_id, log_response=True)["result"]
+        result = self.get_response(response_id)["result"]
         require_that('result', result["ECHO_GIT_REVISION_SHA"], equal_to("63bf1ff6bec5198d17b604ad13a09f9506cd5713"))
         require_that('result', result["ECHO_GIT_REVISION_UNIX_TIMESTAMP"], equal_to("4 days ago"))
         require_that('result', result["ECHO_GIT_REVISION_DESCRIPTION"], equal_to("0.21-rc.2"))
