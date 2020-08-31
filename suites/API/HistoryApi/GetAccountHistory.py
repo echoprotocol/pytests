@@ -212,17 +212,17 @@ class PositiveTesting(BaseTest):
         operation_id = response["result"][0]["id"]
 
         lcc.set_step("Perform another operations")
-        operation_count = 3
+        operation_count = 5
         broadcast_result = self.utils.perform_transfer_operations(self, self.echo_acc0, self.echo_acc1,
                                                                   self.__database_api_identifier,
                                                                   transfer_amount=transfer_amount_2,
                                                                   operation_count=operation_count, only_in_history=True)
         lcc.log_info("Fill account history with '{}' number of transfer operations".format(operation_count))
 
-        for i in range(operation_count):
+        for i in range(operation_count - 1):
             operations.append(broadcast_result["trx"]["operations"][i])
 
-        limit = operation_count
+        limit = operation_count - 1
         stop = operation_id
         lcc.set_step("Get account history. Stop: '{}', limit: '{}'".format(stop, limit))
         response = self.get_account_history(self.echo_acc0, stop, limit, start)
