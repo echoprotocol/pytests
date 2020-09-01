@@ -46,7 +46,7 @@ class TransferAssetViaContactAddresses(BaseTest):
         account_addresses = []
         transfer_amount = get_random_integer
         withdraw_amount = get_random_integer_up_to_fifty
-        deposit_amount = 1
+        deposit_amount = withdraw_amount
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
                                           self.__registration_api_identifier)
@@ -118,6 +118,7 @@ class TransferAssetViaContactAddresses(BaseTest):
         lcc.log_info("From the account of the recipient transferred assets to the account sender")
 
         lcc.set_step("Get account balance after return to sender")
+        self.produce_block(self.__database_api_identifier)
         balance = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)
         check_that_in(
             balance,
