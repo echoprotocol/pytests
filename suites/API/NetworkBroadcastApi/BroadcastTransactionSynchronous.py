@@ -86,6 +86,7 @@ class BroadcastTransactionSynchronous(BaseTest):
                    updated_account_balance - account_balance, equal_to(transfer_amount))
 
 
+@lcc.disabled()
 @lcc.prop("negative", "type")
 @lcc.tags("api", "network_broadcast_api", "broadcast_transaction_synchronous")
 @lcc.suite("Negative testing of method 'broadcast_transaction_synchronous'", rank=3)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_none, is_not_none, equal_to
+from lemoncheesecake.matching import require_that, is_str, is_none, is_not_none, equal_to, is_true
 
 from common.base_test import BaseTest
 
@@ -42,6 +42,24 @@ class GeGitRevision(BaseTest):
         response_id = self.send_request(self.get_request("get_git_revision", []),
                                         self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
-        require_that('result', result["ECHO_GIT_REVISION_SHA"], equal_to("63bf1ff6bec5198d17b604ad13a09f9506cd5713"))
-        require_that('result', result["ECHO_GIT_REVISION_UNIX_TIMESTAMP"], equal_to("4 days ago"))
-        require_that('result', result["ECHO_GIT_REVISION_DESCRIPTION"], equal_to("0.21-rc.2"))
+        if not self.type_validator.is_hex(result["ECHO_GIT_REVISION_SHA"]):
+            lcc.log_error(
+                "Wrong format of 'ECHO_GIT_REVISION_SHA', got: {}".format(result["ECHO_GIT_REVISION_SHA"]))
+        else:
+            lcc.log_info("'ECHO_GIT_REVISION_SHA' has correct format: hex")
+
+        for index, unix_timestamp_part in enumerate(result['ECHO_GIT_REVISION_UNIX_TIMESTAMP'].split(" ")):
+            if index:
+                check = is_str
+                part = unix_timestamp_part
+                name = 'ECHO_GIT_REVISION_UNIX_TIMESTAMP part'
+            else:
+                check = is_true
+                part = unix_timestamp_part.isdigit()
+                name = 'ECHO_GIT_REVISION_UNIX_TIMESTAMP is digit string'
+            require_that(
+                name,
+                part,
+                check()
+            )
+        require_that('result', result["ECHO_GIT_REVISION_DESCRIPTION"], is_str())
