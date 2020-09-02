@@ -423,7 +423,7 @@ class Utils(object):
         params = [account, assets]
         response_id = base_test.send_request(base_test.get_request("get_account_balances", params), database_api_id)
         if len(assets) == 1:
-            return base_test.get_response(response_id, log_response=False)["result"][0]
+            return base_test.get_response(response_id)["result"][0]
         return base_test.get_response(response_id)["result"]
 
     def get_eth_balance(self, base_test, account_id, database_api_id, previous_balance=None, wait_time=0, temp_count=0):
