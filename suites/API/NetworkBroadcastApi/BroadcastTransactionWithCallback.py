@@ -98,6 +98,7 @@ class BroadcastTransactionWithCallback(BaseTest):
                    updated_account_balance - account_balance, equal_to(transfer_amount))
 
 
+@lcc.disabled()
 @lcc.prop("negative", "type")
 @lcc.tags("api", "network_broadcast_api", "broadcast_transaction_with_callback")
 @lcc.suite("Negative testing of method 'broadcast_transaction_with_callback'", rank=3)

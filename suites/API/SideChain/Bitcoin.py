@@ -11,14 +11,13 @@ from lemoncheesecake.matching import check_that, equal_to, require_that, check_t
     is_bool, is_integer, is_list, is_dict
 
 from common.base_test import BaseTest
-from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BTC_FEE, INIT0_PK, BTC_WITHDRAWAL_MIN
+from project import SATOSHI_PRECISION, SATOSHI_PER_BYTE, BITCOIN_URL, BTC_FEE, INIT0_PK, BTC_WITHDRAWAL_MIN
 
 SUITE = {
     "description": "Entering the currency bitcoin in the network ECHO to the account and withdraw that currency"
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "sidechain", "sidechain_bitcoin", "scenarios_bitcoin")
 @lcc.suite("Check scenario 'BtcToEcho and EchoToBtc'")
@@ -47,11 +46,17 @@ class Bitcoin(BaseTest):
         self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
                                              self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-        rpcPort = 18443
-        rpcUser = 'test'
-        rpcPassword = 'test'
-        serverURL = 'http://' + rpcUser + ':' + rpcPassword + '@localhost:' + str(rpcPort)
-        self.btc_url = serverURL
+
+        search_pattern = '://'
+        split_index = BITCOIN_URL.find(search_pattern) + len(search_pattern)
+        rpc_user = 'test'
+        rpc_password = 'test'
+        self.btc_url = '{}{}:{}@{}'.format(
+            BITCOIN_URL[:split_index],
+            rpc_user,
+            rpc_password,
+            BITCOIN_URL[split_index:]
+        )
         self._session = requests.Session()
         self._headers = {'content-type': 'application/json'}
 

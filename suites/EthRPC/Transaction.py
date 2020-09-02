@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
-
 import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
     check_that, is_list
 
 from common.base_test import BaseTest
+from project import ETHRPC_URL
 
 SUITE = {
     "description": "Run 'transaction part' tests for JSON PRC interface of ECHO node"
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_transaction")
 @lcc.suite("Check EthRPC 'transaction part'")
@@ -21,8 +19,6 @@ class Transaction(BaseTest):
 
     def __init__(self):
         super().__init__()
-        self.rpcPort = None
-        self.test_rcp_url = None
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
@@ -40,7 +36,7 @@ class Transaction(BaseTest):
         return payload
 
     def get_ethrpc_response(self, payload):
-        response = requests.post(self.test_rcp_url, json=payload).json()
+        response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("eth-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -93,8 +89,6 @@ class Transaction(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
-        self.rpcPort = 56454
-        self.test_rcp_url = 'http://0.0.0.0:' + str(self.rpcPort)
         self.account_address = "0x0000000000000000000000000000000000000006"
         self.contract_address = "0x0100000000000000000000000000000000000000"
 
@@ -106,7 +100,7 @@ class Transaction(BaseTest):
     def main_check(self):
         message = {'code': -32600, 'message': 'Missing or invalid method'}
         payload = self.rpc_call("", "")
-        response = requests.post(self.test_rcp_url, json=payload).json()
+        response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("json-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -246,8 +240,9 @@ class Transaction(BaseTest):
         check_that("blockNumber", receipt["blockNumber"], equal_to(block_id))
         check_that("from", receipt["from"], equal_to("0x000000000000000000000000000000000000000c"))
         check_that("to", receipt["to"], equal_to("0x000000000000000000000000000000000000000d"))
-        check_that("cumulativeGasUsed", receipt["cumulativeGasUsed"], equal_to("0x14"))
-        check_that("gasUsed", receipt["gasUsed"], equal_to("0x14"))
+        #todo: bug ECHO-2324
+        # check_that("cumulativeGasUsed", receipt["cumulativeGasUsed"], equal_to("0x14"))
+        # check_that("gasUsed", receipt["gasUsed"], equal_to("0x14"))
         check_that("contractAddress", receipt["contractAddress"], is_none())
         check_that("logs", receipt["logs"], is_list())
         check_that("logsBloom", receipt["logsBloom"], equal_to(""))

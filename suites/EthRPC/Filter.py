@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
-
 import lemoncheesecake.api as lcc
 import requests
-from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
-    check_that, is_list, not_equal_to, is_true
+from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, \
+    is_list, not_equal_to, is_true
 
 from common.base_test import BaseTest
+from project import ETHRPC_URL
 
 SUITE = {
     "description": "Run 'filter part' tests for JSON PRC interface of ECHO node"
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_filter")
 @lcc.suite("Check EthRPC 'filter part'")
@@ -21,8 +19,6 @@ class Filter(BaseTest):
 
     def __init__(self):
         super().__init__()
-        self.rpcPort = None
-        self.test_rcp_url = None
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
@@ -37,7 +33,7 @@ class Filter(BaseTest):
         return payload
 
     def get_ethrpc_response(self, payload):
-        response = requests.post(self.test_rcp_url, json=payload).json()
+        response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("eth-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -77,8 +73,6 @@ class Filter(BaseTest):
                                              self.__registration_api_identifier)
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
-        self.rpcPort = 56454
-        self.test_rcp_url = 'http://0.0.0.0:' + str(self.rpcPort)
         self.account_address = "0x0000000000000000000000000000000000000006"
 
     def teardown_suite(self):

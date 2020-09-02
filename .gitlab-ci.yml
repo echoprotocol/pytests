@@ -2,7 +2,6 @@ test:
   variables:
     MIGRATION_RESULT: ""
   before_script:
-    - docker network ls
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker-compose down -v
@@ -15,7 +14,6 @@ test:
     - docker-compose up -d bitcoin
     - docker-compose up -d testrpc
     - docker-compose up -d echo
-    - docker ps -a
     - docker-compose up --exit-code-from pytests pytests
   after_script:
     - docker-compose down -v
