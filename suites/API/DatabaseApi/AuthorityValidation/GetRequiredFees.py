@@ -316,8 +316,6 @@ class NegativeTesting(BaseTest):
             response, has_entry("error"), quiet=True,
         )
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Fee lower than get_required_fee in transfer operation")
     @lcc.depends_on("API.DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
     def fee_lower_than_get_required_fee(self):
@@ -331,8 +329,6 @@ class NegativeTesting(BaseTest):
         except RPCError as e:
             lcc.log_info(str(e))
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("Sender don't have enough fee")
     @lcc.depends_on("API.DatabaseApi.AuthorityValidation.GetRequiredFees.GetRequiredFees.method_main_check")
     def sender_do_not_have_enough_fee(self, get_random_valid_account_name):

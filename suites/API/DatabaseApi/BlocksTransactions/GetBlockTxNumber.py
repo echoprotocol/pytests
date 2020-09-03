@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, has_length
+
 from common.base_test import BaseTest
+
 SUITE = {
     "description": "Method 'get_block_tx_number'"
 }
 
 
+# todo: BUG ECHO-2325
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_tx_number")
 @lcc.suite("Check work of method 'get_block_tx_number'", rank=1)
-
 class GetBlockTxNumber(BaseTest):
     def __init__(self):
         super().__init__()
@@ -77,7 +80,7 @@ class GetBlockTxNumber(BaseTest):
                                                 self.__network_broadcast_identifier)
                 self.get_response(response_id)
             break
-        lcc.log_info("Transactions broadcasted")
+        lcc.log_info("Transactions were broadcasted")
         lcc.set_step("Get block id and check that all {} transactions added successfully".format(trx_to_broadcast))
         notice = self.get_notice(subscription_callback_id, log_response=False)
         block_num = notice["block_num"]
@@ -103,4 +106,10 @@ class GetBlockTxNumber(BaseTest):
             response_id = self.send_request(self.get_request("get_block_tx_number", [block_id]),
                                             self.__database_api_identifier)
             tx_number += self.get_response(response_id)["result"]
+        response_id = self.send_request(self.get_request("get_block_header", [block_num + 1]),
+                                        self.__database_api_identifier)
+        block_id = self.get_response(response_id)["result"]["previous"]
+        response_id = self.send_request(self.get_request("get_block_tx_number", [block_id]),
+                                        self.__database_api_identifier)
+        tx_number += self.get_response(response_id)["result"]
         check_that("block transaction number", tx_number, equal_to(trx_to_broadcast))

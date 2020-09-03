@@ -46,15 +46,11 @@ class TransferAssetViaContactAddresses(BaseTest):
         account_addresses = []
         transfer_amount = get_random_integer
         withdraw_amount = get_random_integer_up_to_fifty
+        deposit_amount = withdraw_amount
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(new_account, self.__database_api_identifier,
                                           self.__registration_api_identifier)
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
-
-        lcc.set_step("Get account balance and store")
-        balance_before_transfer = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)
-        lcc.log_info("Account '{}' balance in '{}' asset: '{}'".format(new_account, self.echo_asset,
-                                                                       balance_before_transfer["amount"]))
 
         lcc.set_step("Create multiple account address for new account")
         for i in range(addresses_count):
@@ -71,6 +67,11 @@ class TransferAssetViaContactAddresses(BaseTest):
         for result in results:
             account_addresses.append(result["address"])
         lcc.log_info("Call method 'get_account_addresses' of new account")
+
+        lcc.set_step("Get account balance and store")
+        balance_before_transfer = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)
+        lcc.log_info("Account '{}' balance in '{}' asset: '{}'".format(new_account, self.echo_asset,
+                                                                       balance_before_transfer["amount"]))
 
         lcc.set_step("Transfer assets via first account_address")
         self.utils.perform_transfer_to_address_operations(self, self.echo_acc0, account_addresses[0],
@@ -117,10 +118,11 @@ class TransferAssetViaContactAddresses(BaseTest):
         lcc.log_info("From the account of the recipient transferred assets to the account sender")
 
         lcc.set_step("Get account balance after return to sender")
+        self.produce_block(self.__database_api_identifier)
         balance = self.utils.get_account_balances(self, new_account, self.__database_api_identifier)
         check_that_in(
             balance,
-            "amount", equal_to(balance_after_second_transfer["amount"] - withdraw_amount),
+            "amount", equal_to(balance_after_second_transfer["amount"] - withdraw_amount + deposit_amount),
             "asset_id", equal_to(balance_before_transfer["asset_id"])
         )
 

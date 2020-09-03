@@ -31,10 +31,10 @@ class Ethereum(BaseTest):
         self.withdraw_fee = GAS_PRICE * MIN_ETH_WITHDRAW_FEE
 
     @staticmethod
-    def get_random_amount(_from=None, _to=None, amount_type=None):
+    def get_random_amount(_from=MIN_ETH_WITHDRAW, _to=None, amount_type=None):
         if amount_type == float:
             if (_from and _to) is None:
-                _from, _to = 0.01, 0.1
+                _from, _to = 0.01, 0.2
             return random.uniform(_from, _to)
         if amount_type == int:
             if _to == MIN_ETH_WITHDRAW:
@@ -146,7 +146,7 @@ class Ethereum(BaseTest):
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
 
         lcc.set_step("Get updated account balance in ethereum after second in")
-        time.sleep(2)
+        time.sleep(5)
         ethereum_balance_second_in = int(
             self.utils.get_eth_balance(self, self.new_account, self.__database_api_identifier,
                                        ethereum_balance_first_in))
@@ -208,8 +208,6 @@ class Ethereum(BaseTest):
         lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.echo_acc0))
         self.withdraw_eth_to_ethereum_address(self.echo_acc0, withdraw_amount)
 
-    # todo: undisabled, when bug ECHO-2036 will be fixed
-    @lcc.disabled()
     @lcc.test("The scenario transferring eeth to account addresses")
     @lcc.depends_on("API.SideChain.Ethereum.Ethereum.ethereum_sidechain_pre_run_scenario")
     def transfer_eeth_to_account_address_scenario(self, get_random_string):
@@ -259,6 +257,7 @@ class Ethereum(BaseTest):
                                                           )
 
         lcc.set_step("Get account balance after transfer and store")
+        time.sleep(5)
         recipient_balance_after_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
                                                                           self.__database_api_identifier,
                                                                           ethereum_balance))
@@ -273,13 +272,15 @@ class Ethereum(BaseTest):
         )
 
         lcc.set_step("Transfer assets via second account_address")
-        transfer_amount = self.get_random_amount(_to=ethereum_balance, amount_type=int)
+        transfer_amount = self.get_random_amount(_to=recipient_balance_after_transfer - MIN_ETH_WITHDRAW_FEE,
+                                                 amount_type=int)
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-2],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
                                                           amount_asset_id=self.eth_asset,
                                                           fee_asset_id=self.eth_asset)
         lcc.set_step("Get account balance after second transfer and store")
+        time.sleep(5)
         recipient_balance_after_second_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
                                                                                  self.__database_api_identifier,
                                                                                  recipient_balance_after_transfer))

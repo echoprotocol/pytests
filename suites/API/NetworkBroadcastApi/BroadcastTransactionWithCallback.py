@@ -98,7 +98,6 @@ class BroadcastTransactionWithCallback(BaseTest):
                    updated_account_balance - account_balance, equal_to(transfer_amount))
 
 
-# todo: undisabled, when bug ECHO-2036 will be fixed
 @lcc.disabled()
 @lcc.prop("negative", "type")
 @lcc.tags("api", "network_broadcast_api", "broadcast_transaction_with_callback")
@@ -182,6 +181,9 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
+
+    #todo: BUG ECHO-2326
+    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong expiration time")
     @lcc.depends_on(

@@ -10,6 +10,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "eth_accuracy")
 @lcc.suite("Check scenario 'eth_accuracy'")

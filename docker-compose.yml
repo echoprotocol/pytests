@@ -45,6 +45,8 @@ services:
       - BASE_URL=ws://echo:6311/ws
       - ETHEREUM_URL=http://ganache:8545
       - BITCOIN_URL=http://bitcoin:18443
+      - ETHRPC_URL=http://echo:8092
+      - TESTRPC_URL=http://testrpc:19999
       - NATHAN_PK=5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
       - INIT0_PK=5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
       - INIT1_PK=5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
@@ -60,7 +62,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.19.3-rc.1
+    image: echoprotocol/echo:0.21-rc.2
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -105,7 +107,7 @@ services:
 
 
   testrpc:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.19.3-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.21-rc.2
     command:
       '--rpc-endpoint=0.0.0.0:19999
       --accounts 2'
@@ -113,9 +115,9 @@ services:
       - 56453:19999
 
   wallet:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.19.3-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.21-rc.2
     command:
-      '-s ws://172.19.0.4:6311
+      '-s ws://172.20.0.4:6311
         --chain-id d93a5bc33bd6c7bd3d5e93f5dff6868abafa83800580a54df55af7fe134cbe38
         --rpc-endpoint=0.0.0.0:1998
         '

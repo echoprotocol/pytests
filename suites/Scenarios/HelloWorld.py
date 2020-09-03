@@ -138,27 +138,30 @@ class HelloWorld(BaseTest):
             "'owner balance'",
             actual_balance,
             is_(owner_balance + 1))
-        lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.account_id,
-                                                              bytecode=self.break_piggy, callee=contract_id)
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        self.add_fee_to_account(self.break_piggy, contract_id)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        lcc.set_step("Get contract balance, must be 0 (zero)")
-        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
-                                        self.__database_api_identifier)
-        response = self.get_response(response_id)
-        check_that(
-            "'contract balance'",
-            response["result"][0]["amount"],
-            is_integer(0)
-        )
-        lcc.set_step("Check that contract to be 'destroyed=True'")
-        response_id = self.send_request(self.get_request("get_objects", [[contract_id]]),
-                                        self.__database_api_identifier)
-        response = self.get_response(response_id)
-        check_that(
-            "contract deleted and 'destroyed'",
-            response["result"][0]["destroyed"],
-            is_true()
-        )
+        #todo: ECHO-2327
+        # lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
+        # operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.account_id,
+        #                                                       bytecode=self.break_piggy, callee=contract_id)
+        # collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        # self.add_fee_to_account(self.break_piggy, contract_id)
+        # self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        # self.produce_block(self.__database_api_identifier)
+        #
+        # lcc.set_step("Get contract balance, must be 0 (zero)")
+        # response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
+        #                                 self.__database_api_identifier)
+        # response = self.get_response(response_id)
+        # check_that(
+        #     "'contract balance'",
+        #     response["result"][0]["amount"],
+        #     is_integer(0)
+        # )
+        # lcc.set_step("Check that contract to be 'destroyed=True'")
+        # response_id = self.send_request(self.get_request("get_objects", [[contract_id]]),
+        #                                 self.__database_api_identifier)
+        # response = self.get_response(response_id)
+        # check_that(
+        #     "contract deleted and 'destroyed'",
+        #     response["result"][0]["destroyed"],
+        #     is_true()
+        # )

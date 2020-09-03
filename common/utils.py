@@ -19,11 +19,11 @@ class Utils(object):
 
     @staticmethod
     def add_balance_for_operations(base_test, account, operation, database_api_id, deposit_amount=0, operation_count=1,
-                                   transfer_amount=0, only_in_history=False, get_only_fee=False, log_broadcast=False):
+                                   transfer_amount=1, only_in_history=False, get_only_fee=False, log_broadcast=False):
         if only_in_history:
             transfer_amount = operation_count * transfer_amount
         if get_only_fee:
-            transfer_amount = 0
+            transfer_amount = transfer_amount
         fee_amount = base_test.get_required_fee(operation, database_api_id)["amount"]
         if type(fee_amount) is str:
             fee_amount = int(fee_amount)
@@ -164,7 +164,7 @@ class Utils(object):
     def perform_transfer_operations(self, base_test, account_1, account_2, database_api_id, transfer_amount=1,
                                     operation_count=1, only_in_history=False, amount_asset_id="1.3.0",
                                     get_only_fee=False, log_broadcast=False, broadcast_with_callback=False):
-        add_balance_operation = 0
+        add_balance_operation = 1
         operation = base_test.echo_ops.get_transfer_operation(echo=base_test.echo, from_account_id=account_1,
                                                               to_account_id=account_2, amount=transfer_amount,
                                                               amount_asset_id=amount_asset_id)

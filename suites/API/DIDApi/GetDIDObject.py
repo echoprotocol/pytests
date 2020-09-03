@@ -6,7 +6,7 @@ from lemoncheesecake.matching import require_that, is_none, is_not_none
 from common.base_test import BaseTest
 
 SUITE = {
-    "description": "Operation 'create DID'"
+    "description": "Method 'get_did_object'"
 }
 
 

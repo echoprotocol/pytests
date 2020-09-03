@@ -9,13 +9,13 @@ from lemoncheesecake.matching import require_that, has_length, require_that_in, 
     check_that, is_false, not_equal_to, is_list
 
 from common.base_test import BaseTest
+from project import ETHRPC_URL
 
 SUITE = {
     "description": "Run 'config part' tests for JSON PRC interface of ECHO node"
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("eth_rpc", "eth_rpc_config")
 @lcc.suite("Check EthRPC 'config part'")
@@ -23,8 +23,6 @@ class Config(BaseTest):
 
     def __init__(self):
         super().__init__()
-        self.rpcPort = None
-        self.test_rcp_url = None
         self.passphrase = None
         self.account_address = None
         self.time = None
@@ -45,7 +43,7 @@ class Config(BaseTest):
         return payload
 
     def get_response(self, payload):
-        response = requests.post(self.test_rcp_url, json=payload).json()
+        response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("eth-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -65,8 +63,6 @@ class Config(BaseTest):
         return trx_hash
 
     def setup_suite(self):
-        self.rpcPort = 56454
-        self.test_rcp_url = 'http://0.0.0.0:' + str(self.rpcPort)
         self.passphrase = "Account"
         self.null_trx_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
         self.account_address = "0x0000000000000000000000000000000000000006"
@@ -84,7 +80,7 @@ class Config(BaseTest):
     def main_check(self):
         message = {'code': -32600, 'message': 'Missing or invalid method'}
         payload = self.rpc_call("", "")
-        response = requests.post(self.test_rcp_url, json=payload).json()
+        response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("json-rpc response", response, has_length(3)):
             require_that_in(
                 response,
@@ -96,7 +92,7 @@ class Config(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.19.3-rc.1/Linux.64-bit"
+        result = "ECHO/0.21-rc.2/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
