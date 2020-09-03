@@ -43,6 +43,11 @@ if "BASE_URL" not in os.environ:
 else:
     BASE_URL = os.environ["BASE_URL"]
 
+if "WALLET_URL" not in os.environ:
+    WALLET_URL = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["WALLET_URL"]
+else:
+    WALLET_URL = os.environ["WALLET_URL"]
+
 if "ETHEREUM_URL" not in os.environ:
     ETHEREUM_URL = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["ETHEREUM_URL"]
 else:

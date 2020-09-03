@@ -352,6 +352,8 @@ class TypeValidator(object):
         if value[:len(address_prefix)] != address_prefix:
             return False
         key = value[len(address_prefix):]
+        if len(value) == 54:
+            return True
         if not self.is_base58(key) or 44 + len(address_prefix) < len(value) or len(value) < 43 + len(address_prefix):
             return False
         return True
@@ -432,5 +434,20 @@ class TypeValidator(object):
         elif type(value) is str:
             boolean = value.isdigit()
             return boolean
+        else:
+            return False
+
+    def check_age(self, age):
+        time_words = ["hours", "minutes", "days", "seconds"]
+        time_words.extend([word[:-1] for word in time_words])
+        if type(age) != str:
+            return False
+        age_list = age.split()
+        if len(age_list) == 3:
+            if not self.is_digit(age_list[0]):
+                return False
+            if age_list[1] in time_words:
+                if age_list[2] == "ago" or age_list[2] == "old":
+                    return True
         else:
             return False

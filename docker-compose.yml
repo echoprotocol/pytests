@@ -47,6 +47,7 @@ services:
       - BITCOIN_URL=http://bitcoin:18443
       - ETHRPC_URL=http://echo:8092
       - TESTRPC_URL=http://testrpc:19999
+      - WALLET_URL=ws://wallet:1998/ws
       - NATHAN_PK=5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
       - INIT0_PK=5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
       - INIT1_PK=5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
@@ -59,6 +60,7 @@ services:
     depends_on:
       - echo
       - testrpc
+      - wallet
 
 
   echo:
@@ -117,13 +119,15 @@ services:
   wallet:
     image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.21-rc.2
     command:
-      '-s ws://172.20.0.4:6311
+      '-s ws://echo:6311/ws
         --chain-id d93a5bc33bd6c7bd3d5e93f5dff6868abafa83800580a54df55af7fe134cbe38
         --rpc-endpoint=0.0.0.0:1998
-        '
+      '
     ports:
       - 56456:1998
     stdin_open: true
+    depends_on:
+      - echo
 
 volumes:
   testrpc:
