@@ -1039,7 +1039,7 @@ class ObjectValidator(object):
             fee_parameters = current_fees["parameters"]
             require_that(
                 "count of fees for operations",
-                fee_parameters, has_length(69)
+                fee_parameters, has_length(70)
             )
 
             lcc.set_step("Check that count of checking fees fields equal to all operations")
