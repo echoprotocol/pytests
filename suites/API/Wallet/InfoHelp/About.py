@@ -46,7 +46,7 @@ class About(WalletBaseTest):
                 lcc.log_error("Wrong format of 'fc_revision_age', got: {}".format(result["fc_revision_age"]))
             else:
                 lcc.log_info("'fc_revision_age' has correct format: age time")
-            check_that("compile_date", result["compile_date"], equal_to("compiled on Sep  3 2020 at 17:20:14"))
+            check_that("compile_date", result["compile_date"], equal_to("compiled on Sep  4 2020 at 13:59:47"))
             check_that("boost_version", result["boost_version"], equal_to("1.70"))
             check_that("openssl_version", result["openssl_version"], equal_to("OpenSSL 1.0.2g  1 Mar 2016"))
             check_that("build", result["build"], equal_to("linux 64-bit"))
