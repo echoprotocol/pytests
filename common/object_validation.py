@@ -950,7 +950,7 @@ class ObjectValidator(object):
                                'sidechain_eth_send_deposit', 'sidechain_eth_send_withdraw',
                                'sidechain_eth_update_contract_address',
                                'sidechain_erc20_send_deposit_token', 'sidechain_erc20_send_withdraw_token',
-                               'did_create', 'did_update', 'did_delete', '']
+                               'did_create', 'did_update', 'did_delete', '', 'request_unfreeze_balancd']
         no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create',
                              'contract_internal_call', 'contract_selfdestruct', 'evm_address_register_operation']
         account_create_fee_operations = ["account_create"]
@@ -1051,7 +1051,7 @@ class ObjectValidator(object):
             for fee_type in checking_operations_fee_types:
                 all_checking_operations.extend(fee_type)
             check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
-                       has_length(69))
+                       has_length(70))
 
         fee_with_price_per_kbyte_operations_ids, only_fee_operations_ids, no_fee_operations_ids, \
         account_create_fee_operations_ids, asset_create_fee_operations_ids, \
