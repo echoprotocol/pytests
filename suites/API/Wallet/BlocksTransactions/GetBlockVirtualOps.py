@@ -46,7 +46,7 @@ class GetBlockVirtualOps(BaseTest, WalletBaseTest):
 
     @lcc.test("Simple work of method 'get_block_virtual_ops'")
     def method_main_check(self):
-        contract_internal_call_operation_id = 34
+        contract_internal_call_operation_id = self.echo.config.operation_ids.CONTRACT_INTERNAL_CALL
 
         lcc.set_step("Call virtual 'contract_internal_call_operation' in ECHO network")
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
