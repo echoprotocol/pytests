@@ -371,7 +371,7 @@ class ERC20(BaseTest):
         lcc.set_step("Check that external and virtual operations logs separate from internal operation logs")
         fist_sidechain_op_id = 38
         last_sidechain_op_id = 64
-        sidechain_issue_op_id = 47
+        sidechain_issue_op_id = 48
         sidechain_btc_create_address_op_id = 57
         for op_id in external_virtual_op_ids:
             if op_id in internal_ids and op_id < last_sidechain_op_id and op_id > fist_sidechain_op_id and op_id != \
