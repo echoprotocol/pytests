@@ -284,7 +284,7 @@ class PositiveTesting(BaseTest):
         response = self.get_contract_history(contract_id, stop, limit, start)["result"]
         i = 0
         for op in response:
-            if op["op"][0] == 32:
+            if op["op"][0] == self.echo.config.operation_ids.CONTRACT_CALL:
                 require_that(
                     "'contract history'",
                     op["op"], is_list(operations[i])
@@ -294,7 +294,7 @@ class PositiveTesting(BaseTest):
             else:
                 require_that(
                     "'contract history'",
-                    op["op"][0], equal_to(34))
+                    op["op"][0], equal_to(self.echo.config.operation_ids.CONTRACT_INTERNAL_CALL))
 
         stop = operation_id
         start = operation_ids[0]

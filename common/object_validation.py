@@ -388,11 +388,12 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'id', got: {}".format(frozen_balance_object["id"]))
             else:
                 lcc.log_info("'id' has correct format: frozen_balance_type")
-            if not base_test.type_validator.is_iso8601(frozen_balance_object["unfreeze_time"]):
-                lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(
-                    frozen_balance_object["unfreeze_time"]))
-            else:
-                lcc.log_info("'unfreeze_time' has correct format: iso8601")
+            if "unfreeze_time" in frozen_balance_object:
+                if not base_test.type_validator.is_iso8601(frozen_balance_object["unfreeze_time"]):
+                    lcc.log_error("Wrong format of 'unfreeze_time', got: {}".format(
+                        frozen_balance_object["unfreeze_time"]))
+                else:
+                    lcc.log_info("'unfreeze_time' has correct format: iso8601")
 
     def validate_committee_frozen_balance_object(self, base_test, committee_frozen_balance_object):
         lcc.log_info("{}".format(committee_frozen_balance_object))
@@ -808,6 +809,22 @@ class ObjectValidator(object):
                             quiet=True
                         )
 
+        def validate_economy_config(economy_config):
+            if check_that(
+                "economy config",
+                economy_config, has_length(5),
+                quiet=True
+            ):
+                check_that_in(
+                    economy_config,
+                    "blocks_in_interval", is_integer(),
+                    "maintenances_in_interval", is_integer(),
+                    "block_emission_amount", is_integer(),
+                    "block_producer_reward_ratio", is_integer(),
+                    "pool_divider", is_integer(),
+                    quiet=True
+                )
+
         def no_fee(actual_fee):
             check_that(
                 "fee",
@@ -977,8 +994,7 @@ class ObjectValidator(object):
                 "maximum_asset_feed_publishers", is_integer(),
                 "maximum_authority_membership", is_integer(),
                 "max_authority_depth", is_integer(),
-                "block_producer_reward_ratio", is_integer(),
-                "block_emission_amount", is_integer(),
+                "balance_unfreezing_time", is_integer(),
                 "frozen_balances_multipliers", is_list(),
                 "committee_maintenance_intervals_to_deposit", is_integer(),
                 "committee_balance_unfreeze_duration_seconds", is_integer(),
@@ -1035,7 +1051,7 @@ class ObjectValidator(object):
             for fee_type in checking_operations_fee_types:
                 all_checking_operations.extend(fee_type)
             check_that("'length of checking fees fields equal to all operations'", all_checking_operations,
-                       has_length(69))
+                       has_length(70))
 
         fee_with_price_per_kbyte_operations_ids, only_fee_operations_ids, no_fee_operations_ids, \
         account_create_fee_operations_ids, asset_create_fee_operations_ids, \
@@ -1234,13 +1250,17 @@ class ObjectValidator(object):
                 quiet=True
             )
 
+        lcc.set_step("Check global parameters: 'economy_config' field")
+        economy_config = parameters["economy_config"]
+        validate_economy_config(economy_config)
+
     def validate_dynamic_global_property_object(self, base_test, dynamic_global_property_object):
         dynamic_global_properties = ["head_block_number", "committee_budget",
-                                     "dynamic_flags", "last_irreversible_block_num"]
+                                     "dynamic_flags", "last_irreversible_block_num", "last_block_of_previous_interval"]
         dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
         if check_that(
                 "dynamic global properties",
-                dynamic_global_property_object, has_length(10),
+                dynamic_global_property_object, has_length(11),
                 quiet=True
         ):
             if not base_test.type_validator.is_dynamic_global_object_id(dynamic_global_property_object["id"]):
