@@ -10,6 +10,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("methods", "did_api", "get_did_object")
 @lcc.suite("Check work of method 'get_did_object'", rank=1)
@@ -49,6 +50,7 @@ class GetDIDObject(BaseTest):
         require_that('result', result, is_none())
 
 
+@lcc.disabled()
 @lcc.prop("positive", "type")
 @lcc.tags("methods", "did_api", "get_did_object")
 @lcc.suite("Positive testing of method 'get_did_object'", rank=2)

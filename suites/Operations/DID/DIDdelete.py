@@ -10,6 +10,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("operations", "did_operations", "did_delete")
 @lcc.suite("Check work of method 'DID delete'", rank=1)
