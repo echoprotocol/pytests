@@ -12,7 +12,6 @@ SUITE = {
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
@@ -100,7 +99,6 @@ class GetContractLogs(BaseTest):
                 )
 
 
-@lcc.disabled()
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_contracts", "get_contract_logs")
 @lcc.suite("Positive testing of method 'get_contract_logs'", rank=2)
@@ -246,7 +244,6 @@ class PositiveTesting(BaseTest):
             )
 
 
-@lcc.disabled()
 @lcc.prop("negative", "type")
 @lcc.tags("api", "database_api", "database_api_contracts", "get_contract_logs")
 @lcc.suite("Negative testing of method 'get_contract_logs'", rank=3)
