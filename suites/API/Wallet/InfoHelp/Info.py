@@ -27,7 +27,7 @@ class Info(WalletBaseTest):
     @lcc.test("Simple work of method 'info'")
     def method_main_check(self):
         lcc.set_step("Call method 'info'")
-        response = self.send_wallet_request("info", [])
+        response = self.send_wallet_request("info")
         require_that("'result'", response["result"], is_not_none(), quiet=True)
 
         lcc.set_step("Check method 'info' result")
@@ -80,7 +80,7 @@ class PositiveTesting(WalletBaseTest):
     @lcc.test("Compare result of method 'info' with DatabaseAPI")
     def compare_result_with_database_api(self):
         lcc.set_step("Get result of method 'info'")
-        result = self.send_wallet_request("info", [])["result"]
+        result = self.send_wallet_request("info")["result"]
         lcc.log_info("Successful")
 
         lcc.set_step("Compare 'chain_id'")

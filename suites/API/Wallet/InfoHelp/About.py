@@ -22,7 +22,7 @@ class About(WalletBaseTest):
     @lcc.test("Simple work of method 'about'")
     def method_main_check(self):
         lcc.set_step("Call method 'about'")
-        response = self.send_wallet_request("about", [])
+        response = self.send_wallet_request("about")
         require_that("'result'", response["result"], is_not_none(), quiet=True)
 
         lcc.set_step("Check result")
