@@ -96,7 +96,6 @@ class Transaction(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.tags('qqq')
     @lcc.test("Check connection to EthPRC interface.")
     def main_check(self):
         message = {'code': -32600, 'message': 'Missing or invalid method'}
@@ -145,12 +144,11 @@ class Transaction(BaseTest):
         response = self.get_ethrpc_response(payload)
         require_that('block transaction count', response["result"], equal_to("0x01"))
 
-    @lcc.tags('qqq')
     @lcc.test("Check method 'eth_getCode'")
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_get_code(self):
         contract_address = self.create_contract()
-        payload = self.rpc_call("eth_getCode", [contract_address, "0x02"])
+        payload = self.rpc_call("eth_getCode", [contract_address, ''])
         response = self.get_ethrpc_response(payload)
         lcc.log_info('{}'.format(response['result']))
         lcc.log_info('{}'.format(self.contract))
