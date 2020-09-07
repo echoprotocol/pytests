@@ -12,7 +12,6 @@ SUITE = {
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
