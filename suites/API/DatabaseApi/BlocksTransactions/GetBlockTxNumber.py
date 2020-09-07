@@ -9,8 +9,6 @@ SUITE = {
 }
 
 
-# todo: BUG ECHO-2325
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_tx_number")
@@ -60,56 +58,24 @@ class GetBlockTxNumber(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'get_block_tx_number'")
-    def method_main_check(self, get_random_integer, get_random_integer_up_to_hundred):
-        subscription_callback_id, trx_to_broadcast = get_random_integer, get_random_integer_up_to_hundred
-        signed_trx = []
-        lcc.set_step("Prepare transfer's operations to broadcast")
-        for i in range(trx_to_broadcast):
-            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                      from_account_id=self.echo_acc0,
-                                                                      to_account_id=self.echo_acc1, amount=i + 1)
-            collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-            signed_trx.append(self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                      no_broadcast=True))
-        lcc.log_info("{} transactions prepared".format(trx_to_broadcast))
-        lcc.set_step("Broadcast transaction to the next block")
-        while True:
-            for signed_tx in signed_trx:
-                params = [subscription_callback_id, signed_tx]
-                response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
-                                                self.__network_broadcast_identifier)
-                self.get_response(response_id)
-            break
-        lcc.log_info("Transactions were broadcasted")
-        lcc.set_step("Get block id and check that all {} transactions added successfully".format(trx_to_broadcast))
-        notice = self.get_notice(subscription_callback_id, log_response=False)
-        block_num = notice["block_num"]
-        response_id = self.send_request(self.get_request("get_block", [block_num]), self.__database_api_identifier)
-        transactions = self.get_response(response_id)["result"]["transactions"]
-        blocks_num = [block_num]
-        if len(transactions) != trx_to_broadcast:
-            self.produce_block(self.__database_api_identifier)
-            response_id = self.send_request(self.get_request("get_block", [block_num + 1]),
-                                            self.__database_api_identifier)
-            new_transactions = self.get_response(response_id)["result"]["transactions"]
-            blocks_num.append(block_num + 1)
-            check_that("transactions in blocks number", (transactions + new_transactions), has_length(trx_to_broadcast))
-        else:
-            check_that("transactions in block number", transactions, has_length(trx_to_broadcast))
-        lcc.set_step("Check 'get_block_tx_number' response")
-        tx_number = 0
-        self.produce_block(self.__database_api_identifier)
-        for block_num in blocks_num:
-            response_id = self.send_request(self.get_request("get_block_header", [block_num + 1]),
-                                            self.__database_api_identifier)
-            block_id = self.get_response(response_id)["result"]["previous"]
-            response_id = self.send_request(self.get_request("get_block_tx_number", [block_id]),
-                                            self.__database_api_identifier)
-            tx_number += self.get_response(response_id)["result"]
-        response_id = self.send_request(self.get_request("get_block_header", [block_num + 1]),
+    def method_main_check(self):
+        operation_count = 1
+        lcc.set_step("Perform transfer operation")
+        broadcast_result = self.utils.perform_transfer_operations(
+            self,
+            self.echo_acc0,
+            self.echo_acc1,
+            self.__database_api_identifier,
+            operation_count=operation_count,
+            log_broadcast=False
+        )
+        lcc.log_info("Transaction was broadcasted")
+        lcc.set_step("Get block id and check that all {} transactions added successfully".format(operation_count))
+        response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
                                         self.__database_api_identifier)
-        block_id = self.get_response(response_id)["result"]["previous"]
-        response_id = self.send_request(self.get_request("get_block_tx_number", [block_id]),
+        dynamic_global_property_object = self.get_response(response_id)["result"]
+        head_block_id = dynamic_global_property_object['head_block_id']
+        response_id = self.send_request(self.get_request("get_block_tx_number", [head_block_id]),
                                         self.__database_api_identifier)
-        tx_number += self.get_response(response_id)["result"]
-        check_that("block transaction number", tx_number, equal_to(trx_to_broadcast))
+        tx_number = self.get_response(response_id)["result"]
+        check_that("block transaction number", tx_number, equal_to(operation_count))
