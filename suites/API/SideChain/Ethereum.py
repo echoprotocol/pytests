@@ -252,7 +252,7 @@ class Ethereum(BaseTest):
         lcc.log_info("Call method 'get_account_addresses' of '{}' account".format(self.echo_acc0))
 
         lcc.set_step("Transfer eeth assets via first account_address")
-        transfer_amount = self.get_random_amount(_to=ethereum_balance, amount_type=int)
+        transfer_amount = self.get_random_amount(_to=ethereum_balance - MIN_ETH_WITHDRAW_FEE * 2, amount_type=int)
         self.utils.perform_transfer_to_address_operations(self, self.new_account, account_addresses[-1],
                                                           self.__database_api_identifier,
                                                           transfer_amount=transfer_amount,
