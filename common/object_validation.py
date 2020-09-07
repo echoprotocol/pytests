@@ -950,7 +950,7 @@ class ObjectValidator(object):
                                'sidechain_eth_send_deposit', 'sidechain_eth_send_withdraw',
                                'sidechain_eth_update_contract_address',
                                'sidechain_erc20_send_deposit_token', 'sidechain_erc20_send_withdraw_token',
-                               'did_create', 'did_update', 'did_delete', '', 'request_unfreeze_balancd']
+                               'did_create', 'did_update', 'did_delete', '', 'request_unfreeze_balance']
         no_fee_operations = ["balance_claim", "balance_unfreeze", 'contract_internal_create',
                              'contract_internal_call', 'contract_selfdestruct', 'evm_address_register_operation']
         account_create_fee_operations = ["account_create"]

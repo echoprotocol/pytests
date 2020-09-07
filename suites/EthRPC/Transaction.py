@@ -150,8 +150,6 @@ class Transaction(BaseTest):
         contract_address = self.create_contract()
         payload = self.rpc_call("eth_getCode", [contract_address, ''])
         response = self.get_ethrpc_response(payload)
-        lcc.log_info('{}'.format(response['result']))
-        lcc.log_info('{}'.format(self.contract))
         require_that("'result'", response["result"][2:], equal_to(self.contract[166:]))
 
     @lcc.test("Check method 'eth_sendRawTransaction'")
