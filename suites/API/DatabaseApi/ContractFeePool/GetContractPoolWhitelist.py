@@ -414,7 +414,6 @@ class NegativeTesting(BaseTest):
             lcc.log_info(str(e))
         lcc.log_info("Can not add account to whitelist and blacklist at the same time")
 
-    @lcc.disabled()
     @lcc.test("Add account in whitelist/blacklist and remove from whitelist/blacklist at the same time")
     @lcc.depends_on(
         "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
@@ -454,7 +453,6 @@ class NegativeTesting(BaseTest):
             lcc.log_info(str(e))
         lcc.log_info("Can not add account to blacklist and remove at the same time")
 
-    @lcc.disabled()
     @lcc.test("Add twice account in whitelist/blacklist and remove from whitelist/blacklist twice")
     @lcc.depends_on(
         "API.DatabaseApi.ContractFeePool.GetContractPoolWhitelist.GetContractPoolWhitelist.method_main_check")
