@@ -7,3 +7,4 @@ venv
 resources/wallets.json
 resources/private_keys.json
 resources/utils.json
+.vscode
