@@ -103,7 +103,7 @@ class PositiveTesting(BaseTest):
         self.echo_acc0 = None
 
     @staticmethod
-    def get_random_amount(_to, _from=0):
+    def get_random_amount(_to, _from=1):
         return round(random.uniform(_from, _to))
 
     @staticmethod

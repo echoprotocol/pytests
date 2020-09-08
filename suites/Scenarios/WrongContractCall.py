@@ -9,6 +9,7 @@ SUITE = {
 }
 
 
+@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "wrong_contract_call")
 @lcc.suite("Check scenario 'Wrong contract call'")

@@ -53,7 +53,7 @@ class WalletBaseTest:
         call_template["params"] = params
         return call_template
 
-    def send_wallet_request(self, method, params, negative=False, log_response=False, debug_mode=False):
+    def send_wallet_request(self, method, params=[], negative=False, log_response=False, debug_mode=False):
         payload = self.__call_method(method, params)
         self.wallet_ws.connect()
         response = json.loads(self.wallet_ws.rpcexec(payload=payload))

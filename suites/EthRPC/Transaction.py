@@ -148,7 +148,7 @@ class Transaction(BaseTest):
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_get_code(self):
         contract_address = self.create_contract()
-        payload = self.rpc_call("eth_getCode", [contract_address, "0x02"])
+        payload = self.rpc_call("eth_getCode", [contract_address, ''])
         response = self.get_ethrpc_response(payload)
         require_that("'result'", response["result"][2:], equal_to(self.contract[166:]))
 

@@ -22,14 +22,14 @@ class About(WalletBaseTest):
     @lcc.test("Simple work of method 'about'")
     def method_main_check(self):
         lcc.set_step("Call method 'about'")
-        response = self.send_wallet_request("about", [])
+        response = self.send_wallet_request("about")
         require_that("'result'", response["result"], is_not_none(), quiet=True)
 
         lcc.set_step("Check result")
         result = response["result"]
         if require_that("result", result, has_length(10)):
             check_that("blockchain_name", result["blockchain_name"], equal_to("ECHO"))
-            check_that("client_version", result["client_version"], equal_to("0.21-rc.2"))
+            check_that("client_version", result["client_version"], equal_to("0.22-rc.1"))
             if not self.type_validator.is_hex(result["echo_revision"]):
                 lcc.log_error("Wrong format of 'echo_revision', got: {}".format(result["echo_revision"]))
             else:
@@ -46,7 +46,7 @@ class About(WalletBaseTest):
                 lcc.log_error("Wrong format of 'fc_revision_age', got: {}".format(result["fc_revision_age"]))
             else:
                 lcc.log_info("'fc_revision_age' has correct format: age time")
-            check_that("compile_date", result["compile_date"], equal_to("compiled on Aug 24 2020 at 15:53:29"))
+            check_that("compile_date", result["compile_date"], equal_to("compiled on Sep  4 2020 at 13:59:47"))
             check_that("boost_version", result["boost_version"], equal_to("1.70"))
             check_that("openssl_version", result["openssl_version"], equal_to("OpenSSL 1.0.2g  1 Mar 2016"))
             check_that("build", result["build"], equal_to("linux 64-bit"))
