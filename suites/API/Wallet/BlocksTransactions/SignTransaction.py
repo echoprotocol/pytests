@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import lemoncheesecake.api as lcc
 
-from lemoncheesecake.matching import check_that, equal_to
-
 from common.wallet_base_test import WalletBaseTest
 from common.base_test import BaseTest
 
@@ -14,7 +12,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("api", "wallet_api", "wallet_sign_transaction")
 @lcc.suite("Check work of method 'sign_transaction'", rank=1)
-class GetTransactionId(WalletBaseTest, BaseTest):
+class SignTransaction(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -58,4 +56,3 @@ class GetTransactionId(WalletBaseTest, BaseTest):
         lcc.log_info("Signed transaction: {}".format(signed_trx))
         response = self.send_wallet_request("sign_transaction", [signed_trx.json(), True], log_response=False)
         lcc.log_info("{}".format(response))
-        
