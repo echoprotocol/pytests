@@ -11,7 +11,6 @@ SUITE = {
 }
 
 
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("operations", "committee_member_operations", "committee_frozen_balance_withdraw")
 @lcc.suite("Check work of operation 'committee_frozen_balance_withdraw'", rank=1)
@@ -41,7 +40,7 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
 
     @lcc.test("Simple work of operation 'committee_frozen_balance_withdraw'")
     def method_main_check(self):
-        amount_to_freeze = REQUIRED_DEPOSIT_AMOUNT
+        amount_to_freeze = REQUIRED_DEPOSIT_AMOUNT * 2
 
         lcc.set_step("Check active committee member frozen balance")
         response_id = self.send_request(self.get_request("get_committee_frozen_balance", [self.committee_member_id]),
