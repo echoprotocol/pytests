@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, not_equal_to
-from common.base_test import BaseTest
 import time
 
+from common.base_test import BaseTest
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, not_equal_to
+
 SUITE = {
     "description": "Operation 'committee_member_update_global_parameters'"
 }
@@ -14,6 +16,7 @@ SUITE = {
 @lcc.tags("operations", "committee_member_operations", "committee_member_update_global_parameters")
 @lcc.suite("Check work of method 'committee_member_update_global_parameters'", rank=1)
 class CommitteeMemberUpdateGlobalParameters(BaseTest):
+
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
@@ -33,10 +36,13 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
         self.init0 = self.committee_members_info[0]["account_id"]
@@ -44,8 +50,11 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
         self.init2 = self.committee_members_info[2]["account_id"]
         self.init3 = self.committee_members_info[3]["account_id"]
         self.init4 = self.committee_members_info[4]["account_id"]
-        lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
-                     self.init0, self.init1, self.init2, self.init3, self.init4))
+        lcc.log_info(
+            "Echo  initial accounts: {}, {}, {}, {}, {}".format(
+                self.init0, self.init1, self.init2, self.init3, self.init4
+            )
+        )
 
     def produce(self):
         time.sleep(50)
@@ -71,9 +80,7 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
             lcc.log_info("Update echorand_config parameter '_time_net_1mb', new value: {}".format(_time_net_1mb))
             lcc.set_step("Perform 'committee_member_update_global_parameters' operation")
             operation = self.echo_ops.get_committee_member_update_global_parameters_operation(
-                echo=self.echo,
-                _time_net_1mb=_time_net_1mb,
-                signer=INIT0_PK
+                echo=self.echo, _time_net_1mb=_time_net_1mb, signer=INIT0_PK
             )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             lcc.log_info("Operation was collected")
@@ -108,8 +115,4 @@ class CommitteeMemberUpdateGlobalParameters(BaseTest):
             self.produce()
             response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
             current_global_properties = self.get_response(response_id)["result"]
-            check_that(
-                "global",
-                global_properties, not_equal_to(current_global_properties),
-                quiet=True
-            )
+            check_that("global", global_properties, not_equal_to(current_global_properties), quiet=True)

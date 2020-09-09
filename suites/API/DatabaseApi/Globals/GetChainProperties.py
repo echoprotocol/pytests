@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that, has_length, equal_to, has_entry
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, has_entry, has_length, require_that
 
 SUITE = {
     "description": "Methods: 'get_chain_properties', 'get_objects' (chain property object)"
@@ -11,10 +11,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("negative", "type")
-@lcc.tags(
-    "api", "database_api", "database_api_globals", "get_chain_properties",
-    "database_api_objects", "get_objects"
-)
+@lcc.tags("api", "database_api", "database_api_globals", "get_chain_properties", "database_api_objects", "get_objects")
 @lcc.suite("Check work of methods: 'get_chain_properties', 'get_objects' (chain property object)", rank=1)
 class GetChainProperties(BaseTest):
 
@@ -40,26 +37,15 @@ class GetChainProperties(BaseTest):
 
         lcc.set_step("Get chain properties object")
         params = [get_chain_properties_results["id"]]
-        response_id = self.send_request(self.get_request("get_objects", [params]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
         get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with param: {}".format(params))
 
         lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results, has_length(len(params)),
-            quiet=True
-        )
+        require_that("'list of received objects'", get_objects_results, has_length(len(params)), quiet=True)
 
-        lcc.set_step(
-            "Check the identity of returned results of api-methods: 'get_chain_properties', 'get_objects'"
-        )
-        require_that(
-            'results',
-            get_objects_results[0], equal_to(get_chain_properties_results),
-            quiet=True
-        )
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_chain_properties', 'get_objects'")
+        require_that('results', get_objects_results[0], equal_to(get_chain_properties_results), quiet=True)
 
 
 @lcc.prop("negative", "type")
@@ -86,11 +72,13 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_chain_properties", random_values[i]),
-                                            self.__api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_chain_properties", random_values[i]), self.__api_identifier
+            )
             response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_chain_properties' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"),
+                response,
+                has_entry("error"),
                 quiet=True
             )

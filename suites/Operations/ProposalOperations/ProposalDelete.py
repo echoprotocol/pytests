@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, require_that, is_true
+from common.base_test import BaseTest
 from project import INIT0_PK, INIT1_PK
 
-from common.base_test import BaseTest
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, is_true, require_that
 
 SUITE = {
     "description": "Operation 'proposal_delete'"
@@ -29,13 +29,14 @@ class ProposalDelete(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
         self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
         self.init0 = self.committee_members_info[0]["account_id"]
         self.init1 = self.committee_members_info[1]["account_id"]
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(
-                     self.init0, self.init1))
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.init0, self.init1))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -47,10 +48,7 @@ class ProposalDelete(BaseTest):
 
         lcc.set_step("Collect transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(
-            echo=self.echo,
-            from_account_id=self.init1,
-            amount=transfer_amount,
-            to_account_id=self.init0
+            echo=self.echo, from_account_id=self.init1, amount=transfer_amount, to_account_id=self.init0
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         lcc.log_info("Transfer operation collected")
@@ -68,7 +66,8 @@ class ProposalDelete(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         require_that(
             "broadcast transaction complete successfully",
-            self.is_operation_completed(broadcast_result, 1), is_true(),
+            self.is_operation_completed(broadcast_result, 1),
+            is_true(),
             quiet=True
         )
         proposal_id = broadcast_result["trx"]["operation_results"][0][1]
@@ -86,17 +85,15 @@ class ProposalDelete(BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         require_that(
             "broadcast transaction complete successfully",
-            self.is_operation_completed(broadcast_result, 0), is_true(),
+            self.is_operation_completed(broadcast_result, 0),
+            is_true(),
             quiet=True
         )
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Check that proposal were deleted")
-        response_id = self.send_request(self.get_request("get_objects", [[proposal_id]]),
-                                        self.__database_api_identifier)
-        result = self.get_response(response_id)["result"]
-        check_that(
-            "required_active_approvals",
-            result, equal_to([None]),
-            quiet=True
+        response_id = self.send_request(
+            self.get_request("get_objects", [[proposal_id]]), self.__database_api_identifier
         )
+        result = self.get_response(response_id)["result"]
+        check_that("required_active_approvals", result, equal_to([None]), quiet=True)

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from lemoncheesecake.matching import require_that, is_not_none
-
-from common.wallet_base_test import WalletBaseTest
 from common.base_test import BaseTest
+from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import is_not_none, require_that
 
 SUITE = {
     "description": "Method 'get_transaction_id'"
@@ -25,12 +24,11 @@ class GetTransactionId(WalletBaseTest, BaseTest):
         self.echo_acc1 = None
 
     def json_transaction(self):
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1, amount=1)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            ethrpc_broadcast=True)
+        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
         return signed_tx.json()
 
     def setup_suite(self):
@@ -40,12 +38,16 @@ class GetTransactionId(WalletBaseTest, BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):

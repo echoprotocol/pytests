@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, is_integer, is_str, check_that, has_entry, is_not_none, \
-    greater_than_or_equal_to
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, greater_than_or_equal_to, has_entry, is_integer, is_not_none, is_str
+)
 
 SUITE = {
     "description": "Method 'get_all_asset_holders'"
@@ -36,11 +37,7 @@ class GetAllAssetHolders(BaseTest):
 
         lcc.set_step("Check response from method 'get_all_asset_holders'")
         for holder in results:
-            check_that_in(
-                holder,
-                "asset_id", is_str(),
-                "count", greater_than_or_equal_to(0)
-            )
+            check_that_in(holder, "asset_id", is_str(), "count", greater_than_or_equal_to(0))
 
 
 @lcc.prop("positive", "type")
@@ -72,10 +69,13 @@ class PositiveTesting(BaseTest):
         self.__asset_api_identifier = self.get_identifier("asset")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', "
-            "asset='{}'".format(self.__database_api_identifier, self.__registration_api_identifier,
-                                self.__asset_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "asset='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier, self.__asset_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -97,12 +97,9 @@ class PositiveTesting(BaseTest):
                 self.position_on_the_list = i
         if self.position_on_the_list is None:
             lcc.log_error(
-                "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id))
-        check_that_in(
-            results[self.position_on_the_list],
-            "asset_id", is_str(self.new_asset_id),
-            "count", is_integer(0)
-        )
+                "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id)
+            )
+        check_that_in(results[self.position_on_the_list], "asset_id", is_str(self.new_asset_id), "count", is_integer(0))
 
     @lcc.test("New asset in 'get_all_asset_holders' with holders")
     @lcc.depends_on("API.AssetApi.GetAllAssetHolders.PositiveTesting.new_asset_without_holders")
@@ -111,7 +108,8 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Add new asset holder")
         self.utils.add_assets_to_account(self, value, self.new_asset_id, self.echo_acc0, self.__database_api_identifier)
         lcc.log_info(
-            "Echo account '{}' became new asset holder of '{}' asset_id".format(self.echo_acc0, self.new_asset_id))
+            "Echo account '{}' became new asset holder of '{}' asset_id".format(self.echo_acc0, self.new_asset_id)
+        )
 
         lcc.set_step("Check that the new asset is in the list and its number of holders is zero")
         results = self.get_all_asset_holders()["result"]
@@ -121,12 +119,9 @@ class PositiveTesting(BaseTest):
                 self.position_on_the_list = i
         if self.position_on_the_list is None:
             lcc.log_error(
-                "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id))
-        check_that_in(
-            results[self.position_on_the_list],
-            "asset_id", is_str(self.new_asset_id),
-            "count", is_integer(1)
-        )
+                "No new asset '{}' in list, id of new asset '{}'".format(self.new_asset_name, self.new_asset_id)
+            )
+        check_that_in(results[self.position_on_the_list], "asset_id", is_str(self.new_asset_id), "count", is_integer(1))
 
 
 @lcc.prop("negative", "type")
@@ -153,16 +148,21 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_all_asset_holders", random_values[i]),
-                                            self.__asset_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_all_asset_holders", random_values[i]), self.__asset_api_identifier
+            )
             response = self.get_response(response_id, negative=True)
             if random_type_names[i] == "random_list":
                 check_that(
                     "'get_all_asset_holders' return result with '{}' params".format(random_type_names[i]),
-                    response, is_not_none(), quiet=True,
+                    response,
+                    is_not_none(),
+                    quiet=True,
                 )
                 continue
             check_that(
                 "'get_all_asset_holders' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True,
+                response,
+                has_entry("error"),
+                quiet=True,
             )

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_true, has_item
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import has_item, is_true, require_that
 
 SUITE = {
     "description": "Method 'verify_account_authority'"
@@ -23,8 +23,9 @@ class VerifyAccountAuthority(BaseTest):
         self.echo_acc0_name = None
 
     def get_account_info(self, account_id):
-        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_accounts", [[account_id]]), self.__database_api_identifier
+        )
         return self.get_response(response_id)["result"][0]
 
     def setup_suite(self):
@@ -34,11 +35,14 @@ class VerifyAccountAuthority(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
         self.echo_acc0_name = self.accounts[0]
-        self.echo_acc0 = self.get_account_id(self.echo_acc0_name, self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+        self.echo_acc0 = self.get_account_id(
+            self.echo_acc0_name, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -54,21 +58,20 @@ class VerifyAccountAuthority(BaseTest):
 
         lcc.set_step("Verify authority of '{}' account".format(self.echo_acc0))
         params = [self.echo_acc0_name, [account_public_key]]
-        response_id = self.send_request(self.get_request("verify_account_authority", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("verify_account_authority", params), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call 'verify_account_authority' with '{}' parameters".format(params))
 
-        require_that(
-            "account authority verify status",
-            response["result"], is_true()
-        )
+        require_that("account authority verify status", response["result"], is_true())
 
 
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_authority_validation", "verify_account_authority")
 @lcc.suite("Positive testing of method 'verify_account_authority'", rank=2)
 class PositiveTesting(BaseTest):
+
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
@@ -80,8 +83,9 @@ class PositiveTesting(BaseTest):
         self.reserved_public_key = None
 
     def get_account_info(self, account_id):
-        response_id = self.send_request(self.get_request("get_accounts", [[account_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_accounts", [[account_id]]), self.__database_api_identifier
+        )
         return self.get_response(response_id)["result"][0]
 
     def setup_suite(self):
@@ -91,17 +95,23 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc3 = self.get_account_id(self.accounts[3], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc3 = self.get_account_id(
+            self.accounts[3], self.__database_api_identifier, self.__registration_api_identifier
+        )
         self.echo_acc4_name = self.accounts[4]
-        self.echo_acc4 = self.get_account_id(self.echo_acc4_name, self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+        self.echo_acc4 = self.get_account_id(
+            self.echo_acc4_name, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info(
-            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc3, self.echo_acc4))
+            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc3, self.echo_acc4)
+        )
         self.reserved_public_key = self.get_reserved_public_key()
         lcc.log_info("Reserved public key: {}".format(self.reserved_public_key))
 
@@ -110,7 +120,9 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Add additional account_auths to account and verify account authority for it")
-    @lcc.depends_on("API.DatabaseApi.AuthorityValidation.VerifyAccountAuthority.VerifyAccountAuthority.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.AuthorityValidation.VerifyAccountAuthority.VerifyAccountAuthority.method_main_check"
+    )
     def get_potential_signatures_of_accounts_with_additional_account_auths(self):
         lcc.set_step("Get account active keys")
         account_info_1 = self.get_account_info(self.echo_acc3)
@@ -129,35 +141,34 @@ class PositiveTesting(BaseTest):
             new_active_keys = account_active_keys_2.copy()
             new_active_keys["account_auths"].extend([account_auths_new_item])
             account_info_2["active"] = new_active_keys
-            self.utils.perform_account_update_operation(self, self.echo_acc4, account_info_2,
-                                                        self.__database_api_identifier)
+            self.utils.perform_account_update_operation(
+                self, self.echo_acc4, account_info_2, self.__database_api_identifier
+            )
         lcc.log_info("'account_auths' of '{}' account was updated".format(self.echo_acc4))
 
         lcc.set_step("Get active keys info about account")
         actual_account_info_2 = self.get_account_info(self.echo_acc4)
         actual_account_active_keys_2 = actual_account_info_2["active"]
         require_that(
-            "new keys",
-            actual_account_active_keys_2["account_auths"], has_item(account_auths_new_item),
-            quiet=True
+            "new keys", actual_account_active_keys_2["account_auths"], has_item(account_auths_new_item), quiet=True
         )
 
         account_public_key_1 = account_active_keys_1["key_auths"][0][0]
 
         lcc.set_step("Verify authority of '{}' account".format(self.echo_acc4))
         params = [self.echo_acc4_name, [account_public_key_1]]
-        response_id = self.send_request(self.get_request("verify_account_authority", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("verify_account_authority", params), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call 'verify_account_authority' with '{}' parameters".format(params))
 
-        require_that(
-            "account authority verify status",
-            response["result"], is_true()
-        )
+        require_that("account authority verify status", response["result"], is_true())
 
     @lcc.test("Add additional key_auths to account and verify account authority for it")
-    @lcc.depends_on("API.DatabaseApi.AuthorityValidation.VerifyAccountAuthority.VerifyAccountAuthority.method_main_check")
+    @lcc.depends_on(
+        "API.DatabaseApi.AuthorityValidation.VerifyAccountAuthority.VerifyAccountAuthority.method_main_check"
+    )
     def get_potential_signatures_of_accounts_with_additional_key_auths(self):
         lcc.set_step("Get account active keys")
         account_info_2 = self.get_account_info(self.echo_acc4)
@@ -171,27 +182,22 @@ class PositiveTesting(BaseTest):
             new_active_keys = account_active_keys_2.copy()
             new_active_keys["key_auths"].extend([key_auths_new_item])
             account_info_2["active"] = new_active_keys
-            self.utils.perform_account_update_operation(self, self.echo_acc4, account_info_2,
-                                                        self.__database_api_identifier)
+            self.utils.perform_account_update_operation(
+                self, self.echo_acc4, account_info_2, self.__database_api_identifier
+            )
         lcc.log_info("'key_auths' of '{}' account was updated".format(self.echo_acc4))
 
         lcc.set_step("Get active keys info about account")
         actual_account_info_2 = self.get_account_info(self.echo_acc4)
         actual_account_active_keys_2 = actual_account_info_2["active"]
-        require_that(
-            "new keys",
-            actual_account_active_keys_2["key_auths"], has_item(key_auths_new_item),
-            quiet=True
-        )
+        require_that("new keys", actual_account_active_keys_2["key_auths"], has_item(key_auths_new_item), quiet=True)
 
         lcc.set_step("Verify authority of '{}' account".format(self.echo_acc4))
         params = [self.echo_acc4_name, [self.reserved_public_key]]
-        response_id = self.send_request(self.get_request("verify_account_authority", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("verify_account_authority", params), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call 'verify_account_authority' with '{}' parameters".format(params))
 
-        require_that(
-            "account authority verify status",
-            response["result"], is_true()
-        )
+        require_that("account authority verify status", response["result"], is_true())

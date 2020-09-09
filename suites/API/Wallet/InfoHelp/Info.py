@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from lemoncheesecake.matching import require_that, has_entry, is_not_none, check_that, has_length, is_integer, \
-    is_list, equal_to
-
 from common.wallet_base_test import WalletBaseTest
-from echopy import Echo
-
 from project import BASE_URL
+
+import lemoncheesecake.api as lcc
+from echopy import Echo
+from lemoncheesecake.matching import (
+    check_that, equal_to, has_entry, has_length, is_integer, is_list, is_not_none, require_that
+)
 
 SUITE = {
     "description": "Method 'info'"
@@ -51,12 +50,14 @@ class Info(WalletBaseTest):
                     if require_that("active_committee_member", active_committee_member, is_list()):
                         if not self.type_validator.is_account_id(active_committee_member[1]):
                             lcc.log_error(
-                                "Wrong format of 'active_committee_member', got: {}".format(active_committee_member[1]))
+                                "Wrong format of 'active_committee_member', got: {}".format(active_committee_member[1])
+                            )
                         else:
                             lcc.log_info("'active_committee_member' has correct format: account_id")
                         if not self.type_validator.is_committee_member_id(active_committee_member[0]):
                             lcc.log_error(
-                                "Wrong format of 'active_committee_member', got: {}".format(active_committee_member[0]))
+                                "Wrong format of 'active_committee_member', got: {}".format(active_committee_member[0])
+                            )
                         else:
                             lcc.log_info("'active_committee_member' has correct format: committee_member_id")
 
@@ -89,8 +90,9 @@ class PositiveTesting(WalletBaseTest):
 
         lcc.set_step("Compare 'active_committee_members'")
         database_active_committee_members = self.echopy.api.database.get_global_properties()["active_committee_members"]
-        check_that("active_committee_members", database_active_committee_members,
-                   equal_to(result["active_committee_members"]))
+        check_that(
+            "active_committee_members", database_active_committee_members, equal_to(result["active_committee_members"])
+        )
 
 
 @lcc.prop("negative", "type")
@@ -111,5 +113,7 @@ class NegativeTesting(WalletBaseTest):
             response = self.send_wallet_request("info", random_values[i], negative=True)
             check_that(
                 "'get_account_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, equal_to, not_equal_to
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import equal_to, not_equal_to, require_that
 
 SUITE = {
     "description": "Testing change contract owner"
@@ -36,16 +36,22 @@ class ChangeContractOwner(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc2 = self.get_account_id(self.accounts[2], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc2 = self.get_account_id(
+            self.accounts[2], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info(
-            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc1, self.echo_acc2))
+            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc1, self.echo_acc2)
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -61,8 +67,9 @@ class ChangeContractOwner(BaseTest):
         require_that("'contract owner'", contract_owner, equal_to(self.echo_acc0))
 
         lcc.set_step("First: perform contract update operation to change contract owner")
-        self.utils.perform_contract_update_operation(self, self.echo_acc0, contract_id, self.__database_api_identifier,
-                                                     new_owner=self.echo_acc1)
+        self.utils.perform_contract_update_operation(
+            self, self.echo_acc0, contract_id, self.__database_api_identifier, new_owner=self.echo_acc1
+        )
         lcc.log_info("Contract owner changed from '{}' to '{}' successfully".format(self.echo_acc0, self.echo_acc1))
 
         lcc.set_step("Get updated info about created contract and check it new owner")
@@ -71,8 +78,9 @@ class ChangeContractOwner(BaseTest):
         require_that("'updated contract owner'", updated_contract_owner_1, equal_to(self.echo_acc1))
 
         lcc.set_step("Second: perform contract update operation to change contract owner again")
-        self.utils.perform_contract_update_operation(self, self.echo_acc1, contract_id, self.__database_api_identifier,
-                                                     new_owner=self.echo_acc2)
+        self.utils.perform_contract_update_operation(
+            self, self.echo_acc1, contract_id, self.__database_api_identifier, new_owner=self.echo_acc2
+        )
         lcc.log_info("Contract owner changed from '{}' to '{}' successfully".format(self.echo_acc1, self.echo_acc2))
 
         lcc.set_step("Get updated info about created contract and check it new owner")

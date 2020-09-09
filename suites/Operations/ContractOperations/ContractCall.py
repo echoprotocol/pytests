@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Operation 'contract_call'"
@@ -29,10 +29,13 @@ class ContractCall(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -45,10 +48,13 @@ class ContractCall(BaseTest):
         expected_string = "Hello World!!!"
 
         lcc.set_step("Create 'Piggy' contract in the Echo network")
-        operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                bytecode=self.piggy_contract,
-                                                                value_amount=value_amount,
-                                                                value_asset_id=self.echo_asset)
+        operation = self.echo_ops.get_contract_create_operation(
+            echo=self.echo,
+            registrar=self.echo_acc0,
+            bytecode=self.piggy_contract,
+            value_amount=value_amount,
+            value_asset_id=self.echo_asset
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Contract created successfully")
@@ -59,14 +65,16 @@ class ContractCall(BaseTest):
         lcc.log_info("Contract id: {}".format(contract_id))
 
         lcc.set_step("Call 'greet' method of contract")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.greet, callee=contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.greet, callee=contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Greet method of contract called successfully")
 
         lcc.set_step("Check that 'Hello World!!!' string in contract output")
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
-        contract_output = self.get_contract_output(contract_result, output_type=str,
-                                                   len_output_string=len(expected_string))
+        contract_output = self.get_contract_output(
+            contract_result, output_type=str, len_output_string=len(expected_string)
+        )
         check_that("return of method 'greet'", contract_output, is_(expected_string))

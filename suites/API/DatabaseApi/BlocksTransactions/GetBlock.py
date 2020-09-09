@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, check_that, equal_to, \
-    has_length, is_true
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, equal_to, has_length, is_integer, is_list, is_str, is_true, require_that
+)
 
 SUITE = {
     "description": "Method 'get_block'"
@@ -41,10 +42,7 @@ class GetBlock(BaseTest):
 
         lcc.set_step("Check simple work of method 'get_block'")
         block_header = response["result"]
-        require_that(
-            "'the first full block'",
-            block_header, has_length(14)
-        )
+        require_that("'the first full block'", block_header, has_length(14))
         if not self.type_validator.is_iso8601(block_header["timestamp"]):
             lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
         else:
@@ -59,17 +57,28 @@ class GetBlock(BaseTest):
             lcc.log_info("'delegate' has correct format: account_id")
         check_that_in(
             block_header,
-            "previous", is_str("0000000000000000000000000000000000000000"),
-            "round", is_integer(),
-            "attempt", is_integer(),
-            "transaction_merkle_root", is_str("0000000000000000000000000000000000000000"),
-            "vm_root", is_list(),
-            "prev_signatures", is_list(),
-            "extensions", is_list(),
-            "rand", is_str(),
-            "cert", is_list(),
-            "transactions", is_list(),
-            "invalid_trx_ids", is_list(),
+            "previous",
+            is_str("0000000000000000000000000000000000000000"),
+            "round",
+            is_integer(),
+            "attempt",
+            is_integer(),
+            "transaction_merkle_root",
+            is_str("0000000000000000000000000000000000000000"),
+            "vm_root",
+            is_list(),
+            "prev_signatures",
+            is_list(),
+            "extensions",
+            is_list(),
+            "rand",
+            is_str(),
+            "cert",
+            is_list(),
+            "transactions",
+            is_list(),
+            "invalid_trx_ids",
+            is_list(),
             quiet=True
         )
 
@@ -78,11 +87,16 @@ class GetBlock(BaseTest):
             lcc.log_info("Check fields in certificate#'{}'".format(i))
             check_that_in(
                 certificate,
-                "_step", is_integer(),
-                "_value", is_integer(),
-                "_producer", is_integer(),
-                "_delegate", is_integer(),
-                "_fallback", is_integer(),
+                "_step",
+                is_integer(),
+                "_value",
+                is_integer(),
+                "_producer",
+                is_integer(),
+                "_delegate",
+                is_integer(),
+                "_fallback",
+                is_integer(),
                 quiet=False
             )
         if not self.type_validator.is_digit(certificate["_leader"]):
@@ -124,12 +138,16 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):
@@ -140,23 +158,28 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("API.DatabaseApi.BlocksTransactions.GetBlock.GetBlock.method_main_check")
     def check_transaction_info_in_block(self):
         lcc.set_step("Collect 'get_transaction' operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1, amount=5)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=5
+        )
         lcc.log_info("Transfer operation: '{}'".format(str(transfer_operation)))
 
         lcc.set_step("Broadcast transaction that contains simple transfer operation to the ECHO network")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, log_broadcast=False
+        )
         require_that(
             "broadcast transaction complete successfully",
-            self.is_operation_completed(broadcast_result, 0), is_true(), quiet=True
+            self.is_operation_completed(broadcast_result, 0),
+            is_true(),
+            quiet=True
         )
 
         lcc.set_step("Get block, that contains transaction")
         broadcast_transaction_block_num = broadcast_result["block_num"]
-        response_id = self.send_request(self.get_request("get_block", [broadcast_transaction_block_num]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_block", [broadcast_transaction_block_num]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_block' with block_num='{}' parameter".format(broadcast_transaction_block_num))
 
@@ -168,14 +191,8 @@ class PositiveTesting(BaseTest):
                 transaction_from_api_method = tx
                 break
 
-        require_that(
-            "'transaction from broadcast result'",
-            transaction_from_broadcast_result, has_length(9)
-        )
-        require_that(
-            "'transaction from 'get_block' method result'",
-            transaction_from_api_method, has_length(9)
-        )
+        require_that("'transaction from broadcast result'", transaction_from_broadcast_result, has_length(9))
+        require_that("'transaction from 'get_block' method result'", transaction_from_api_method, has_length(9))
         self.compare_objects(transaction_from_broadcast_result, transaction_from_api_method)
 
 
@@ -193,9 +210,7 @@ class NegativeTesting(BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "API identifier are: database='{}'".format(self.__database_api_identifier))
-
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -207,11 +222,6 @@ class NegativeTesting(BaseTest):
         error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
 
         lcc.set_step("Get 'get_block' with negative block number")
-        response_id = self.send_request(self.get_request("get_block", [-1]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_block", [-1]), self.__database_api_identifier)
         message = self.get_response(response_id, negative=True)["error"]["message"]
-        check_that(
-            "error_message",
-            message, equal_to(error_message),
-            quiet=True
-        )
+        check_that("error_message", message, equal_to(error_message), quiet=True)

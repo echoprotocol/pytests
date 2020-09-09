@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, has_length, check_that, is_
-
 from common.base_test import BaseTest
 from project import GENESIS
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, has_length, is_, require_that
 
 SUITE = {
     "description": "Check the possibility to indicate the eth_address of the committee in the genesis"
@@ -37,31 +37,42 @@ class CommitteeEthAddressInGenesis(BaseTest):
         for i, initial_committee_candidate in enumerate(initial_committee_candidates):
             committee_members_names.append(initial_committee_candidate["owner_name"])
             committee_members_eth_addresses.append(initial_committee_candidate["eth_address"])
-            lcc.log_info("Committee member #{}: name='{}', eth_address='{}'".format(i, committee_members_names[i],
-                                                                                    committee_members_eth_addresses[i]))
+            lcc.log_info(
+                "Committee member #{}: name='{}', eth_address='{}'".format(
+                    i, committee_members_names[i], committee_members_eth_addresses[i]
+                )
+            )
 
         lcc.set_step("Get committee members from ECHO network and store their ids")
         params = [committee_members_names[0], len(committee_members_names)]
-        response_id = self.send_request(self.get_request("lookup_committee_member_accounts", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("lookup_committee_member_accounts", params), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         for i, result in enumerate(results):
             if result[0] == committee_members_names[i]:
                 committee_members_ids.append(result[1])
-        require_that("'stored committee_members_ids count'", committee_members_ids,
-                     has_length(len(committee_members_names)))
+        require_that(
+            "'stored committee_members_ids count'", committee_members_ids, has_length(len(committee_members_names))
+        )
         lcc.log_info("Stored committee members ids: '{}'".format(str(committee_members_ids)))
 
         lcc.set_step("Get committee members eth_addresses from ECHO network and store")
-        response_id = self.send_request(self.get_request("get_objects", [committee_members_ids]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_objects", [committee_members_ids]), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         for i, result in enumerate(results):
             committee_members_eth_addresses_echo.append(result["eth_address"])
-            lcc.log_info("Committee member #'{}' eth_addresses in Echo: '{}'".format(i, str(
-                committee_members_eth_addresses_echo[i])))
+            lcc.log_info(
+                "Committee member #'{}' eth_addresses in Echo: '{}'".format(
+                    i, str(committee_members_eth_addresses_echo[i])
+                )
+            )
 
         lcc.set_step("Compare eth_addresses in genesis and ECHO network")
         for i, committee_members_eth_address in enumerate(committee_members_eth_addresses):
-            check_that("'eth_addresses of committee members'", committee_members_eth_address,
-                       is_(committee_members_eth_addresses_echo[i]))
+            check_that(
+                "'eth_addresses of committee members'", committee_members_eth_address,
+                is_(committee_members_eth_addresses_echo[i])
+            )

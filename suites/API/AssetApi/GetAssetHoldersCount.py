@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_integer, check_that, has_entry, greater_than_or_equal_to
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, greater_than_or_equal_to, has_entry, is_integer
 
 SUITE = {
     "description": "Method 'get_asset_holders_count'"
@@ -24,21 +24,20 @@ class GetAssetHoldersCount(BaseTest):
         super().setup_suite()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__asset_api_identifier = self.get_identifier("asset")
-        lcc.log_info(
-            "Asset API identifiers is '{}'".format(self.__asset_api_identifier))
+        lcc.log_info("Asset API identifiers is '{}'".format(self.__asset_api_identifier))
 
     @lcc.test("Simple work of method 'get_asset_holders_count'")
     def method_main_check(self):
         lcc.set_step("Get holders count of ECHO asset")
-        response_id = self.send_request(self.get_request("get_asset_holders_count", [self.echo_asset]),
-                                        self.__asset_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_asset_holders_count", [self.echo_asset]), self.__asset_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_asset_holders_count' of '{}' asset_id".format(self.echo_asset))
 
         lcc.set_step("Check response from method 'get_asset_holders_count'")
         check_that(
-            "'number of asset '{}' holders'".format(self.echo_asset),
-            response["result"], greater_than_or_equal_to(0)
+            "'number of asset '{}' holders'".format(self.echo_asset), response["result"], greater_than_or_equal_to(0)
         )
 
 
@@ -58,8 +57,9 @@ class PositiveTesting(BaseTest):
 
     def get_asset_holders_count(self, asset_id, negative=False):
         lcc.log_info("Get '{}' asset holders count".format(asset_id))
-        response_id = self.send_request(self.get_request("get_asset_holders_count", [asset_id]),
-                                        self.__asset_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_asset_holders_count", [asset_id]), self.__asset_api_identifier
+        )
         return self.get_response(response_id, negative=negative)
 
     def setup_suite(self):
@@ -71,16 +71,22 @@ class PositiveTesting(BaseTest):
         self.__asset_api_identifier = self.get_identifier("asset")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', "
-            "asset='{}'".format(self.__database_api_identifier, self.__registration_api_identifier,
-                                self.__asset_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc2 = self.get_account_id(self.accounts[2], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "asset='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier, self.__asset_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc2 = self.get_account_id(
+            self.accounts[2], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info(
-            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc1, self.echo_acc2))
+            "Echo accounts are: #1='{}', #2='{}', #3='{}'".format(self.echo_acc0, self.echo_acc1, self.echo_acc2)
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -99,24 +105,17 @@ class PositiveTesting(BaseTest):
         response = self.get_asset_holders_count(new_asset_id)
 
         lcc.set_step("Check response from method 'get_asset_holders_count'")
-        check_that(
-            "'number of asset '{}' holders'".format(new_asset_id),
-            response["result"], is_integer(0)
-        )
+        check_that("'number of asset '{}' holders'".format(new_asset_id), response["result"], is_integer(0))
 
         lcc.set_step("Add new asset holders")
         new_holders = [self.echo_acc0, self.echo_acc1, self.echo_acc2]
         for new_holder in new_holders:
             self.utils.add_assets_to_account(self, value, new_asset_id, new_holder, self.__database_api_identifier)
-        lcc.log_info(
-            "Echo accounts '{}' became new asset holders of '{}' asset_id".format(new_holders, new_asset_id))
+        lcc.log_info("Echo accounts '{}' became new asset holders of '{}' asset_id".format(new_holders, new_asset_id))
 
         lcc.set_step("Check count of added holders")
         results = self.get_asset_holders_count(new_asset_id)["result"]
-        check_that(
-            "'number of asset '{}' holders'".format(new_asset_id),
-            results, is_integer(len(new_holders))
-        )
+        check_that("'number of asset '{}' holders'".format(new_asset_id), results, is_integer(len(new_holders)))
 
 
 @lcc.prop("negative", "type")
@@ -131,8 +130,9 @@ class NegativeTesting(BaseTest):
         self.nonexistent_asset_id = None
 
     def get_asset_holders_count(self, asset_id, negative=False):
-        response_id = self.send_request(self.get_request("get_asset_holders_count", [asset_id]),
-                                        self.__asset_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_asset_holders_count", [asset_id]), self.__asset_api_identifier
+        )
         return self.get_response(response_id, negative=negative)
 
     def setup_suite(self):
@@ -141,8 +141,10 @@ class NegativeTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__asset_api_identifier = self.get_identifier("asset")
         lcc.log_info(
-            "API identifiers are: database='{}', asset='{}'".format(self.__database_api_identifier,
-                                                                    self.__asset_api_identifier))
+            "API identifiers are: database='{}', asset='{}'".format(
+                self.__database_api_identifier, self.__asset_api_identifier
+            )
+        )
         self.nonexistent_asset_id = self.utils.get_nonexistent_asset_id(self, self.__database_api_identifier)
         lcc.log_info("Nonexistent asset id is '{}'".format(self.nonexistent_asset_id))
 
@@ -153,7 +155,8 @@ class NegativeTesting(BaseTest):
         response = self.get_asset_holders_count(self.nonexistent_asset_id)
         check_that(
             "'get_asset_holders_count' return error message",
-            response["result"], is_integer(0),
+            response["result"],
+            is_integer(0),
         )
 
     @lcc.test("Call method without params")
@@ -164,7 +167,9 @@ class NegativeTesting(BaseTest):
         response = self.get_response(response_id, negative=True)
         check_that(
             "'get_asset_holders_count' return error message",
-            response, has_entry("error"), quiet=True,
+            response,
+            has_entry("error"),
+            quiet=True,
         )
 
     @lcc.test("Call method with wrong params of all types")
@@ -177,5 +182,7 @@ class NegativeTesting(BaseTest):
             response = self.get_asset_holders_count(random_values[i], negative=True)
             check_that(
                 "'get_asset_holders_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True,
+                response,
+                has_entry("error"),
+                quiet=True,
             )

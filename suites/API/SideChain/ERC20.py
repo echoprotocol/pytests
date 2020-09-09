@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import random
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, equal_to, greater_than, has_length, check_that_in, is_true, \
-    is_list, \
-    check_that, is_
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, equal_to, greater_than, has_length, is_, is_list, is_true, require_that
+)
 
 SUITE = {
     "description": "Entering the currency ERC20 token in the network ECHO to the account and withdraw that currency"
@@ -49,10 +49,13 @@ class ERC20(BaseTest):
         self.__registration_api_identifier = self.get_identifier("registration")
         self.__history_api_identifier = self.get_identifier("history")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         self.eth_account = self.get_default_ethereum_account()
         lcc.log_info("Ethereum address in the ethereum network: '{}'".format(self.eth_account.address))
@@ -63,20 +66,23 @@ class ERC20(BaseTest):
         super().teardown_suite()
 
     @lcc.test("The scenario checks the main parts before testing the ERC20 sidechain functionality")
-    def erc20_sidechain_pre_run_scenario(self, get_random_valid_account_name, get_random_string,
-                                         get_random_valid_asset_name):
+    def erc20_sidechain_pre_run_scenario(
+        self, get_random_valid_account_name, get_random_string, get_random_valid_asset_name
+    ):
         self.new_account = get_random_valid_account_name
         name = "erc20" + get_random_string
         symbol = get_random_valid_asset_name
 
         lcc.set_step("Create and get new account")
-        self.new_account = self.get_account_id(self.new_account, self.__database_api_identifier,
-                                               self.__registration_api_identifier)
+        self.new_account = self.get_account_id(
+            self.new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(self.new_account))
 
         lcc.set_step("Generate ethereum address for new account")
-        self.utils.perform_sidechain_eth_create_address_operation(self, self.new_account,
-                                                                  self.__database_api_identifier)
+        self.utils.perform_sidechain_eth_create_address_operation(
+            self, self.new_account, self.__database_api_identifier
+        )
         lcc.log_info("Ethereum address generated successfully")
 
         lcc.set_step("Get updated ethereum address of created account in the ECHO network")
@@ -89,8 +95,7 @@ class ERC20(BaseTest):
             self.eth_trx.deploy_contract_in_ethereum_network(self.web3, eth_address=self.eth_account.address,
                                                              contract_abi=self.erc20_abi,
                                                              contract_bytecode=self.erc20_contract_code)
-        lcc.log_info(
-            "ERC20 contract created in Ethereum network, address: '{}'".format(self.erc20_contract.address))
+        lcc.log_info("ERC20 contract created in Ethereum network, address: '{}'".format(self.erc20_contract.address))
 
         lcc.set_step("Get ethereum account ERC20 tokens balance in the Ethereum network")
         self.in_ethereum_erc20_balance = self.eth_trx.get_balance_of(self.erc20_contract, self.eth_account.address)
@@ -104,12 +109,16 @@ class ERC20(BaseTest):
                                                                         name=name, symbol=symbol,
                                                                         database_api_id=self.__database_api_identifier)
         self.erc20_token_id = self.get_contract_result(bd_result, self.__database_api_identifier)
-        lcc.log_info("Registration of ERC20 token completed successfully, ERC20 token object is '{}'".format(
-            self.erc20_token_id))
+        lcc.log_info(
+            "Registration of ERC20 token completed successfully, ERC20 token object is '{}'".format(
+                self.erc20_token_id
+            )
+        )
 
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
-        response_id = self.send_request(self.get_request("get_erc20_token", [self.erc20_contract.address[2:]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_erc20_token", [self.erc20_contract.address[2:]]), self.__database_api_identifier
+        )
         self.erc20_contract_id = self.get_response(response_id)["result"]["contract"]
         lcc.log_info("ERC20 token has id '{}' and contract_id '{}'".format(self.erc20_token_id, self.erc20_contract_id))
 
@@ -122,8 +131,10 @@ class ERC20(BaseTest):
         erc20_deposit_amounts.append(self.get_random_amount(_to=self.in_ethereum_erc20_balance))
         self.eth_trx.transfer(self.web3, self.erc20_contract, self.eth_account_address, erc20_deposit_amounts[0])
         lcc.log_info(
-            "Transfer '{}' erc20 tokens to '{}' account completed successfully".format(erc20_deposit_amounts[0],
-                                                                                       self.eth_account_address))
+            "Transfer '{}' erc20 tokens to '{}' account completed successfully".format(
+                erc20_deposit_amounts[0], self.eth_account_address
+            )
+        )
 
         lcc.set_step("First: Get ERC20 account deposits")
         deposits = \
@@ -131,8 +142,9 @@ class ERC20(BaseTest):
         require_that("'account deposits'", deposits, has_length(len(erc20_deposit_amounts)))
         for i, deposit in enumerate(deposits):
             deposit_value = deposit["value"]
-            require_that("'account deposit value #'{}''".format(i), deposit_value,
-                         equal_to(str(erc20_deposit_amounts[i])))
+            require_that(
+                "'account deposit value #'{}''".format(i), deposit_value, equal_to(str(erc20_deposit_amounts[i]))
+            )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance = \
@@ -144,26 +156,32 @@ class ERC20(BaseTest):
 
         lcc.set_step("Get updated ethereum account ERC20 tokens balance in the Ethereum network")
         updated_in_ethereum_erc20_balance = self.eth_trx.get_balance_of(self.erc20_contract, self.eth_account.address)
-        require_that("'in ethereum owner's erc20 balance'", updated_in_ethereum_erc20_balance,
-                     equal_to(self.in_ethereum_erc20_balance - erc20_deposit_amounts[0]))
+        require_that(
+            "'in ethereum owner's erc20 balance'", updated_in_ethereum_erc20_balance,
+            equal_to(self.in_ethereum_erc20_balance - erc20_deposit_amounts[0])
+        )
 
         lcc.set_step("Second transfer erc20 to ethereum address of created account")
         erc20_deposit_amounts.append(self.get_random_amount(_to=updated_in_ethereum_erc20_balance))
         self.eth_trx.transfer(self.web3, self.erc20_contract, self.eth_account_address, erc20_deposit_amounts[1])
         lcc.log_info(
-            "Transfer '{}' erc20 tokens to '{}' account completed successfully".format(erc20_deposit_amounts[1],
-                                                                                       self.eth_account_address))
+            "Transfer '{}' erc20 tokens to '{}' account completed successfully".format(
+                erc20_deposit_amounts[1], self.eth_account_address
+            )
+        )
 
         lcc.set_step("Second: Get ERC20 account deposits")
         import time
         time.sleep(3)
-        deposits = self.utils.get_erc20_account_deposits(self, self.new_account, self.__database_api_identifier,
-                                                         previous_account_deposits=deposits)["result"]
+        deposits = self.utils.get_erc20_account_deposits(
+            self, self.new_account, self.__database_api_identifier, previous_account_deposits=deposits
+        )["result"]
         require_that("'account deposits'", deposits, has_length(len(erc20_deposit_amounts)))
         for i, deposit in enumerate(deposits):
             deposit_value = deposit["value"]
-            require_that("'account deposit value #'{}''".format(i), deposit_value,
-                         equal_to(str(erc20_deposit_amounts[i])))
+            require_that(
+                "'account deposit value #'{}''".format(i), deposit_value, equal_to(str(erc20_deposit_amounts[i]))
+            )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
         in_echo_erc20_balance = \
@@ -171,13 +189,17 @@ class ERC20(BaseTest):
                                                        balance_of_method=self.erc20_balanceOf,
                                                        contract_id=self.erc20_contract_id,
                                                        database_api_id=self.__database_api_identifier)
-        require_that("'in echo account's erc20 balance'", in_echo_erc20_balance,
-                     equal_to(erc20_deposit_amounts[0] + erc20_deposit_amounts[1]))
+        require_that(
+            "'in echo account's erc20 balance'", in_echo_erc20_balance,
+            equal_to(erc20_deposit_amounts[0] + erc20_deposit_amounts[1])
+        )
 
         lcc.set_step("Get final ethereum account ERC20 tokens balance in the Ethereum network")
         final_in_ethereum_erc20_balance = self.eth_trx.get_balance_of(self.erc20_contract, self.eth_account.address)
-        require_that("'in ethereum owner'serc20 balance'", final_in_ethereum_erc20_balance,
-                     equal_to(updated_in_ethereum_erc20_balance - erc20_deposit_amounts[1]))
+        require_that(
+            "'in ethereum owner'serc20 balance'", final_in_ethereum_erc20_balance,
+            equal_to(updated_in_ethereum_erc20_balance - erc20_deposit_amounts[1])
+        )
         self.in_echo_erc20_balance = in_echo_erc20_balance
         self.in_ethereum_erc20_balance = final_in_ethereum_erc20_balance
 
@@ -187,12 +209,14 @@ class ERC20(BaseTest):
         stop, start = operation_history_obj, operation_history_obj
         limit = 100
         params = [self.new_account, operation_id, start, stop, limit]
-        response_id = self.send_request(self.get_request("get_account_history_operations", params),
-                                        self.__history_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_history_operations", params), self.__history_api_identifier
+        )
         history_operations = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_account_history' with: account='{}', operation_id='{}', stop='{}', limit='{}', "
-            "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start))
+            "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start)
+        )
 
         lcc.tags("Bug ECHO-1423")
         lcc.set_step("Check ERC20 tokens of 'sidechain_erc20_issue_operation'")
@@ -202,15 +226,20 @@ class ERC20(BaseTest):
             if check_that("'sidechain_erc20_issue_operation'", sidechain_erc20_issue_operation[1], has_length(5)):
                 check_that_in(
                     sidechain_erc20_issue_operation[1],
-                    "deposit", is_(deposits[i]["id"]),
-                    "account", is_(deposits[i]["account"]),
-                    "amount", is_(deposits[i]["value"]),
-                    "extensions", is_list(),
+                    "deposit",
+                    is_(deposits[i]["id"]),
+                    "account",
+                    is_(deposits[i]["account"]),
+                    "amount",
+                    is_(deposits[i]["value"]),
+                    "extensions",
+                    is_list(),
                     quite=True
                 )
                 if not self.type_validator.is_erc20_object_id(sidechain_erc20_issue_operation[1]["token"]):
                     lcc.log_error(
-                        "Wrong format of 'token', got: {}".format(sidechain_erc20_issue_operation[1]["token"]))
+                        "Wrong format of 'token', got: {}".format(sidechain_erc20_issue_operation[1]["token"])
+                    )
                 else:
                     lcc.log_info("'operation_id' has correct format: erc20_token_object_type")
 
@@ -235,8 +264,11 @@ class ERC20(BaseTest):
                                                                         value=erc20_withdraw_amounts[0],
                                                                         database_api_id=self.__database_api_identifier)
         withdraw_erc20_token_ids.append(self.get_operation_results_ids(bd_result))
-        lcc.log_info("Withdraw ERC20 token completed successfully, Withdraw ERC20 token object is '{}'".format(
-            withdraw_erc20_token_ids[0]))
+        lcc.log_info(
+            "Withdraw ERC20 token completed successfully, Withdraw ERC20 token object is '{}'".format(
+                withdraw_erc20_token_ids[0]
+            )
+        )
 
         lcc.set_step("Get ERC20 account withdrawals")
         withdrawals = \
@@ -245,9 +277,8 @@ class ERC20(BaseTest):
         for i, withdraw in enumerate(withdrawals):
             lcc.log_info("Check account withdraw #'{}'".format(i))
             check_that_in(
-                withdraw,
-                "id", equal_to(withdraw_erc20_token_ids[i]),
-                "value", equal_to(str(erc20_withdraw_amounts[i]))
+                withdraw, "id", equal_to(withdraw_erc20_token_ids[i]), "value",
+                equal_to(str(erc20_withdraw_amounts[i]))
             )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
@@ -256,8 +287,10 @@ class ERC20(BaseTest):
                                                        balance_of_method=self.erc20_balanceOf,
                                                        contract_id=self.erc20_contract_id,
                                                        database_api_id=self.__database_api_identifier)
-        require_that("'in echo account's erc20 balance'", in_echo_erc20_balance,
-                     equal_to(self.in_echo_erc20_balance - int(erc20_withdraw_amounts[0])))
+        require_that(
+            "'in echo account's erc20 balance'", in_echo_erc20_balance,
+            equal_to(self.in_echo_erc20_balance - int(erc20_withdraw_amounts[0]))
+        )
 
         lcc.set_step("Get updated ethereum account ERC20 tokens balance in the Ethereum network")
         updated_in_ethereum_erc20_balance = \
@@ -265,8 +298,10 @@ class ERC20(BaseTest):
                                                                         self.eth_account.address,
                                                                         self.in_ethereum_erc20_balance,
                                                                         self.__database_api_identifier)
-        require_that("'in ethereum owner'serc20 balance'", updated_in_ethereum_erc20_balance,
-                     equal_to(self.in_ethereum_erc20_balance + int(erc20_withdraw_amounts[0])))
+        require_that(
+            "'in ethereum owner'serc20 balance'", updated_in_ethereum_erc20_balance,
+            equal_to(self.in_ethereum_erc20_balance + int(erc20_withdraw_amounts[0]))
+        )
 
         lcc.set_step("Perform second withdraw ERC20 token operation to withdraw all ERC20 balance")
         erc20_withdraw_amounts.append(str(in_echo_erc20_balance))
@@ -277,8 +312,11 @@ class ERC20(BaseTest):
                                                                         value=erc20_withdraw_amounts[1],
                                                                         database_api_id=self.__database_api_identifier)
         withdraw_erc20_token_ids.append(self.get_operation_results_ids(bd_result))
-        lcc.log_info("Withdraw ERC20 token completed successfully, Withdraw ERC20 token object is '{}'".format(
-            withdraw_erc20_token_ids[1]))
+        lcc.log_info(
+            "Withdraw ERC20 token completed successfully, Withdraw ERC20 token object is '{}'".format(
+                withdraw_erc20_token_ids[1]
+            )
+        )
 
         lcc.set_step("Get ERC20 account withdrawals")
         withdrawals = \
@@ -287,9 +325,8 @@ class ERC20(BaseTest):
         for i, withdraw in enumerate(withdrawals):
             lcc.log_info("Check account withdraw #'{}'".format(i))
             check_that_in(
-                withdraw,
-                "id", equal_to(withdraw_erc20_token_ids[i]),
-                "value", equal_to(str(erc20_withdraw_amounts[i]))
+                withdraw, "id", equal_to(withdraw_erc20_token_ids[i]), "value",
+                equal_to(str(erc20_withdraw_amounts[i]))
             )
 
         lcc.set_step("Get ERC20 token balance of account in the ECHO network and check result")
@@ -298,8 +335,10 @@ class ERC20(BaseTest):
                                                        balance_of_method=self.erc20_balanceOf,
                                                        contract_id=self.erc20_contract_id,
                                                        database_api_id=self.__database_api_identifier)
-        require_that("'in echo account's erc20 balance'", updated_in_echo_erc20_balance,
-                     equal_to(in_echo_erc20_balance - int(erc20_withdraw_amounts[1])))
+        require_that(
+            "'in echo account's erc20 balance'", updated_in_echo_erc20_balance,
+            equal_to(in_echo_erc20_balance - int(erc20_withdraw_amounts[1]))
+        )
 
         lcc.set_step("Get final ethereum account ERC20 tokens balance in the Ethereum network")
         final_in_ethereum_erc20_balance = \
@@ -307,10 +346,14 @@ class ERC20(BaseTest):
                                                                         self.eth_account.address,
                                                                         self.in_ethereum_erc20_balance,
                                                                         self.__database_api_identifier)
-        require_that("'in ethereum owner'serc20 balance'", final_in_ethereum_erc20_balance,
-                     equal_to(updated_in_ethereum_erc20_balance + int(erc20_withdraw_amounts[1])))
-        require_that("'final balance equal to start balance'",
-                     final_in_ethereum_erc20_balance == self.in_ethereum_start_erc20_balance, is_true())
+        require_that(
+            "'in ethereum owner'serc20 balance'", final_in_ethereum_erc20_balance,
+            equal_to(updated_in_ethereum_erc20_balance + int(erc20_withdraw_amounts[1]))
+        )
+        require_that(
+            "'final balance equal to start balance'",
+            final_in_ethereum_erc20_balance == self.in_ethereum_start_erc20_balance, is_true()
+        )
 
         lcc.set_step("Get ERC20 burn token")
         operation_id = self.echo.config.operation_ids.SIDECHAIN_ERC20_BURN
@@ -318,12 +361,14 @@ class ERC20(BaseTest):
         stop, start = operation_history_obj, operation_history_obj
         limit = 100
         params = [self.new_account, operation_id, start, stop, limit]
-        response_id = self.send_request(self.get_request("get_account_history_operations", params),
-                                        self.__history_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_history_operations", params), self.__history_api_identifier
+        )
         history_operations = self.get_response(response_id)["result"]
         lcc.log_info(
             "Call method 'get_account_history' with: account='{}', operation_id='{}', stop='{}', limit='{}', "
-            "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start))
+            "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start)
+        )
 
         lcc.tags("Bug ECHO-1423")
         lcc.set_step("Check ERC20 tokens of 'sidechain_erc20_burn_operation'")
@@ -333,15 +378,18 @@ class ERC20(BaseTest):
             if check_that("'sidechain_erc20_issue_operation'", sidechain_erc20_burn_operation[1], has_length(5)):
                 check_that_in(
                     sidechain_erc20_burn_operation[1],
-                    "withdraw", is_(withdrawals[i]["id"]),
-                    "account", is_(withdrawals[i]["account"]),
-                    "amount", is_(withdrawals[i]["value"]),
-                    "extensions", is_list(),
+                    "withdraw",
+                    is_(withdrawals[i]["id"]),
+                    "account",
+                    is_(withdrawals[i]["account"]),
+                    "amount",
+                    is_(withdrawals[i]["value"]),
+                    "extensions",
+                    is_list(),
                     quite=True
                 )
                 if not self.type_validator.is_erc20_object_id(sidechain_erc20_burn_operation[1]["token"]):
-                    lcc.log_error(
-                        "Wrong format of 'token', got: {}".format(sidechain_erc20_burn_operation[1]["token"]))
+                    lcc.log_error("Wrong format of 'token', got: {}".format(sidechain_erc20_burn_operation[1]["token"]))
                 else:
                     lcc.log_info("'operation_id' has correct format: erc20_token_object_type")
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, has_entry
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Check eddsa key validation in the ECHO network"
@@ -21,8 +21,9 @@ class EddsaKeyValidation(BaseTest):
 
     def _register_account(self, callback, account_name, active_key, echorand_key, negative=True):
         account_params = [callback, account_name, active_key, echorand_key]
-        response_id = self.send_request(self.get_request("register_account", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("register_account", account_params), self.__registration_api_identifier
+        )
         return self.get_response(response_id, negative=negative)
 
     def setup_suite(self):
@@ -31,12 +32,15 @@ class EddsaKeyValidation(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.test("The scenario checks if the ECHO validates the keys in length.")
-    def eddsa_key_validation_scenario(self, get_random_valid_account_name, get_random_integer_up_to_ten,
-                                      get_random_character, get_random_integer):
+    def eddsa_key_validation_scenario(
+        self, get_random_valid_account_name, get_random_integer_up_to_ten, get_random_character, get_random_integer
+    ):
         account_name = get_random_valid_account_name
         callback = get_random_integer
 
@@ -57,28 +61,34 @@ class EddsaKeyValidation(BaseTest):
         lcc.log_info("Public key with special character: '{}'".format(public_key_with_character))
 
         lcc.set_step("Register new account with addsa key length less than 32 bytes")
-        response = self._register_account(callback, account_name, active_key=public_key_less_symbols,
-                                          echorand_key=public_key)
+        response = self._register_account(
+            callback, account_name, active_key=public_key_less_symbols, echorand_key=public_key
+        )
         check_that("registration response", response, has_entry("error"), quiet=True)
 
-        response = self._register_account(callback, account_name, active_key=public_key,
-                                          echorand_key=public_key_less_symbols)
+        response = self._register_account(
+            callback, account_name, active_key=public_key, echorand_key=public_key_less_symbols
+        )
         check_that("registration response", response, has_entry("error"), quiet=True)
 
         lcc.set_step("Register new account with addsa key length more than 32 bytes")
-        response = self._register_account(callback, account_name, active_key=public_key_more_symbols,
-                                          echorand_key=public_key)
+        response = self._register_account(
+            callback, account_name, active_key=public_key_more_symbols, echorand_key=public_key
+        )
         check_that("registration response", response, has_entry("error"), quiet=True)
 
-        response = self._register_account(callback, account_name, active_key=public_key,
-                                          echorand_key=public_key_more_symbols)
+        response = self._register_account(
+            callback, account_name, active_key=public_key, echorand_key=public_key_more_symbols
+        )
         check_that("registration response", response, has_entry("error"), quiet=True)
 
         lcc.set_step("Register new account with special character")
-        response = self._register_account(callback, account_name, active_key=public_key_with_character,
-                                          echorand_key=public_key)
+        response = self._register_account(
+            callback, account_name, active_key=public_key_with_character, echorand_key=public_key
+        )
         check_that("registration response", response, has_entry("error"), quiet=True)
 
-        response = self._register_account(callback, account_name, active_key=public_key,
-                                          echorand_key=public_key_with_character)
+        response = self._register_account(
+            callback, account_name, active_key=public_key, echorand_key=public_key_with_character
+        )
         check_that("registration response", response, has_entry("error"), quiet=True)

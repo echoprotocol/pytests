@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, is_none
+import json
 
 from common.base_test import BaseTest
-import json
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, is_none
 
 SUITE = {
     "description": "Method 'broadcast_transaction_with_callback'"
@@ -32,10 +33,12 @@ class BroadcastTransactionWithCallback(BaseTest):
         self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
-                self.__database_api_identifier, self.__registration_api_identifier,
-                self.__network_broadcast_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+                self.__database_api_identifier, self.__registration_api_identifier, self.__network_broadcast_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account are: '{}'".format(self.echo_acc0))
 
     def setup_test(self, test):
@@ -61,41 +64,49 @@ class BroadcastTransactionWithCallback(BaseTest):
         account_names = get_random_valid_account_name
 
         lcc.set_step("Create new account")
-        account_id = self.get_account_id(account_names, self.__database_api_identifier,
-                                         self.__registration_api_identifier)
+        account_id = self.get_account_id(
+            account_names, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(account_id))
 
         lcc.set_step("Create signed transaction of transfer operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                  amount=transfer_amount, to_account_id=account_id)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, amount=transfer_amount, to_account_id=account_id
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, no_broadcast=True)
         lcc.log_info("Signed transaction of 'transfer_operation' created successfully")
 
         lcc.set_step("Get account balance before transfer transaction broadcast")
-        response_id = self.send_request(self.get_request("get_account_balances", [account_id, [self.echo_asset]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_balances", [account_id, [self.echo_asset]]), self.__database_api_identifier
+        )
         account_balance = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info("'{}' account has '{}' in '{}' assets".format(account_id, account_balance, self.echo_asset))
 
         lcc.set_step("Broadcast transaction by calling method 'broadcast_transaction_with_callback'")
         params = [subscription_callback_id, signed_tx]
-        response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
-                                        self.__network_broadcast_identifier)
+        response_id = self.send_request(
+            self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
+        )
         response = self.get_response(response_id)
         check_that("'broadcast_transaction_with_callback' result", response["result"], is_none(), quiet=True)
 
         lcc.set_step("Get account balance after transfer transaction broadcast")
         self.produce_block(self.__database_api_identifier)
-        response_id = self.send_request(self.get_request("get_account_balances", [account_id, [self.echo_asset]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_balances", [account_id, [self.echo_asset]]), self.__database_api_identifier
+        )
         updated_account_balance = self.get_response(response_id)["result"][0]["amount"]
         lcc.log_info(
-            "'{}' account has '{}' in '{}' assets".format(account_id, updated_account_balance, self.echo_asset))
+            "'{}' account has '{}' in '{}' assets".format(account_id, updated_account_balance, self.echo_asset)
+        )
 
         lcc.set_step("Check that transfer operation completed successfully")
-        check_that("account balance increased by transfered amount",
-                   updated_account_balance - account_balance, equal_to(transfer_amount))
+        check_that(
+            "account balance increased by transfered amount", updated_account_balance - account_balance,
+            equal_to(transfer_amount)
+        )
 
 
 @lcc.prop("negative", "type")
@@ -119,10 +130,12 @@ class NegativeTesting(BaseTest):
         self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
-                self.__database_api_identifier, self.__registration_api_identifier,
-                self.__network_broadcast_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+                self.__database_api_identifier, self.__registration_api_identifier, self.__network_broadcast_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account are: '{}'".format(self.echo_acc0))
 
     def setup_test(self, test):
@@ -151,45 +164,52 @@ class NegativeTesting(BaseTest):
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong signature")
     @lcc.depends_on(
-        "API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
-    def check_broadcast_transaction_with_callback_with_wrong_signature(self, get_random_integer,
-                                                                       get_random_integer_up_to_ten,
-                                                                       get_random_valid_account_name):
+        "API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check"
+    )
+    def check_broadcast_transaction_with_callback_with_wrong_signature(
+        self, get_random_integer, get_random_integer_up_to_ten, get_random_valid_account_name
+    ):
         subscription_callback_id = get_random_integer
         transfer_amount = get_random_integer_up_to_ten
         expected_message = "irrelevant signature included: Unnecessary signature(s) detected"
         account_names = get_random_valid_account_name
 
         lcc.set_step("Create new account")
-        account_id = self.get_account_id(account_names, self.__database_api_identifier,
-                                         self.__registration_api_identifier)
+        account_id = self.get_account_id(
+            account_names, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(account_id))
 
         lcc.set_step("Create signed transaction of transfer operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                  amount=transfer_amount, to_account_id=account_id,
-                                                                  signer=account_id)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo,
+            from_account_id=self.echo_acc0,
+            amount=transfer_amount,
+            to_account_id=account_id,
+            signer=account_id
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, no_broadcast=True)
         lcc.log_info("Signed transaction of 'transfer_operation' with wrong signer created successfully")
 
         lcc.set_step("Broadcast signed transfer transaction to get error message")
         params = [subscription_callback_id, signed_tx]
-        response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
-                                        self.__network_broadcast_identifier)
+        response_id = self.send_request(
+            self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
+        )
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
-
-    #todo: BUG ECHO-2326
+    # todo: BUG ECHO-2326
     @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong expiration time")
     @lcc.depends_on(
-        "API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check")
-    def check_broadcast_transaction_with_callback_with_wrong_expiration_time(self, get_random_integer,
-                                                                             get_random_integer_up_to_ten,
-                                                                             get_random_valid_account_name):
+        "API.NetworkBroadcastApi.BroadcastTransactionWithCallback.BroadcastTransactionWithCallback.method_main_check"
+    )
+    def check_broadcast_transaction_with_callback_with_wrong_expiration_time(
+        self, get_random_integer, get_random_integer_up_to_ten, get_random_valid_account_name
+    ):
         subscription_callback_id = get_random_integer
         transfer_amount = get_random_integer_up_to_ten
         expiration_time_offset = 500
@@ -197,23 +217,27 @@ class NegativeTesting(BaseTest):
         account_names = get_random_valid_account_name
 
         lcc.set_step("Create new account")
-        account_id = self.get_account_id(account_names, self.__database_api_identifier,
-                                         self.__registration_api_identifier)
+        account_id = self.get_account_id(
+            account_names, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(account_id))
 
         lcc.set_step("Create signed transaction of transfer operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=self.echo_acc0,
-                                                                  amount=transfer_amount, to_account_id=account_id)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, amount=transfer_amount, to_account_id=account_id
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         datetime_str = self.get_datetime(global_datetime=True)
         datetime_str = self.subtract_from_datetime(datetime_str, seconds=expiration_time_offset)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            expiration=datetime_str, no_broadcast=True)
+        signed_tx = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, expiration=datetime_str, no_broadcast=True
+        )
         lcc.log_info("Signed transaction of 'transfer_operation' with expiration time offset created successfully")
 
         lcc.set_step("Broadcast signed transfer transaction to get error message")
         params = [subscription_callback_id, signed_tx]
-        response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
-                                        self.__network_broadcast_identifier)
+        response_id = self.send_request(
+            self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
+        )
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))

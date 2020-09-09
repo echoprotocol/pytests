@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_bool, require_that, is_false, is_true, has_entry
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, has_entry, is_bool, is_false, is_true, require_that
 
 SUITE = {
     "description": "Method 'is_public_key_registered'"
@@ -34,8 +34,9 @@ class IsPublicKeyRegistered(BaseTest):
         lcc.log_info("Public key generated successfully: '{}'".format(public_key))
 
         lcc.set_step("Verify generated public key")
-        response_id = self.send_request(self.get_request("is_public_key_registered", [public_key]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("is_public_key_registered", [public_key]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'is_public_key_registered' with param: '{}'".format(public_key))
 
@@ -60,8 +61,10 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}',".format(self.__database_api_identifier,
-                                                                            self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}',".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.prop("type", "method")
     @lcc.test("Register new account and check it's public key")
@@ -76,28 +79,34 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Public key generated successfully: '{}'".format(public_key))
 
         lcc.set_step("Verify generated public key before account registration")
-        response_id = self.send_request(self.get_request("is_public_key_registered", [public_key]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("is_public_key_registered", [public_key]), self.__database_api_identifier
+        )
         public_key_status_before_registration = self.get_response(response_id)["result"]
         require_that("'public key' result", public_key_status_before_registration, is_false())
 
         lcc.set_step("Register new account with generated public key")
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("request_registration_task"), self.__registration_api_identifier
+        )
         pow_algorithm_data = self.get_response(response_id)["result"]
-        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
-                                                pow_algorithm_data["rand_num"],
-                                                pow_algorithm_data["difficulty"])
-        account_params = [callback, new_account, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        solution = self.solve_registration_task(
+            pow_algorithm_data["block_id"], pow_algorithm_data["rand_num"], pow_algorithm_data["difficulty"]
+        )
+        account_params = [
+            callback, new_account, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]
+        ]
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         response = self.get_response(response_id)
         self.get_notice(callback)
         require_that("'register_account' result", response["result"], is_true(), quiet=False)
 
         lcc.set_step("Verify generated public key after account registration")
-        response_id = self.send_request(self.get_request("is_public_key_registered", [public_key]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("is_public_key_registered", [public_key]), self.__database_api_identifier
+        )
         public_key_status_before_registration = self.get_response(response_id)["result"]
         check_that("'public key' result", public_key_status_before_registration, is_true())
 
@@ -111,12 +120,15 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Invalid public key generated successfully: '{}'".format(invalid_public_key))
 
         lcc.set_step("Verify generated invalid public key")
-        response_id = self.send_request(self.get_request("is_public_key_registered", [invalid_public_key]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("is_public_key_registered", [invalid_public_key]), self.__database_api_identifier
+        )
         response = self.get_response(response_id, negative=True)
         check_that(
             "'is_public_key_registered' return error message",
-            response, has_entry("error"), quiet=True,
+            response,
+            has_entry("error"),
+            quiet=True,
         )
 
 
@@ -130,8 +142,9 @@ class NegativeTesting(BaseTest):
         self.__database_api_identifier = None
 
     def is_public_key_registered(self, key):
-        response_id = self.send_request(self.get_request("is_public_key_registered", [key]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("is_public_key_registered", [key]), self.__database_api_identifier
+        )
         return self.get_response(response_id, negative=True)
 
     def setup_suite(self):
@@ -152,7 +165,9 @@ class NegativeTesting(BaseTest):
         response = self.is_public_key_registered(private_key)
         check_that(
             "'is_public_key_registered' return error message",
-            response, has_entry("error"), quiet=True,
+            response,
+            has_entry("error"),
+            quiet=True,
         )
 
     @lcc.prop("type", "method")
@@ -167,7 +182,9 @@ class NegativeTesting(BaseTest):
             response = self.is_public_key_registered(random_values[i])
             check_that(
                 "'get_asset_holders' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True,
+                response,
+                has_entry("error"),
+                quiet=True,
             )
 
     @lcc.prop("type", "method")
@@ -177,7 +194,4 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Call method without params")
         response_id = self.send_request(self.get_request("is_public_key_registered"), self.__database_api_identifier)
         response = self.get_response(response_id, negative=True)
-        check_that(
-            "'is_public_key_registered' return error message",
-            response, has_entry("error"), quiet=True
-        )
+        check_that("'is_public_key_registered' return error message", response, has_entry("error"), quiet=True)

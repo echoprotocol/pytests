@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_true, is_, require_that
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_, is_true, require_that
 
 SUITE = {
     "description": "Method 'get_account_by_address'"
@@ -28,10 +28,13 @@ class GetAccountByAddress(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -43,14 +46,16 @@ class GetAccountByAddress(BaseTest):
         new_account = get_random_valid_account_name
 
         lcc.set_step("Create and get new account")
-        new_account = self.get_account_id(new_account, self.__database_api_identifier,
-                                          self.__registration_api_identifier)
+        new_account = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
 
         lcc.set_step("Create account address for new account")
         label = get_random_string
-        broadcast_result = self.utils.perform_account_address_create_operation(self, new_account, label,
-                                                                               self.__database_api_identifier)
+        broadcast_result = self.utils.perform_account_address_create_operation(
+            self, new_account, label, self.__database_api_identifier
+        )
         account_address_object = self.get_operation_results_ids(broadcast_result)
 
         lcc.set_step("Get objects 'impl_account_address_object_type'")
@@ -60,8 +65,9 @@ class GetAccountByAddress(BaseTest):
 
         lcc.set_step("Get created account by created account_address")
         params = [account_address]
-        response_id = self.send_request(self.get_request("get_account_by_address", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_address", params), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_account_by_address' of new account '{}'".format(new_account))
 
@@ -71,11 +77,7 @@ class GetAccountByAddress(BaseTest):
         else:
             lcc.log_info("'response' has correct format: account_object_type")
 
-        check_that(
-            "'account by address'",
-            response["result"],
-            is_(new_account)
-        )
+        check_that("'account by address'", response["result"], is_(new_account))
 
 
 @lcc.prop("positive", "type")
@@ -96,10 +98,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -115,20 +120,23 @@ class PositiveTesting(BaseTest):
         account_addresses = []
 
         lcc.set_step("Create and get new account")
-        new_account = self.get_account_id(new_account, self.__database_api_identifier,
-                                          self.__registration_api_identifier)
+        new_account = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
 
         lcc.set_step("Create multiple account address for new account")
         for i in range(addresses_count):
-            self.utils.perform_account_address_create_operation(self, new_account, label + str(i),
-                                                                self.__database_api_identifier)
+            self.utils.perform_account_address_create_operation(
+                self, new_account, label + str(i), self.__database_api_identifier
+            )
 
         lcc.set_step("Get addresses of created account in the network and store addresses")
         _from, limit = 0, 100
         params = [new_account, _from, limit]
-        response_id = self.send_request(self.get_request("get_account_addresses", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_addresses", params), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         for result in results:
             account_addresses.append(result["address"])
@@ -138,19 +146,15 @@ class PositiveTesting(BaseTest):
         for i, account_address in enumerate(account_addresses):
             if i != len(account_addresses) - 1:
                 require_that(
-                    "'generating addresses are not the same'",
-                    account_address != account_addresses[i + 1], is_true()
+                    "'generating addresses are not the same'", account_address != account_addresses[i + 1], is_true()
                 )
 
         lcc.set_step("Get created account by created account_addresses")
         for i, account_address in enumerate(account_addresses):
             params = [account_address]
-            response_id = self.send_request(self.get_request("get_account_by_address", params),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_account_by_address", params), self.__database_api_identifier
+            )
             response = self.get_response(response_id)
             lcc.log_info("Get account by address #{}".format(i))
-            check_that(
-                "'account by address'",
-                response["result"],
-                is_(new_account)
-            )
+            check_that("'account by address'", response["result"], is_(new_account))

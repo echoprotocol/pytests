@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, has_entry
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Method 'get_chain_id'"
@@ -63,10 +63,11 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_chain_id", random_values[i]),
-                                            self.__api_identifier)
+            response_id = self.send_request(self.get_request("get_chain_id", random_values[i]), self.__api_identifier)
             response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_chain_id' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

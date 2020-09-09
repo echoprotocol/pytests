@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
+import time
 
 from common.base_test import BaseTest
-from lemoncheesecake.matching import check_that, not_equal_to
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
-import time
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, not_equal_to
 
 SUITE = {
     "description": "Operation 'committee_member_deactivate'"
@@ -37,8 +38,11 @@ class CommitteeMemberDeactivate(BaseTest):
         self.init2 = self.committee_members_info[2]["account_id"]
         self.init3 = self.committee_members_info[3]["account_id"]
         self.init4 = self.committee_members_info[4]["account_id"]
-        lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
-                     self.init0, self.init1, self.init2, self.init3, self.init4))
+        lcc.log_info(
+            "Echo  initial accounts: {}, {}, {}, {}, {}".format(
+                self.init0, self.init1, self.init2, self.init3, self.init4
+            )
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -51,7 +55,8 @@ class CommitteeMemberDeactivate(BaseTest):
             echo=self.echo,
             committee_member_account=self.init0,
             committee_to_deactivate=self.committee_members_info[-1]["committee_id"],
-            signer=INIT0_PK)
+            signer=INIT0_PK
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
 
         lcc.log_info("Collected successfully")
@@ -86,13 +91,15 @@ class CommitteeMemberDeactivate(BaseTest):
             raise Exception("Operation 'proposal_update' failed while broadcast")
         lcc.log_info("All committee member has voted")
 
-        lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were deactivated")
+        lcc.set_step(
+            "Waiting for maintenance and release of two blocks and check that new committee member were deactivated"
+        )
         self.produce_block(self.__database_api_identifier)
         time.sleep(15)
         self.produce_block(self.__database_api_identifier)
         check_that(
             "acitve committee member",
-            self.committee_members_info[-1]["account_id"], not_equal_to(self.get_active_committee_members_info(
-                self.__database_api_identifier)[-1]["account_id"]),
+            self.committee_members_info[-1]["account_id"],
+            not_equal_to(self.get_active_committee_members_info(self.__database_api_identifier)[-1]["account_id"]),
             quiet=True
         )
