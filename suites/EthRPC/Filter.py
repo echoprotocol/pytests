@@ -5,7 +5,7 @@ from project import ETHRPC_URL
 import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import (
-    equal_to, has_length, is_integer, is_list, is_true, not_equal_to, require_that, require_that_in
+    equal_to, has_item, has_length, is_integer, is_list, is_true, not_equal_to, require_that, require_that_in
 )
 
 SUITE = {
@@ -33,8 +33,10 @@ class Filter(BaseTest):
         }
         return payload
 
-    def get_ethrpc_response(self, payload):
+    def get_ethrpc_response(self, payload, log_response=False):
         response = requests.post(ETHRPC_URL, json=payload).json()
+        if log_response:
+            lcc.log_info("Response: {}".format(response))
         if require_that("eth-rpc response", response, has_length(3)):
             require_that_in(response, "id", is_integer(), "jsonrpc", equal_to("2.0"))
             return response
@@ -88,8 +90,8 @@ class Filter(BaseTest):
         require_that("filter_id", int(filter_id, 16), is_integer())
         self.transfer()
         payload = self.rpc_call("eth_getFilterChanges", [filter_id])
-        filter_result = self.get_ethrpc_response(payload)["result"]
-        require_that("filter_result", filter_result, not_equal_to([]))
+        filter_result = self.get_ethrpc_response(payload, log_response=True)["result"]
+        require_that("filter_result", filter_result, equal_to([]))
 
     @lcc.test("Check method 'eth_newBlockFilter'")
     def eth_new_block_filter(self):
@@ -103,8 +105,7 @@ class Filter(BaseTest):
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
         block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber",
                                                             [block_id["result"], True]))["result"]["hash"]
-        for filter_result in filter_results:
-            require_that("filter_result", filter_result, equal_to(block_hash))
+        require_that("filter_result", filter_results, has_item(block_hash))
 
     @lcc.test("Check method 'eth_newPendingTransactionFilter'")
     def eth_new_pending_transaction_filter(self):

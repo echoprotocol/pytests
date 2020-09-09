@@ -3,9 +3,7 @@ import random
 import string
 
 from common.base_test import BaseTest
-from fixtures.base_fixtures import (
-    RANGE_OF_STR, get_random_btc_public_key, get_random_eth_address, get_random_integer, get_random_valid_account_name
-)
+from fixtures.base_fixtures import RANGE_OF_STR, get_random_btc_public_key, get_random_eth_address, get_random_integer
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, has_item, is_false, is_integer, is_true
@@ -154,7 +152,9 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with wrong 'solution'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_solution_decrement(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_solution_decrement(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name
         generate_keys = self.generate_keys()
@@ -188,7 +188,9 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with wrong 'account name'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_account_name_uppercase_symbol(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_account_name_uppercase_symbol(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "A"
         generate_keys = self.generate_keys()
@@ -354,7 +356,9 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with name + '/'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_account_name_slash(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_account_name_slash(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "/"
         evm_address = None
