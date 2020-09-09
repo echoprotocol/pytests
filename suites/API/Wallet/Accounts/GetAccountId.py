@@ -14,7 +14,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_account_id")
 @lcc.suite("Check work of method 'get_account_id'", rank=1)
-class GetAccount(WalletBaseTest, BaseTest):
+class GetAccountId(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
