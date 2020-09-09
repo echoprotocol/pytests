@@ -13,7 +13,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "wallet_api", "wallet_get_block")
+@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_get_block")
 @lcc.suite("Check work of method 'get_block'", rank=1)
 class GetBlock(WalletBaseTest):
 
@@ -88,7 +88,7 @@ class GetBlock(WalletBaseTest):
 
 
 @lcc.prop("negative", "type")
-@lcc.tags("api", "wallet_api", "wallet_get_block")
+@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_get_block")
 @lcc.suite("Negative testing of method 'get_block'", rank=3)
 class NegativeTesting(WalletBaseTest):
 

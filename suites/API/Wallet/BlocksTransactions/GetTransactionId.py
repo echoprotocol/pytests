@@ -12,7 +12,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_get_transaction_id")
+@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_get_transaction_id")
 @lcc.suite("Check work of method 'get_transaction_id'", rank=1)
 class GetTransactionId(WalletBaseTest, BaseTest):
 

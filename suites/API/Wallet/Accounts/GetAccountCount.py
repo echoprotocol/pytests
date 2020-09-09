@@ -12,7 +12,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_get_account_count")
+@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_account_count")
 @lcc.suite("Check work of method 'get_account_count'", rank=1)
 class GetAccountCount(WalletBaseTest, BaseTest):
 

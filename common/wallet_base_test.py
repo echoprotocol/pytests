@@ -14,6 +14,8 @@ from project import WALLET_URL
 
 class WalletBaseTest:
 
+    request_id = 0
+
     def __init__(self):
         self.wallet_ws = SimpleWebsocket(WALLET_URL, False)
         self.type_validator = TypeValidator()
@@ -43,9 +45,10 @@ class WalletBaseTest:
             lcc.log_warning("Error received:\n{}".format(json.dumps(response, indent=4)))
         return response
 
-    @staticmethod
-    def json_rpc_template():
-        return {"jsonrpc": "2.0", "params": "", "method": "", "id": 0}
+    def json_rpc_template(self):
+        result = {"jsonrpc": "2.0", "params": "", "method": "", "id": WalletBaseTest.request_id}
+        WalletBaseTest.request_id += 1
+        return result
 
     def __call_method(self, method, params):
         call_template = self.json_rpc_template()
@@ -56,6 +59,7 @@ class WalletBaseTest:
     def send_wallet_request(self, method, params=[], negative=False, log_response=False, debug_mode=False):
         payload = self.__call_method(method, params)
         self.wallet_ws.connect()
+
         response = json.loads(self.wallet_ws.rpcexec(payload=payload))
         if debug_mode:
             lcc.log_debug("Send:\n{}".format(json.dumps(payload, indent=4)))

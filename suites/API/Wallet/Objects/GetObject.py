@@ -12,7 +12,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "wallet_api", "wallet_get_object")
+@lcc.tags("api", "wallet_api", "wallet_objects" "wallet_get_object")
 @lcc.suite("Check work of method 'get_object'", rank=1)
 class GetObject(WalletBaseTest):
 
@@ -22,9 +22,9 @@ class GetObject(WalletBaseTest):
     @lcc.test("Simple work of method 'get_object'")
     def method_main_check(self):
         lcc.set_step("Call method 'get_object'")
-        response = self.send_wallet_request("get_object", ["1.2.10"])
+        response = self.send_wallet_request("get_object", ["1.2.10"], debug_mode=True)
         require_that("'result'", response, is_not_none(), quiet=True)
-
+        response = self.send_wallet_request("get_object", ["1.2.9"], debug_mode=True)
         lcc.set_step("Checking account result")
         account_info = response["result"][0]
         self.object_validator.validate_account_object(self, account_info)
