@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, has_length
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'get_block_tx_number'"
@@ -14,6 +14,7 @@ SUITE = {
 @lcc.tags("api", "database_api", "database_api_blocks_transactions", "get_block_tx_number")
 @lcc.suite("Check work of method 'get_block_tx_number'", rank=1)
 class GetBlockTxNumber(BaseTest):
+
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
@@ -31,12 +32,15 @@ class GetBlockTxNumber(BaseTest):
         self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
-                self.__database_api_identifier, self.__registration_api_identifier,
-                self.__network_broadcast_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+                self.__database_api_identifier, self.__registration_api_identifier, self.__network_broadcast_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def get_head_block_num(self):
@@ -61,7 +65,7 @@ class GetBlockTxNumber(BaseTest):
     def method_main_check(self):
         operation_count = 1
         lcc.set_step("Perform transfer operation")
-        broadcast_result = self.utils.perform_transfer_operations(
+        self.utils.perform_transfer_operations(
             self,
             self.echo_acc0,
             self.echo_acc1,
@@ -71,11 +75,13 @@ class GetBlockTxNumber(BaseTest):
         )
         lcc.log_info("Transaction was broadcasted")
         lcc.set_step("Get block id and check that all {} transactions added successfully".format(operation_count))
-        response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_dynamic_global_properties"), self.__database_api_identifier
+        )
         dynamic_global_property_object = self.get_response(response_id)["result"]
         head_block_id = dynamic_global_property_object['head_block_id']
-        response_id = self.send_request(self.get_request("get_block_tx_number", [head_block_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_block_tx_number", [head_block_id]), self.__database_api_identifier
+        )
         tx_number = self.get_response(response_id)["result"]
         check_that("block transaction number", tx_number, equal_to(operation_count))

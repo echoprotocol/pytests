@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Operation 'sidechain_eth_create_address'"
@@ -28,8 +28,10 @@ class EthCreateAddress(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -40,18 +42,19 @@ class EthCreateAddress(BaseTest):
         new_account = get_random_valid_account_name
 
         lcc.set_step("Create and get new account")
-        new_account = self.get_account_id(new_account, self.__database_api_identifier,
-                                          self.__registration_api_identifier)
+        new_account = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
 
         lcc.set_step("Get account balance in ethereum of new account")
-        ethereum_balance = self.utils.get_account_balances(self, new_account, self.__database_api_identifier,
-                                                           self.eth_asset)["amount"]
+        ethereum_balance = self.utils.get_account_balances(
+            self, new_account, self.__database_api_identifier, self.eth_asset
+        )["amount"]
         check_that("'balance in ethereum'", ethereum_balance, equal_to(0))
 
         lcc.set_step("Generate ethereum address for new account")
-        operation = self.echo_ops.get_sidechain_eth_create_address_operation(echo=self.echo,
-                                                                             account=new_account)
+        operation = self.echo_ops.get_sidechain_eth_create_address_operation(echo=self.echo, account=new_account)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Ethereum address generated successfully")

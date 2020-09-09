@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
+
 from common.type_validation import TypeValidator
-from project import ECHO_INITIAL_BALANCE, NATHAN_PK, INITIAL_ACCOUNTS_COUNT, INITIAL_ACCOUNTS_NAMES, \
-    ACCOUNT_PREFIX, DEFAULT_ACCOUNTS_COUNT, MAIN_TEST_ACCOUNT_COUNT, WALLETS, INITIAL_COMMITTEE_ETH_ADDRESSES, \
-    ROPSTEN
+from project import (
+    ACCOUNT_PREFIX, DEFAULT_ACCOUNTS_COUNT, ECHO_INITIAL_BALANCE, INITIAL_ACCOUNTS_COUNT, INITIAL_ACCOUNTS_NAMES,
+    INITIAL_COMMITTEE_ETH_ADDRESSES, MAIN_TEST_ACCOUNT_COUNT, NATHAN_PK, ROPSTEN, WALLETS
+)
 
 BALANCE_TO_ACCOUNT = int(ECHO_INITIAL_BALANCE / (INITIAL_ACCOUNTS_COUNT + MAIN_TEST_ACCOUNT_COUNT))
 
@@ -12,23 +14,26 @@ def make_all_default_accounts_echo_holders(base_test, nathan_id, database_api):
     list_operations = []
     for i in range(1, DEFAULT_ACCOUNTS_COUNT):
         to_account_id = get_account_id(get_account(base_test, ACCOUNT_PREFIX + str(i), database_api))
-        operation = base_test.echo_ops.get_transfer_operation(base_test.echo, nathan_id, to_account_id, 1,
-                                                              signer=NATHAN_PK)
+        operation = base_test.echo_ops.get_transfer_operation(
+            base_test.echo, nathan_id, to_account_id, 1, signer=NATHAN_PK
+        )
         collected_operation = base_test.collect_operations(operation, database_api)
         list_operations.append(collected_operation)
-    broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=list_operations,
-                                                    log_broadcast=False)
+    broadcast_result = base_test.echo_ops.broadcast(
+        echo=base_test.echo, list_operations=list_operations, log_broadcast=False
+    )
     return base_test.is_operation_completed(broadcast_result, expected_static_variant=0)
 
 
 def add_balance_to_main_test_account(base_test, nathan_id, database_api):
     to_account_id = get_account_id(get_account(base_test, base_test.accounts[0], database_api))
-    operation = base_test.echo_ops.get_transfer_operation(base_test.echo, nathan_id, to_account_id,
-                                                          BALANCE_TO_ACCOUNT,
-                                                          signer=NATHAN_PK)
+    operation = base_test.echo_ops.get_transfer_operation(
+        base_test.echo, nathan_id, to_account_id, BALANCE_TO_ACCOUNT, signer=NATHAN_PK
+    )
     collected_operation = base_test.collect_operations(operation, database_api)
-    broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
-                                                    log_broadcast=False)
+    broadcast_result = base_test.echo_ops.broadcast(
+        echo=base_test.echo, list_operations=collected_operation, log_broadcast=False
+    )
     return base_test.is_operation_completed(broadcast_result, expected_static_variant=0)
 
 
@@ -43,12 +48,14 @@ def register_default_accounts(base_test, database_api):
     for i in range(DEFAULT_ACCOUNTS_COUNT):
         names = ACCOUNT_PREFIX + str(i)
         public_key = base_test.store_new_account(names)
-        operation = base_test.echo_ops.get_account_create_operation(base_test.echo, names, public_key, public_key,
-                                                                    signer=NATHAN_PK)
+        operation = base_test.echo_ops.get_account_create_operation(
+            base_test.echo, names, public_key, public_key, signer=NATHAN_PK
+        )
         collected_operation = base_test.collect_operations(operation, database_api)
         list_operations.append(collected_operation)
-    broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=list_operations,
-                                                    log_broadcast=False)
+    broadcast_result = base_test.echo_ops.broadcast(
+        echo=base_test.echo, list_operations=list_operations, log_broadcast=False
+    )
     if not base_test.is_operation_completed(broadcast_result, expected_static_variant=1):
         raise Exception("Default accounts are not created")
     for i in range(DEFAULT_ACCOUNTS_COUNT):
@@ -68,12 +75,14 @@ def distribute_balance_between_main_accounts(base_test, nathan_id, database_api)
     for i in range(INITIAL_ACCOUNTS_COUNT):
         if INITIAL_ACCOUNTS_NAMES[i] != "nathan":
             to_account_id = get_account_id(get_account(base_test, INITIAL_ACCOUNTS_NAMES[i], database_api))
-            operation = base_test.echo_ops.get_transfer_operation(base_test.echo, nathan_id, to_account_id,
-                                                                  BALANCE_TO_ACCOUNT, signer=NATHAN_PK)
+            operation = base_test.echo_ops.get_transfer_operation(
+                base_test.echo, nathan_id, to_account_id, BALANCE_TO_ACCOUNT, signer=NATHAN_PK
+            )
             collected_operation = base_test.collect_operations(operation, database_api)
             list_operations.append(collected_operation)
-    broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=list_operations,
-                                                    log_broadcast=False)
+    broadcast_result = base_test.echo_ops.broadcast(
+        echo=base_test.echo, list_operations=list_operations, log_broadcast=False
+    )
     return base_test.is_operation_completed(broadcast_result, expected_static_variant=0)
 
 
@@ -82,10 +91,12 @@ def distribute_balance_between_committee_addresses(base_test):
     default_account_balance = base_test.eth_trx.get_address_balance_in_eth_network(base_test.web3, eth_account_address)
     balance_to_transfer = int('{:.0f}'.format(default_account_balance / 100 * 5))
     for eth_address in INITIAL_COMMITTEE_ETH_ADDRESSES:
-        transaction = base_test.eth_trx.get_transfer_transaction(web3=base_test.web3, _from=eth_account_address,
-                                                                 _to=eth_address, value=balance_to_transfer)
-        broadcast_result = base_test.eth_trx.broadcast(web3=base_test.web3, transaction=transaction,
-                                                       log_transaction=True)
+        transaction = base_test.eth_trx.get_transfer_transaction(
+            web3=base_test.web3, _from=eth_account_address, _to=eth_address, value=balance_to_transfer
+        )
+        broadcast_result = base_test.eth_trx.broadcast(
+            web3=base_test.web3, transaction=transaction, log_transaction=True
+        )
         if broadcast_result is None:
             return False
     return True
@@ -102,22 +113,22 @@ def get_account_id(account):
 def get_account(base_test, account_name, database_api):
     type_validator = TypeValidator()
     if type_validator.is_account_name(account_name):
-        response_id = base_test.send_request(base_test.get_request("get_account_by_name", [account_name]),
-                                             database_api)
+        response_id = base_test.send_request(base_test.get_request("get_account_by_name", [account_name]), database_api)
         result = base_test.get_response(response_id)["result"]
     elif type_validator.is_account_id(account_name):
-        response_id = base_test.send_request(base_test.get_request("get_accounts", [[account_name]]),
-                                             database_api)
+        response_id = base_test.send_request(base_test.get_request("get_accounts", [[account_name]]), database_api)
         result = base_test.get_response(response_id)["result"][0]
     return result
 
 
 def import_balance_to_nathan(base_test, nathan_id, nathan_public_key, database_api):
-    operation = base_test.echo_ops.get_balance_claim_operation(base_test.echo, nathan_id, nathan_public_key,
-                                                               ECHO_INITIAL_BALANCE, NATHAN_PK)
+    operation = base_test.echo_ops.get_balance_claim_operation(
+        base_test.echo, nathan_id, nathan_public_key, ECHO_INITIAL_BALANCE, NATHAN_PK
+    )
     collected_operation = base_test.collect_operations(operation, database_api)
-    broadcast_result = base_test.echo_ops.broadcast(echo=base_test.echo, list_operations=collected_operation,
-                                                    log_broadcast=False)
+    broadcast_result = base_test.echo_ops.broadcast(
+        echo=base_test.echo, list_operations=collected_operation, log_broadcast=False
+    )
     return base_test.is_operation_completed(broadcast_result, expected_static_variant=0)
 
 

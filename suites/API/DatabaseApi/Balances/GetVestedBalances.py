@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_not_none, has_length, check_that
-
 from common.base_test import BaseTest
 from project import ROPSTEN
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, has_length, is_not_none
 
 SUITE = {
     "description": "Method 'get_vested_balances'"
@@ -46,14 +46,16 @@ class GetVestedBalances(BaseTest):
     def method_main_check(self):
         if not ROPSTEN:
             lcc.set_step("Get balance objects by public key")
-            response_id = self.send_request(self.get_request("get_balance_objects", [[self.public_key]]),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_balance_objects", [[self.public_key]]), self.__database_api_identifier
+            )
             balance_id = self.get_response(response_id)["result"][0]["id"]
             lcc.log_info("Call method 'get_balance_objects' with param: '{}'".format(self.public_key))
 
             lcc.set_step("Get vested balance of '{}' account".format(self.init2_account_name))
-            response_id = self.send_request(self.get_request("get_vested_balances", [[balance_id]]),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_vested_balances", [[balance_id]]), self.__database_api_identifier
+            )
             result = self.get_response(response_id)["result"][0]
             lcc.log_info("Call method 'get_vested_balances' with param: '{}'".format(balance_id))
 
@@ -72,6 +74,7 @@ class GetVestedBalances(BaseTest):
 @lcc.tags("api", "database_api", "database_api_balances", "get_vested_balances")
 @lcc.suite("Positive testing of method 'get_vested_balances'", rank=2)
 class PositiveTesting(BaseTest):
+
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
@@ -88,8 +91,10 @@ class PositiveTesting(BaseTest):
                 self.__database_api_identifier = self.get_identifier("database")
                 lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
             else:
-                lcc.log_error("'{}', '{}' accounts do not have initial balances in genesis"
-                              "".format(self.init2_account_name, self.init3_account_name))
+                lcc.log_error(
+                    "'{}', '{}' accounts do not have initial balances in genesis"
+                    "".format(self.init2_account_name, self.init3_account_name)
+                )
         else:
             lcc.log_warning("Tests did not run in the local network. Test of method 'get_vested_balances' was skipped.")
 
@@ -103,17 +108,18 @@ class PositiveTesting(BaseTest):
     def get_vested_balance_for_several_address(self):
         if not ROPSTEN:
             lcc.set_step("Get accounts public keys and store")
-            public_key_init2 = self.get_account_by_name(
-                self.init2_account_name, self.__database_api_identifier)["result"]["echorand_key"]
-            public_key_init3 = self.get_account_by_name(
-                self.init3_account_name, self.__database_api_identifier)["result"]["echorand_key"]
+            public_key_init2 = self.get_account_by_name(self.init2_account_name,
+                                                        self.__database_api_identifier)["result"]["echorand_key"]
+            public_key_init3 = self.get_account_by_name(self.init3_account_name,
+                                                        self.__database_api_identifier)["result"]["echorand_key"]
             lcc.log_info("'{}' public key: '{}'".format(self.init2_account_name, public_key_init2))
             lcc.log_info("'{}' public key: '{}'".format(self.init3_account_name, public_key_init3))
 
             lcc.set_step("Get balance objects by several public key and store")
             params = [public_key_init2, public_key_init3]
-            response_id = self.send_request(self.get_request("get_balance_objects", [params]),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_balance_objects", [params]), self.__database_api_identifier
+            )
             result = self.get_response(response_id)["result"]
             lcc.log_info("Call method 'get_balance_objects' with params: '{}'".format(params))
 
@@ -123,8 +129,9 @@ class PositiveTesting(BaseTest):
             lcc.log_info("Stored accounts balance ids: '{}'".format(account_balance_ids))
 
             lcc.set_step("Get vested balance for several accounts")
-            response_id = self.send_request(self.get_request("get_vested_balances", [account_balance_ids]),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_vested_balances", [account_balance_ids]), self.__database_api_identifier
+            )
             result = self.get_response(response_id)["result"]
             lcc.log_info("Call method 'get_vested_balances' with params: '{}'".format(account_balance_ids))
 

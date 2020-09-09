@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-import requests
-from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
-    check_that, is_list
-
 from common.base_test import BaseTest
 from project import ETHRPC_URL
+
+import lemoncheesecake.api as lcc
+import requests
+from lemoncheesecake.matching import (
+    check_that, equal_to, has_length, is_integer, is_list, is_none, require_that, require_that_in
+)
 
 SUITE = {
     "description": "Run 'transaction part' tests for JSON PRC interface of ECHO node"
@@ -38,20 +39,15 @@ class Transaction(BaseTest):
     def get_ethrpc_response(self, payload):
         response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("eth-rpc response", response, has_length(3)):
-            require_that_in(
-                response,
-                "id", is_integer(),
-                "jsonrpc", equal_to("2.0")
-            )
+            require_that_in(response, "id", is_integer(), "jsonrpc", equal_to("2.0"))
             return response
 
     def transfer(self):
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1, amount=1)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            ethrpc_broadcast=True)
+        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
         signatures = signed_tx["signatures"]
         signatures_hex = bytes(signatures).hex()[2:]
         del signed_tx["signatures"]
@@ -62,10 +58,13 @@ class Transaction(BaseTest):
         return trx_hash
 
     def create_contract(self):
-        operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                bytecode=self.contract,
-                                                                value_amount=1,
-                                                                value_asset_id=self.echo_asset)
+        operation = self.echo_ops.get_contract_create_operation(
+            echo=self.echo,
+            registrar=self.echo_acc0,
+            bytecode=self.contract,
+            value_amount=1,
+            value_asset_id=self.echo_asset
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
@@ -81,12 +80,16 @@ class Transaction(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
         self.account_address = "0x0000000000000000000000000000000000000006"
@@ -98,24 +101,22 @@ class Transaction(BaseTest):
 
     @lcc.test("Check connection to EthPRC interface.")
     def main_check(self):
-        message = {'code': -32600, 'message': 'Missing or invalid method'}
+        message = {
+            'code': -32600,
+            'message': 'Missing or invalid method'
+        }
         payload = self.rpc_call("", "")
         response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("json-rpc response", response, has_length(3)):
-            require_that_in(
-                response,
-                "id", is_none(),
-                "jsonrpc", equal_to("2.0"),
-                "error", equal_to(message)
-            )
+            require_that_in(response, "id", is_none(), "jsonrpc", equal_to("2.0"), "error", equal_to(message))
 
     @lcc.test("Check method 'eth_getBlockTransactionCountByHash'")
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_get_block_transaction_count_by_trx_hash(self):
         self.transfer()
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber",
+                                                            [block_id["result"], True]))["result"]["hash"]
         payload = self.rpc_call("eth_getBlockTransactionCountByHash", [block_hash])
         response = self.get_ethrpc_response(payload)
         require_that("'result'", response["result"], equal_to("0x01"))
@@ -155,12 +156,11 @@ class Transaction(BaseTest):
     @lcc.test("Check method 'eth_sendRawTransaction'")
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_send_raw_transaction(self):
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1, amount=1)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            ethrpc_broadcast=True)
+        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
         signatures = signed_tx["signatures"]
         signatures_hex = bytes(signatures).hex()[2:]
         del signed_tx["signatures"]
@@ -177,12 +177,12 @@ class Transaction(BaseTest):
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_call(self):
         data = "0x"
-        payload = self.rpc_call("eth_call",
-                                [{
-                                    "from": "0x0100000000000000000000000000000000000006",
-                                    "to": "0x0100000000000000000000000000000000000000"
-                                }, "latest"]
-                                )
+        payload = self.rpc_call(
+            "eth_call", [{
+                "from": "0x0100000000000000000000000000000000000006",
+                "to": "0x0100000000000000000000000000000000000000"
+            }, "latest"]
+        )
         response = self.get_ethrpc_response(payload)
         require_that("'result'", response["result"], equal_to(data))
 
@@ -191,8 +191,8 @@ class Transaction(BaseTest):
     def eth_get_block_by_trx_hash(self):
         self.transfer()
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber",
+                                                            [block_id["result"], True]))["result"]["hash"]
         payload = self.rpc_call("eth_getBlockByHash", [block_hash, True])
         result = self.get_ethrpc_response(payload)["result"]
         self.object_validator.validate_ethrpc_block(result)
@@ -219,8 +219,8 @@ class Transaction(BaseTest):
     def eth_get_transaction_by_hash_and_index(self):
         self.transfer()
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber",
+                                                            [block_id["result"], True]))["result"]["hash"]
         payload = self.rpc_call("eth_getTransactionByBlockHashAndIndex", [block_hash, "0x00"])
         result = self.get_ethrpc_response(payload)["result"]
         self.object_validator.validate_ethrpc_transaction(result)
@@ -234,13 +234,12 @@ class Transaction(BaseTest):
         check_that("transactionHash", receipt["transactionHash"], equal_to(params))
         check_that("transactionIndex", receipt["transactionIndex"], equal_to("0x00"))
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))["result"]
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id, True]))["result"]["hash"]
+        block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber", [block_id, True]))["result"]["hash"]
         check_that("blockHash", receipt["blockHash"], equal_to(block_hash))
         check_that("blockNumber", receipt["blockNumber"], equal_to(block_id))
         check_that("from", receipt["from"], equal_to("0x000000000000000000000000000000000000000c"))
         check_that("to", receipt["to"], equal_to("0x000000000000000000000000000000000000000d"))
-        #todo: bug ECHO-2324
+        # todo: bug ECHO-2324
         # check_that("cumulativeGasUsed", receipt["cumulativeGasUsed"], equal_to("0x14"))
         # check_that("gasUsed", receipt["gasUsed"], equal_to("0x14"))
         check_that("contractAddress", receipt["contractAddress"], is_none())

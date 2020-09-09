@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_str, is_false, check_that, has_length, require_that, \
-    require_that_in, is_true, not_equal_to, equal_to
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, equal_to, has_length, is_false, is_str, is_true, not_equal_to, require_that, require_that_in
+)
 
 SUITE = {
     "description": "Methods: 'get_contracts', 'get_objects' (contract & contract result objects)"
@@ -13,10 +14,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags(
-    "api", "database_api", "database_api_contracts", "get_contracts",
-    "database_api_objects", "get_objects"
-)
+@lcc.tags("api", "database_api", "database_api_contracts", "get_contracts", "database_api_objects", "get_objects")
 @lcc.suite("Check work of methods: 'get_contracts', 'get_objects' (contract & contract result objects)", rank=1)
 class GetContracts(BaseTest):
 
@@ -34,19 +32,20 @@ class GetContracts(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test(
-        "Simple work of methods: 'get_contracts', 'get_objects' (contract & contract result objects)"
-    )
+    @lcc.test("Simple work of methods: 'get_contracts', 'get_objects' (contract & contract result objects)")
     def method_main_check(self):
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_info = self.utils.get_contract_id(
@@ -62,8 +61,7 @@ class GetContracts(BaseTest):
 
         lcc.set_step("Get info about created contract")
         params = [contract_id]
-        response_id = self.send_request(self.get_request("get_contracts", [params]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contracts", [params]), self.__database_api_identifier)
         get_contracts_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_contracts' with param: '{}'".format(params))
 
@@ -73,10 +71,14 @@ class GetContracts(BaseTest):
             self.object_validator.validate_contract_object(self, result)
             require_that_in(
                 result,
-                "destroyed", is_false(),
-                "type", equal_to("evm"),
-                "supported_asset_id", equal_to(self.echo_asset),
-                "owner", equal_to(self.echo_acc0),
+                "destroyed",
+                is_false(),
+                "type",
+                equal_to("evm"),
+                "supported_asset_id",
+                equal_to(self.echo_asset),
+                "owner",
+                equal_to(self.echo_acc0),
                 quiet=True
             )
 
@@ -86,42 +88,30 @@ class GetContracts(BaseTest):
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results,
-            has_length(len(params)),
-            quiet=True
-        )
+        require_that("'list of received objects'", get_objects_results, has_length(len(params)), quiet=True)
         lcc.set_step("Check the identity of returned results of api-methods: 'get_contracts', 'get_objects'")
-        require_that(
-            'results',
-            get_objects_results, equal_to(get_contracts_results),
-            quiet=True
-        )
+        require_that('results', get_objects_results, equal_to(get_contracts_results), quiet=True)
 
         lcc.set_step("Get contract result object")
         params = [contract_result_id]
-        response_id = self.send_request(self.get_request("get_objects", [params]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_objects", [params]), self.__database_api_identifier)
         get_objects_results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_objects' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results,
-            has_length(len(params)),
-            quiet=True
-        )
+        require_that("'list of received objects'", get_objects_results, has_length(len(params)), quiet=True)
 
         for i, result in enumerate(get_objects_results):
             lcc.set_step("Checking contract result object #{} - '{}'".format(i, params[i]))
             self.object_validator.validate_contract_result_object(self, result)
             require_that_in(
                 result,
-                "id", equal_to(contract_result_id),
-                "type", equal_to("evm"),
-                "contracts_id", equal_to([contract_id]),
+                "id",
+                equal_to(contract_result_id),
+                "type",
+                equal_to("evm"),
+                "contracts_id",
+                equal_to([contract_id]),
                 quiet=True
             )
 
@@ -149,7 +139,8 @@ class PositiveTesting(BaseTest):
                 lcc.log_info("Check contract #{}:".format(i))
                 require_that_in(
                     result,
-                    ["id"], is_str(contracts[i]),
+                    ["id"],
+                    is_str(contracts[i]),
                 )
 
     def setup_suite(self):
@@ -159,12 +150,16 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):
@@ -181,8 +176,7 @@ class PositiveTesting(BaseTest):
         contracts.append(contract_id)
 
         lcc.set_step("Get info about created contract")
-        response_id = self.send_request(self.get_request("get_contracts", [contracts]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contracts", [contracts]), self.__database_api_identifier)
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contracts' with param: '{}'".format(contracts))
 
@@ -194,8 +188,7 @@ class PositiveTesting(BaseTest):
         contracts.append(contract_id)
 
         lcc.set_step("Get info about created contract")
-        response_id = self.send_request(self.get_request("get_contracts", [contracts]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contracts", [contracts]), self.__database_api_identifier)
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contracts' with params: '{}'".format(contracts))
 
@@ -209,37 +202,34 @@ class PositiveTesting(BaseTest):
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract_1, self.__database_api_identifier)
 
         lcc.set_step("Get info about created contract")
-        response_id = self.send_request(self.get_request("get_contracts", [[contract_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contracts", [[contract_id]]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contracts' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check 'destroyed' field")
         result = response["result"][0]
-        check_that(
-            "'contract not destroyed'",
-            result["destroyed"], is_false()
-        )
+        check_that("'contract not destroyed'", result["destroyed"], is_false())
 
         lcc.set_step("Destroy the contract. Call 'breakPiggy' method")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.break_piggy, callee=contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.break_piggy, callee=contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=False)
         lcc.log_info("Call contract method 'breakPiggy' to destroy contract")
 
         lcc.set_step("Get updated info about created contract")
-        response_id = self.send_request(self.get_request("get_contracts", [[contract_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contracts", [[contract_id]]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contracts' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check that contract to be 'destroyed=True'")
         result = response["result"][0]
-        check_that(
-            "'contract destroyed'",
-            result["destroyed"], is_true()
-        )
+        check_that("'contract destroyed'", result["destroyed"], is_true())
 
     @lcc.test("Check work of supported_asset_id field")
     @lcc.depends_on("API.DatabaseApi.Contracts.GetContracts.GetContracts.method_main_check")
@@ -251,27 +241,30 @@ class PositiveTesting(BaseTest):
         lcc.log_info("New asset created, asset_id is '{}'".format(asset_id))
 
         lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
-        operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                value_asset_id=asset_id, bytecode=self.contract_1,
-                                                                supported_asset_id=asset_id)
+        operation = self.echo_ops.get_contract_create_operation(
+            echo=self.echo,
+            registrar=self.echo_acc0,
+            value_asset_id=asset_id,
+            bytecode=self.contract_1,
+            supported_asset_id=asset_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, log_broadcast=False
+        )
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
         contract_id = self.get_contract_id(contract_result)
 
         lcc.set_step("Get info about created contract")
-        response_id = self.send_request(self.get_request("get_contracts", [[contract_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contracts", [[contract_id]]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contracts' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check that contract support expected asset_id")
         result = response["result"][0]
-        check_that(
-            "'contract supported_asset_id'",
-            result["supported_asset_id"], is_str(asset_id)
-        )
+        check_that("'contract supported_asset_id'", result["supported_asset_id"], is_str(asset_id))
 
     @lcc.test("Check work of statistics field")
     @lcc.depends_on("API.DatabaseApi.Contracts.GetContracts.GetContracts.method_main_check")
@@ -280,22 +273,21 @@ class PositiveTesting(BaseTest):
         contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract_1, self.__database_api_identifier)
 
         lcc.set_step("Get info about created contract. Store statistics_id")
-        response_id = self.send_request(self.get_request("get_contracts", [[contract_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contracts", [[contract_id]]), self.__database_api_identifier
+        )
         statistics_id = self.get_response(response_id)["result"][0]["statistics"]
         lcc.log_info("Contract '{}' has '{}' 'statistics_id'".format(contract_id, statistics_id))
 
         lcc.set_step("Call method 'get_objects' with stored statistics_id")
-        response_id = self.send_request(self.get_request("get_objects", [[statistics_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_objects", [[statistics_id]]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_objects' with param: '{}'".format(statistics_id))
 
         lcc.set_step("Check that statistics show right 'owner' object")
-        check_that(
-            "'statistics_id'",
-            response["result"][0]["owner"], is_str(contract_id)
-        )
+        check_that("'statistics_id'", response["result"][0]["owner"], is_str(contract_id))
 
     @lcc.test("Check work of owner field")
     @lcc.depends_on("API.DatabaseApi.Contracts.GetContracts.GetContracts.method_main_check")
@@ -303,26 +295,19 @@ class PositiveTesting(BaseTest):
         creators = [self.echo_acc0, self.echo_acc1]
 
         lcc.set_step("Create two the same contracts in the Echo network and get their contract id")
-        contract_id_1 = self.utils.get_contract_id(self, creators[0], self.contract_1,
-                                                   self.__database_api_identifier)
-        contract_id_2 = self.utils.get_contract_id(self, creators[1], self.contract_1,
-                                                   self.__database_api_identifier)
+        contract_id_1 = self.utils.get_contract_id(self, creators[0], self.contract_1, self.__database_api_identifier)
+        contract_id_2 = self.utils.get_contract_id(self, creators[1], self.contract_1, self.__database_api_identifier)
         contracts_ids = [contract_id_1, contract_id_2]
 
         lcc.set_step("Get info about created contracts")
-        response_id = self.send_request(self.get_request("get_contracts", [contracts_ids]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contracts", [contracts_ids]), self.__database_api_identifier
+        )
         contracts = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_contracts' with params: '{}'".format(contracts_ids))
 
         lcc.set_step("Check that the same contracts have different owners (creators)")
         for i, contract in enumerate(contracts):
-            require_that(
-                "'#{} contract owner'".format(str(i)),
-                contract["owner"], is_str(creators[i])
-            )
+            require_that("'#{} contract owner'".format(str(i)), contract["owner"], is_str(creators[i]))
 
-        check_that(
-            "'contract owners'",
-            contracts[0]["owner"], not_equal_to(contracts[1]["owner"])
-        )
+        check_that("'contract owners'", contracts[0]["owner"], not_equal_to(contracts[1]["owner"]))

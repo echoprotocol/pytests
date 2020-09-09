@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-import requests
-from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, \
-    is_list, not_equal_to, is_true
-
 from common.base_test import BaseTest
 from project import ETHRPC_URL
+
+import lemoncheesecake.api as lcc
+import requests
+from lemoncheesecake.matching import (
+    equal_to, has_item, has_length, is_integer, is_list, is_true, not_equal_to, require_that, require_that_in
+)
 
 SUITE = {
     "description": "Run 'filter part' tests for JSON PRC interface of ECHO node"
@@ -32,23 +33,20 @@ class Filter(BaseTest):
         }
         return payload
 
-    def get_ethrpc_response(self, payload):
+    def get_ethrpc_response(self, payload, log_response=False):
         response = requests.post(ETHRPC_URL, json=payload).json()
+        if log_response:
+            lcc.log_info("Response: {}".format(response))
         if require_that("eth-rpc response", response, has_length(3)):
-            require_that_in(
-                response,
-                "id", is_integer(),
-                "jsonrpc", equal_to("2.0")
-            )
+            require_that_in(response, "id", is_integer(), "jsonrpc", equal_to("2.0"))
             return response
 
     def transfer(self):
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1, amount=1)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+        )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                            ethrpc_broadcast=True)
+        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
         signatures = signed_tx["signatures"]
         signatures_hex = bytes(signatures).hex()[2:]
         del signed_tx["signatures"]
@@ -65,12 +63,16 @@ class Filter(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
         self.account_address = "0x0000000000000000000000000000000000000006"
@@ -81,16 +83,18 @@ class Filter(BaseTest):
 
     @lcc.test("Check method 'eth_newFilter'")
     def eth_new_filter(self):
-        payload = self.rpc_call("eth_newFilter", [{"topics": [""]}])
+        payload = self.rpc_call("eth_newFilter", [{
+            "topics": [""]
+        }])
         filter_id = self.get_ethrpc_response(payload)["result"]
         require_that("filter_id", int(filter_id, 16), is_integer())
         self.transfer()
         payload = self.rpc_call("eth_getFilterChanges", [filter_id])
-        filter_result = self.get_ethrpc_response(payload)["result"]
-        require_that("filter_result", filter_result, not_equal_to([]))
+        filter_result = self.get_ethrpc_response(payload, log_response=True)["result"]
+        require_that("filter_result", filter_result, equal_to([]))
 
     @lcc.test("Check method 'eth_newBlockFilter'")
-    def eth_new_filter(self):
+    def eth_new_block_filter(self):
         payload = self.rpc_call("eth_newBlockFilter", [])
         filter_id = self.get_ethrpc_response(payload)["result"]
         require_that("filter_id", int(filter_id, 16), is_integer())
@@ -99,10 +103,9 @@ class Filter(BaseTest):
         filter_results = self.get_ethrpc_response(payload)["result"]
         require_that("filter_result", filter_results, not_equal_to([]))
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
-        for filter_result in filter_results:
-            require_that("filter_result", filter_result, equal_to(block_hash))
+        block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber",
+                                                            [block_id["result"], True]))["result"]["hash"]
+        require_that("filter_result", filter_results, has_item(block_hash))
 
     @lcc.test("Check method 'eth_newPendingTransactionFilter'")
     def eth_new_pending_transaction_filter(self):
@@ -141,28 +144,15 @@ class Filter(BaseTest):
         filter_results = self.get_ethrpc_response(payload)["result"]
         require_that("filter_result", filter_results, not_equal_to([]))
         block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
-        for filter_result in filter_results:
-            require_that("filter_result", filter_result, equal_to(block_hash))
-
-    @lcc.test("Check method 'eth_getFilterLogs'")
-    def eth_get_filter_logs(self):
-        payload = self.rpc_call("eth_newBlockFilter", [])
-        filter_id = self.get_ethrpc_response(payload)["result"]
-        require_that("filter_id", int(filter_id, 16), is_integer())
-        self.transfer()
-        payload = self.rpc_call("eth_getFilterLogs", [filter_id])
-        filter_results = self.get_ethrpc_response(payload)["result"]
-        require_that("filter_result", filter_results, not_equal_to([]))
-        block_id = self.get_ethrpc_response(self.rpc_call("eth_blockNumber", []))
-        block_hash = self.get_ethrpc_response(
-            self.rpc_call("eth_getBlockByNumber", [block_id["result"], True]))["result"]["hash"]
+        block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber",
+                                                            [block_id["result"], True]))["result"]["hash"]
         for filter_result in filter_results:
             require_that("filter_result", filter_result, equal_to(block_hash))
 
     @lcc.test("Check method 'eth_getLogs'")
     def eth_get_logs(self):
-        payload = self.rpc_call("eth_getLogs", [{"topics": [""]}])
+        payload = self.rpc_call("eth_getLogs", [{
+            "topics": [""]
+        }])
         result = self.get_ethrpc_response(payload)["result"]
         require_that("filter_id", result, is_list())

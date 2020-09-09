@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Comparing the 'chain_id' field of all methods where they are"
@@ -37,7 +37,4 @@ class ChainId(BaseTest):
         lcc.log_info("Call method 'get_chain_properties' and store 'chain_id' field")
 
         lcc.set_step("Compare chain_id with method 'get_chain_properties'")
-        check_that(
-            "'chain_id' of methods compare",
-            get_chain_id_response, equal_to(get_chain_properties_response)
-        )
+        check_that("'chain_id' of methods compare", get_chain_id_response, equal_to(get_chain_properties_response))

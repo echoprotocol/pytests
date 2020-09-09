@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from lemoncheesecake.matching import require_that, has_entry, is_not_none, check_that, has_length, is_integer, \
-    is_list, check_that_in, is_str
-
 from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, has_entry, has_length, is_integer, is_list, is_not_none, is_str, require_that
+)
 
 SUITE = {
     "description": "Method 'get_block'"
@@ -28,10 +28,7 @@ class GetBlock(WalletBaseTest):
 
         lcc.set_step("Check simple work of method 'get_block'")
         block_header = response["result"]
-        require_that(
-            "'the first full block'",
-            block_header, has_length(17)
-        )
+        require_that("'the first full block'", block_header, has_length(17))
         if not self.type_validator.is_iso8601(block_header["timestamp"]):
             lcc.log_error("Wrong format of 'timestamp', got: {}".format(block_header["timestamp"]))
         else:
@@ -54,18 +51,30 @@ class GetBlock(WalletBaseTest):
             lcc.log_info("'signing_key' has correct format: public_key")
         check_that_in(
             block_header,
-            "previous", is_str("0000000000000000000000000000000000000000"),
-            "round", is_integer(),
-            "attempt", is_integer(),
-            "transaction_merkle_root", is_str("0000000000000000000000000000000000000000"),
-            "vm_root", is_list(),
-            "prev_signatures", is_list(),
-            "extensions", is_list(),
-            "rand", is_str(),
-            "cert", is_list(),
-            "transactions", is_list(),
-            "invalid_trx_ids", is_list(),
-            "transaction_ids", is_list(),
+            "previous",
+            is_str("0000000000000000000000000000000000000000"),
+            "round",
+            is_integer(),
+            "attempt",
+            is_integer(),
+            "transaction_merkle_root",
+            is_str("0000000000000000000000000000000000000000"),
+            "vm_root",
+            is_list(),
+            "prev_signatures",
+            is_list(),
+            "extensions",
+            is_list(),
+            "rand",
+            is_str(),
+            "cert",
+            is_list(),
+            "transactions",
+            is_list(),
+            "invalid_trx_ids",
+            is_list(),
+            "transaction_ids",
+            is_list(),
             quiet=True
         )
 
@@ -74,11 +83,16 @@ class GetBlock(WalletBaseTest):
             lcc.log_info("Check fields in certificate#'{}'".format(i))
             check_that_in(
                 certificate,
-                "_step", is_integer(),
-                "_value", is_integer(),
-                "_producer", is_integer(),
-                "_delegate", is_integer(),
-                "_fallback", is_integer(),
+                "_step",
+                is_integer(),
+                "_value",
+                is_integer(),
+                "_producer",
+                is_integer(),
+                "_delegate",
+                is_integer(),
+                "_fallback",
+                is_integer(),
                 quiet=False
             )
         if not self.type_validator.is_digit(certificate["_leader"]):
@@ -105,5 +119,7 @@ class NegativeTesting(WalletBaseTest):
             response = self.send_wallet_request("get_block", random_values[i], negative=True)
             check_that(
                 "'get_account_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

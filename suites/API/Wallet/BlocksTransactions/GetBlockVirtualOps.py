@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from lemoncheesecake.matching import require_that, has_entry, is_not_none, check_that, equal_to
-
-from common.wallet_base_test import WalletBaseTest
 from common.base_test import BaseTest
+from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, has_entry, is_not_none, require_that
 
 SUITE = {
     "description": "Method 'get_block_virtual_ops'"
@@ -32,13 +31,17 @@ class GetBlockVirtualOps(BaseTest, WalletBaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-        self.contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
-                                                      self.__database_api_identifier)
+        self.contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.contract, self.__database_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -49,10 +52,12 @@ class GetBlockVirtualOps(BaseTest, WalletBaseTest):
         contract_internal_call_operation_id = self.echo.config.operation_ids.CONTRACT_INTERNAL_CALL
 
         lcc.set_step("Call virtual 'contract_internal_call_operation' in ECHO network")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
-                                                 self.__database_api_identifier, value_amount=10)
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.get_pennie, callee=contract_id)
+        contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.contract, self.__database_api_identifier, value_amount=10
+        )
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.get_pennie, callee=contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         block_num = broadcast_result["block_num"]
@@ -62,8 +67,9 @@ class GetBlockVirtualOps(BaseTest, WalletBaseTest):
         self.produce_block(self.__database_api_identifier)
         response = self.send_wallet_request("get_block_virtual_ops", [block_num])
         require_that("'result'", response["result"], is_not_none(), quiet=True)
-        require_that("'operation id'", response["result"][0]["op"][0], equal_to(contract_internal_call_operation_id),
-                     quiet=True)
+        require_that(
+            "'operation id'", response["result"][0]["op"][0], equal_to(contract_internal_call_operation_id), quiet=True
+        )
 
 
 @lcc.prop("negative", "type")
@@ -84,5 +90,7 @@ class NegativeTesting(WalletBaseTest):
             response = self.send_wallet_request("get_block_virtual_ops", random_values[i], negative=True)
             check_that(
                 "'get_account_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

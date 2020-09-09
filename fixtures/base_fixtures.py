@@ -12,6 +12,7 @@ RANGE_OF_STR_FOR_ETH_ADDRESS = 20
 RANGE_OF_STR_FOR_BTC_PUBLIC_KEY = 33
 RANGE_OF_STR_FOR_ECHO_PUBLIC_KEY = 22
 
+
 @lcc.fixture(scope="test")
 def get_random_integer():
     random_int = random.randrange(NUM_RANGE_1, NUM_RANGE_2)
@@ -64,15 +65,15 @@ def get_random_float_up_to_ten():
 @lcc.fixture(scope="test")
 def get_random_string():
     random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(RANGE_OF_STR))
+        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(RANGE_OF_STR)
+    )
     lcc.log_info("Generated random string: {}".format(random_string))
     return random_string
 
 
 @lcc.fixture(scope="test")
 def get_random_string_only_letters():
-    random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_letters) for _ in range(RANGE_OF_STR))
+    random_string = ''.join(random.SystemRandom().choice(string.ascii_letters) for _ in range(RANGE_OF_STR))
     lcc.log_info("Generated random string: {}".format(random_string))
     return random_string
 
@@ -115,15 +116,19 @@ def get_random_bool():
 
 @lcc.fixture(scope="test")
 def get_all_random_types():
-    return {"random_integer": get_random_integer(), "random_float": get_random_float(),
-            "random_string": get_random_string(), "random_dict": get_random_dict(),
-            "random_list": get_random_list(), "random_bool": get_random_bool()}
+    return {
+        "random_integer": get_random_integer(),
+        "random_float": get_random_float(),
+        "random_string": get_random_string(),
+        "random_dict": get_random_dict(),
+        "random_list": get_random_list(),
+        "random_bool": get_random_bool()
+    }
 
 
 @lcc.fixture(scope="test")
 def get_random_valid_asset_name():
-    random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_uppercase) for _ in range(RANGE_OF_STR))
+    random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase) for _ in range(RANGE_OF_STR))
     lcc.log_info("Generated random asset_name: {}".format(random_string))
     return random_string
 
@@ -131,7 +136,8 @@ def get_random_valid_asset_name():
 @lcc.fixture(scope="test")
 def get_random_eth_address():
     random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_ETH_ADDRESS))
+        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_ETH_ADDRESS)
+    )
     random_hex_string = ''.join(hex(ord(x))[2:] for x in random_string)
     lcc.log_info("Generated random hex string: {}".format(random_hex_string))
     return random_hex_string
@@ -140,11 +146,13 @@ def get_random_eth_address():
 @lcc.fixture(scope="test")
 def get_random_btc_public_key():
     random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in
-        range(RANGE_OF_STR_FOR_BTC_PUBLIC_KEY))
+        random.SystemRandom().choice(string.ascii_letters + string.digits)
+        for _ in range(RANGE_OF_STR_FOR_BTC_PUBLIC_KEY)
+    )
     random_hex_string = ''.join(hex(ord(x))[2:] for x in random_string)
     lcc.log_info("Generated random hex string: {}".format(random_hex_string))
     return random_hex_string
+
 
 @lcc.fixture(scope="test")
 def get_random_not_hex_string():
@@ -153,31 +161,31 @@ def get_random_not_hex_string():
         if ord("F") < ord(letter) <= ord("Z") or ord("f") < ord(letter) <= ord("z"):
             not_hex_letters = not_hex_letters + letter
     random_not_hex_string = ''.join(
-        random.SystemRandom().choice(not_hex_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_ETH_ADDRESS))
+        random.SystemRandom().choice(not_hex_letters + string.digits) for _ in range(RANGE_OF_STR_FOR_ETH_ADDRESS)
+    )
     lcc.log_info("Generated random not hex string: {}".format(random_not_hex_string))
     return random_not_hex_string
 
 
 @lcc.fixture(scope="test")
 def get_random_valid_account_name():
-    random_string = ''.join(
-        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)) + str(
-        get_random_integer_up_to_ten())
-    lcc.log_info("Generated random account_name: {}".format(random_string))
-    return random_string
+    random_string = ''.join(random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR))
+    account_name = '{}{}'.format(random_string, get_random_integer_up_to_ten())
+    lcc.log_info("Generated random account_name: {}".format(account_name))
+    return account_name
 
 
 @lcc.fixture(scope="test")
 def get_random_character():
-    random_character = ''.join(
-        random.SystemRandom().choice(string.punctuation))
+    random_character = ''.join(random.SystemRandom().choice(string.punctuation))
     lcc.log_info("Generated random punctuation: {}".format(random_character))
     return random_character
 
 
 @lcc.fixture(scope="test")
 def get_random_url():
-    random_url = "https://{}.com/".format(''.join(
-        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)))
+    random_url = "https://{}.com/".format(
+        ''.join(random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR))
+    )
     lcc.log_info("Generated random url: {}".format(random_url))
     return random_url

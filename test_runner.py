@@ -4,9 +4,9 @@ import os
 import sys
 import time
 
-from echopy import Echo
+from project import BLOCK_RELEASE_INTERVAL, RESOURCES_DIR
 
-from project import RESOURCES_DIR, BLOCK_RELEASE_INTERVAL
+from echopy import Echo
 
 if "BASE_URL" not in os.environ:
     BASE_URL = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["BASE_URL"]
@@ -22,7 +22,6 @@ categories = [
     'network_broadcast_api',
     'registration_api',
     'database_api',
-
     'connection_to_apis',
 
     # database_api section
@@ -58,12 +57,10 @@ categories = [
     'asset_transfer_operations',
     'vesting_balances_operations',
     'withdrawal_permissions_operations',
-
     'sidechain',
     'sidechain_ethereum',
     'sidechain_erc20',
     'sidechain_bitcoin',
-
     'scenarios',
 
     # database_api sub tags: accounts, contracts and balances
@@ -123,8 +120,9 @@ def get_head_block_num(echo_connection):
 
 def run(echo_connection, filter_command):
     if get_head_block_num(echo_connection):
-        execution_status = os.system("if ! lcc run {}--exit-error-on-failure; then lcc report --failed; exit 1; fi"
-                                     .format(filter_command))
+        execution_status = os.system(
+            "if ! lcc run {}--exit-error-on-failure; then lcc report --failed; exit 1; fi".format(filter_command)
+        )
         sys.exit(1 if execution_status > 1 else execution_status)
     else:
         time.sleep(BLOCK_RELEASE_INTERVAL)

@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 WORKDIR /home/
 
@@ -8,16 +8,17 @@ RUN git clone https://github.com/vishnubob/wait-for-it.git
 ADD ./requirements.txt /home/
 RUN pip3 install -r requirements.txt
 
-ADD ./genesis.json /home/
-ADD ./genesis_update_global_parameters.json /home/
+ADD ./common /home/common
 ADD ./fixtures /home/fixtures
 ADD ./pre_run_scripts /home/pre_run_scripts
 ADD ./resources /home/resources
 ADD ./suites /home/suites
+
 ADD ./.env /home/
-ADD ./.flake8 /home/
 ADD ./__init__.py /home/
-ADD ./project.py /home/
-ADD ./test_runner.py /home/
-ADD ./common /home/common
 ADD ./docker-compose.yml /home/docker-compose.yml
+ADD ./genesis.json /home/
+ADD ./genesis_update_global_parameters.json /home/
+ADD ./project.py /home/
+ADD ./setup.cfg /home/
+ADD ./test_runner.py /home/

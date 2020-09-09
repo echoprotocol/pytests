@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_integer, is_not
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Method 'request_registration_task'"
@@ -25,15 +25,18 @@ class RequestRegistrationTask(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.tags("request_registration_task")
     @lcc.test("Simple work of method 'request_registration_task' ")
     def method_main_check(self):
         lcc.set_step("Call method 'request_registration_task'")
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("request_registration_task"), self.__registration_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         lcc.log_info("Get method response.")
 
