@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from lemoncheesecake.matching import check_that, equal_to
-
-from common.wallet_base_test import WalletBaseTest
 from common.base_test import BaseTest
+from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'serialize_transaction'"
@@ -31,12 +30,16 @@ class SerializeTransaction(WalletBaseTest, BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):
@@ -56,4 +59,6 @@ class SerializeTransaction(WalletBaseTest, BaseTest):
         lcc.log_info("Signed transaction byte code: {}".format(bytes(signed_trx)))
         lcc.set_step("Call method 'wallet_serialize_transaction'")
         response = self.send_wallet_request("serialize_transaction", [signed_trx.json()], log_response=False)
-        check_that("'result'", str(bytes(signed_trx)), equal_to(str(bytes.fromhex(response['result'])[:-1])), quiet=True)
+        check_that(
+            "'result'", str(bytes(signed_trx)), equal_to(str(bytes.fromhex(response['result'])[:-1])), quiet=True
+        )

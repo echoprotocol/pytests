@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_true, is_false
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import is_false, is_true, require_that
 
 SUITE = {
     "description": "Method 'check_erc20_token'"
@@ -11,9 +11,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags(
-    "api", "database_api", "sidechain", "sidechain_erc20", "database_api_sidechain_erc20", "check_erc20_token"
-)
+@lcc.tags("api", "database_api", "sidechain", "sidechain_erc20", "database_api_sidechain_erc20", "check_erc20_token")
 @lcc.suite("Check work of method 'check_erc20_token'", rank=1)
 class CheckERC20Token(BaseTest):
 
@@ -34,10 +32,13 @@ class CheckERC20Token(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         self.eth_account = self.get_default_ethereum_account()
         lcc.log_info("Ethereum address in the ethereum network: '{}'".format(self.eth_account.address))
@@ -72,29 +73,24 @@ class CheckERC20Token(BaseTest):
         lcc.log_info("Registration of ERC20 token completed successfully")
 
         lcc.set_step("Get created ERC20 token and store contract id in the ECHO network")
-        response_id = self.send_request(self.get_request("get_erc20_token", [erc20_contract.address[2:]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_erc20_token", [erc20_contract.address[2:]]), self.__database_api_identifier
+        )
         erc20_contract_id = self.get_response(response_id)["result"]["contract"]
 
         lcc.set_step("Check that erc20 token created")
-        response_id = self.send_request(self.get_request("check_erc20_token", [erc20_contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("check_erc20_token", [erc20_contract_id]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
-        lcc.log_info(
-            "Call method 'check_erc20_token' with erc20_contract_id='{}' parameter".format(erc20_contract_id))
+        lcc.log_info("Call method 'check_erc20_token' with erc20_contract_id='{}' parameter".format(erc20_contract_id))
 
         lcc.set_step("Check simple work of method 'check_erc20_token'")
-        require_that(
-            "'erc20_token'",
-            result, is_true(),
-            quiet=True
-        )
+        require_that("'erc20_token'", result, is_true(), quiet=True)
 
 
 @lcc.prop("positive", "type")
-@lcc.tags(
-    "api", "database_api", "sidechain", "sidechain_erc20", "database_api_sidechain_erc20", "check_erc20_token"
-)
+@lcc.tags("api", "database_api", "sidechain", "sidechain_erc20", "database_api_sidechain_erc20", "check_erc20_token")
 @lcc.suite("Positive testing of method 'check_erc20_token'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -113,10 +109,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -127,19 +126,16 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("API.DatabaseApi.SideChainERC20.CheckERC20Token.CheckERC20Token.method_main_check")
     def call_method_with_ethereum_contract_id(self):
         lcc.set_step("Create 'piggy' contract in ECHO network")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier)
+        contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.piggy_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Check that erc20 token created")
-        response_id = self.send_request(self.get_request("check_erc20_token", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("check_erc20_token", [contract_id]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
-        lcc.log_info(
-            "Call method 'check_erc20_token' with erc20_contract_id='{}' parameter".format(contract_id))
+        lcc.log_info("Call method 'check_erc20_token' with erc20_contract_id='{}' parameter".format(contract_id))
 
         lcc.set_step("Check simple work of method 'check_erc20_token'")
-        require_that(
-            "'erc20_token'",
-            result, is_false(),
-            quiet=True
-        )
+        require_that("'erc20_token'", result, is_false(), quiet=True)

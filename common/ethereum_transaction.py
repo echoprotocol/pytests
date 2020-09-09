@@ -3,10 +3,11 @@ import decimal
 import json
 from copy import deepcopy
 
-import lemoncheesecake.api as lcc
+from project import (
+    COMMITTEE, ETH_CONTRACT_ADDRESS, ETHEREUM_OPERATIONS, GANACHE_PK, ROPSTEN, ROPSTEN_PK, UNPAID_FEE_METHOD
+)
 
-from project import ETHEREUM_OPERATIONS, ETH_CONTRACT_ADDRESS, UNPAID_FEE_METHOD, COMMITTEE, ROPSTEN_PK, ROPSTEN, \
-    GANACHE_PK
+import lemoncheesecake.api as lcc
 
 
 class EthereumTransactions(object):
@@ -19,8 +20,18 @@ class EthereumTransactions(object):
         # Return needed operation template from json file
         return deepcopy(ETHEREUM_OPERATIONS[variable_name])
 
-    def get_transfer_transaction(self, web3, _from, _to, value, value_currency="ether", gas=2000000, gas_price=None,
-                                 gas_price_currency="gwei", debug_mode=False):
+    def get_transfer_transaction(
+        self,
+        web3,
+        _from,
+        _to,
+        value,
+        value_currency="ether",
+        gas=2000000,
+        gas_price=None,
+        gas_price_currency="gwei",
+        debug_mode=False
+    ):
         transfer_props = deepcopy(self.get_operation_json("transfer_operation"))
         if _from[:2] != "0x":
             _from = "0x" + _from
@@ -30,9 +41,14 @@ class EthereumTransactions(object):
             transfer_props.update({"gasPrice": web3.toWei(gas_price, gas_price_currency)})
         else:
             gas_price = web3.eth.gasPrice
-        transfer_props.update(
-            {"from": _from, "nonce": web3.eth.getTransactionCount(_from), "to": web3.toChecksumAddress(_to),
-             "value": web3.toWei(value, value_currency), "gas": gas, "gasPrice": gas_price})
+        transfer_props.update({
+            "from": _from,
+            "nonce": web3.eth.getTransactionCount(_from),
+            "to": web3.toChecksumAddress(_to),
+            "value": web3.toWei(value, value_currency),
+            "gas": gas,
+            "gasPrice": gas_price
+        })
         if debug_mode:
             lcc.log_debug("Ethereum transfer operation: \n{}".format(json.dumps(transfer_props, indent=4)))
         return transfer_props
@@ -65,26 +81,22 @@ class EthereumTransactions(object):
     @staticmethod
     def get_unpaid_fee(base_test, web3, account_id):
         eeth_accuracy = "1.000000"
-        method_call_result = web3.eth.call(
-            {
-                "to": web3.toChecksumAddress(ETH_CONTRACT_ADDRESS),
-                "data": UNPAID_FEE_METHOD + base_test.get_byte_code_param(account_id)
-            }
-        )
-        method_call_result = float(decimal.Decimal(int(method_call_result.hex()[-64:], 16) / 1e18).quantize(
-            decimal.Decimal(eeth_accuracy), rounding=decimal.ROUND_UP))
+        method_call_result = web3.eth.call({
+            "to": web3.toChecksumAddress(ETH_CONTRACT_ADDRESS),
+            "data": UNPAID_FEE_METHOD + base_test.get_byte_code_param(account_id)
+        })
+        dec = decimal.Decimal(int(method_call_result.hex()[-64:], 16) / 1e18)
+        method_call_result = float(dec.quantize(decimal.Decimal(eeth_accuracy), rounding=decimal.ROUND_UP))
         return method_call_result
 
     @staticmethod
     def get_status_of_committee_member(base_test, web3, committee_member_address):
         if committee_member_address[:2] == "0x":
             committee_member_address = committee_member_address[2:]
-        method_call_result = web3.eth.call(
-            {
-                "to": web3.toChecksumAddress(ETH_CONTRACT_ADDRESS),
-                "data": COMMITTEE + base_test.get_byte_code_param(committee_member_address)
-            }
-        )
+        method_call_result = web3.eth.call({
+            "to": web3.toChecksumAddress(ETH_CONTRACT_ADDRESS),
+            "data": COMMITTEE + base_test.get_byte_code_param(committee_member_address)
+        })
         return bool(int(method_call_result.hex(), 16))
 
     @staticmethod
@@ -123,8 +135,9 @@ class EthereumTransactions(object):
         return contract_instance.functions.balanceOf(eth_address).call()
 
     @staticmethod
-    def transfer(web3, contract_instance, account_eth_address, amount, log_transaction=True,
-                 log_transaction_logs=False):
+    def transfer(
+        web3, contract_instance, account_eth_address, amount, log_transaction=True, log_transaction_logs=False
+    ):
         if account_eth_address[:2] != "0x":
             account_eth_address = "0x" + account_eth_address
         tx_hash = contract_instance.functions.transfer(account_eth_address, amount).transact()

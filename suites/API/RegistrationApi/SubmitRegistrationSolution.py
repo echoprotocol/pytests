@@ -2,12 +2,11 @@
 import random
 import string
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_integer, is_true, equal_to, is_false, has_item
-
 from common.base_test import BaseTest
-from fixtures.base_fixtures import RANGE_OF_STR, get_random_valid_account_name, get_random_eth_address, \
-    get_random_btc_public_key, get_random_integer
+from fixtures.base_fixtures import RANGE_OF_STR, get_random_btc_public_key, get_random_eth_address, get_random_integer
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, has_item, is_false, is_integer, is_true
 
 SUITE = {
     "description": "Method 'submit_registration_solution'"
@@ -31,8 +30,10 @@ class SubmitRegistrationSolution(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.tags("submit_registration_solution")
     @lcc.test("Check method submit_registration_solution of registration_api")
@@ -44,26 +45,28 @@ class SubmitRegistrationSolution(BaseTest):
         evm_address = None
 
         lcc.set_step("Get 'request_registration_task' and solve")
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("request_registration_task"), self.__registration_api_identifier
+        )
         pow_algorithm_data = self.get_response(response_id)["result"]
-        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
-                                                pow_algorithm_data["rand_num"],
-                                                pow_algorithm_data["difficulty"])
+        solution = self.solve_registration_task(
+            pow_algorithm_data["block_id"], pow_algorithm_data["rand_num"], pow_algorithm_data["difficulty"]
+        )
         check_that("registration task solution", solution, is_integer())
 
         lcc.set_step("Check that 'submit_registration_solution' completed successfully")
-        account_params = [callback, account_name, public_key, public_key, evm_address, solution,
-                          pow_algorithm_data["rand_num"]]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        account_params = [
+            callback, account_name, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]
+        ]
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("'submit_registration_solution' result", result, is_true())
 
         lcc.set_step("Check that registrated account in block transaction")
         block_num = self.get_notice(callback)["block_num"]
-        response_id = self.send_request(self.get_request("get_block", [block_num]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_block", [block_num]), self.__database_api_identifier)
         block_transactions = self.get_response(response_id)["result"]["transactions"]
         names_in_block_operations = [
             block_transactions[trx_num]["operations"][0][1]["name"]
@@ -72,8 +75,9 @@ class SubmitRegistrationSolution(BaseTest):
         ]
         check_that("account names in block", names_in_block_operations, has_item(account_name))
 
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("new account name", result["name"], equal_to(account_name))
         check_that("new account 'echorand_key'", result["echorand_key"], equal_to(public_key))
@@ -91,20 +95,20 @@ class NegativeTesting(BaseTest):
 
     def get_cheap_account_name(self):
         random_string = "{}{}".format(
-            ''.join(random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)),
-            'ing'
+            ''.join(random.SystemRandom().choice(string.ascii_lowercase) for _ in range(RANGE_OF_STR)), 'ing'
         )
         lcc.log_info("Generated random account_name: {}".format(random_string))
         return random_string
 
     def prepare_rand_num_and_task_solution(self):
         lcc.set_step("Get 'request_registration_task' and solve")
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("request_registration_task"), self.__registration_api_identifier
+        )
         pow_algorithm_data = self.get_response(response_id)["result"]
-        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
-                                                pow_algorithm_data["rand_num"],
-                                                pow_algorithm_data["difficulty"])
+        solution = self.solve_registration_task(
+            pow_algorithm_data["block_id"], pow_algorithm_data["rand_num"], pow_algorithm_data["difficulty"]
+        )
         return pow_algorithm_data["rand_num"], solution
 
     def submit_registration_solution(self):
@@ -116,8 +120,10 @@ class NegativeTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.test("Register account with cheap 'account name'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
@@ -133,20 +139,24 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))
 
     @lcc.test("Register account with wrong 'solution'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_solution(self, get_random_integer):
+    def submit_registration_solution_with_wrong_solution_decrement(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
-        account_name = get_random_valid_account_name()
+        account_name = get_random_valid_account_name
         generate_keys = self.generate_keys()
         evm_address = None
         public_key = generate_keys[1]
@@ -154,25 +164,33 @@ class NegativeTesting(BaseTest):
         wrong_solution = solution - 1
         expected_error_message = "Assert Exception: task.valid(): No active registration task. Request another one"
 
-        lcc.set_step("Check that 'submit_registration_solution' crashes with first attempt:"
-                     "wrong solution and right rand_num")
+        lcc.set_step(
+            "Check that 'submit_registration_solution' crashes with first attempt:"
+            "wrong solution and right rand_num"
+        )
         account_params = [callback, account_name, public_key, public_key, evm_address, wrong_solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         result = self.get_response(response_id, negative=True)["result"]
         check_that("error message", result, is_false())
 
-        lcc.set_step("Check that 'submit_registration_solution' crashes with second attempt:"
-                     "right solution and right rand_num")
-        account_params = [callback, account_name, public_key, public_key, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        lcc.set_step(
+            "Check that 'submit_registration_solution' crashes with second attempt:"
+            "right solution and right rand_num"
+        )
+        account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
 
     @lcc.test("Register account with wrong 'account name'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_account_name(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_account_name_uppercase_symbol(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "A"
         generate_keys = self.generate_keys()
@@ -180,16 +198,19 @@ class NegativeTesting(BaseTest):
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
         expected_error_message = "Assert Exception: is_valid_name(name): '{}' is not a valid account name".format(
-            account_name)
+            account_name
+        )
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))
 
@@ -207,24 +228,28 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, error_pk, public_key, evm_address, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
         account_params = [callback, account_name, public_key, error_pk, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))
 
     @lcc.test("Register account with wrong 'rand_num'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_rand_num(self, get_random_integer, get_random_valid_account_name,
-                                                         get_random_string):
+    def submit_registration_solution_with_wrong_rand_num(
+        self, get_random_integer, get_random_valid_account_name, get_random_string
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name
         random_string = get_random_string
@@ -242,12 +267,14 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, public_key, public_key, evm_address, solution, fake_rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))
 
@@ -262,18 +289,22 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))
 
     @lcc.test("Register account with wrong 'task solution'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_solution(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_solution_increment(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name
         generate_keys = self.generate_keys()
@@ -284,12 +315,14 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Check that 'submit_registration_solution' crashes at each execution")
         account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("result", result, equal_to(False))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))
 
@@ -310,18 +343,22 @@ class NegativeTesting(BaseTest):
 
             lcc.set_step("Check that 'submit_registration_solution' crashes with name = '{}'".format(checks[i]))
             account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
-            response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                            self.__registration_api_identifier)
+            response_id = self.send_request(
+                self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+            )
             error = self.get_response(response_id, negative=True)["error"]["message"]
             check_that("result", error, equal_to(expected_error_message))
-            response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+            )
             result = self.get_response(response_id)["result"]
             check_that("account creation state", result, equal_to(None))
 
     @lcc.test("Register account with name + '/'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_solution(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_account_name_slash(
+        self, get_random_integer, get_random_valid_account_name
+    ):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "/"
         evm_address = None
@@ -333,11 +370,13 @@ class NegativeTesting(BaseTest):
 
         lcc.set_step("Check that 'submit_registration_solution' completed successfully")
         account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         error = self.get_response(response_id, negative=True)["error"]
         check_that("error message", error["message"], equal_to(expected_error_message))
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"]
         check_that("account creation state", result, equal_to(None))

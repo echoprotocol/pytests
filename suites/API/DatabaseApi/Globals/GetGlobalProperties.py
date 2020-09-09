@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, has_entry, require_that, has_length, equal_to
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, has_entry, has_length, require_that
 
 SUITE = {
     "description": "Methods: 'get_global_properties', 'get_objects' (global property object)"
@@ -11,10 +11,7 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("negative", "type")
-@lcc.tags(
-    "api", "database_api", "database_api_globals", "get_global_properties",
-    "database_api_objects", "get_objects"
-)
+@lcc.tags("api", "database_api", "database_api_globals", "get_global_properties", "database_api_objects", "get_objects")
 @lcc.suite("Check work of methods: 'get_global_properties', 'get_objects' (global property object)", rank=1)
 class GetGlobalProperties(BaseTest):
 
@@ -35,9 +32,7 @@ class GetGlobalProperties(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("Database API identifier is '{}'".format(self.__database_api_identifier))
 
-    @lcc.test(
-        "Simple work of methods: 'get_global_properties', 'get_objects' (global property object)"
-    )
+    @lcc.test("Simple work of methods: 'get_global_properties', 'get_objects' (global property object)")
     def method_main_check(self):
         lcc.set_step("Get global properties")
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
@@ -54,20 +49,10 @@ class GetGlobalProperties(BaseTest):
         lcc.log_info("Call method 'get_objects' with params: {}".format(params))
 
         lcc.set_step("Check length of received objects")
-        require_that(
-            "'list of received objects'",
-            get_objects_results, has_length(len(params)),
-            quiet=True
-        )
+        require_that("'list of received objects'", get_objects_results, has_length(len(params)), quiet=True)
 
-        lcc.set_step(
-            "Check the identity of returned results of api-methods: 'get_global_properties', 'get_objects'"
-        )
-        require_that(
-            'results',
-            get_objects_results[0], equal_to(get_global_properties_result),
-            quiet=True
-        )
+        lcc.set_step("Check the identity of returned results of api-methods: 'get_global_properties', 'get_objects'")
+        require_that('results', get_objects_results[0], equal_to(get_global_properties_result), quiet=True)
 
 
 @lcc.prop("negative", "type")
@@ -94,13 +79,13 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_global_properties", random_values[i]),
-                                            self.__database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_global_properties", random_values[i]), self.__database_api_identifier
+            )
             response = self.get_response(response_id, negative=True)
             check_that(
-                "'get_global_properties' return error message with '{}' params".format(
-                    random_type_names[i]
-                ),
-                response, has_entry("error"),
+                "'get_global_properties' return error message with '{}' params".format(random_type_names[i]),
+                response,
+                has_entry("error"),
                 quiet=True
             )

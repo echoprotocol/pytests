@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import lemoncheesecake.api as lcc
-
 import json
 
 from common.object_validation import ObjectValidator
 from common.type_validation import TypeValidator
-
-from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket
-
 from project import WALLET_URL
+
+import lemoncheesecake.api as lcc
+from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket
 
 
 class WalletBaseTest:
@@ -45,10 +43,14 @@ class WalletBaseTest:
             lcc.log_warning("Error received:\n{}".format(json.dumps(response, indent=4)))
         return response
 
-    def json_rpc_template(self):
-        result = {"jsonrpc": "2.0", "params": "", "method": "", "id": WalletBaseTest.request_id}
-        WalletBaseTest.request_id += 1
-        return result
+    @staticmethod
+    def json_rpc_template():
+        return {
+            "jsonrpc": "2.0",
+            "params": "",
+            "method": "",
+            "id": 0
+        }
 
     def __call_method(self, method, params):
         call_template = self.json_rpc_template()
@@ -72,6 +74,7 @@ class WalletBaseTest:
             return self.get_negative_result(response, log_response)
         if response.get("id") != payload["id"]:
             lcc.log_error(
-                "Wrong 'id' expected '{}', but received:\n{}".format(payload["id"], json.dumps(response, indent=4)))
+                "Wrong 'id' expected '{}', but received:\n{}".format(payload["id"], json.dumps(response, indent=4))
+            )
             raise Exception("Wrong 'id'")
         return self.get_positive_result(response, log_response)

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, equal_to, is_list, is_dict, is_str, ends_with, \
-    check_that, require_that, greater_than, has_length, require_that_in, is_true
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, ends_with, equal_to, greater_than, has_length, is_dict, is_list, is_str, is_true,
+    require_that, require_that_in
+)
 
 SUITE = {
     "description": "Method 'get_contract_result'"
@@ -34,10 +36,13 @@ class GetContractResult(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -56,33 +61,30 @@ class GetContractResult(BaseTest):
         value_amount = get_random_integer
 
         lcc.set_step("Create 'piggy' contract")
-        contract = self.utils.get_contract_id(self, self.echo_acc0, self.piggy, self.__database_api_identifier,
-                                              value_amount=value_amount, need_broadcast_result=True)
+        contract = self.utils.get_contract_id(
+            self,
+            self.echo_acc0,
+            self.piggy,
+            self.__database_api_identifier,
+            value_amount=value_amount,
+            need_broadcast_result=True
+        )
         contract_result_id = self.get_operation_results_ids(contract.get("broadcast_result"))
 
         lcc.set_step("Get contract result of created contract")
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_result_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_result", [contract_result_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         contract_result = response["result"][1]
         lcc.log_info("Call method 'get_contract_result' with contract_result_id='{}' param".format(contract_result_id))
 
         lcc.set_step("Check contract create result")
         if check_that("contract_result", contract_result, has_length(2)):
-            check_that_in(
-                contract_result,
-                "exec_res", is_dict(),
-                "tr_receipt", is_dict(),
-                quiet=True
-            )
+            check_that_in(contract_result, "exec_res", is_dict(), "tr_receipt", is_dict(), quiet=True)
             exec_res = contract_result["exec_res"]
             if check_that("exec_res", exec_res, has_length(6)):
-                require_that_in(
-                    exec_res,
-                    "excepted", equal_to("None"),
-                    "code_deposit", equal_to("Success"),
-                    quiet=True
-                )
+                require_that_in(exec_res, "excepted", equal_to("None"), "code_deposit", equal_to("Success"), quiet=True)
                 if not self.type_validator.is_hex(exec_res["new_address"]):
                     lcc.log_error("Wrong format of 'new_address', got: {}".format(exec_res["new_address"]))
                 else:
@@ -96,44 +98,48 @@ class GetContractResult(BaseTest):
                 contract_output_bytecode_length = len(contract_output_in_hex)
                 check_that_in(
                     exec_res,
-                    "gas_for_deposit", greater_than(0),
-                    "deposit_size", equal_to(contract_output_bytecode_length // 2),
+                    "gas_for_deposit",
+                    greater_than(0),
+                    "deposit_size",
+                    equal_to(contract_output_bytecode_length // 2),
                     quiet=True
                 )
             tr_receipt = contract_result["tr_receipt"]
             if check_that("tr_receipt", tr_receipt, has_length(4)):
                 check_that_in(
                     tr_receipt,
-                    "status_code", equal_to(1),
+                    "status_code",
+                    equal_to(1),
                     # Note: the value in the field 'gas_used' is checked in the 'GasUsed' scenario
-                    "gas_used", greater_than(0),
+                    "gas_used",
+                    greater_than(0),
                     quiet=True
                 )
-                require_that_in(
-                    tr_receipt,
-                    "log", equal_to([]),
-                    quiet=True
-                )
+                require_that_in(tr_receipt, "log", equal_to([]), quiet=True)
                 self.check_zero_bloom(tr_receipt["bloom"])
 
         lcc.set_step("Call method 'getPennie'")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.getPennie,
-                                                              callee=self.contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.getPennie, callee=self.contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, log_broadcast=False
+        )
         contract_call_result_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info(
-            "Method 'getPennie' performed successfully, contract call result id: '{}'".format(contract_call_result_id))
+            "Method 'getPennie' performed successfully, contract call result id: '{}'".format(contract_call_result_id)
+        )
 
         lcc.set_step("Get contract call result of created contract")
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_call_result_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_result", [contract_call_result_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         contract_call_result = response["result"][1]
         lcc.log_info(
-            "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_result_id))
+            "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_result_id)
+        )
 
         lcc.set_step("Check contract call result")
         if check_that("contract_call_result", contract_call_result, has_length(2)):
@@ -141,30 +147,36 @@ class GetContractResult(BaseTest):
             if check_that("exec_res", exec_res, has_length(6)):
                 require_that_in(
                     exec_res,
-                    "excepted", equal_to("None"),
-                    "code_deposit", equal_to("None"),
-                    "gas_for_deposit", equal_to(0),
-                    "deposit_size", equal_to(0),
+                    "excepted",
+                    equal_to("None"),
+                    "code_deposit",
+                    equal_to("None"),
+                    "gas_for_deposit",
+                    equal_to(0),
+                    "deposit_size",
+                    equal_to(0),
                     quiet=True
                 )
-                check_that_in(
-                    exec_res, "output", is_str(), quiet=True
-                )
+                check_that_in(exec_res, "output", is_str(), quiet=True)
                 tr_receipt = contract_call_result["tr_receipt"]
                 if check_that("tr_receipt", tr_receipt, has_length(4)):
                     check_that_in(
                         tr_receipt,
-                        "status_code", equal_to(1),
+                        "status_code",
+                        equal_to(1),
                         # Note: the value in the field 'gas_used' is checked in the 'GasUsed' scenario
-                        "gas_used", greater_than(0),
-                        "log", is_list(),
+                        "gas_used",
+                        greater_than(0),
+                        "log",
+                        is_list(),
                         quiet=True
                     )
                     logs = tr_receipt["log"]
                     require_that("'log has value'", bool(logs), is_true(), quiet=True)
                     for log in logs:
-                        contract_id_that_called = self.get_contract_id(response, contract_call_result=True,
-                                                                       new_contract=False)
+                        contract_id_that_called = self.get_contract_id(
+                            response, contract_call_result=True, new_contract=False
+                        )
                         require_that("contract_id", contract_id_that_called, equal_to(self.contract_id), quiet=True)
                         log_values = log["log"]
                         for log_value in log_values:
@@ -172,9 +184,7 @@ class GetContractResult(BaseTest):
                                 lcc.log_error("Wrong format of 'log_value', got: {}".format(log_value))
                             else:
                                 lcc.log_info("'log_value' has correct format: hex")
-                        check_that_in(
-                            log, "data", is_str(), quiet=True
-                        )
+                        check_that_in(log, "data", is_str(), quiet=True)
                     if not self.type_validator.is_hex(tr_receipt["bloom"]):
                         lcc.log_error("Wrong format of 'bloom', got: {}".format(tr_receipt["bloom"]))
                     else:
@@ -205,10 +215,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -220,25 +233,31 @@ class PositiveTesting(BaseTest):
         expected_string = "Hello World!!!"
 
         lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier)
+        contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.piggy_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Call method of piggy contract: 'greet'")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.greet, callee=contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.greet, callee=contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, log_broadcast=False
+        )
         contract_call_result_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info(
-            "Method 'greet' performed successfully, contract call result id: '{}'".format(contract_call_result_id))
+            "Method 'greet' performed successfully, contract call result id: '{}'".format(contract_call_result_id)
+        )
 
         lcc.set_step("Get contract call result of created contract")
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_call_result_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_result", [contract_call_result_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info(
-            "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_call_result_id))
+            "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_call_result_id)
+        )
 
         lcc.set_step("Get output from the execution of the contract method and check returned value")
         contract_output = self.get_contract_output(response, output_type=str, len_output_string=len(expected_string))
@@ -248,19 +267,22 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("API.DatabaseApi.Contracts.GetContractResult.GetContractResult.method_main_check")
     def check_contract_result_of_contract_creation(self):
         lcc.set_step("Create 'piggy' contract in the Echo network and get it's contract id")
-        contract = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract, self.__database_api_identifier,
-                                              need_broadcast_result=True)
+        contract = self.utils.get_contract_id(
+            self, self.echo_acc0, self.piggy_contract, self.__database_api_identifier, need_broadcast_result=True
+        )
         contract_result_id = self.get_operation_results_ids(contract.get("broadcast_result"))
 
         lcc.set_step("Get contract creation result and store")
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_result_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_result", [contract_result_id]), self.__database_api_identifier
+        )
         contract_result_output = self.get_response(response_id)["result"][1]["exec_res"]["output"]
         lcc.log_info("Call method 'get_contract_result' with contract_result_id='{}' param".format(contract_result_id))
 
         lcc.set_step("Get contract code form 'get_contract' method and store")
-        response_id = self.send_request(self.get_request("get_contract", [contract.get("contract_id")]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [contract.get("contract_id")]), self.__database_api_identifier
+        )
         contract_code = self.get_response(response_id)["result"][1]["code"]
         lcc.log_info("Call method 'get_contract' with '{}' created contract".format(contract.get("contract_id")))
 
@@ -275,30 +297,39 @@ class PositiveTesting(BaseTest):
         string_param = get_random_string
 
         lcc.set_step("Create 'dynamic_fields' contract in the Echo network and get it's contract id")
-        dynamic_fields_contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.dynamic_fields_contract,
-                                                                self.__database_api_identifier)
+        dynamic_fields_contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.dynamic_fields_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Call method of dynamic_fields contract: 'set_all_values'")
         int_param_code = self.get_byte_code_param(int_param, param_type=int)
         string_param_code = self.get_byte_code_param(string_param, param_type=str, offset="40")
         method_params = int_param_code + string_param_code
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.set_all_values + method_params,
-                                                              callee=dynamic_fields_contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo,
+            registrar=self.echo_acc0,
+            bytecode=self.set_all_values + method_params,
+            callee=dynamic_fields_contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, log_broadcast=False
+        )
         contract_call_result_id = self.get_operation_results_ids(broadcast_result)
-        lcc.log_info("Method 'set_all_values' performed successfully, contract call result id: '{}'"
-                     "".format(contract_call_result_id))
+        lcc.log_info(
+            "Method 'set_all_values' performed successfully, contract call result id: '{}'"
+            "".format(contract_call_result_id)
+        )
 
         lcc.set_step("Get contract call result of created contract")
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_call_result_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_result", [contract_call_result_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         dynamic_fields_contract_call_logs = response["result"][1]["tr_receipt"]["log"]
         lcc.log_info(
-            "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_call_result_id))
+            "Call method 'get_contract_result' with contract_call_result_id='{}' param".format(contract_call_result_id)
+        )
 
         lcc.set_step("Check contract result with several logs")
         for i, log in enumerate(dynamic_fields_contract_call_logs):
@@ -323,19 +354,23 @@ class PositiveTesting(BaseTest):
             )
 
         lcc.set_step("Check contract result log value")
-        method_names_in_keccak_std = [self.get_keccak_standard_value(self.setUint256_method_name),
-                                      self.get_keccak_standard_value(self.setString_method_name)]
+        method_names_in_keccak_std = [
+            self.get_keccak_standard_value(self.setUint256_method_name),
+            self.get_keccak_standard_value(self.setString_method_name)
+        ]
         for i, log in enumerate(dynamic_fields_contract_call_logs):
             check_that("'log value'", log["log"][0], equal_to(method_names_in_keccak_std[i]), quiet=True)
 
         lcc.set_step("Check contract result log data")
         call_contract_params = [int_param, string_param]
         output_types = [int, str]
-        log_data = self.get_contract_log_data(dynamic_fields_contract_call_logs, output_type=output_types,
-                                              log_format=True, data_dict = True)
+        log_data = self.get_contract_log_data(
+            dynamic_fields_contract_call_logs, output_type=output_types, log_format=True, data_dict=True
+        )
         lcc.log_debug(str(dynamic_fields_contract_call_logs))
         for i, data in enumerate(log_data):
             lcc.log_info("Check data#'{}'".format(i))
             check_that("'converted 'data' from hex'", data, equal_to(call_contract_params[i]))
+
 
 # todo: add test for testing bloom field

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_str, is_none, is_not_none, equal_to, is_true
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import is_str, is_true, require_that
 
 SUITE = {
     "description": "Method 'get_git_revision'"
@@ -29,8 +29,10 @@ class GeGitRevision(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -39,12 +41,10 @@ class GeGitRevision(BaseTest):
     @lcc.test("Simple work of method 'get_git_revision'")
     def method_main_check(self):
         lcc.set_step("Call method 'get_git_revision'")
-        response_id = self.send_request(self.get_request("get_git_revision", []),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_git_revision", []), self.__database_api_identifier)
         result = self.get_response(response_id)["result"]
         if not self.type_validator.is_hex(result["ECHO_GIT_REVISION_SHA"]):
-            lcc.log_error(
-                "Wrong format of 'ECHO_GIT_REVISION_SHA', got: {}".format(result["ECHO_GIT_REVISION_SHA"]))
+            lcc.log_error("Wrong format of 'ECHO_GIT_REVISION_SHA', got: {}".format(result["ECHO_GIT_REVISION_SHA"]))
         else:
             lcc.log_info("'ECHO_GIT_REVISION_SHA' has correct format: hex")
 
@@ -57,9 +57,5 @@ class GeGitRevision(BaseTest):
                 check = is_true
                 part = unix_timestamp_part.isdigit()
                 name = 'ECHO_GIT_REVISION_UNIX_TIMESTAMP is digit string'
-            require_that(
-                name,
-                part,
-                check()
-            )
+            require_that(name, part, check())
         require_that('result', result["ECHO_GIT_REVISION_DESCRIPTION"], is_str())

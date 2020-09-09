@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, check_that, require_that, ends_with, is_, is_list, equal_to, \
-    not_equal_to, has_length
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, ends_with, equal_to, has_length, is_, is_list, not_equal_to, require_that
+)
 
 SUITE = {
     "description": "Method 'get_contract'"
@@ -31,13 +32,17 @@ class GetContract(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
-        self.contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.contract,
-                                                      self.__database_api_identifier)
+        self.contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.contract, self.__database_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -46,8 +51,9 @@ class GetContract(BaseTest):
     @lcc.test("Simple work of method 'get_contract'")
     def method_main_check(self):
         lcc.set_step("Get the contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [self.contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [self.contract_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with contract_id='{}' parameter".format(self.contract_id))
 
@@ -96,10 +102,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -110,12 +119,12 @@ class PositiveTesting(BaseTest):
     @lcc.depends_on("API.DatabaseApi.Contracts.GetContract.GetContract.method_main_check")
     def check_contract_info_after_calling_contract_method(self):
         lcc.set_step("Create 'piggy' contract in ECHO network")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier)
+        contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.piggy_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Get the contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contract", [contract_id]), self.__database_api_identifier)
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with contract_id='{}' parameter".format(contract_id))
 
@@ -127,14 +136,14 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Store contract storage before call 'greet' method")
 
         lcc.set_step("Call contract method that nothing do with contract fields")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.greet, callee=contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.greet, callee=contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get response of 'get_contract' after contract call")
-        response_id = self.send_request(self.get_request("get_contract", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contract", [contract_id]), self.__database_api_identifier)
         response = self.get_response(response_id)
         contract_info = response["result"][1]
         code_after_contract_call = contract_info["code"]
@@ -142,21 +151,26 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Store contract storage after call 'greet' method")
 
         lcc.set_step("Check contract info before and after call 'greet' method")
-        check_that("'code after contract call'", code_after_contract_call, equal_to(code_before_contract_call),
-                   quiet=True)
-        check_that("'storage after contract call'", storage_before_contract_call, equal_to(storage_after_contract_call),
-                   quiet=True)
+        check_that(
+            "'code after contract call'", code_after_contract_call, equal_to(code_before_contract_call), quiet=True
+        )
+        check_that(
+            "'storage after contract call'",
+            storage_before_contract_call,
+            equal_to(storage_after_contract_call),
+            quiet=True
+        )
 
     @lcc.test("Check contract info after contract destroy")
     @lcc.depends_on("API.DatabaseApi.Contracts.GetContract.GetContract.method_main_check")
     def check_contract_destroy_method(self):
         lcc.set_step("Create 'piggy' contract in ECHO network")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier)
+        contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.piggy_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Get the contract by id and store info before destroy contract")
-        response_id = self.send_request(self.get_request("get_contract", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contract", [contract_id]), self.__database_api_identifier)
         response = self.get_response(response_id)
         contract_info = response["result"][1]
         contract_code = contract_info["code"]
@@ -164,14 +178,14 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_contract' with contract_id='{}' parameter".format(contract_id))
 
         lcc.set_step("Call method 'breakPiggy' to destroy contract")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.breakPiggy, callee=contract_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.breakPiggy, callee=contract_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get response of 'get_contract' after call method that destroy contract")
-        response_id = self.send_request(self.get_request("get_contract", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_contract", [contract_id]), self.__database_api_identifier)
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with contract_id='{}' parameter".format(contract_id))
 
@@ -179,10 +193,14 @@ class PositiveTesting(BaseTest):
         contract_info = response["result"][1]
         check_that_in(
             contract_info,
-            "code", not_equal_to(contract_code),
-            "code", equal_to(""),
-            "storage", not_equal_to(contract_storage),
-            "storage", equal_to([]),
+            "code",
+            not_equal_to(contract_code),
+            "code",
+            equal_to(""),
+            "storage",
+            not_equal_to(contract_storage),
+            "storage",
+            equal_to([]),
         )
 
     @lcc.test("Verification of changes in case of dynamic fields of a contract")
@@ -192,12 +210,14 @@ class PositiveTesting(BaseTest):
         string_param = get_random_string
 
         lcc.set_step("Create 'dynamic_fields' contract in ECHO network")
-        contract_dynamic_fields_id = self.utils.get_contract_id(self, self.echo_acc0, self.dynamic_fields_contract,
-                                                                self.__database_api_identifier)
+        contract_dynamic_fields_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.dynamic_fields_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Get contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [contract_dynamic_fields_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [contract_dynamic_fields_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with param: '{}'".format(contract_dynamic_fields_id))
 
@@ -207,16 +227,16 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Call method 'set_uint' to add uint field in contract")
         bytecode = self.set_uint + self.get_byte_code_param(int_param, param_type=int)
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=bytecode,
-                                                              callee=contract_dynamic_fields_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=bytecode, callee=contract_dynamic_fields_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Check that uint field created in contract. Call method 'get_uint'")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.get_uint,
-                                                              callee=contract_dynamic_fields_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.get_uint, callee=contract_dynamic_fields_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
@@ -224,8 +244,9 @@ class PositiveTesting(BaseTest):
         check_that("'uint field in contract'", contract_output, equal_to(int_param))
 
         lcc.set_step("Get contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [contract_dynamic_fields_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [contract_dynamic_fields_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with param: '{}'".format(contract_dynamic_fields_id))
 
@@ -233,7 +254,12 @@ class PositiveTesting(BaseTest):
         contract_storage_with_int = response["result"][1]["storage"]
         require_that("'contract storage'", contract_storage_with_int, has_length(1))
 
-        require_that("'contract storage'", contract_storage_with_int, not_equal_to([]), quiet=True, )
+        require_that(
+            "'contract storage'",
+            contract_storage_with_int,
+            not_equal_to([]),
+            quiet=True,
+        )
         if not self.type_validator.is_hex(contract_storage_with_int[0][0]):
             lcc.log_error("Wrong format of 'contract storage var 1', got: {}".format(contract_storage_with_int[0][0]))
         else:
@@ -242,26 +268,28 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Call method 'set_string' to add string field in contract")
         bytecode = self.set_string + self.get_byte_code_param(string_param, param_type=str)
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=bytecode,
-                                                              callee=contract_dynamic_fields_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=bytecode, callee=contract_dynamic_fields_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Check that string field created in contract. Call method 'get_string'")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.get_string,
-                                                              callee=contract_dynamic_fields_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.get_string, callee=contract_dynamic_fields_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
-        contract_output = self.get_contract_output(contract_result, output_type=str,
-                                                   len_output_string=len(string_param))
+        contract_output = self.get_contract_output(
+            contract_result, output_type=str, len_output_string=len(string_param)
+        )
         check_that("'string field in contract'", contract_output, equal_to(string_param))
 
         lcc.set_step("Get contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [contract_dynamic_fields_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [contract_dynamic_fields_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with param: '{}'".format(contract_dynamic_fields_id))
 
@@ -277,15 +305,16 @@ class PositiveTesting(BaseTest):
             check_that("'contract storage var 2'", contract_storage[1], is_list(), quiet=True)
 
         lcc.set_step("Call method 'delete_string' to delete string field in contract")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.delete_string,
-                                                              callee=contract_dynamic_fields_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.delete_string, callee=contract_dynamic_fields_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [contract_dynamic_fields_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [contract_dynamic_fields_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with param: '{}'".format(contract_dynamic_fields_id))
 
@@ -295,15 +324,16 @@ class PositiveTesting(BaseTest):
         require_that("'contract storage'", contract_storage, equal_to(contract_storage_with_int))
 
         lcc.set_step("Call method 'delete_uint' to delete uint field in contract")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.delete_uint,
-                                                              callee=contract_dynamic_fields_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.delete_uint, callee=contract_dynamic_fields_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get contract by id")
-        response_id = self.send_request(self.get_request("get_contract", [contract_dynamic_fields_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract", [contract_dynamic_fields_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_contract' with param: '{}'".format(contract_dynamic_fields_id))
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_integer, has_entry, is_true
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, has_entry, is_integer, is_true
 
 SUITE = {
     "description": "Method 'get_account_count'"
@@ -35,11 +35,7 @@ class GetAccountCount(BaseTest):
         lcc.log_info("Call method 'get_account_count', account_count='{}'".format(response["result"]))
 
         lcc.set_step("Check simple work of method 'get_account_count'")
-        check_that(
-            "'account count'",
-            response["result"],
-            is_integer(), quiet=True
-        )
+        check_that("'account count'", response["result"], is_integer(), quiet=True)
 
 
 @lcc.prop("suite_run_option_2", "positive")
@@ -59,8 +55,10 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -118,10 +116,13 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_account_count", random_values[i]),
-                                            self.__api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_account_count", random_values[i]), self.__api_identifier
+            )
             response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_account_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

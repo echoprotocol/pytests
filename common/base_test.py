@@ -6,14 +6,6 @@ import time
 from copy import deepcopy
 from datetime import datetime, timedelta
 
-import lemoncheesecake.api as lcc
-from Crypto.Hash import keccak
-from echopy import Echo
-from eth_account import Account
-from lemoncheesecake.matching import is_str, is_integer, check_that_in
-from web3 import Web3
-from websocket import create_connection
-
 from common.echo_operation import EchoOperations
 from common.ethereum_transaction import EthereumTransactions
 from common.object_validation import ObjectValidator
@@ -21,9 +13,19 @@ from common.receiver import Receiver
 from common.type_validation import TypeValidator
 from common.utils import Utils
 from pre_run_scripts.pre_deploy import pre_deploy_echo
-from project import RESOURCES_DIR, BASE_URL, ECHO_CONTRACTS, WALLETS, ACCOUNT_PREFIX, ETHEREUM_URL, ETH_ASSET_ID, \
-    BTC_ASSET_ID, DEFAULT_ACCOUNTS_COUNT, UTILS, BLOCK_RELEASE_INTERVAL, ETHEREUM_CONTRACTS, ROPSTEN, ROPSTEN_PK, \
-    GANACHE_PK, DEBUG, INIT4_PK
+from project import (
+    ACCOUNT_PREFIX, BASE_URL, BLOCK_RELEASE_INTERVAL, BTC_ASSET_ID, DEBUG, DEFAULT_ACCOUNTS_COUNT, ECHO_CONTRACTS,
+    ETH_ASSET_ID, ETHEREUM_CONTRACTS, ETHEREUM_URL, GANACHE_PK, INIT4_PK, RESOURCES_DIR, ROPSTEN, ROPSTEN_PK, UTILS,
+    WALLETS
+)
+
+import lemoncheesecake.api as lcc
+from Crypto.Hash import keccak
+from echopy import Echo
+from eth_account import Account
+from lemoncheesecake.matching import check_that_in, is_integer, is_str
+from web3 import Web3
+from websocket import create_connection
 
 
 class BaseTest(object):
@@ -44,8 +46,7 @@ class BaseTest(object):
         self.eth_asset = ETH_ASSET_ID
         self.btc_asset = BTC_ASSET_ID
         # Declare all default accounts
-        self.accounts = ["{}{}".format(
-            ACCOUNT_PREFIX, account_num) for account_num in range(DEFAULT_ACCOUNTS_COUNT)]
+        self.accounts = ["{}{}".format(ACCOUNT_PREFIX, account_num) for account_num in range(DEFAULT_ACCOUNTS_COUNT)]
 
     @staticmethod
     def create_connection_to_echo():
@@ -111,13 +112,18 @@ class BaseTest(object):
 
     def set_timeout_wait(self, seconds=None, print_log=True):
         if print_log:
-            lcc.log_info("Start a '{}' second(s) sleep..."
-                         "\nglobal_time:'{}'"
-                         "\nlocal_time:'{}'".format(seconds, self.get_time(global_time=True), self.get_time()))
+            lcc.log_info(
+                "Start a '{}' second(s) sleep..."
+                "\nglobal_time:'{}'"
+                "\nlocal_time:'{}'".format(seconds, self.get_time(global_time=True), self.get_time())
+            )
         time.sleep(seconds)
         if print_log:
-            lcc.log_info("Sleep is over.\nglobal_time:'{}'\nlocal_time:'{}'".format(self.get_time(global_time=True),
-                                                                                    self.get_time()))
+            lcc.log_info(
+                "Sleep is over.\nglobal_time:'{}'\nlocal_time:'{}'".format(
+                    self.get_time(global_time=True), self.get_time()
+                )
+            )
 
     @staticmethod
     def get_value_for_sorting_func(str_value):
@@ -209,7 +215,11 @@ class BaseTest(object):
     @staticmethod
     def get_call_template():
         # Return call method format
-        return {"id": 0, "method": "call", "params": []}
+        return {
+            "id": 0,
+            "method": "call",
+            "params": []
+        }
 
     def __call_method(self, method, api_identifier=None):
         # Returns the api method call
@@ -258,8 +268,9 @@ class BaseTest(object):
         except IndexError as index:
             lcc.log_error("Response: This index does not exist: '{}'".format(index))
 
-    def get_notice(self, id_response, object_id=None, operation_id=None, notices_list=False, log_response=True,
-                   debug_mode=False):
+    def get_notice(
+        self, id_response, object_id=None, operation_id=None, notices_list=False, log_response=True, debug_mode=False
+    ):
         # Receive notice from server
         try:
             if debug_mode:
@@ -270,8 +281,7 @@ class BaseTest(object):
             if notices_list:
                 notice = json.loads(self.ws.recv())
                 if log_response:
-                    lcc.log_info("Received notice with list of notifications:\n{}".format(
-                        json.dumps(notice, indent=4)))
+                    lcc.log_info("Received notice with list of notifications:\n{}".format(json.dumps(notice, indent=4)))
                 return notice["params"][1][0]
             return self.receiver.get_notice(id_response, object_id, operation_id, log_response)
         except KeyError as key:
@@ -368,8 +378,9 @@ class BaseTest(object):
         if not self.type_validator.is_hex(contract_identifier_hex):
             lcc.log_error("Wrong format of address, got {}".format(contract_identifier_hex))
             raise Exception("Wrong format of address")
-        contract_id = "{}{}".format(self.get_object_type(self.echo.config.object_types.CONTRACT),
-                                    int(str(contract_identifier_hex)[2:], 16))
+        contract_id = "{}{}".format(
+            self.get_object_type(self.echo.config.object_types.CONTRACT), int(str(contract_identifier_hex)[2:], 16)
+        )
         if not self.type_validator.is_contract_id(contract_id):
             lcc.log_error("Wrong format of contract id, got {}".format(contract_id))
             raise Exception("Wrong format of contract id")
@@ -389,8 +400,10 @@ class BaseTest(object):
         if output_type == int:
             return int(contract_output, 16)
         if output_type == "contract_address":
-            contract_id = "{}{}".format(self.get_object_type(self.echo.config.object_types.CONTRACT),
-                                        int(str(contract_output[contract_output.find("1") + 1:]), 16))
+            contract_id = "{}{}".format(
+                self.get_object_type(self.echo.config.object_types.CONTRACT),
+                int(str(contract_output[contract_output.find("1") + 1:]), 16)
+            )
             return contract_id
 
     @staticmethod
@@ -427,12 +440,14 @@ class BaseTest(object):
 
     @staticmethod
     def get_account_details_template(account_name, private_key, public_key, brain_key):
-        return {account_name: {
-            "id": "",
-            "private_key": private_key,
-            "public_key": public_key,
-            "brain_key": brain_key
-        }}
+        return {
+            account_name: {
+                "id": "",
+                "private_key": private_key,
+                "public_key": public_key,
+                "brain_key": brain_key
+            }
+        }
 
     def generate_keys(self):
         brain_key_object = self.echo.brain_key()
@@ -456,34 +471,37 @@ class BaseTest(object):
         return keys[1]
 
     def get_account_by_name(self, account_name, database_api_identifier, debug_mode=False):
-        response_id = self.send_request(self.get_request("get_account_by_name", [account_name]),
-                                        database_api_identifier, debug_mode=debug_mode)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [account_name]), database_api_identifier, debug_mode=debug_mode
+        )
         response = self.get_response(response_id, debug_mode=debug_mode)
         if response.get("error"):
             lcc.log_error("Error received, response:\n{}".format(response))
             raise Exception("Error received")
         return response
 
-    def register_account(self, account_name, registration_api_identifier, database_api_identifier,
-                         debug_mode=False):
+    def register_account(self, account_name, registration_api_identifier, database_api_identifier, debug_mode=False):
         evm_address = None
         public_key = self.store_new_account(account_name)
         self.__id += 1
         callback = self.__id
 
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        registration_api_identifier)
+        response_id = self.send_request(self.get_request("request_registration_task"), registration_api_identifier)
         pow_algorithm_data = self.get_response(response_id)["result"]
-        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
-                                                pow_algorithm_data["rand_num"],
-                                                pow_algorithm_data["difficulty"])
-        account_params = [callback, account_name, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        registration_api_identifier)
+        solution = self.solve_registration_task(
+            pow_algorithm_data["block_id"], pow_algorithm_data["rand_num"], pow_algorithm_data["difficulty"]
+        )
+        account_params = [
+            callback, account_name, public_key, public_key, evm_address, solution, pow_algorithm_data["rand_num"]
+        ]
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), registration_api_identifier
+        )
         response = self.get_response(response_id, debug_mode=debug_mode)
         if response.get("error"):
             lcc.log_error(
-                "Account '{}' not registered, response:\n{}".format(account_name, json.dumps(response, indent=4)))
+                "Account '{}' not registered, response:\n{}".format(account_name, json.dumps(response, indent=4))
+            )
             raise Exception("Account not registered.")
         self.get_notice(callback, log_response=debug_mode, debug_mode=debug_mode)
         response = self.get_account_by_name(account_name, database_api_identifier, debug_mode=debug_mode)
@@ -495,22 +513,21 @@ class BaseTest(object):
                 new_file.write(json.dumps(data))
         return response
 
-    def get_or_register_an_account(self, account_name, database_api_identifier, registration_api_identifier,
-                                   debug_mode=False):
+    def get_or_register_an_account(
+        self, account_name, database_api_identifier, registration_api_identifier, debug_mode=False
+    ):
         response = self.get_account_by_name(account_name, database_api_identifier, debug_mode=debug_mode)
         if response.get("result") is None and self.type_validator.is_account_name(account_name):
-            response = self.register_account(account_name, registration_api_identifier, database_api_identifier,
-                                             debug_mode=debug_mode)
+            response = self.register_account(
+                account_name, registration_api_identifier, database_api_identifier, debug_mode=debug_mode
+            )
         if debug_mode:
             lcc.log_debug("Account is {}".format(json.dumps(response, indent=4)))
         return response
 
     def get_account_id(self, account_name, database_api_identifier, registration_api_identifier, debug_mode=False):
         account = self.get_or_register_an_account(
-            account_name,
-            database_api_identifier,
-            registration_api_identifier,
-            debug_mode=debug_mode
+            account_name, database_api_identifier, registration_api_identifier, debug_mode=debug_mode
         )
         account_id = account.get("result").get("id")
         if debug_mode:
@@ -518,27 +535,25 @@ class BaseTest(object):
         return account_id
 
     def get_active_committee_members_info(self, database_api_identifier):
-        response_id = self.send_request(self.get_request("get_global_properties"),
-                                        database_api_identifier)
+        response_id = self.send_request(self.get_request("get_global_properties"), database_api_identifier)
         active_committee_members = self.get_response(response_id)["result"]["active_committee_members"]
-        return [
-            {
-                "account_id": member[1],
-                "committee_id": member[0]
-            }
-            for member in active_committee_members
-        ]
+        return [{
+            "account_id": member[1],
+            "committee_id": member[0]
+        } for member in active_committee_members]
 
     def get_accounts_ids(self, account_name, account_count, database_api_identifier, registration_api_identifier):
         account_ids = []
         for i in range(account_count):
-            account_ids.append(self.get_account_id(account_name + str(i), database_api_identifier,
-                                                   registration_api_identifier))
+            account_ids.append(
+                self.get_account_id(account_name + str(i), database_api_identifier, registration_api_identifier)
+            )
         return account_ids
 
     def get_required_fee(self, operation, database_api_identifier, asset="1.3.0", debug_mode=False):
-        response_id = self.send_request(self.get_request("get_required_fees", [[operation], asset]),
-                                        database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_required_fees", [[operation], asset]), database_api_identifier
+        )
         response = self.get_response(response_id)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
@@ -546,53 +561,56 @@ class BaseTest(object):
             return response.get("result")[0].get("fee")
         return response.get("result")[0]
 
-    def get_proposal_create_required_fee(self, proposal_create_operation, database_api_identifier,
-                                         asset="1.3.0", debug_mode=False):
+    def get_proposal_create_required_fee(
+        self, proposal_create_operation, database_api_identifier, asset="1.3.0", debug_mode=False
+    ):
         collected_operation = deepcopy(proposal_create_operation)
         proposed_op = proposal_create_operation[1]["proposed_ops"][0]
-        collected_operation[1]["proposed_ops"] = [{"op": proposed_op}]
-        response_id = self.send_request(self.get_request("get_required_fees", [[collected_operation], asset]),
-                                        database_api_identifier)
+        collected_operation[1]["proposed_ops"] = [{
+            "op": proposed_op
+        }]
+        response_id = self.send_request(
+            self.get_request("get_required_fees", [[collected_operation], asset]), database_api_identifier
+        )
         response = self.get_response(response_id)
         if debug_mode:
             lcc.log_debug("Required fee:\n{}".format(json.dumps(response, indent=4)))
         return response.get("result")[0][0]
 
-    def add_fee_to_operation(self, operation, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
-                             debug_mode=False):
+    def add_fee_to_operation(
+        self, operation, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0", debug_mode=False
+    ):
         try:
             if fee_amount is None:
                 if operation[0] == self.echo.config.operation_ids.PROPOSAL_CREATE:
                     fee = self.get_proposal_create_required_fee(
-                        operation,
-                        database_api_identifier,
-                        asset=fee_asset_id,
-                        debug_mode=debug_mode
+                        operation, database_api_identifier, asset=fee_asset_id, debug_mode=debug_mode
                     )
                 else:
                     fee = self.get_required_fee(
-                        operation,
-                        database_api_identifier,
-                        asset=fee_asset_id,
-                        debug_mode=debug_mode)
+                        operation, database_api_identifier, asset=fee_asset_id, debug_mode=debug_mode
+                    )
                 operation[1].update({"fee": fee})
                 return fee
-            operation[1]["fee"].update({"amount": fee_amount, "asset_id": fee_asset_id})
+            operation[1]["fee"].update({
+                "amount": fee_amount,
+                "asset_id": fee_asset_id
+            })
             return fee_amount
         except KeyError as key:
             lcc.log_error("Add fee: That key does not exist: '{}'".format(key))
         except IndexError as index:
             lcc.log_error("Add fee: This index does not exist: '{}'".format(index))
 
-    def collect_operations(self, list_operations, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0",
-                           debug_mode=False):
+    def collect_operations(
+        self, list_operations, database_api_identifier, fee_amount=None, fee_asset_id="1.3.0", debug_mode=False
+    ):
         if debug_mode:
             lcc.log_debug("List operations:\n{}".format(json.dumps(list_operations, indent=4)))
         if type(list_operations) is list:
             list_operations = [list_operations.copy()]
         for operation in list_operations:
-            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id,
-                                      debug_mode)
+            self.add_fee_to_operation(operation, database_api_identifier, fee_amount, fee_asset_id, debug_mode)
         return list_operations
 
     def get_contract_result(self, broadcast_result, database_api_identifier, mode="evm", debug_mode=False):
@@ -605,8 +623,9 @@ class BaseTest(object):
         if not self.type_validator.is_contract_result_id(contract_result):
             lcc.log_error("Wrong format of contract result id, got {}".format(contract_result))
             raise Exception("Wrong format of contract result id")
-        response_id = self.send_request(self.get_request("get_contract_result", [contract_result]),
-                                        database_api_identifier, debug_mode=debug_mode)
+        response_id = self.send_request(
+            self.get_request("get_contract_result", [contract_result]), database_api_identifier, debug_mode=debug_mode
+        )
         return self.get_trx_completed_response(response_id, mode, debug_mode=debug_mode)
 
     def get_next_maintenance_time(self, database_api_identifier):
@@ -629,7 +648,8 @@ class BaseTest(object):
 
     def wait_for_next_maintenance(self, database_api_identifier, print_log=True):
         next_maintenance_time_in_sec = self.convert_time_in_seconds(
-            self.get_next_maintenance_time(database_api_identifier))
+            self.get_next_maintenance_time(database_api_identifier)
+        )
         time_now_in_sec = self.convert_time_in_seconds(self.get_time(global_time=True))
         waiting_time = self.get_waiting_time_till_maintenance(next_maintenance_time_in_sec, time_now_in_sec)
         lcc.log_info("Waiting for maintenance... Time to wait: '{}' seconds".format(waiting_time))
@@ -642,8 +662,7 @@ class BaseTest(object):
         keccak_hash.update(bytes(value, encoding=encoding))
         keccak_hash_in_hex = keccak_hash.hexdigest()
         if print_log:
-            lcc.log_info("'{}' value in keccak '{}' standard is '{}'".format(
-                value, digest_bits, keccak_hash_in_hex))
+            lcc.log_info("'{}' value in keccak '{}' standard is '{}'".format(value, digest_bits, keccak_hash_in_hex))
         return keccak_hash_in_hex
 
     def get_reserved_public_key(self):
@@ -735,12 +754,14 @@ class BaseTest(object):
     def check_node_status(self):
         database_api_identifier = self.get_identifier("database")
         if not ROPSTEN:
-            response_id = self.send_request(self.get_request("get_named_account_balances", ["nathan", []]),
-                                            database_api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_named_account_balances", ["nathan", []]), database_api_identifier
+            )
             if not self.get_response(response_id)["result"]:
                 return self.perform_pre_deploy_setup(database_api_identifier)
-        response_id = self.send_request(self.get_request("get_account_by_name", [self.accounts[0]]),
-                                        database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", [self.accounts[0]]), database_api_identifier
+        )
         if not self.get_response(response_id)["result"]:
             return self.perform_pre_deploy_setup(database_api_identifier)
 

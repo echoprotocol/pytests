@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from common.wallet_base_test import WalletBaseTest
 from common.base_test import BaseTest
+from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
 
 SUITE = {
     "description": "Method 'sign_transaction'"
@@ -29,12 +29,16 @@ class SignTransaction(WalletBaseTest, BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):
@@ -52,7 +56,7 @@ class SignTransaction(WalletBaseTest, BaseTest):
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         signed_trx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
-        del(signed_trx['signatures'])
+        del signed_trx['signatures']
         lcc.log_info("Signed transaction: {}".format(signed_trx))
         response = self.send_wallet_request("sign_transaction", [signed_trx.json(), True], log_response=False)
         lcc.log_info("{}".format(response))

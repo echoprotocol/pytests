@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
 
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, equal_to
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Method 'get_contract_balances'"
@@ -31,10 +31,13 @@ class GetContractBalances(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -46,25 +49,18 @@ class GetContractBalances(BaseTest):
 
         lcc.set_step("Create contract in the Echo network and get it's contract id")
         contract_id = self.utils.get_contract_id(
-            self,
-            self.echo_acc0,
-            self.contract,
-            self.__database_api_identifier,
-            value_amount=value_amount
+            self, self.echo_acc0, self.contract, self.__database_api_identifier, value_amount=value_amount
         )
 
         lcc.set_step("Get contract balances")
-        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_balances", [contract_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)["result"][0]
         lcc.log_info("Call method 'get_contract_balances' with param: '{}'".format(contract_id))
 
         lcc.set_step("Check main fields")
-        check_that_in(
-            response,
-            "amount", equal_to(value_amount),
-            "asset_id", equal_to(self.echo_asset)
-        )
+        check_that_in(response, "amount", equal_to(value_amount), "asset_id", equal_to(self.echo_asset))
 
 
 @lcc.prop("positive", "type")
@@ -89,10 +85,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -118,62 +117,71 @@ class PositiveTesting(BaseTest):
         lcc.log_info("New asset created, asset_id is '{}'".format(new_asset_id))
 
         lcc.set_step("Add asset to account")
-        self.utils.add_assets_to_account(self, value_amount, new_asset_id, self.echo_acc0,
-                                         self.__database_api_identifier)
+        self.utils.add_assets_to_account(
+            self, value_amount, new_asset_id, self.echo_acc0, self.__database_api_identifier
+        )
         lcc.log_info("'{}' account became new asset holder of '{}' asset_id".format(self.echo_acc0, new_asset_id))
 
         lcc.set_step(
-            "Create contract in the Echo network and get it's contract id. Value and supported asset is new asset")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.piggy_contract,
-                                                 self.__database_api_identifier, value_amount=value_amount,
-                                                 value_asset_id=new_asset_id, supported_asset_id=new_asset_id)
-
-        lcc.set_step("Get contract balances and check balance in new asset")
-        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
-                                        self.__database_api_identifier)
-        result = self.get_response(response_id)["result"][0]
-        check_that_in(
-            result,
-            "amount", equal_to(value_amount),
-            "asset_id", equal_to(new_asset_id)
+            "Create contract in the Echo network and get it's contract id. Value and supported asset is new asset"
+        )
+        contract_id = self.utils.get_contract_id(
+            self,
+            self.echo_acc0,
+            self.piggy_contract,
+            self.__database_api_identifier,
+            value_amount=value_amount,
+            value_asset_id=new_asset_id,
+            supported_asset_id=new_asset_id
         )
 
+        lcc.set_step("Get contract balances and check balance in new asset")
+        response_id = self.send_request(
+            self.get_request("get_contract_balances", [contract_id]), self.__database_api_identifier
+        )
+        result = self.get_response(response_id)["result"][0]
+        check_that_in(result, "amount", equal_to(value_amount), "asset_id", equal_to(new_asset_id))
+
         lcc.set_step("Call 'getPennie' method to contract balance change check")
-        operation = self.echo_ops.get_contract_call_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                              bytecode=self.get_pennie, callee=contract_id,
-                                                              value_asset_id=new_asset_id)
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo,
+            registrar=self.echo_acc0,
+            bytecode=self.get_pennie,
+            callee=contract_id,
+            value_asset_id=new_asset_id
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get contract balances and check updated contract balance")
-        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
-                                        self.__database_api_identifier)
-        result = self.get_response(response_id)["result"][0]
-        check_that_in(
-            result,
-            "amount", equal_to(value_amount - 1),
-            "asset_id", equal_to(new_asset_id)
+        response_id = self.send_request(
+            self.get_request("get_contract_balances", [contract_id]), self.__database_api_identifier
         )
+        result = self.get_response(response_id)["result"][0]
+        check_that_in(result, "amount", equal_to(value_amount - 1), "asset_id", equal_to(new_asset_id))
 
     @lcc.test("Get contract balance in several assets")
     @lcc.depends_on("API.DatabaseApi.Balances.GetContractBalances.GetContractBalances.method_main_check")
-    def check_contract_with_balance_in_several_assets(self, get_random_valid_asset_name,
-                                                      get_random_integer_up_to_fifty, get_random_string):
+    def check_contract_with_balance_in_several_assets(
+        self, get_random_valid_asset_name, get_random_integer_up_to_fifty, get_random_string
+    ):
         count = 2
         new_asset_ids = []
         list_operations = []
 
         lcc.set_step("Create contract in the Echo network and get it's contract id. Supported asset is None")
-        contract_id = self.utils.get_contract_id(self, self.echo_acc0, self.storage_contract,
-                                                 self.__database_api_identifier)
+        contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.storage_contract, self.__database_api_identifier
+        )
 
         lcc.set_step("Create assets and add them to account")
         generated_asset_names = self.proliferate_asset_names(get_random_valid_asset_name, count)
         value_amounts = self.proliferate_value_amount(get_random_integer_up_to_fifty, count)
         for i, asset_name in enumerate(generated_asset_names):
             new_asset_ids.append(self.utils.get_asset_id(self, asset_name, self.__database_api_identifier))
-            self.utils.add_assets_to_account(self, value_amounts[i], new_asset_ids[i], self.echo_acc0,
-                                             self.__database_api_identifier)
+            self.utils.add_assets_to_account(
+                self, value_amounts[i], new_asset_ids[i], self.echo_acc0, self.__database_api_identifier
+            )
 
         lcc.set_step("Call 'setGreeting' method to add several assets to contract balance")
         argument = self.get_byte_code_param(get_random_string, str)
@@ -191,12 +199,9 @@ class PositiveTesting(BaseTest):
         self.echo_ops.broadcast(echo=self.echo, list_operations=list_operations)
 
         lcc.set_step("Get contract balances and check contract balance in several asset")
-        response_id = self.send_request(self.get_request("get_contract_balances", [contract_id]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_contract_balances", [contract_id]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         for i, result in enumerate(response["result"]):
-            check_that_in(
-                result,
-                "amount", equal_to(value_amounts[i]),
-                "asset_id", equal_to(new_asset_ids[i])
-            )
+            check_that_in(result, "amount", equal_to(value_amounts[i]), "asset_id", equal_to(new_asset_ids[i]))

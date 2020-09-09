@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from lemoncheesecake.matching import require_that, has_entry, is_not_none, check_that
-
 from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, has_entry, is_not_none, require_that
 
 SUITE = {
     "description": "Method 'help'"
@@ -46,5 +45,7 @@ class NegativeTesting(WalletBaseTest):
             response = self.send_wallet_request("help", random_values[i], negative=True)
             check_that(
                 "'get_account_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

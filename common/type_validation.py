@@ -56,8 +56,10 @@ class TypeValidator(object):
     hex_regex = re.compile("^[0-9a-fA-F]+")
     bytecode_regex = re.compile(r"^[\da-fA-F]{8}([\da-fA-F]{64})*$")
     vote_id_type_regex = re.compile(r"^[0-3]:[0-9]+")
-    iso8601_regex = re.compile(r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01]"
-                               r"[0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$")
+    iso8601_regex = re.compile(
+        r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01]"
+        r"[0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
+    )
     base58_regex = re.compile(r"^[1-9A-HJ-NP-Za-km-z]+$")
     wif_regex = re.compile(r"^5[HJK][1-9A-Za-z][^OIl]{48}$")
 
@@ -299,8 +301,11 @@ class TypeValidator(object):
 
     @staticmethod
     def is_asset_name(value):
-        return bool(value is not None and len(value.split(".")) <= 2 and 3 <= len(value) <= 16 and re.match(
-            r"^[A-Z][A-Z\d.]*[A-Z]$", value))
+        none_cond = value is not None
+        regex_cond = re.match(r"^[A-Z][A-Z\d.]*[A-Z]$", value)
+        split_cond = len(value.split(".")) <= 2
+        len_cond = 3 <= len(value) <= 16
+        return bool(none_cond and split_cond and len_cond and regex_cond)
 
     def is_account_name(self, value):
         if not self.is_string(value):
@@ -385,11 +390,11 @@ class TypeValidator(object):
             else:
                 return True
 
-    def check_hash_by_bytes(self, value, bytes):
+    def check_hash_by_bytes(self, value, _bytes):
         if value[:2] == "0x":
             if not self.is_hex(value):
                 return False
-            if not len(value[2:]) == bytes*2:
+            if not len(value[2:]) == _bytes * 2:
                 return False
             else:
                 return True

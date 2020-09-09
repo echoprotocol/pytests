@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import re
 
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
 from lemoncheesecake.matching import check_that, equal_to, has_length
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Testing Echo asset precision"
@@ -30,10 +30,13 @@ class EchoAssetPrecision(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -46,19 +49,22 @@ class EchoAssetPrecision(BaseTest):
         transfer_amount = get_random_integer
 
         lcc.set_step("Get Echo asset and store its precision")
-        response_id = self.send_request(self.get_request("get_assets", [[self.echo_asset]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_assets", [[self.echo_asset]]), self.__database_api_identifier
+        )
         asset_precision = self.get_response(response_id)["result"][0]["precision"]
         check_that("'Echo asset precision'", asset_precision, equal_to(8))
 
         lcc.set_step("Create and get new account")
-        new_account = self.get_account_id(new_account, self.__database_api_identifier,
-                                          self.__registration_api_identifier)
+        new_account = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
 
         lcc.set_step("Perform transfer echo asset from account with empty balance and check error")
-        operation = self.echo_ops.get_transfer_operation(echo=self.echo, from_account_id=new_account,
-                                                         to_account_id=self.echo_acc0, amount=transfer_amount)
+        operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=new_account, to_account_id=self.echo_acc0, amount=transfer_amount
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         try:
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import time
+
+from common.base_test import BaseTest
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, REQUIRED_DEPOSIT_AMOUNT
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
-from common.base_test import BaseTest
-
-from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, REQUIRED_DEPOSIT_AMOUNT
-import time
 SUITE = {
     "description": "Operation 'committee_member_activate'"
 }
@@ -35,10 +36,13 @@ class CommitteeMemberActivate(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
         self.init0 = self.committee_members_info[0]["account_id"]
@@ -46,8 +50,11 @@ class CommitteeMemberActivate(BaseTest):
         self.init2 = self.committee_members_info[2]["account_id"]
         self.init3 = self.committee_members_info[3]["account_id"]
         self.init4 = self.committee_members_info[4]["account_id"]
-        lcc.log_info("Echo  initial accounts: {}, {}, {}, {}, {}".format(
-                     self.init0, self.init1, self.init2, self.init3, self.init4))
+        lcc.log_info(
+            "Echo  initial accounts: {}, {}, {}, {}, {}".format(
+                self.init0, self.init1, self.init2, self.init3, self.init4
+            )
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -60,16 +67,20 @@ class CommitteeMemberActivate(BaseTest):
         btc_public_key = get_random_btc_public_key
 
         lcc.set_step("Register new account in the ECHO network")
-        new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+        new_account_id = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account_id))
 
         lcc.set_step("Create created account as new committee member in the ECHO network")
-        broadcast_result = self.utils.perform_committee_member_create_operation(self, new_account_id,
-                                                                                eth_account_address,
-                                                                                btc_public_key,
-                                                                                self.__database_api_identifier,
-                                                                                deposit_amount=REQUIRED_DEPOSIT_AMOUNT)
+        broadcast_result = self.utils.perform_committee_member_create_operation(
+            self,
+            new_account_id,
+            eth_account_address,
+            btc_public_key,
+            self.__database_api_identifier,
+            deposit_amount=REQUIRED_DEPOSIT_AMOUNT
+        )
         committee_member_id = broadcast_result["trx"]["operation_results"][0][1]
         lcc.log_info("New committee member id: {}".format(committee_member_id))
 
@@ -113,15 +124,14 @@ class CommitteeMemberActivate(BaseTest):
             raise Exception("Operation 'proposal_update' failed while broadcast")
         lcc.log_info("All committee member has voted")
 
-        lcc.set_step("Waiting for maintenance and release of two blocks and check that new committee member were activated")
+        lcc.set_step(
+            "Waiting for maintenance and release of two blocks and check that new committee member were activated"
+        )
         time.sleep(15)
         self.produce_block(self.__database_api_identifier)
-        response_id = self.send_request(self.get_request("get_global_properties"),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         response = self.get_response(response_id)
         last_active_committee_member = response["result"]["active_committee_members"][-1][1]
         check_that(
-            "new account in committee member",
-            new_account_id, equal_to(last_active_committee_member),
-            quiet=True
+            "new account in committee member", new_account_id, equal_to(last_active_committee_member), quiet=True
         )

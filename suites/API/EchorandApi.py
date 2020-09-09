@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_integer, is_none
-
 from common.base_test import BaseTest
 from common.receiver import Receiver
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_integer, is_none
 
 SUITE = {
     "description": "Echorand Api"
@@ -27,11 +27,9 @@ class EchorandApi(object):
 
         lcc.set_step("Check Echorand api identifier. Call echorand api method 'set_echorand_message_callback'")
         callback_id = get_random_integer
-        response_id = base.send_request(base.get_request("set_echorand_message_callback", [callback_id]),
-                                        api_identifier)
+        response_id = base.send_request(
+            base.get_request("set_echorand_message_callback", [callback_id]), api_identifier
+        )
         response = base.get_response(response_id)
 
-        check_that(
-            "'call method 'set_echorand_message_callback''",
-            response["result"], is_none(), quiet=True
-        )
+        check_that("'call method 'set_echorand_message_callback''", response["result"], is_none(), quiet=True)
