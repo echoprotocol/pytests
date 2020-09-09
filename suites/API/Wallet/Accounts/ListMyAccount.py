@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-
-from common.wallet_base_test import WalletBaseTest
 from common.base_test import BaseTest
+from common.wallet_base_test import WalletBaseTest
+
+import lemoncheesecake.api as lcc
 
 SUITE = {
     "description": "Method 'list_my_accounts'"
@@ -24,9 +24,7 @@ class GetListMyAccounts(WalletBaseTest, BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "API identifiers are: database='{}'".format(self.__database_api_identifier)
-        )
+        lcc.log_info("API identifiers are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
