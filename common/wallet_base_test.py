@@ -65,7 +65,6 @@ class WalletBaseTest:
             lcc.log_debug("Send:\n{}".format(json.dumps(payload, indent=4)))
         self.wallet_ws.disconnect()
 
-        lcc.log_info("{}".format(response))
         if response.get("jsonrpc") != "2.0":
             lcc.log_error("Wrong data received: {}".format(json.dumps(response, indent=4)))
             raise Exception("Wrong response")

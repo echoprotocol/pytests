@@ -41,7 +41,7 @@ class SignTransaction(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # TODO: fix when import key
+    # TODO: fix when import key (ECHO-2355)
     @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_sign_transaction'")
     def method_main_check(self):
