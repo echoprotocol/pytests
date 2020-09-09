@@ -154,9 +154,9 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with wrong 'solution'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_solution_decrement(self, get_random_integer):
+    def submit_registration_solution_with_wrong_solution_decrement(self, get_random_integer, get_random_valid_account_name):
         callback = get_random_integer
-        account_name = get_random_valid_account_name()
+        account_name = get_random_valid_account_name
         generate_keys = self.generate_keys()
         evm_address = None
         public_key = generate_keys[1]
@@ -179,7 +179,7 @@ class NegativeTesting(BaseTest):
             "Check that 'submit_registration_solution' crashes with second attempt:"
             "right solution and right rand_num"
         )
-        account_params = [callback, account_name, public_key, public_key, solution, rand_num]
+        account_params = [callback, account_name, public_key, public_key, evm_address, solution, rand_num]
         response_id = self.send_request(
             self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
         )
@@ -188,7 +188,7 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with wrong 'account name'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_account_name(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_account_name_uppercase_symbol(self, get_random_integer, get_random_valid_account_name):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "A"
         generate_keys = self.generate_keys()
@@ -354,7 +354,7 @@ class NegativeTesting(BaseTest):
 
     @lcc.test("Register account with name + '/'")
     @lcc.depends_on("API.RegistrationApi.SubmitRegistrationSolution.SubmitRegistrationSolution.method_main_check")
-    def submit_registration_solution_with_wrong_solution(self, get_random_integer, get_random_valid_account_name):
+    def submit_registration_solution_with_wrong_account_name_slash(self, get_random_integer, get_random_valid_account_name):
         callback = get_random_integer
         account_name = get_random_valid_account_name + "/"
         evm_address = None
