@@ -2,10 +2,10 @@
 import json
 import time
 
-import lemoncheesecake.api as lcc
-
 from common.type_validation import TypeValidator
 from project import BLOCK_RELEASE_INTERVAL, BLOCKS_NUM_TO_WAIT
+
+import lemoncheesecake.api as lcc
 
 
 class Receiver(object):
@@ -40,7 +40,8 @@ class Receiver(object):
             return self.get_response(id_response, negative, print_log)
         if response.get("id") != id_response:
             lcc.log_error(
-                "Wrong 'id' expected '{}', but received:\n{}".format(id_response, json.dumps(response, indent=4)))
+                "Wrong 'id' expected '{}', but received:\n{}".format(id_response, json.dumps(response, indent=4))
+            )
             raise Exception("Wrong 'id'")
         # todo: uncomment if field "EthRPC" have to be in all response
         # if response.get("jsonrpc") != "2.0":
@@ -66,45 +67,59 @@ class Receiver(object):
                 response = json.loads(self.web_socket.recv())
                 return self.get_notice_obj(response, expected_id, print_log, temp_count=temp_count)
             lcc.log_error(
-                "Not valid object id, got '{}' but expected '{}', response: {}".format(actual_id, expected_id,
-                                                                                       json.dumps(response, indent=4)))
+                "Not valid object id, got '{}' but expected '{}', response: {}".format(
+                    actual_id, expected_id, json.dumps(response, indent=4)
+                )
+            )
             raise Exception("Not valid object id")
         if (self.type_validator.is_block_id(actual_id)) and (actual_id.startswith(expected_id)):
             if print_log:
                 lcc.log_info(
                     "The object with the results of the implementation of contracts of the block:\n{}".format(
-                        json.dumps(response, indent=4)))
+                        json.dumps(response, indent=4)
+                    )
+                )
             return notice_obj
         if (self.type_validator.is_dynamic_global_object_id(actual_id)) and (actual_id == expected_id):
             if print_log:
                 lcc.log_info(
                     "Received notice about the update of an dynamic global object:\n{}".format(
-                        json.dumps(response, indent=4)))
+                        json.dumps(response, indent=4)
+                    )
+                )
             return notice_obj
         if (self.type_validator.is_contract_history_id(actual_id)) and (actual_id.startswith(expected_id)):
             if print_log:
                 lcc.log_info(
                     "Received notice about the update of contract history object:\n{}".format(
-                        json.dumps(response, indent=4)))
+                        json.dumps(response, indent=4)
+                    )
+                )
             return notice_obj
         if (self.type_validator.is_transaction_id(actual_id)) and (actual_id.startswith(expected_id)):
             if print_log:
                 lcc.log_info(
                     "The object with the results of the implementation of transaction:\n{}".format(
-                        json.dumps(response, indent=4)))
+                        json.dumps(response, indent=4)
+                    )
+                )
             return notice_obj
 
     def get_notice(self, id_response, object_id, operation_id, print_log):
         response = json.loads(self.web_socket.recv())
         if response.get("params")[0] != id_response:
             lcc.log_error(
-                "Wrong 'subscription_id' expected '{}', but received:\n{}".format(id_response,
-                                                                                  json.dumps(response, indent=4)))
+                "Wrong 'subscription_id' expected '{}', but received:\n{}".format(
+                    id_response, json.dumps(response, indent=4)
+                )
+            )
             raise Exception("Wrong 'subscription_id'")
         if response.get("method") != "notice":
             lcc.log_error(
                 "Wrong response, expected ''method': 'notice'', but received:\n{}".format(
-                    json.dumps(response, indent=4)))
+                    json.dumps(response, indent=4)
+                )
+            )
             raise Exception("Wrong response")
         if (object_id is not None) and (self.type_validator.is_object_id(response.get("params")[1][0][0]["id"])):
             return self.get_notice_obj(response, object_id, print_log)
@@ -112,31 +127,37 @@ class Receiver(object):
         if (isinstance(notice_params, str)) and (self.type_validator.is_hex(notice_params)):
             if print_log:
                 lcc.log_info(
-                    "Received notice about the hash of a new block:\n{}".format(json.dumps(response, indent=4)))
+                    "Received notice about the hash of a new block:\n{}".format(json.dumps(response, indent=4))
+                )
             return notice_params
         if isinstance(notice_params, list):
             for notice_param in notice_params:
                 if (notice_param[1]["address"]) and (self.type_validator.is_hex(notice_param[1]["log"][0])):
                     if print_log:
                         lcc.log_info(
-                            "Received notice about new contract logs:\n{}".format(json.dumps(response, indent=4)))
+                            "Received notice about new contract logs:\n{}".format(json.dumps(response, indent=4))
+                        )
                     return notice_params
         if notice_params.get("block_num"):
             if self.type_validator.is_hex(notice_params.get("tx_id")):
                 if print_log:
-                    lcc.log_info("Received notice about successful creation of new account:\n{}".format(
-                        json.dumps(response, indent=4)))
+                    lcc.log_info(
+                        "Received notice about successful creation of new account:\n{}".format(
+                            json.dumps(response, indent=4)
+                        )
+                    )
                 return notice_params
             if self.type_validator.is_hex(notice_params.get("id")):
                 if print_log:
                     lcc.log_info(
-                        "Received notice about broadcast transaction:\n{}".format(json.dumps(response, indent=4)))
+                        "Received notice about broadcast transaction:\n{}".format(json.dumps(response, indent=4))
+                    )
                 return notice_params
         if (notice_params.get("ref_block_num")) and (notice_params.get("operations")[0][0] == operation_id):
             if print_log:
-                lcc.log_info(
-                    "Received notice about pending transaction:\n{}".format(json.dumps(response, indent=4)))
+                lcc.log_info("Received notice about pending transaction:\n{}".format(json.dumps(response, indent=4)))
             return notice_params
         lcc.log_warning(
-            "Not validate response, got params:\n{}".format(json.dumps(response.get("params")[1], indent=4)))
+            "Not validate response, got params:\n{}".format(json.dumps(response.get("params")[1], indent=4))
+        )
         raise Exception("Not validate response")

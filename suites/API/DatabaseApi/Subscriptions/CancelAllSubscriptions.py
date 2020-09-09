@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, is_none
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Method 'cancel_all_subscriptions'"
@@ -65,8 +65,9 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Set block applied callback")
         subscription_callback_id = get_random_integer
         params = [subscription_callback_id, True]
-        response_id = self.send_request(self.get_request("set_subscribe_callback", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("set_subscribe_callback", params), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         if "result" not in response or response["result"] is not None:
             raise Exception("Can't cancel all cancel_all_subscriptions, got:\n{}".format(str(response)))

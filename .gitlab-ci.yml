@@ -1,4 +1,38 @@
-test:
+stages:
+  - static analysis
+  - tests
+
+.analyzers:
+  image:
+    name: thekevjames/nox
+  stage: static analysis
+  variables:
+    PYTHON_VERSION: 3
+  only:
+    - web
+    - trigger
+    - merge_requests
+  tags:
+    - docker
+
+flake8:
+  extends: .analyzers
+  script:
+    - nox -s flake8
+
+isort:
+  extends: .analyzers
+  script:
+    - nox -s isort -- check
+
+yapf:
+  extends: .analyzers
+  script:
+    - nox -s yapf -- check
+
+
+tests:
+  stage: tests
   variables:
     MIGRATION_RESULT: ""
   before_script:

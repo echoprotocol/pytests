@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_list, equal_to, has_entry
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, has_entry, is_list
 
 SUITE = {
     "description": "Method 'get_key_references'"
@@ -33,17 +33,20 @@ class GetKeyReferences(BaseTest):
         account_info = self.get_account_by_name(self.nathan_name, self.__database_api_identifier)
         echorand_key = account_info["result"]["echorand_key"]
         lcc.log_info(
-            "Get default account '{}' by name and store his echorand_key: '{}'".format(self.nathan_name, echorand_key))
+            "Get default account '{}' by name and store his echorand_key: '{}'".format(self.nathan_name, echorand_key)
+        )
 
         lcc.set_step("Get account ID associated with the given key")
-        response_id = self.send_request(self.get_request("get_key_references", [[echorand_key]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_key_references", [[echorand_key]]), self.__database_api_identifier
+        )
         referenced_id = self.get_response(response_id)["result"][0][0]
         lcc.log_info("Get account id: '{}' associated with key: '{}'".format(referenced_id, echorand_key))
 
         lcc.set_step("Get account by referenced id")
-        response_id = self.send_request(self.get_request("get_accounts", [[referenced_id]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_accounts", [[referenced_id]]), self.__database_api_identifier
+        )
         result = self.get_response(response_id)["result"][0]
         lcc.log_info("Call method 'get_accounts' with param: '{}'".format(referenced_id))
 
@@ -68,8 +71,10 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.test("Call method 'get_key_references' with multiple keys")
     @lcc.depends_on("API.DatabaseApi.Keys.GetKeyReferences.GetKeyReferences.method_main_check")
@@ -83,20 +88,24 @@ class PositiveTesting(BaseTest):
             account_info = self.get_account_by_name(initial_account_name, self.__database_api_identifier)
             echorand_keys.append(account_info["result"]["echorand_key"])
             lcc.log_info(
-                "Get default account '{}' by name and store his echorand_key: '{}'".format(initial_account_name,
-                                                                                           echorand_keys[i]))
+                "Get default account '{}' by name and store his echorand_key: '{}'".format(
+                    initial_account_name, echorand_keys[i]
+                )
+            )
 
         lcc.set_step("Get accounts IDs associated with the given keys")
-        response_id = self.send_request(self.get_request("get_key_references", [echorand_keys]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_key_references", [echorand_keys]), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         for i, result in enumerate(results):
             referenced_ids.append(result[0])
             lcc.log_info("Get account id: '{}' associated with key: '{}'".format(referenced_ids[i], echorand_keys[i]))
 
         lcc.set_step("Get accounts by referenced ids")
-        response_id = self.send_request(self.get_request("get_accounts", [referenced_ids]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_accounts", [referenced_ids]), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_accounts' with param: '{}'".format(referenced_ids))
 
@@ -115,23 +124,28 @@ class PositiveTesting(BaseTest):
         lcc.set_step("Register an account in the ECHO network and store his data")
         generate_keys = self.generate_keys()
         echorand_key = generate_keys[1]
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("request_registration_task"), self.__registration_api_identifier
+        )
         pow_algorithm_data = self.get_response(response_id)["result"]
-        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
-                                                pow_algorithm_data["rand_num"],
-                                                pow_algorithm_data["difficulty"])
-        account_params = [callback, new_account_name, echorand_key, echorand_key, evm_address, solution,
-                          pow_algorithm_data["rand_num"]]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        solution = self.solve_registration_task(
+            pow_algorithm_data["block_id"], pow_algorithm_data["rand_num"], pow_algorithm_data["difficulty"]
+        )
+        account_params = [
+            callback, new_account_name, echorand_key, echorand_key, evm_address, solution,
+            pow_algorithm_data["rand_num"]
+        ]
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         response = self.get_response(response_id)
         self.get_notice(callback, log_response=False)
         lcc.log_info("Account '{}' created. Public key: '{}'".format(new_account_name, echorand_key))
 
         lcc.set_step("Get accounts IDs associated with the given public key")
-        response_id = self.send_request(self.get_request("get_key_references", [[echorand_key]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_key_references", [[echorand_key]]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)["result"][0][0]
         lcc.log_info("Get response from 'get_key_references' using private and public key")
 
@@ -142,8 +156,7 @@ class PositiveTesting(BaseTest):
             lcc.log_info("'id' has correct format using 'public key': account_id")
 
         lcc.set_step("Get account by referenced id")
-        response_id = self.send_request(self.get_request("get_accounts", [[response]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_accounts", [[response]]), self.__database_api_identifier)
         result = self.get_response(response_id)["result"][0]
         lcc.log_info("Call method 'get_accounts' with param: '{}'".format(response))
 
@@ -157,8 +170,9 @@ class PositiveTesting(BaseTest):
         generate_keys = self.generate_keys()
         echorand_key = generate_keys[1]
 
-        response_id = self.send_request(self.get_request("get_key_references", [[echorand_key]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_key_references", [[echorand_key]]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)["result"]
         check_that("response", response, is_list([[]]), quiet=True)
 
@@ -179,8 +193,10 @@ class NegativeTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     @lcc.test("Call method with private key")
     @lcc.depends_on("API.DatabaseApi.Keys.GetKeyReferences.GetKeyReferences.method_main_check")
@@ -193,17 +209,22 @@ class NegativeTesting(BaseTest):
         generate_keys = self.generate_keys()
         private_key = generate_keys[0]
         echorand_key = generate_keys[1]
-        response_id = self.send_request(self.get_request("request_registration_task"),
-                                        self.__registration_api_identifier)
+        response_id = self.send_request(
+            self.get_request("request_registration_task"), self.__registration_api_identifier
+        )
         pow_algorithm_data = self.get_response(response_id)["result"]
-        solution = self.solve_registration_task(pow_algorithm_data["block_id"],
-                                                pow_algorithm_data["rand_num"],
-                                                pow_algorithm_data["difficulty"])
-        account_params = [callback, new_account_name, private_key, echorand_key, evm_address, solution,
-                          pow_algorithm_data["rand_num"]]
-        response_id = self.send_request(self.get_request("submit_registration_solution", account_params),
-                                        self.__registration_api_identifier)
+        solution = self.solve_registration_task(
+            pow_algorithm_data["block_id"], pow_algorithm_data["rand_num"], pow_algorithm_data["difficulty"]
+        )
+        account_params = [
+            callback, new_account_name, private_key, echorand_key, evm_address, solution, pow_algorithm_data["rand_num"]
+        ]
+        response_id = self.send_request(
+            self.get_request("submit_registration_solution", account_params), self.__registration_api_identifier
+        )
         check_that(
             "'get_key_references' return error message",
-            self.get_response(response_id, negative=True), has_entry("error"), quiet=True,
+            self.get_response(response_id, negative=True),
+            has_entry("error"),
+            quiet=True,
         )

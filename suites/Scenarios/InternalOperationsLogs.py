@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Testing logs of internal operations"
@@ -33,10 +33,13 @@ class InternalOperationsLogs(BaseTest):
         self.__history_api_identifier = self.get_identifier("history")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', "
-            "history='{}'".format(self.__database_api_identifier, self.__registration_api_identifier,
-                                  self.__history_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "history='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier, self.__history_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -48,18 +51,19 @@ class InternalOperationsLogs(BaseTest):
         self.new_account = get_random_valid_account_name
 
         lcc.set_step("Create and get new account")
-        self.new_account = self.get_account_id(self.new_account, self.__database_api_identifier,
-                                               self.__registration_api_identifier)
+        self.new_account = self.get_account_id(
+            self.new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(self.new_account))
 
         lcc.set_step("Get account balance in ethereum of new account")
-        ethereum_balance = self.utils.get_account_balances(self, self.new_account, self.__database_api_identifier,
-                                                           self.eth_asset)["amount"]
+        ethereum_balance = self.utils.get_account_balances(
+            self, self.new_account, self.__database_api_identifier, self.eth_asset
+        )["amount"]
         check_that("'balance in ethereum'", ethereum_balance, equal_to(0))
 
         lcc.set_step("Generate ethereum address for new account")
-        operation = self.echo_ops.get_sidechain_eth_create_address_operation(echo=self.echo,
-                                                                             account=self.new_account)
+        operation = self.echo_ops.get_sidechain_eth_create_address_operation(echo=self.echo, account=self.new_account)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Ethereum address generated successfully")
@@ -81,7 +85,7 @@ class InternalOperationsLogs(BaseTest):
         lcc.set_step("Get account history")
         params = [self.new_account, stop, limit, start]
         response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
-        response = self.get_response(response_id)
+        self.get_response(response_id)
 
         lcc.set_step("Logs of committee member")
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
@@ -90,6 +94,4 @@ class InternalOperationsLogs(BaseTest):
         lcc.set_step("Get account history")
         params = ["1.2.6", stop, limit, start]
         response_id = self.send_request(self.get_request("get_account_history", params), self.__history_api_identifier)
-        response = self.get_response(response_id)
-
-
+        self.get_response(response_id)

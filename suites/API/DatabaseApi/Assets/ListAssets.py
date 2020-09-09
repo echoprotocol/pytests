@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import re
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, equal_to, check_that, has_length, match_pattern
-
 from common.base_test import BaseTest
 from project import ECHO_ASSET_SYMBOL
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, check_that_in, equal_to, has_length, match_pattern, require_that
 
 SUITE = {
     "description": "Method 'list_assets'"
@@ -34,11 +34,15 @@ class ListAssets(BaseTest):
     def method_main_check(self):
         lcc.set_step("List default asset of the chain")
         limit = 1
-        response_id = self.send_request(self.get_request("list_assets", [self.echo_symbol, limit]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("list_assets", [self.echo_symbol, limit]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
-        lcc.log_info("Call method 'list_assets' with lower_bound_symbol='{}', limit={} parameters".format(
-            self.echo_symbol, limit))
+        lcc.log_info(
+            "Call method 'list_assets' with lower_bound_symbol='{}', limit={} parameters".format(
+                self.echo_symbol, limit
+            )
+        )
         asset = response["result"][0]
 
         self.object_validator.validate_asset_object(self, asset)
@@ -61,11 +65,11 @@ class PositiveTesting(BaseTest):
 
     def get_assets_limit_more_than_exists(self, return_symbol=False):
         if return_symbol:
-            _id, symbol = self.utils.get_nonexistent_asset_id(self, self.__database_api_identifier,
-                                                              return_symbol=return_symbol)
+            _id, symbol = self.utils.get_nonexistent_asset_id(
+                self, self.__database_api_identifier, return_symbol=return_symbol
+            )
             return int(_id[_id.rfind('.') + 1:]) + 1, symbol
-        _id = self.utils.get_nonexistent_asset_id(self, self.__database_api_identifier,
-                                                  return_symbol=return_symbol)
+        _id = self.utils.get_nonexistent_asset_id(self, self.__database_api_identifier, return_symbol=return_symbol)
         return int(_id[_id.rfind('.') + 1:]) + 1
 
     @staticmethod
@@ -81,10 +85,8 @@ class PositiveTesting(BaseTest):
             performed_operation["common_options"]["core_exchange_rate"]["quote"]["asset_id"] = \
                 asset_info["options"]["core_exchange_rate"]["quote"]["asset_id"]
             check_that_in(
-                asset_info,
-                "issuer", equal_to(performed_operation["issuer"]),
-                "symbol", equal_to(performed_operation["symbol"]),
-                "precision", equal_to(performed_operation["precision"]),
+                asset_info, "issuer", equal_to(performed_operation["issuer"]), "symbol",
+                equal_to(performed_operation["symbol"]), "precision", equal_to(performed_operation["precision"]),
                 "options", equal_to(performed_operation["common_options"])
             )
 
@@ -95,10 +97,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -118,19 +123,23 @@ class PositiveTesting(BaseTest):
         asset_ids = []
         collected_operations = []
         for asset_symbol in generated_assets:
-            asset_id, collected_operation = self.utils.get_asset_id(self, asset_symbol,
-                                                                    self.__database_api_identifier,
-                                                                    need_operation=True)
+            asset_id, collected_operation = self.utils.get_asset_id(
+                self, asset_symbol, self.__database_api_identifier, need_operation=True
+            )
             asset_ids.append(asset_id)
             collected_operations.append(collected_operation)
         lcc.log_info("Assets was created, ids='{}'".format(asset_ids))
 
         lcc.set_step("List assets")
-        response_id = self.send_request(self.get_request("list_assets", [lower_bound_symbol, limit]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("list_assets", [lower_bound_symbol, limit]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
-        lcc.log_info("Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
-            lower_bound_symbol, limit))
+        lcc.log_info(
+            "Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
+                lower_bound_symbol, limit
+            )
+        )
 
         lcc.set_step("Check created assets")
         assets_info = response["result"]
@@ -147,25 +156,23 @@ class PositiveTesting(BaseTest):
 
         limit, limit_change_status = self.check_limit_value_range(limit)
         if limit_change_status:
-            lcc.log_info("'Limit' value change to {}, reason - {} is a maximum available value".format(
-                limit, 100))
-        lcc.log_info("Got 'limit' value={}, 'lower_bound_symbol' value = '{}'".format(limit,
-                                                                                      lower_bound_symbol))
+            lcc.log_info("'Limit' value change to {}, reason - {} is a maximum available value".format(limit, 100))
+        lcc.log_info("Got 'limit' value={}, 'lower_bound_symbol' value = '{}'".format(limit, lower_bound_symbol))
 
         lcc.set_step("List assets")
-        response_id = self.send_request(self.get_request("list_assets", [lower_bound_symbol,
-                                                                         limit]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("list_assets", [lower_bound_symbol, limit]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
-        lcc.log_info("Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
-            lower_bound_symbol, limit))
+        lcc.log_info(
+            "Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
+                lower_bound_symbol, limit
+            )
+        )
 
         lcc.set_step("Check listed assets")
         assets = response["result"]
-        require_that(
-            "'length of listed assets'",
-            assets, has_length(limit - 1)
-        )
+        require_that("'length of listed assets'", assets, has_length(limit - 1))
 
     @lcc.test("Check alphabet order in full listed assets")
     @lcc.depends_on("API.DatabaseApi.Assets.ListAssets.ListAssets.method_main_check")
@@ -173,11 +180,15 @@ class PositiveTesting(BaseTest):
         limit, lower_bound_symbol = 100, ""
 
         lcc.set_step("List assets")
-        response_id = self.send_request(self.get_request("list_assets", [lower_bound_symbol, limit]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("list_assets", [lower_bound_symbol, limit]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
-        lcc.log_info("Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
-            lower_bound_symbol, limit))
+        lcc.log_info(
+            "Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
+                lower_bound_symbol, limit
+            )
+        )
 
         assets = response["result"]
 
@@ -191,8 +202,8 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check alphabet order by Symbol")
         require_that(
-            "'alphabet symbol order in listed assets'",
-            listed_asset_symbols, equal_to(sorted(listed_asset_symbols.copy()))
+            "'alphabet symbol order in listed assets'", listed_asset_symbols,
+            equal_to(sorted(listed_asset_symbols.copy()))
         )
 
     @lcc.test("Check alphabet symbol order in cut listed assets and cutting rules")
@@ -205,16 +216,19 @@ class PositiveTesting(BaseTest):
         lcc.log_info('Generated asset name: {}'.format(asset_symbol))
 
         lcc.set_step("Perform asset creation operation")
-        created_asset_id = self.utils.get_asset_id(self, asset_symbol,
-                                                   self.__database_api_identifier)
+        created_asset_id = self.utils.get_asset_id(self, asset_symbol, self.__database_api_identifier)
         lcc.log_info("Asset was created, symbol='{}' id='{}'".format(asset_symbol, created_asset_id))
 
         lcc.set_step("List assets")
-        response_id = self.send_request(self.get_request("list_assets", [lower_bound_symbol, limit]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("list_assets", [lower_bound_symbol, limit]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
-        lcc.log_info("Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
-            lower_bound_symbol, limit))
+        lcc.log_info(
+            "Call method 'list_assets' with params: lower_bound_symbol='{}', limit={}".format(
+                lower_bound_symbol, limit
+            )
+        )
 
         assets = response["result"]
 
@@ -228,17 +242,14 @@ class PositiveTesting(BaseTest):
 
         lcc.set_step("Check alphabet symbol order")
         check_that(
-            "'symbol order in listed assets'",
-            listed_asset_symbols, equal_to(sorted(listed_asset_symbols.copy()))
+            "'symbol order in listed assets'", listed_asset_symbols, equal_to(sorted(listed_asset_symbols.copy()))
         )
 
         lcc.set_step("Check cutting rules of symbols")
         pattern_regex = "^[{}-Z][A-Z]*$".format(lower_bound_symbol[0])
         pattern = re.compile(pattern_regex)
         for asset in assets:
-            check_that_in(
-                asset, "symbol", match_pattern(pattern)
-            )
+            check_that_in(asset, "symbol", match_pattern(pattern))
 
 
 @lcc.prop("negative", "type")
@@ -256,9 +267,7 @@ class NegativeTesting(BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "API identifier are: database='{}'".format(self.__database_api_identifier))
-
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -271,11 +280,8 @@ class NegativeTesting(BaseTest):
         limit = -1
 
         lcc.set_step("Get 'list_assets' with negative limit")
-        response_id = self.send_request(self.get_request("list_assets", [self.echo_symbol, limit]),
-                                        self.__database_api_identifier)
-        message = self.get_response(response_id, negative=True)["error"]["message"]
-        check_that(
-            "error_message",
-            message, equal_to(error_message),
-            quiet=True
+        response_id = self.send_request(
+            self.get_request("list_assets", [self.echo_symbol, limit]), self.__database_api_identifier
         )
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that("error_message", message, equal_to(error_message), quiet=True)

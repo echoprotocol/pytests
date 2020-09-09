@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that, has_length, is_true, equal_to
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, has_length, is_true, require_that
 
 SUITE = {
     "description": "Method 'get_transaction'"
@@ -43,12 +43,16 @@ class GetTransaction(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):
@@ -58,42 +62,41 @@ class GetTransaction(BaseTest):
     @lcc.test("Simple work of method 'get_transaction'")
     def method_main_check(self):
         lcc.set_step("Collect 'get_transaction' operation")
-        transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                  from_account_id=self.echo_acc0,
-                                                                  to_account_id=self.echo_acc1)
+        transfer_operation = self.echo_ops.get_transfer_operation(
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1
+        )
         lcc.log_info("Transfer operation: '{}'".format(str(transfer_operation)))
 
         lcc.set_step("Broadcast transaction that contains simple transfer operation to the ECHO network")
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                   log_broadcast=False)
+        broadcast_result = self.echo_ops.broadcast(
+            echo=self.echo, list_operations=collected_operation, log_broadcast=False
+        )
         require_that(
             "broadcast transaction complete successfully",
-            self.is_operation_completed(broadcast_result, 0), is_true(), quiet=True
+            self.is_operation_completed(broadcast_result, 0),
+            is_true(),
+            quiet=True
         )
 
         lcc.set_step("Get transaction")
         broadcast_transaction_block_num = broadcast_result["block_num"]
         broadcast_transaction_num = broadcast_result["trx_num"]
         params = [broadcast_transaction_block_num, broadcast_transaction_num]
-        response_id = self.send_request(self.get_request("get_transaction", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_transaction", params), self.__database_api_identifier)
         response = self.get_response(response_id)
-        lcc.log_info("Call method 'get_transaction' with block_num='{}', trx_num='{}' parameters".format(
-            broadcast_transaction_block_num, broadcast_transaction_num))
+        lcc.log_info(
+            "Call method 'get_transaction' with block_num='{}', trx_num='{}' parameters".format(
+                broadcast_transaction_block_num, broadcast_transaction_num
+            )
+        )
 
         lcc.set_step("Compare transaction objects (broadcast_result, 'get_transaction' method)")
         transaction_from_broadcast_result = broadcast_result["trx"]
         transaction_from_api_method = response["result"]
 
-        require_that(
-            "'transaction from broadcast result'",
-            transaction_from_broadcast_result, has_length(9)
-        )
-        require_that(
-            "'transaction from 'get_transaction' method result'",
-            transaction_from_api_method, has_length(9)
-        )
+        require_that("'transaction from broadcast result'", transaction_from_broadcast_result, has_length(9))
+        require_that("'transaction from 'get_transaction' method result'", transaction_from_api_method, has_length(9))
         self.compare_objects(transaction_from_broadcast_result, transaction_from_api_method)
 
 
@@ -111,9 +114,7 @@ class NegativeTesting(BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "API identifier are: database='{}'".format(self.__database_api_identifier))
-
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -127,24 +128,14 @@ class NegativeTesting(BaseTest):
         trx_in_block = 0
         params = [block_num, trx_in_block]
         lcc.set_step("Get 'get_transaction' with negative block number")
-        response_id = self.send_request(self.get_request("get_transaction", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_transaction", params), self.__database_api_identifier)
         message = self.get_response(response_id, negative=True)["error"]["message"]
-        check_that(
-            "error_message",
-            message, equal_to(error_message),
-            quiet=True
-        )
+        check_that("error_message", message, equal_to(error_message), quiet=True)
 
         block_num = 1
         trx_in_block = -1
         params = [block_num, trx_in_block]
         lcc.set_step("Get 'get_transaction' with negative trx_in_block")
-        response_id = self.send_request(self.get_request("get_transaction", params),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(self.get_request("get_transaction", params), self.__database_api_identifier)
         message = self.get_response(response_id, negative=True)["error"]["message"]
-        check_that(
-            "error_message",
-            message, equal_to(error_message),
-            quiet=True
-        )
+        check_that("error_message", message, equal_to(error_message), quiet=True)

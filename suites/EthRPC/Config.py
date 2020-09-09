@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from echopy import Echo
-from project import BASE_URL
+from common.base_test import BaseTest
+from project import BASE_URL, ETHRPC_URL
 
 import lemoncheesecake.api as lcc
 import requests
-from lemoncheesecake.matching import require_that, has_length, require_that_in, is_integer, equal_to, is_none, \
-    is_true, \
-    check_that, is_false, not_equal_to, is_list
-
-from common.base_test import BaseTest
-from project import ETHRPC_URL
+from echopy import Echo
+from lemoncheesecake.matching import (
+    check_that, equal_to, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to, require_that,
+    require_that_in
+)
 
 SUITE = {
     "description": "Run 'config part' tests for JSON PRC interface of ECHO node"
@@ -45,20 +44,16 @@ class Config(BaseTest):
     def get_response(self, payload):
         response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("eth-rpc response", response, has_length(3)):
-            require_that_in(
-                response,
-                "id", is_integer(),
-                "jsonrpc", equal_to("2.0")
-            )
+            require_that_in(response, "id", is_integer(), "jsonrpc", equal_to("2.0"))
             return response
 
     def create_contract(self):
-        payload = self.rpc_call("personal_sendTransaction",
-                                [{
-                                    "from": self.account_address,
-                                    "data": self.contract,
-                                }, ""]
-                                )
+        payload = self.rpc_call(
+            "personal_sendTransaction", [{
+                "from": self.account_address,
+                "data": self.contract,
+            }, ""]
+        )
         trx_hash = self.get_response(payload)["result"]
         return trx_hash
 
@@ -78,16 +73,14 @@ class Config(BaseTest):
 
     @lcc.test("Check connection to EthPRC interface")
     def main_check(self):
-        message = {'code': -32600, 'message': 'Missing or invalid method'}
+        message = {
+            'code': -32600,
+            'message': 'Missing or invalid method'
+        }
         payload = self.rpc_call("", "")
         response = requests.post(ETHRPC_URL, json=payload).json()
         if require_that("json-rpc response", response, has_length(3)):
-            require_that_in(
-                response,
-                "id", is_none(),
-                "jsonrpc", equal_to("2.0"),
-                "error", equal_to(message)
-            )
+            require_that_in(response, "id", is_none(), "jsonrpc", equal_to("2.0"), "error", equal_to(message))
 
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
@@ -129,13 +122,6 @@ class Config(BaseTest):
         payload = self.rpc_call("net_listening", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], is_true())
-
-    @lcc.test("Check method 'eth_protocolVersion'")
-    @lcc.depends_on("EthRPC.Config.Config.main_check")
-    def eth_protocol_version(self):
-        payload = self.rpc_call("eth_protocolVersion", [])
-        response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to("0x3f"))
 
     @lcc.test("Check method 'net_peerCount'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
@@ -190,21 +176,20 @@ class Config(BaseTest):
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_get_storage_at(self):
         self.create_contract()
-        payload = self.rpc_call("eth_getStorageAt", [self.contract_address,
-                                                     "0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9",
-                                                     "latest"])
+        payload = self.rpc_call(
+            "eth_getStorageAt",
+            [self.contract_address, "0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9", "latest"]
+        )
         response = self.get_response(payload)
         require_that("'result'", response["result"], not_equal_to(self.null_trx_hash))
 
     @lcc.test("Check method 'eth_estimateGas'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_estimate_gas(self):
-        payload = self.rpc_call("eth_estimateGas",
-                                [{
-                                    "from": self.account_address,
-                                    "data": self.contract,
-                                }]
-                                )
+        payload = self.rpc_call("eth_estimateGas", [{
+            "from": self.account_address,
+            "data": self.contract,
+        }])
         response = self.get_response(payload)
         if not self.type_validator.is_eth_balance(response["result"]):
             lcc.log_error("Wrong format of 'gas', got: '{}'".format(response["result"]))
@@ -250,8 +235,10 @@ class Config(BaseTest):
         account_name = get_random_valid_account_name
         active_key = echorand_key = "ECHOHCcqrvESxeg4Kmmpr73FdQSQR6TbusCMsHeuXvx2rM1G"
         rand_num = response["randNum"]
-        payload = self.rpc_call("echo_submitRegistrationSolution",
-                                [account_name, active_key, echorand_key, evm_address, nonce_hex, rand_num])
+        payload = self.rpc_call(
+            "echo_submitRegistrationSolution",
+            [account_name, active_key, echorand_key, evm_address, nonce_hex, rand_num]
+        )
         response = self.get_response(payload)
         if not self.type_validator.is_eth_hash(response["result"]):
             lcc.log_error("Wrong format of 'difficulty', got: '{}'".format(response["difficulty"]))

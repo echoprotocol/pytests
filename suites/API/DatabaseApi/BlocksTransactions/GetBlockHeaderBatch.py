@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import random
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, check_that_in, is_str, is_list, is_integer, has_length, equal_to, \
-    check_that
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import (
+    check_that, check_that_in, equal_to, has_length, is_integer, is_list, is_str, require_that
+)
 
 SUITE = {
     "description": "Method 'get_block_header_batch'"
@@ -34,8 +35,9 @@ class GetBlockHeaderBatch(BaseTest):
     def method_main_check(self):
         lcc.set_step("Get the block header of the first block in the chain")
         block_num = 1
-        response_id = self.send_request(self.get_request("get_block_header_batch", [[block_num]]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_block_header_batch", [[block_num]]), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_block_header_batch' with block_num='{}' parameter".format(block_num))
 
@@ -46,13 +48,20 @@ class GetBlockHeaderBatch(BaseTest):
             if check_that("'length of the block info'", block_info[1], has_length(10)):
                 check_that_in(
                     block_info[1],
-                    "previous", is_str("0000000000000000000000000000000000000000"),
-                    "round", is_integer(),
-                    "attempt", is_integer(),
-                    "transaction_merkle_root", is_str("0000000000000000000000000000000000000000"),
-                    "vm_root", is_list(),
-                    "prev_signatures", is_list(),
-                    "extensions", is_list(),
+                    "previous",
+                    is_str("0000000000000000000000000000000000000000"),
+                    "round",
+                    is_integer(),
+                    "attempt",
+                    is_integer(),
+                    "transaction_merkle_root",
+                    is_str("0000000000000000000000000000000000000000"),
+                    "vm_root",
+                    is_list(),
+                    "prev_signatures",
+                    is_list(),
+                    "extensions",
+                    is_list(),
                     quiet=True
                 )
                 if not self.type_validator.is_iso8601(block_info[1]["timestamp"]):
@@ -86,8 +95,9 @@ class PositiveTesting(BaseTest):
 
     def get_head_block_number(self):
         self.produce_block(self.__database_api_identifier)
-        response_id = self.send_request(self.get_request("get_dynamic_global_properties"),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_dynamic_global_properties"), self.__database_api_identifier
+        )
         head_block_number = self.get_response(response_id)["result"]["head_block_number"]
         return head_block_number
 
@@ -116,8 +126,9 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Random block numbers are: '{}'".format(block_numbers))
 
         lcc.set_step("Get the block header of the first block in the chain")
-        response_id = self.send_request(self.get_request("get_block_header_batch", [block_numbers]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_block_header_batch", [block_numbers]), self.__database_api_identifier
+        )
         results = self.get_response(response_id)["result"]
         lcc.log_info("Call method 'get_block_header_batch' with block_nums='{}' parameter".format(block_numbers))
 
@@ -129,10 +140,14 @@ class PositiveTesting(BaseTest):
             if check_that("'length of the block info'", block_info[1], has_length(10)):
                 check_that_in(
                     block_info[1],
-                    "round", is_integer(),
-                    "vm_root", is_list(),
-                    "prev_signatures", is_list(),
-                    "extensions", is_list(),
+                    "round",
+                    is_integer(),
+                    "vm_root",
+                    is_list(),
+                    "prev_signatures",
+                    is_list(),
+                    "extensions",
+                    is_list(),
                     quiet=True
                 )
                 if not self.type_validator.is_hex(block_info[1]["previous"]):
@@ -152,8 +167,11 @@ class PositiveTesting(BaseTest):
                 else:
                     lcc.log_info("'delegate' has correct format: account_id")
                 if not self.type_validator.is_hex(block_info[1]["transaction_merkle_root"]):
-                    lcc.log_error("Wrong format of 'transaction_merkle_root', got: {}".format(
-                        block_info[1]["transaction_merkle_root"]))
+                    lcc.log_error(
+                        "Wrong format of 'transaction_merkle_root', got: {}".format(
+                            block_info[1]["transaction_merkle_root"]
+                        )
+                    )
                 else:
                     lcc.log_info("'transaction_merkle_root' has correct format: hex")
 
@@ -162,11 +180,16 @@ class PositiveTesting(BaseTest):
                     lcc.log_info("Check fields in prev_signatures#'{}'".format(j))
                     check_that_in(
                         prev_signature,
-                        "_step", is_integer(),
-                        "_value", is_integer(),
-                        "_producer", is_integer(),
-                        "_delegate", is_integer(),
-                        "_fallback", is_integer(),
+                        "_step",
+                        is_integer(),
+                        "_value",
+                        is_integer(),
+                        "_producer",
+                        is_integer(),
+                        "_delegate",
+                        is_integer(),
+                        "_fallback",
+                        is_integer(),
                         quiet=True
                     )
                     if not self.type_validator.is_digit(prev_signature["_leader"]):
@@ -193,9 +216,7 @@ class NegativeTesting(BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "API identifier are: database='{}'".format(self.__database_api_identifier))
-
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -207,11 +228,8 @@ class NegativeTesting(BaseTest):
         error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
 
         lcc.set_step("Get 'get_block_header_batch' with negative block number")
-        response_id = self.send_request(self.get_request("get_block_header_batch", [[-1]]),
-                                        self.__database_api_identifier)
-        message = self.get_response(response_id, negative=True)["error"]["message"]
-        check_that(
-            "error_message",
-            message, equal_to(error_message),
-            quiet=True
+        response_id = self.send_request(
+            self.get_request("get_block_header_batch", [[-1]]), self.__database_api_identifier
         )
+        message = self.get_response(response_id, negative=True)["error"]["message"]
+        check_that("error_message", message, equal_to(error_message), quiet=True)

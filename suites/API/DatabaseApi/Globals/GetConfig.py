@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that_in, check_that, has_length, has_entry, is_str
-
 from common.base_test import BaseTest
 from project import BASE_ASSET_SYMBOL
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, check_that_in, has_entry, has_length, is_str
 
 SUITE = {
     "description": "Method 'get_config'"
@@ -35,37 +35,39 @@ class GetConfig(BaseTest):
 
         lcc.set_step("Check main fields")
         echo_config_symbols = ["ECHO_SYMBOL", "ECHO_ADDRESS_PREFIX", "ECHO_ED_PREFIX"]
-        echo_configs = ["ECHO_MIN_ACCOUNT_NAME_LENGTH", "ECHO_MAX_ACCOUNT_NAME_LENGTH", "ECHO_MIN_ASSET_SYMBOL_LENGTH",
-                        "ECHO_MAX_ASSET_SYMBOL_LENGTH", "ECHO_MAX_SHARE_SUPPLY", "ECHO_MAX_PAY_RATE",
-                        "ECHO_MAX_SIG_CHECK_DEPTH", "ECHO_MIN_TRANSACTION_SIZE_LIMIT",
-                        "ECHO_DEFAULT_MAX_TRANSACTION_SIZE", "ECHO_MIN_TRANSACTION_EXPIRATION_LIMIT",
-                        "ECHO_DEFAULT_MAX_BLOCK_SIZE", "ECHO_DEFAULT_MAX_TIME_UNTIL_EXPIRATION",
-                        "ECHO_DEFAULT_MAINTENANCE_INTERVAL", "ECHO_DEFAULT_MAINTENANCE_DURATION_SECONDS",
-                        "ECHO_MIN_UNDO_HISTORY", "ECHO_MAX_UNDO_HISTORY", "ECHO_MIN_BLOCK_SIZE_LIMIT",
-                        "ECHO_BLOCKCHAIN_PRECISION", "ECHO_BLOCKCHAIN_PRECISION_DIGITS", "ECHO_DEFAULT_TRANSFER_FEE",
-                        "ECHO_MAX_INSTANCE_ID", "ECHO_100_PERCENT", "ECHO_1_PERCENT",
-                        "ECHO_DEFAULT_PRICE_FEED_LIFETIME", "ECHO_DEFAULT_MAX_AUTHORITY_MEMBERSHIP",
-                        "ECHO_DEFAULT_MAX_ASSET_WHITELIST_AUTHORITIES", "ECHO_DEFAULT_MAX_ASSET_FEED_PUBLISHERS",
-                        "ECHO_COLLATERAL_RATIO_DENOM", "ECHO_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC",
-                        "ECHO_DEFAULT_COMMITTEE_PROPOSAL_REVIEW_PERIOD_SEC", "ECHO_MAX_URL_LENGTH",
-                        "ECHO_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT", "ECHO_DEFAULT_MINIMUM_FEEDS",
-                        "ECHO_REVERSIBLE_BLOCKS_COUNT", "ECHO_DEFAULT_COMMITTEE_BALANCE_UNFREEZE_DURATION_SECONDS"]
+        echo_configs = [
+            "ECHO_MIN_ACCOUNT_NAME_LENGTH", "ECHO_MAX_ACCOUNT_NAME_LENGTH", "ECHO_MIN_ASSET_SYMBOL_LENGTH",
+            "ECHO_MAX_ASSET_SYMBOL_LENGTH", "ECHO_MAX_SHARE_SUPPLY", "ECHO_MAX_PAY_RATE", "ECHO_MAX_SIG_CHECK_DEPTH",
+            "ECHO_MIN_TRANSACTION_SIZE_LIMIT", "ECHO_DEFAULT_MAX_TRANSACTION_SIZE",
+            "ECHO_MIN_TRANSACTION_EXPIRATION_LIMIT", "ECHO_DEFAULT_MAX_BLOCK_SIZE",
+            "ECHO_DEFAULT_MAX_TIME_UNTIL_EXPIRATION", "ECHO_DEFAULT_MAINTENANCE_INTERVAL",
+            "ECHO_DEFAULT_MAINTENANCE_DURATION_SECONDS", "ECHO_MIN_UNDO_HISTORY", "ECHO_MAX_UNDO_HISTORY",
+            "ECHO_MIN_BLOCK_SIZE_LIMIT", "ECHO_BLOCKCHAIN_PRECISION", "ECHO_BLOCKCHAIN_PRECISION_DIGITS",
+            "ECHO_DEFAULT_TRANSFER_FEE", "ECHO_MAX_INSTANCE_ID", "ECHO_100_PERCENT", "ECHO_1_PERCENT",
+            "ECHO_DEFAULT_PRICE_FEED_LIFETIME", "ECHO_DEFAULT_MAX_AUTHORITY_MEMBERSHIP",
+            "ECHO_DEFAULT_MAX_ASSET_WHITELIST_AUTHORITIES", "ECHO_DEFAULT_MAX_ASSET_FEED_PUBLISHERS",
+            "ECHO_COLLATERAL_RATIO_DENOM", "ECHO_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC",
+            "ECHO_DEFAULT_COMMITTEE_PROPOSAL_REVIEW_PERIOD_SEC", "ECHO_MAX_URL_LENGTH",
+            "ECHO_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT", "ECHO_DEFAULT_MINIMUM_FEEDS", "ECHO_REVERSIBLE_BLOCKS_COUNT",
+            "ECHO_DEFAULT_COMMITTEE_BALANCE_UNFREEZE_DURATION_SECONDS"
+        ]
 
-        echo_config_accounts = ["ECHO_COMMITTEE_ACCOUNT", "ECHO_RELAXED_COMMITTEE_ACCOUNT", "ECHO_NULL_ACCOUNT",
-                                "ECHO_TEMP_ACCOUNT", "ECHO_NULL_AUTHORITY_ACCOUNT", "ECHO_PROXY_TO_SELF_ACCOUNT"]
+        echo_config_accounts = [
+            "ECHO_COMMITTEE_ACCOUNT", "ECHO_RELAXED_COMMITTEE_ACCOUNT", "ECHO_NULL_ACCOUNT", "ECHO_TEMP_ACCOUNT",
+            "ECHO_NULL_AUTHORITY_ACCOUNT", "ECHO_PROXY_TO_SELF_ACCOUNT"
+        ]
         if check_that("config", response["result"], has_length(45)):
             for echo_config_symbol in echo_config_symbols:
-                check_that_in(
-                    response["result"],
-                    echo_config_symbol, is_str(BASE_ASSET_SYMBOL),
-                    quiet=True
-                )
+                check_that_in(response["result"], echo_config_symbol, is_str(BASE_ASSET_SYMBOL), quiet=True)
             for echo_config in echo_configs:
                 self.check_uint64_numbers(response["result"], echo_config, quiet=True)
             for echo_config_account in echo_config_accounts:
                 if not self.type_validator.is_account_id(response["result"][echo_config_account]):
-                    lcc.log_error("Wrong format of '{}', got: {}".format(echo_config_account, response["result"][
-                        echo_config_account]))
+                    lcc.log_error(
+                        "Wrong format of '{}', got: {}".format(
+                            echo_config_account, response["result"][echo_config_account]
+                        )
+                    )
                 else:
                     lcc.log_info("'{}' has correct format: account_id".format(echo_config_account))
 
@@ -94,10 +96,11 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_config", random_values[i]),
-                                            self.__api_identifier)
+            response_id = self.send_request(self.get_request("get_config", random_values[i]), self.__api_identifier)
             response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_config' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

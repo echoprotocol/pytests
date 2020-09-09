@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, has_length
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Creating many contracts in a single transaction"
@@ -28,24 +28,30 @@ class CreateManyContractsInOneTrx(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("The scenario describes creating many contracts in a single transaction "
-              "on the Echo network, written in Solidity.")
+    @lcc.test(
+        "The scenario describes creating many contracts in a single transaction "
+        "on the Echo network, written in Solidity."
+    )
     def create_many_contracts_in_one_trx_scenario(self, get_random_integer_up_to_fifty):
         number_of_contracts = get_random_integer_up_to_fifty
 
         lcc.set_step("Create '{}' 'Piggy' contracts in the Echo network".format(number_of_contracts))
-        operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                bytecode=self.contract)
+        operation = self.echo_ops.get_contract_create_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.contract
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         list_operations = []
         for i in range(number_of_contracts):

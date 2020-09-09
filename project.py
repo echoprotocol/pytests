@@ -8,6 +8,7 @@ from lemoncheesecake.project import Project
 
 
 class MyProject(Project):
+
     def build_report_title(self):
         with open(os.path.join(os.path.dirname(__file__), "docker-compose.yml")) as compose_file:
             compose = yaml.load(compose_file, Loader=yaml.FullLoader)

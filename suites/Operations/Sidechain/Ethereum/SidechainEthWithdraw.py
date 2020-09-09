@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import random
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to
-
 from common.base_test import BaseTest
 from project import MIN_ETH_WITHDRAW
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Operation 'sidechain_eth_withdraw'"
@@ -32,10 +32,13 @@ class SidechainEthWithdraw(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
         self.eth_address = self.get_default_ethereum_account().address
@@ -62,13 +65,13 @@ class SidechainEthWithdraw(BaseTest):
         new_account = get_random_valid_account_name
 
         lcc.set_step("Create and get new account")
-        new_account = self.get_account_id(new_account, self.__database_api_identifier,
-                                          self.__registration_api_identifier)
+        new_account = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account))
 
         lcc.set_step("Generate ethereum address for new account")
-        operation = self.echo_ops.get_sidechain_eth_create_address_operation(echo=self.echo,
-                                                                             account=new_account)
+        operation = self.echo_ops.get_sidechain_eth_create_address_operation(echo=self.echo, account=new_account)
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Ethereum address generated successfully")
@@ -80,9 +83,9 @@ class SidechainEthWithdraw(BaseTest):
         eth_amount = self.get_random_amount(amount_type=float)
 
         lcc.set_step("Send eth to ethereum address of created account")
-        transaction = self.eth_trx.get_transfer_transaction(web3=self.web3, _from=self.eth_address,
-                                                            _to=eth_account_address,
-                                                            value=eth_amount)
+        transaction = self.eth_trx.get_transfer_transaction(
+            web3=self.web3, _from=self.eth_address, _to=eth_account_address, value=eth_amount
+        )
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
 
         lcc.set_step("Get account balance in ethereum")
@@ -91,34 +94,47 @@ class SidechainEthWithdraw(BaseTest):
 
         lcc.set_step("Transfer eth from account to recipient")
         transfer_amount = self.get_random_amount(_from=MIN_ETH_WITHDRAW, _to=int(ethereum_balance), amount_type=int)
-        self.utils.perform_transfer_operations(self, new_account, self.echo_acc0, self.__database_api_identifier,
-                                               transfer_amount=transfer_amount, amount_asset_id=self.eth_asset)
+        self.utils.perform_transfer_operations(
+            self,
+            new_account,
+            self.echo_acc0,
+            self.__database_api_identifier,
+            transfer_amount=transfer_amount,
+            amount_asset_id=self.eth_asset
+        )
         lcc.log_info(
-            "Transfer operation performed, transfer amount: '{}' '{}' assets".format(transfer_amount, self.eth_asset))
+            "Transfer operation performed, transfer amount: '{}' '{}' assets".format(transfer_amount, self.eth_asset)
+        )
 
         lcc.set_step("Get recipient balance in ethereum after transfer")
-        recipient_balance_after_transfer = int(self.utils.get_eth_balance(self, self.echo_acc0,
-                                                                          self.__database_api_identifier,
-                                                                          ethereum_balance))
-        lcc.log_info("Recipient '{}' balance after "
-                     "transfer in ethereum is '{}'".format(self.echo_acc0, recipient_balance_after_transfer))
+        recipient_balance_after_transfer = int(
+            self.utils.get_eth_balance(self, self.echo_acc0, self.__database_api_identifier, ethereum_balance)
+        )
+        lcc.log_info(
+            "Recipient '{}' balance after "
+            "transfer in ethereum is '{}'".format(self.echo_acc0, recipient_balance_after_transfer)
+        )
 
         lcc.set_step("Withdraw eth from ECHO network to Ethereum network")
-        withdraw_amount = self.get_random_amount(_from=MIN_ETH_WITHDRAW, _to=recipient_balance_after_transfer,
-                                                 amount_type=int)
+        withdraw_amount = self.get_random_amount(
+            _from=MIN_ETH_WITHDRAW, _to=recipient_balance_after_transfer, amount_type=int
+        )
         lcc.log_info("Withdrawing '{}' eeth from '{}' account".format(withdraw_amount, self.echo_acc0))
 
         lcc.set_step("Withdraw eth to ethereum address")
         if self.eth_address[:2] == "0x":
             eth_addr = self.eth_address[2:]
-        operation = self.echo_ops.get_sidechain_eth_withdraw_operation(echo=self.echo, account=self.echo_acc0,
-                                                                       eth_addr=eth_addr, value=withdraw_amount)
+        operation = self.echo_ops.get_sidechain_eth_withdraw_operation(
+            echo=self.echo, account=self.echo_acc0, eth_addr=eth_addr, value=withdraw_amount
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
 
         lcc.set_step("Get balance after withdraw and check that withdraw operation broadcasted successfully")
-        recipient_balance_after_withdraw = int(self.utils.get_eth_balance(self, self.echo_acc0,
-                                                                          self.__database_api_identifier,
-                                                                          ethereum_balance))
-        check_that("eth balance", recipient_balance_after_withdraw,
-                   equal_to(recipient_balance_after_transfer - withdraw_amount))
+        recipient_balance_after_withdraw = int(
+            self.utils.get_eth_balance(self, self.echo_acc0, self.__database_api_identifier, ethereum_balance)
+        )
+        check_that(
+            "eth balance", recipient_balance_after_withdraw,
+            equal_to(recipient_balance_after_transfer - withdraw_amount)
+        )

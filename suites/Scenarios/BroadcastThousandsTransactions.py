@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
 
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, greater_than_or_equal_to, is_true
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import greater_than_or_equal_to, is_true, require_that
 
 SUITE = {
     "description": "Scenario 'Collect and broadcast more than two thousand contract operations in the Echo'"
@@ -46,12 +46,15 @@ class BroadcastThousandsTransactions(BaseTest):
         self.__network_broadcast_identifier = self.get_identifier("network_broadcast")
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}', network_broadcast='{}'".format(
-                self.__database_api_identifier, self.__registration_api_identifier,
-                self.__network_broadcast_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
-        self.echo_acc1 = self.get_account_id(self.accounts[1], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+                self.__database_api_identifier, self.__registration_api_identifier, self.__network_broadcast_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        self.echo_acc1 = self.get_account_id(
+            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -69,12 +72,13 @@ class BroadcastThousandsTransactions(BaseTest):
         start_broadcast_block = self.get_head_block_num()
         lcc.log_info("Broadcasting start block number {}".format(start_broadcast_block + 1))
         for i in range(number_of_transactions):
-            transfer_operation = self.echo_ops.get_transfer_operation(echo=self.echo,
-                                                                      from_account_id=self.echo_acc0,
-                                                                      to_account_id=self.echo_acc1, amount=i + 1)
+            transfer_operation = self.echo_ops.get_transfer_operation(
+                echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=i + 1
+            )
             collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-            signed_trx.append(self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation,
-                                                      no_broadcast=True))
+            signed_trx.append(
+                self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, no_broadcast=True)
+            )
             operations.append(transfer_operation)
         lcc.log_info("{} transactions prepared".format(number_of_transactions))
 
@@ -82,8 +86,9 @@ class BroadcastThousandsTransactions(BaseTest):
         while True:
             for signed_tx in signed_trx:
                 params = [subscription_callback_id, signed_tx]
-                response_id = self.send_request(self.get_request("broadcast_transaction_with_callback", params),
-                                                self.__network_broadcast_identifier)
+                response_id = self.send_request(
+                    self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
+                )
                 self.get_response(response_id)
             break
 
@@ -96,9 +101,12 @@ class BroadcastThousandsTransactions(BaseTest):
             all_transactions.extend(transactions)
             for trx in all_transactions:
                 trx_operations.extend(trx["operations"])
-        require_that("broadcasted transactions length", len(all_transactions),
-                     greater_than_or_equal_to(number_of_transactions),
-                     quiet=False)
+        require_that(
+            "broadcasted transactions length",
+            len(all_transactions),
+            greater_than_or_equal_to(number_of_transactions),
+            quiet=False
+        )
 
         lcc.set_step("Check broadcasted transactions in blocks.")
         operation_count = 0
@@ -107,6 +115,7 @@ class BroadcastThousandsTransactions(BaseTest):
                 operation_count += 1
         require_that(
             "'all operations in blocks transactions'",
-            operation_count == number_of_transactions, is_true(),
+            operation_count == number_of_transactions,
+            is_true(),
             quiet=False
         )

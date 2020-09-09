@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_integer, is_true, has_entry
-
 from common.base_test import BaseTest
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, has_entry, is_integer, is_true
 
 SUITE = {
     "description": "Method 'get_committee_count'"
@@ -15,6 +15,7 @@ SUITE = {
 @lcc.tags("api", "database_api", "database_api_committee_members", "get_committee_count")
 @lcc.suite("Check work of method 'get_committee_count'", rank=1)
 class GetCommitteeCount(BaseTest):
+
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
@@ -33,11 +34,7 @@ class GetCommitteeCount(BaseTest):
         lcc.log_info("Call method 'get_committee_count', committee_members_count='{}'".format(response["result"]))
 
         lcc.set_step("Check simple work of method 'get_committee_count'")
-        check_that(
-            "'committee members count'",
-            response["result"],
-            is_integer(), quiet=True
-        )
+        check_that("'committee members count'", response["result"], is_integer(), quiet=True)
 
 
 @lcc.prop("positive", "type")
@@ -58,10 +55,13 @@ class PositiveTesting(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -70,8 +70,9 @@ class PositiveTesting(BaseTest):
 
     @lcc.test("Register a new account and make it a new committee member in the network")
     @lcc.depends_on("API.DatabaseApi.CommitteeMembers.GetCommitteeCount.GetCommitteeCount.method_main_check")
-    def add_new_committee_member_in_the_network(self, get_random_valid_account_name, get_random_eth_address,
-                                                get_random_btc_public_key):
+    def add_new_committee_member_in_the_network(
+        self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key
+    ):
         new_account = get_random_valid_account_name
         eth_account_address = get_random_eth_address
         btc_public_key = get_random_btc_public_key
@@ -82,14 +83,20 @@ class PositiveTesting(BaseTest):
         lcc.log_info("Call method 'get_committee_count', committee_members_count='{}'".format(committee_count_before))
 
         lcc.set_step("Register new account in the network")
-        new_account_id = self.get_account_id(new_account, self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+        new_account_id = self.get_account_id(
+            new_account, self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("New Echo account created, account_id='{}'".format(new_account_id))
 
         lcc.set_step("Create created account as new committee member in the ECHO network")
-        self.utils.perform_committee_member_create_operation(self, new_account_id, eth_account_address, btc_public_key,
-                                                             self.__database_api_identifier,
-                                                             deposit_amount=100000000000)
+        self.utils.perform_committee_member_create_operation(
+            self,
+            new_account_id,
+            eth_account_address,
+            btc_public_key,
+            self.__database_api_identifier,
+            deposit_amount=100000000000
+        )
         lcc.log_info("Successfully created a new committee member")
 
         lcc.set_step("Get the updated number of committee members in the ECHO network")
@@ -129,10 +136,13 @@ class NegativeTesting(BaseTest):
         for i in range(len(get_all_random_types)):
             if i == 4:
                 continue
-            response_id = self.send_request(self.get_request("get_committee_count", random_values[i]),
-                                            self.__api_identifier)
+            response_id = self.send_request(
+                self.get_request("get_committee_count", random_values[i]), self.__api_identifier
+            )
             response = self.get_response(response_id, negative=True)
             check_that(
                 "'get_committee_count' return error message with '{}' params".format(random_type_names[i]),
-                response, has_entry("error"), quiet=True
+                response,
+                has_entry("error"),
+                quiet=True
             )

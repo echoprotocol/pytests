@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, is_bool, is_true
-
 from common.base_test import BaseTest
 from common.receiver import Receiver
+
+import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_bool, is_true
 
 SUITE = {
     "description": "Login Api"
@@ -52,6 +52,7 @@ class PositiveTesting(object):
         check_that("'login status'", response["result"], is_bool(is_true()))
 
         base.ws.close()
+
 
 # todo: add when will be validation on login
 # @lcc.prop("negative", "type")

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.exceptions import RPCError
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Testing contract creation with not hex format of contract code"
@@ -28,10 +28,13 @@ class ContractWithNotValidCode(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -44,12 +47,14 @@ class ContractWithNotValidCode(BaseTest):
 
         lcc.set_step("Create contract in the Echo network with not hex format of contract code")
         try:
-            operation = self.echo_ops.get_contract_create_operation(echo=self.echo, registrar=self.echo_acc0,
-                                                                    bytecode=not_hex_format_contract_code)
+            operation = self.echo_ops.get_contract_create_operation(
+                echo=self.echo, registrar=self.echo_acc0, bytecode=not_hex_format_contract_code
+            )
             collected_operation = self.collect_operations(operation, self.__database_api_identifier)
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
             lcc.log_error(
-                "Error: broadcast transaction complete. Contract created with cod: '{}'".format(
-                    not_hex_format_contract_code))
+                "Error: broadcast transaction complete. Contract created with cod: '{}'"
+                .format(not_hex_format_contract_code)
+            )
         except RPCError as e:
             lcc.log_info(str(e))

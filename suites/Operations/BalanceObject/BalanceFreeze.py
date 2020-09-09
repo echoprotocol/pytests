@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from common.base_test import BaseTest
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-
-from common.base_test import BaseTest
 
 SUITE = {
     "description": "Operation 'balance_freeze'"
@@ -28,10 +28,13 @@ class BalanceFreeze(BaseTest):
         self.__database_api_identifier = self.get_identifier("database")
         self.__registration_api_identifier = self.get_identifier("registration")
         lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(self.__database_api_identifier,
-                                                                           self.__registration_api_identifier))
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier,
-                                             self.__registration_api_identifier)
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         lcc.log_info("Echo accounts are: #1='{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -43,18 +46,16 @@ class BalanceFreeze(BaseTest):
         value_amount = get_random_integer
 
         lcc.set_step("Perform balance freeze operation")
-        operation = self.echo_ops.get_balance_freeze_operation(echo=self.echo, account=self.echo_acc0,
-                                                               value_amount=value_amount, duration=90)
+        operation = self.echo_ops.get_balance_freeze_operation(
+            echo=self.echo, account=self.echo_acc0, value_amount=value_amount, duration=90
+        )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
         lcc.set_step("Get account frozen balance")
-        response_id = self.send_request(self.get_request("get_frozen_balances", [self.echo_acc0]),
-                                        self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_frozen_balances", [self.echo_acc0]), self.__database_api_identifier
+        )
         frozen_balance_amount = self.get_response(response_id)["result"][-1]["balance"]["amount"]
         lcc.log_info("{} assets added to frozen balance".format(frozen_balance_amount))
-        check_that(
-            "freezed balance amount",
-            frozen_balance_amount, equal_to(value_amount),
-            quiet=False
-        )
+        check_that("freezed balance amount", frozen_balance_amount, equal_to(value_amount), quiet=False)
