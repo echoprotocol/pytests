@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, has_item
 
-from project import INIT4_PK
 SUITE = {
     "description": "Method 'generate_account_address'"
 }
@@ -46,11 +46,11 @@ class GenerateAccountAddress(WalletBaseTest, BaseTest):
         lcc.log_info("key imported")
 
         lcc.set_step("Create a transaction to generate account address")
-        self.init4_id = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4_id = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
 
-        response = self.send_wallet_request("generate_account_address", [self.init4_id, label, True], log_response=False)
+        response = self.send_wallet_request(
+            "generate_account_address", [self.init4_id, label, True], log_response=False
+        )
         self.produce_block(self.__database_api_identifier)
         response = self.send_wallet_request("get_account_addresses", [self.init4_id, 0, 50], log_response=True)
         result_labels = [result['label'] for result in response['result']]

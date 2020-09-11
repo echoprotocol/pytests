@@ -46,7 +46,9 @@ class GetAccountByAddress(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_string):
         label = get_random_string
         lcc.set_step("Create account address for new account")
-        broadcast_result = self.utils.perform_account_address_create_operation(self, self.echo_acc0, label, self.__database_api_identifier)
+        broadcast_result = self.utils.perform_account_address_create_operation(
+            self, self.echo_acc0, label, self.__database_api_identifier
+        )
         account_address_object = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("{}".format(account_address_object))
         response = self.send_wallet_request("get_object", [account_address_object], log_response=False)

@@ -29,7 +29,8 @@ class GetListMyAccounts(WalletBaseTest, BaseTest):
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
-
+    
+    @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_list_my_accounts'")
     def method_main_check(self):
         lcc.set_step("Get list my accounts")

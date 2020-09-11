@@ -45,13 +45,14 @@ class GetAccountAddresses(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_account_addresses'")
     def method_main_check(self, get_random_string):
         label = get_random_string
-        response = self.send_wallet_request("get_account_addresses", [self.echo_acc0, 0, 10], log_response=False)
+        response = self.send_wallet_request("get_account_addresses", [self.echo_acc0, 0, 100], log_response=False)
         account_addresses_len = len(response['result'])
         lcc.set_step("Create account address for new account")
         self.utils.perform_account_address_create_operation(self, self.echo_acc0, label, self.__database_api_identifier)
         lcc.log_info("Account address create operation for new account performed")
         lcc.set_step("Check that get_account_addresses returns more addresses than there were")
-        response = self.send_wallet_request("get_account_addresses", [self.echo_acc0, 0, 10], log_response=False)
+        response = self.send_wallet_request("get_account_addresses", [self.echo_acc0, 0, 100], log_response=False)
+        lcc.log_info("{}".format(response))
         currnt_account_addresses_len = len(response['result'])
         check_that(
             'addicted addresses to {} account'.format(self.echo_acc0), currnt_account_addresses_len,

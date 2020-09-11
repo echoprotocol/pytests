@@ -64,8 +64,8 @@ class GetEvmAddresses(WalletBaseTest, BaseTest):
         lcc.log_info("EVM address registred successfully")
 
         lcc.set_step("Get EVM address of {} account".format(self.echo_acc0))
-        response = self.send_wallet_request("get_evm_addresses", [self.echo_acc0], log_response=False)
-        account_evm_address = response['result'][0]["evm_address"]
+        response = self.send_wallet_request("get_evm_addresses", [self.echo_acc0], log_response=True)
+        account_evm_address = response['result'][-1]["evm_address"]
 
         response_id = self.send_request(
             self.get_request("get_objects", [[operation_result]]), self.__database_api_identifier
