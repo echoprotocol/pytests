@@ -3,7 +3,7 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, require_that
+from lemoncheesecake.matching import equal_to, require_that
 
 SUITE = {
     "description": "Method 'get_evm_addresses'"
