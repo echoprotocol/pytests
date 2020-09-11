@@ -46,12 +46,6 @@ class GetEvmAddresses(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_eth_address):
         evm_address = get_random_eth_address
 
-        lcc.set_step("Get account balance in ethereum of account")
-        ethereum_balance = self.utils.get_account_balances(
-            self, self.echo_acc0, self.__database_api_identifier, self.eth_asset
-        )["amount"]
-        check_that("'balance in ethereum'", ethereum_balance, equal_to(0))
-
         lcc.set_step("Register EVM address for account")
         operation = self.echo_ops.get_evm_address_register_operation(
             echo=self.echo, account=self.echo_acc0, evm_address=evm_address
