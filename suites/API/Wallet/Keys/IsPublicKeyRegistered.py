@@ -31,11 +31,15 @@ class IsPublicKeyRegistered(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_is_public_key_registered'")
     def method_main_check(self):
         lcc.set_step("Check is public key registered")
-        request_result = self.send_wallet_request('is_public_key_registered', ['ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR'], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'is_public_key_registered', ['ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR'], log_response=False
+        )['result']
         check_that("key registered status", request_result, equal_to(True), quiet=True)
         request = self.send_wallet_request('create_eddsa_keypair', [], log_response=False)
 
-        request_result = self.send_wallet_request('is_public_key_registered', [request['result'][0]], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'is_public_key_registered', [request['result'][0]], log_response=False
+        )['result']
         if self.type_validator.is_echorand_key(request['result'][0]):
             check_that("key registered status", request_result, equal_to(False), quiet=True)
         else:

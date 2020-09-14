@@ -3,7 +3,6 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to
 
 SUITE = {
@@ -38,7 +37,9 @@ class NormalizeBrainKey(WalletBaseTest, BaseTest):
         else:
             lcc.log_error("Wrong length of brain key.")
 
-        normalize_brain_key = self.send_wallet_request('normalize_brain_key', [request_result['brain_key']], log_response=False)['result']
+        normalize_brain_key = self.send_wallet_request(
+            'normalize_brain_key', [request_result['brain_key']], log_response=False
+        )['result']
         check_that("normalize_brain_key", request_result['brain_key'], equal_to(normalize_brain_key))
         brain_key_copy = request_result['brain_key']
         brain_key_copy = brain_key_copy.lower()
@@ -46,5 +47,7 @@ class NormalizeBrainKey(WalletBaseTest, BaseTest):
 
         check_that("normalize_brain_key", brain_key_copy, not_equal_to(request_result['brain_key']))
 
-        normalize_brain_key = self.send_wallet_request('normalize_brain_key', [brain_key_copy], log_response=False)['result']
+        normalize_brain_key = self.send_wallet_request(
+            'normalize_brain_key', [brain_key_copy], log_response=False
+        )['result']
         check_that("normalize_brain_key", normalize_brain_key, equal_to(request_result['brain_key']))

@@ -3,7 +3,6 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
@@ -37,5 +36,7 @@ class DeriveKeysFromBrainKey(WalletBaseTest, BaseTest):
             lcc.log_info("Correct brain key")
         else:
             lcc.log_error("Wrong length of brain key.")
-        request_result = self.send_wallet_request('derive_keys_from_brain_key', [suggest_brain_key['brain_key'], 1], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'derive_keys_from_brain_key', [suggest_brain_key['brain_key'], 1], log_response=False
+        )['result']
         check_that("derived key", request_result[0], equal_to(suggest_brain_key))

@@ -34,5 +34,7 @@ class GetPrivateKey(WalletBaseTest, BaseTest):
         lcc.set_step("Get private key")
         request_result = self.send_wallet_request('import_key', ['init4', INIT4_PK], log_response=False)['result']
         check_that("import key status", request_result, equal_to(True), quiet=True)
-        request_result = self.send_wallet_request('get_private_key', ['ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR'], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'get_private_key', ['ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR'], log_response=False
+        )['result']
         check_that("import key status", request_result, equal_to(INIT4_PK), quiet=True)

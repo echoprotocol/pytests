@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT4_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-
-from project import WALLET_PASSWORD, INIT4_PK
 
 SUITE = {
     "description": "Method 'dump_private_keys'"
@@ -59,16 +58,12 @@ class DumpPrivateKeys(WalletBaseTest, BaseTest):
         check_that("wallet contain key status", wallet_contain_status, equal_to(False))
         lcc.set_step("Register new account")
         response = self.send_wallet_request(
-            "register_account",
-            [
-                new_account,
-                suggest_brain_key['active_pub_key'],
-                suggest_brain_key['active_pub_key'],
-                "init4",
-                evm_address,
-                True
+            "register_account", [
+                new_account, suggest_brain_key['active_pub_key'], suggest_brain_key['active_pub_key'], "init4",
+                evm_address, True
             ],
-            log_response=True)
+            log_response=True
+        )
         lcc.log_info("New account created")
         self.produce_block(self.__database_api_identifier)
         lcc.set_step("Import new account key to wallet")
