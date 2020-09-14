@@ -102,6 +102,7 @@ else:
 ECHO_OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "echo_operations.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
 WALLETS = os.path.join(RESOURCES_DIR, "wallets.json")
+WALLET_PASSWORD = "password123"
 UTILS = os.path.join(RESOURCES_DIR, "utils.json")
 ECHO_INITIAL_BALANCE = int(GENESIS["initial_balances"][0]["amount"])
 ECHO_ASSET_SYMBOL = GENESIS["initial_balances"][0]["asset_symbol"]
