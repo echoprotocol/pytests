@@ -36,7 +36,7 @@ class DumpPrivateKeys(WalletBaseTest, BaseTest):
         new_account = get_random_valid_account_name
         evm_address = get_random_eth_address
 
-        lcc.set_step("Unlock wallet to register account")
+        lcc.set_step("Unlock wallet")
         response = self.send_wallet_request("is_new", [], log_response=False)
         if response['result']:
             self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)

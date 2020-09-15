@@ -28,7 +28,7 @@ class About(WalletBaseTest):
         result = response["result"]
         if require_that("result", result, has_length(10)):
             check_that("blockchain_name", result["blockchain_name"], equal_to("ECHO"))
-            check_that("client_version", result["client_version"], equal_to("0.22.1-rc.0"))
+            check_that("client_version", result["client_version"], equal_to("0.22-rc.1"))
             if not self.type_validator.is_hex(result["echo_revision"]):
                 lcc.log_error("Wrong format of 'echo_revision', got: {}".format(result["echo_revision"]))
             else:
