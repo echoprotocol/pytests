@@ -12,6 +12,8 @@ from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket
 
 class WalletBaseTest:
 
+    request_id = 0
+
     def __init__(self):
         self.wallet_ws = SimpleWebsocket(WALLET_URL, False)
         self.type_validator = TypeValidator()
@@ -59,12 +61,12 @@ class WalletBaseTest:
     def send_wallet_request(self, method, params=[], negative=False, log_response=False, debug_mode=False):
         payload = self.__call_method(method, params)
         self.wallet_ws.connect()
+
         response = json.loads(self.wallet_ws.rpcexec(payload=payload))
         if debug_mode:
             lcc.log_debug("Send:\n{}".format(json.dumps(payload, indent=4)))
         self.wallet_ws.disconnect()
 
-        lcc.log_info("{}".format(response))
         if response.get("jsonrpc") != "2.0":
             lcc.log_error("Wrong data received: {}".format(json.dumps(response, indent=4)))
             raise Exception("Wrong response")

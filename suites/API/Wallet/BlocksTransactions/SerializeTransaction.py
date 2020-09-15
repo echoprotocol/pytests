@@ -11,7 +11,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_serialize_transaction")
+@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_serialize_transaction")
 @lcc.suite("Check work of method 'serialize_transaction'", rank=1)
 class SerializeTransaction(WalletBaseTest, BaseTest):
 
