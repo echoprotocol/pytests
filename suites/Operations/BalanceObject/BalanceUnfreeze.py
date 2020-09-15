@@ -41,14 +41,14 @@ class BalanceUnfreeze(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.disabled()
+    # @lcc.disabled()
     @lcc.test("Simple work of operation 'balance_unfreeze'")
     def method_main_check(self, get_random_integer):
         value_amount = get_random_integer
 
         lcc.set_step("Perform balance freeze operation")
         operation = self.echo_ops.get_balance_freeze_operation(
-            echo=self.echo, account=self.echo_acc0, value_amount=value_amount, duration=90
+            echo=self.echo, account=self.echo_acc0, value_amount=value_amount, duration=1
         )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
@@ -71,13 +71,14 @@ class BalanceUnfreeze(BaseTest):
             echo=self.echo, account=self.echo_acc0, objects_to_unfreeze=[objects_to_unfreeze], debug_mode=True
         )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier, debug_mode=True)
-        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, get_signed_tx=True, debug_mode=True)
+        print(collected_operation)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, debug_mode=True)
         lcc.log_info("Balance has been unfrozen")
         self.produce_block(self.__database_api_identifier)
-        # lcc.set_step("Get account frozen balance")
-        # response_id = self.send_request(
-        #     self.get_request("get_objects", [objects_to_unfreeze]), self.__database_api_identifier
-        # )
-        # frozen_balance_amount = self.get_response(response_id)["result"][-1]["balance"]["amount"]
-        # lcc.log_info("{} assets added to frozen balance".format(frozen_balance_amount))
-        # check_that("freezed balance amount", frozen_balance_amount, equal_to(0), quiet=False)
+        lcc.set_step("Get account frozen balance")
+        response_id = self.send_request(
+            self.get_request("get_objects", [objects_to_unfreeze]), self.__database_api_identifier
+        )
+        frozen_balance_amount = self.get_response(response_id)["result"][-1]["balance"]["amount"]
+        lcc.log_info("{} assets added to frozen balance".format(frozen_balance_amount))
+        check_that("freezed balance amount", frozen_balance_amount, equal_to(0), quiet=False)
