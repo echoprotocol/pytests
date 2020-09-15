@@ -3,16 +3,17 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'sign_transaction'"
+    "description": "Method 'get_relative_account_history'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_sign_transaction")
-@lcc.suite("Check work of method 'sign_transaction'", rank=1)
-class SignTransaction(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_relative_account_history")
+@lcc.suite("Check work of method 'get_relative_account_history'", rank=1)
+class GetRelativeAccountHistory(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -45,18 +46,27 @@ class SignTransaction(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # TODO: fix when import key (ECHO-2355)
-    @lcc.disabled()
-    @lcc.test("Simple work of method 'wallet_sign_transaction'")
+    @lcc.test("Simple work of method 'wallet_get_relative_account_history'")
     def method_main_check(self):
+        lcc.set_step("Get relative account history")
+        response_before_transfer = self.send_wallet_request(
+            "get_relative_account_history", [self.accounts[0], 0, 2, 0], log_response=False
+        )
 
-        lcc.set_step("Collect and sign transfer operation")
+        lcc.set_step("Broadcast transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(
-            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=2
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_trx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
-        del signed_trx['signatures']
-        lcc.log_info("Signed transaction: {}".format(signed_trx))
-        response = self.send_wallet_request("sign_transaction", [signed_trx.json(), True], log_response=False)
-        lcc.log_info("{}".format(response))
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        lcc.log_info("Transfered from {} to {} completed!".format(self.echo_acc0, self.echo_acc1))
+        lcc.set_step("Get current relative account history")
+        response_after_transfer = self.send_wallet_request(
+            "get_relative_account_history", [self.accounts[0], 0, 2, 0], log_response=False
+        )
+        check_that(
+            'updated relative account history',
+            response_before_transfer['result'][0],
+            equal_to(response_after_transfer['result'][1]),
+            quiet=True
+        )

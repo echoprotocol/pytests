@@ -3,16 +3,17 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'sign_transaction'"
+    "description": "Method 'get_account_history'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_sign_transaction")
-@lcc.suite("Check work of method 'sign_transaction'", rank=1)
-class SignTransaction(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_account_history")
+@lcc.suite("Check work of method 'get_account_history'", rank=1)
+class GetAccountHistory(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -45,18 +46,17 @@ class SignTransaction(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # TODO: fix when import key (ECHO-2355)
-    @lcc.disabled()
-    @lcc.test("Simple work of method 'wallet_sign_transaction'")
+    @lcc.test("Simple work of method 'wallet_get_account_history'")
     def method_main_check(self):
-
-        lcc.set_step("Collect and sign transfer operation")
+        amount = 2
+        lcc.set_step("Broadcast transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(
-            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=amount
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_trx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
-        del signed_trx['signatures']
-        lcc.log_info("Signed transaction: {}".format(signed_trx))
-        response = self.send_wallet_request("sign_transaction", [signed_trx.json(), True], log_response=False)
-        lcc.log_info("{}".format(response))
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        lcc.set_step("Check that transfer operation last of operations in account history")
+        response = self.send_wallet_request("get_account_history", [self.accounts[0], 1], log_response=False)
+        operation_result = response['result'][0]['op']['op'][1]
+        check_that('account ids', operation_result['from'], equal_to(self.echo_acc0))
+        check_that('transfer amount', operation_result['amount']['amount'], equal_to(amount))
