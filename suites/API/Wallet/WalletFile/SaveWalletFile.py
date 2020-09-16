@@ -33,11 +33,17 @@ class SaveWalletFile(WalletBaseTest, BaseTest):
         file_name = get_random_string
         lcc.set_step("Check method save_wallet_file")
         lcc.log_info("Try to load a non-existent wallet file")
-        request_result = self.send_wallet_request('load_wallet_file', [file_name + '.json'], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'load_wallet_file', [file_name + '.json'], log_response=False
+        )['result']
         check_that("import key status", request_result, equal_to(False), quiet=True)
         lcc.log_info("Save wallet file '{}'".format(file_name + '.json'))
-        request_result = self.send_wallet_request('save_wallet_file', [file_name + '.json'], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'save_wallet_file', [file_name + '.json'], log_response=False
+        )['result']
         check_that("import key status", request_result, equal_to(None), quiet=True)
         lcc.log_info("Load created wallet file '{}'".format(file_name + '.json'))
-        request_result = self.send_wallet_request('load_wallet_file', [file_name + '.json'], log_response=False)['result']
+        request_result = self.send_wallet_request(
+            'load_wallet_file', [file_name + '.json'], log_response=False
+        )['result']
         check_that("import key status", request_result, equal_to(True), quiet=True)
