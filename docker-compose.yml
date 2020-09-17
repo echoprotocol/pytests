@@ -120,7 +120,7 @@ services:
     image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.22.1-rc.0
     command:
       '-s ws://echo:6311/ws
-        --chain-id afd65c4c9c3c5bf420bb65c8b6306d72c38f0f2402bb9a1d5130c97d30b2d889
+        --chain-id 470ddd80ef5c7ce5e8396a93fc6617073cdb82339187ec27330a5e465a03b947
         --rpc-endpoint=0.0.0.0:1998
       '
     ports:
