@@ -92,7 +92,7 @@ class Transaction(BaseTest):
         )
         lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
-        self.account_address = "0x0000000000000000000000000000000000000006"
+        self.account_address = "0x0000000000000000000000000000000000000060"
         self.contract_address = "0x0100000000000000000000000000000000000000"
 
     def teardown_suite(self):
@@ -126,7 +126,7 @@ class Transaction(BaseTest):
     def eth_get_balance(self):
         payload = self.rpc_call("eth_getBalance", [self.account_address, "latest"])
         response = self.get_ethrpc_response(payload)
-        balance = self.echo.api.database.get_account_balances("1.2.6", ["1.3.0"])[0]["amount"]
+        balance = self.echo.api.database.get_account_balances("1.2.60", ["1.3.0"])[0]["amount"]
         require_that('account balance', int(response["result"], 16), equal_to(int(balance)))
 
     @lcc.test("Check method 'eth_getTransactionCount'")
@@ -134,7 +134,7 @@ class Transaction(BaseTest):
     def eth_get_transaction_count(self):
         payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
         response = self.get_ethrpc_response(payload)
-        account_ops = self.echo.api.history.get_account_history("1.2.6", "1.6.0", 100, "1.6.0")
+        account_ops = self.echo.api.history.get_account_history("1.2.60", "1.6.0", 100, "1.6.0")
         require_that('account balance', int(response["result"], 16), equal_to(len(account_ops)))
 
     @lcc.test("Check method 'eth_getBlockTransactionCountByNumber'")
