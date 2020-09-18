@@ -162,7 +162,7 @@ class NegativeTesting(BaseTest):
         public_key = generate_keys[1]
         rand_num, solution = self.prepare_rand_num_and_task_solution()
         wrong_solution = solution - 1
-        expected_error_message = "Assert Exception: task.valid(): No active registration task. Request another one"
+        expected_error_message = "Assert Exception: task.has_value(): No active registration task. Request another one"
 
         lcc.set_step(
             "Check that 'submit_registration_solution' crashes with first attempt:"
