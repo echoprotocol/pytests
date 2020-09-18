@@ -93,7 +93,7 @@ class Config(BaseTest):
     @lcc.test("Check method 'eth_chain_id'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_chain_id(self):
-        chain_id = "0x7ad7e43920c0575fd131d8ad7dc11f688f5e456bef8b57ac9c8dd0d7e17d5c38"
+        chain_id = "0xff"
         payload = self.rpc_call("eth_chainId", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(chain_id))
