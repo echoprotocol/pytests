@@ -41,7 +41,9 @@ class RequestBalanceUnfreeze(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # @lcc.disabled()
+    # this test required smaller frozen_balances_multipliers and maintenance_interval
+    # to run this test you should update genesis
+    @lcc.disabled()
     @lcc.test("Simple work of operation 'request_balance_unfreeze'")
     def method_main_check(self, get_random_integer):
         value_amount = get_random_integer
