@@ -4,8 +4,7 @@ import json
 import os
 import time
 from copy import deepcopy
-from datetime import datetime, timedelta, timezone
-from calendar import timegm
+from datetime import datetime, timedelta
 
 from common.echo_operation import EchoOperations
 from common.ethereum_transaction import EthereumTransactions
