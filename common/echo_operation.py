@@ -1221,8 +1221,15 @@ class EchoOperations(object):
         return [operation_id, balance_unfreeze_operation_props, signer]
 
     def get_request_balance_unfreeze_operation(
-        self, echo, account, objects_to_unfreeze, fee_amount=0, fee_asset_id="1.3.0",
-        extensions=None, signer=None, debug_mode=False
+        self,
+        echo,
+        account,
+        objects_to_unfreeze,
+        fee_amount=0,
+        fee_asset_id="1.3.0",
+        extensions=None,
+        signer=None,
+        debug_mode=False
     ):
         if extensions is None:
             extensions = []

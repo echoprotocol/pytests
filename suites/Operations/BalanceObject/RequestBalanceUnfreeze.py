@@ -64,7 +64,9 @@ class RequestBalanceUnfreeze(BaseTest):
         objects_to_unfreeze = response["result"][-1]["id"]
         lcc.log_info("{} assets added to frozen balance".format(frozen_balance_amount))
         check_that("freezed balance amount", frozen_balance_amount, equal_to(value_amount), quiet=False)
-        response_id = self.send_request(self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier
+        )
         get_objects_results = self.get_response(response_id)["result"][0]
         check_that("freezed balance amount", get_objects_results, not_equal_to(None), quiet=False)
 
@@ -76,7 +78,9 @@ class RequestBalanceUnfreeze(BaseTest):
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
 
-        response_id = self.send_request(self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier
+        )
         get_objects_results = self.get_response(response_id)["result"][0]
         check_that("freezed balance amount", get_objects_results, not_equal_to(None), quiet=False)
 
@@ -84,6 +88,8 @@ class RequestBalanceUnfreeze(BaseTest):
         lcc.log_info("Balance has been unfrozen")
         self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get account frozen balance")
-        response_id = self.send_request(self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier
+        )
         get_objects_results = self.get_response(response_id)["result"][0]
         check_that("freezed balance amount", get_objects_results, equal_to(None), quiet=False)
