@@ -239,9 +239,8 @@ class Transaction(BaseTest):
         check_that("blockNumber", receipt["blockNumber"], equal_to(block_id))
         check_that("from", receipt["from"], equal_to("0x000000000000000000000000000000000000000c"))
         check_that("to", receipt["to"], equal_to("0x000000000000000000000000000000000000000d"))
-        # todo: bug ECHO-2324
-        # check_that("cumulativeGasUsed", receipt["cumulativeGasUsed"], equal_to("0x14"))
-        # check_that("gasUsed", receipt["gasUsed"], equal_to("0x14"))
+        check_that("cumulativeGasUsed", receipt["cumulativeGasUsed"], equal_to("0x14"))
+        check_that("gasUsed", receipt["gasUsed"], equal_to("0x14"))
         check_that("contractAddress", receipt["contractAddress"], is_none())
         check_that("logs", receipt["logs"], is_list())
         check_that("logsBloom", receipt["logsBloom"], equal_to(""))

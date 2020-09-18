@@ -58,10 +58,10 @@ class RequiredFeeOfContractOperationWithNewAsset(BaseTest):
         lcc.log_info("Assets was created, ids='{}'".format(asset_id))
 
         lcc.set_step("First: Collect operation for deploying contract")
-        operation = self.echo_ops.get_contract_create_operation(
+        first_operation = self.echo_ops.get_contract_create_operation(
             self.echo, self.echo_acc0, self.contract, self.__database_api_identifier
         )
-        first_operation = self.collect_operations(operation, self.__database_api_identifier)
+        operation = self.collect_operations(first_operation, self.__database_api_identifier)
 
         lcc.set_step("Second: Collect operation for calling contract method")
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=operation, log_broadcast=False)

@@ -48,6 +48,8 @@ class CommitteeMemberDeactivate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    # todo: Bug ECHO-2400
+    @lcc.disabled()
     @lcc.test("Simple work of operation 'committee_member_deactivate'")
     @lcc.depends_on("Operations.CommitteeMember.CommitteeMemberActivate.CommitteeMemberActivate.method_main_check")
     def method_main_check(self):

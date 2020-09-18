@@ -94,9 +94,10 @@ class BaseTest(object):
 
     @staticmethod
     def get_datetime(global_datetime=False):
+        pattern = "%Y-%m-%dT%H:%M:%S"
         if global_datetime:
-            return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-        return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+            return time.strftime(pattern, time.gmtime())
+        return time.strftime(pattern, time.localtime())
 
     def get_expiration_time(self, seconds):
         pattern = "%Y-%m-%dT%H:%M:%S"
@@ -106,9 +107,10 @@ class BaseTest(object):
 
     @staticmethod
     def subtract_from_datetime(str_datetime, days=0, hours=0, minutes=0, seconds=0):
-        formated_datetime = datetime.strptime(str_datetime, "%Y-%m-%dT%H:%M:%S")
+        pattern = "%Y-%m-%dT%H:%M:%S"
+        formated_datetime = datetime.strptime(str_datetime, pattern)
         formated_datetime = formated_datetime - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
-        return formated_datetime.strftime("%Y-%m-%dT%H:%M:%S")
+        return formated_datetime.strftime(pattern)
 
     def set_timeout_wait(self, seconds=None, print_log=True):
         if print_log:
