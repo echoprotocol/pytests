@@ -38,6 +38,7 @@ class GetCommitteeFrozenBalance(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_get_committee_frozen_balance'")
     def method_main_check(self):
+        lcc.set_step("Check method get committee frozen balance")
         result = self.send_wallet_request("get_committee_frozen_balance", [self.init0], log_response=False)['result']
         if self.type_validator.is_digit(result['amount']):
             lcc.log_info("Correct format of balance amount")

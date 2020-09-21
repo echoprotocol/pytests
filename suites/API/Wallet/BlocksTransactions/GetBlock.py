@@ -23,7 +23,7 @@ class GetBlock(WalletBaseTest):
     @lcc.test("Simple work of method 'get_block'")
     def method_main_check(self):
         lcc.set_step("Call method 'get_block'")
-        response = self.send_wallet_request("get_block", ["1"])
+        response = self.send_wallet_request("get_block", ["0"])
         require_that("'result'", response["result"], is_not_none(), quiet=True)
 
         lcc.set_step("Check simple work of method 'get_block'")
@@ -95,10 +95,10 @@ class GetBlock(WalletBaseTest):
                 is_integer(),
                 quiet=False
             )
-        if not self.type_validator.is_digit(certificate["_leader"]):
-            lcc.log_error("Wrong format of '_leader', got: {}".format(certificate["_leader"]))
-        else:
-            lcc.log_info("'_leader' has correct format: int")
+            if not self.type_validator.is_digit(certificate["_leader"]):
+                lcc.log_error("Wrong format of '_leader', got: {}".format(certificate["_leader"]))
+            else:
+                lcc.log_info("'_leader' has correct format: int")
 
 
 @lcc.prop("negative", "type")

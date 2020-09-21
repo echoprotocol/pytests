@@ -327,7 +327,6 @@ class ObjectValidator(object):
                     lcc.log_info("'unfreeze_time' has correct format: iso8601")
 
     def validate_committee_frozen_balance_object(self, base_test, committee_frozen_balance_object):
-        lcc.log_info("{}".format(committee_frozen_balance_object))
         if check_that("committee frozen balance", committee_frozen_balance_object, has_length(is_in([4, 5])),
                       quiet=True):
             balance = committee_frozen_balance_object["balance"]
@@ -703,14 +702,14 @@ class ObjectValidator(object):
                     economy_config,
                     "blocks_in_interval",
                     is_integer(),
-                    "maintenances_in_interval",
-                    is_integer(),
                     "block_emission_amount",
                     is_integer(),
                     "block_producer_reward_ratio",
                     is_integer(),
                     "pool_divider",
                     is_integer(),
+                    "extensions",
+                    is_list(),
                     quiet=True
                 )
 

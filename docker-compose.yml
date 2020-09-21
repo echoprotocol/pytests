@@ -64,7 +64,7 @@ services:
 
 
   echo:
-    image: echoprotocol/echo:0.22-rc.1
+    image: echoprotocol/echo:0.22.1-rc.0
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -109,7 +109,7 @@ services:
 
 
   testrpc:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.22-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.22.1-rc.0
     command:
       '--rpc-endpoint=0.0.0.0:19999
       --accounts 2'
@@ -117,10 +117,10 @@ services:
       - 56453:19999
 
   wallet:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.22-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.22.1-rc.0
     command:
       '-s ws://echo:6311/ws
-        --chain-id 083c75de48ff1ba5cad672e6accd0db6986f1f31565d581091de4452d53a5536
+        --chain-id c5a2e93ff26f0aa4b46fec5f610490d8a657dd6ce2ef8fefa0b9bc282337aab0
         --rpc-endpoint=0.0.0.0:1998
       '
     ports:

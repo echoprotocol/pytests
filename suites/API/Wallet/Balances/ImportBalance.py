@@ -4,7 +4,7 @@ from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import WALLET_PASSWORD
+from project import WALLET_PASSWORD, INIT4_PK, INIT5_PK
 
 SUITE = {
     "description": "Method 'import_balance'"
@@ -21,8 +21,6 @@ class ImportBalance(WalletBaseTest, BaseTest):
         BaseTest.__init__(self)
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.echo_acc0 = None
-        self.echo_acc1 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -35,13 +33,6 @@ class ImportBalance(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.echo_acc0 = self.get_account_id(
-            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        self.echo_acc1 = self.get_account_id(
-            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -57,6 +48,14 @@ class ImportBalance(WalletBaseTest, BaseTest):
         if response['result']:
             self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
         lcc.log_info("Wallet unlocked")
-        response = self.send_wallet_request("import_balance", [self.echo_acc1, True, ["5K66C276jHJAVeMGVJ8dmZEAVh8axELNoTB7QbgqMTFdKg4BbZC"]], log_response=True)
-        lcc.log_info("{}".format(response))
-        check_that("claimed amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'], equal_to(61))
+
+        lcc.set_step("Import key")
+        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
+        lcc.log_info("Key imported")
+
+        lcc.set_step("Check method import_balance")
+        self.init4 = self.get_account_id(
+            'init4', self.__database_api_identifier, self.__registration_api_identifier
+        )
+        response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
+        check_that("imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'], equal_to(61))

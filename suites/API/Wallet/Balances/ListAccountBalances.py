@@ -43,16 +43,13 @@ class ListAccountBalances(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_list_account_balances'")
     def method_main_check(self):
-        response = self.send_wallet_request("list_account_balances", [self.echo_acc0], log_response=False)
-        if 'result' in response:
-            lcc.log_check('Correct response result received', True)
-            if self.type_validator.is_digit(response['result'][0]["amount"]):
-                lcc.log_check("Amount has correct format.", True)
-            else:
-                lcc.log_error("Wrong amount format!")
-            if self.type_validator.is_asset_id(response['result'][0]["asset_id"]):
-                lcc.log_check("Asset_id has correct format.", True)
-            else:
-                lcc.log_error("Wrong asset_id format!")
+        lcc.set_step("Check list_account_balances method")
+        result = self.send_wallet_request("list_account_balances", [self.echo_acc0], log_response=False)['result'][0]
+        if self.type_validator.is_digit(result["amount"]):
+            lcc.log_check("Amount has correct format.", True)
         else:
-            lcc.log_error("Response received with error")
+            lcc.log_error("Wrong amount format!")
+        if self.type_validator.is_asset_id(result["asset_id"]):
+            lcc.log_check("Asset_id has correct format.", True)
+        else:
+            lcc.log_error("Wrong asset_id format!")

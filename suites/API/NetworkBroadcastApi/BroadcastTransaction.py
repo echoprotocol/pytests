@@ -169,10 +169,12 @@ class NegativeTesting(BaseTest):
         except Exception as e:
             check_that("message", str(e), equal_to(expected_message))
 
+    # todo: Bug ECHO-2400
+    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction' with wrong expiration time")
     @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransaction.BroadcastTransaction.method_main_check")
-    def check_broadcast_transaction_with_callback_with_wrong_expiration_time(
+    def check_broadcast_transaction_with_wrong_expiration_time(
         self, get_random_integer_up_to_ten, get_random_valid_account_name
     ):
         transfer_amount = get_random_integer_up_to_ten
