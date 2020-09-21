@@ -1209,6 +1209,7 @@ class EchoOperations(object):
             "account": account,
             "extensions": extensions
         })
+
         if debug_mode:
             lcc.log_debug(
                 "Balance unfreeze operation: \n{}".format(
@@ -1218,6 +1219,40 @@ class EchoOperations(object):
         if signer is None:
             return [operation_id, balance_unfreeze_operation_props, account]
         return [operation_id, balance_unfreeze_operation_props, signer]
+
+    def get_request_balance_unfreeze_operation(
+        self,
+        echo,
+        account,
+        objects_to_unfreeze,
+        fee_amount=0,
+        fee_asset_id="1.3.0",
+        extensions=None,
+        signer=None,
+        debug_mode=False
+    ):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.REQUEST_BALANCE_UNFREEZE
+        request_balance_unfreeze_operation = self.get_operation_json("request_balance_unfreeze_operation")
+        request_balance_unfreeze_operation["fee"].update({
+            "amount": fee_amount,
+            "asset_id": fee_asset_id
+        })
+        request_balance_unfreeze_operation.update({
+            "account": account,
+            'objects_to_unfreeze': objects_to_unfreeze,
+            "extensions": extensions
+        })
+        if debug_mode:
+            lcc.log_debug(
+                "Request balance unfreeze operation: \n{}".format(
+                    json.dumps([operation_id, request_balance_unfreeze_operation], indent=4)
+                )
+            )
+        if signer is None:
+            return [operation_id, request_balance_unfreeze_operation, account]
+        return [operation_id, request_balance_unfreeze_operation, signer]
 
     def get_contract_create_operation(
         self,
