@@ -247,6 +247,6 @@ class NegativeTesting(BaseTest):
             self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
         )
         null_response, error_notice = self.get_error_message_callback(response_id, False, False)
-        check_that_in(null_response, "id", equal_to(response_id), "result", is_none(), quite=False)
+        check_that_in(null_response, "id", equal_to(response_id), "result", is_none(), quiet=False)
         error_string = "{}: {}".format(error_notice[1][0]['message'], error_notice[1][0]['stack'][0]['format'])
-        check_that("broadcast with callback error notice format", error_string, equal_to(expected_message), quite=False)
+        check_that("broadcast with callback error notice format", error_string, equal_to(expected_message), quiet=False)
