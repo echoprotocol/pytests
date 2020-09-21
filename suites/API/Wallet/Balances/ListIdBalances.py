@@ -5,14 +5,14 @@ from common.wallet_base_test import WalletBaseTest
 import lemoncheesecake.api as lcc
 
 SUITE = {
-    "description": "Method 'list_account_balances'"
+    "description": "Method 'list_id_balances'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_list_account_balances")
-@lcc.suite("Check work of method 'list_account_balances'", rank=1)
-class ListAccountBalances(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_list_id_balances")
+@lcc.suite("Check work of method 'list_id_balances'", rank=1)
+class ListIdBalances(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -41,18 +41,14 @@ class ListAccountBalances(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_list_account_balances'")
+    @lcc.test("Simple work of method 'wallet_list_id_balances'")
     def method_main_check(self):
-        response = self.send_wallet_request("list_account_balances", [self.echo_acc0], log_response=False)
-        if 'result' in response:
-            lcc.log_check('Correct response result received', True)
-            if self.type_validator.is_digit(response['result'][0]["amount"]):
-                lcc.log_check("Amount has correct format.", True)
-            else:
-                lcc.log_error("Wrong amount format!")
-            if self.type_validator.is_asset_id(response['result'][0]["asset_id"]):
-                lcc.log_check("Asset_id has correct format.", True)
-            else:
-                lcc.log_error("Wrong asset_id format!")
+        result = self.send_wallet_request("list_id_balances", [self.echo_acc0], log_response=False)['result'][0]
+        if self.type_validator.is_digit(result['amount']):
+            lcc.log_info("Balance has correct format digit")
         else:
-            lcc.log_error("Response received with error")
+            lcc.log_error("Wrong format of balance")
+        if self.type_validator.is_asset_id(result['asset_id']):
+            lcc.log_info("Asset_id has correct format asset_id")
+        else:
+            lcc.log_error("Wrong format of asset_id")

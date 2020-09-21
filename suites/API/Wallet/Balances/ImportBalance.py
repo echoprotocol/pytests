@@ -12,9 +12,9 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_import_balance")
+@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_import_balance")
 @lcc.suite("Check work of method 'import_balance'", rank=1)
-class GetTransactionId(WalletBaseTest, BaseTest):
+class ImportBalance(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -58,4 +58,5 @@ class GetTransactionId(WalletBaseTest, BaseTest):
             self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
         lcc.log_info("Wallet unlocked")
         response = self.send_wallet_request("import_balance", [self.echo_acc1, True, ["5K66C276jHJAVeMGVJ8dmZEAVh8axELNoTB7QbgqMTFdKg4BbZC"]], log_response=True)
+        lcc.log_info("{}".format(response))
         check_that("claimed amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'], equal_to(61))
