@@ -4,7 +4,7 @@ import json
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, is_none
+from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_none
 
 SUITE = {
     "description": "Method 'broadcast_transaction_with_callback'"
@@ -161,6 +161,15 @@ class NegativeTesting(BaseTest):
             ans = json.loads(str(e)[26:], strict=False)
             return ans["error"]["message"]
 
+    def get_error_message_callback(self, response_id, debug_mode=False, log_response=False):
+        try:
+            null_response = self.get_error_message(response_id, debug_mode, log_response)
+            error_notice = self.get_notice(None, debug_mode, log_response)
+            return null_response, error_notice
+        except Exception as e:
+            ans = json.loads(str(e)[26:], strict=False)
+            return ans["error"]["message"]
+
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong signature")
     @lcc.depends_on(
@@ -200,8 +209,6 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
-    # todo: BUG ECHO-2326
-    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_with_callback' with wrong expiration time")
     @lcc.depends_on(
@@ -239,5 +246,7 @@ class NegativeTesting(BaseTest):
         response_id = self.send_request(
             self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
         )
-        error_message = self.get_error_message(response_id)
-        check_that("message", error_message, equal_to(expected_message))
+        null_response, error_notice = self.get_error_message_callback(response_id, False, False)
+        check_that_in(null_response, "id", equal_to(response_id), "result", is_none(), quite=False)
+        error_string = "{}: {}".format(error_notice[1][0]['message'], error_notice[1][0]['stack'][0]['format'])
+        check_that("broadcast with callback error notice format", error_string, equal_to(expected_message), quite=False)
