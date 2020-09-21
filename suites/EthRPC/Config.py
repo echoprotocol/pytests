@@ -85,7 +85,7 @@ class Config(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.22-rc.1/Linux.64-bit"
+        result = "ECHO/0.22.1-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -93,7 +93,7 @@ class Config(BaseTest):
     @lcc.test("Check method 'eth_chain_id'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_chain_id(self):
-        chain_id = "0x7ad7e43920c0575fd131d8ad7dc11f688f5e456bef8b57ac9c8dd0d7e17d5c38"
+        chain_id = "0xff"
         payload = self.rpc_call("eth_chainId", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(chain_id))
@@ -111,10 +111,10 @@ class Config(BaseTest):
     @lcc.test("Check method 'net_version'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def net_version(self):
-        echo_devnet = "3"
+        net = "255"
         payload = self.rpc_call("net_version", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(echo_devnet))
+        require_that("'result'", response["result"], equal_to(net))
 
     @lcc.test("Check method 'net_listening'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")

@@ -364,7 +364,7 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.22-rc.1/Linux.64-bit"
+        result = "ECHO/0.22.1-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
         require_that("'result'", response["result"], equal_to(result))
@@ -382,10 +382,10 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'net_version'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def net_version(self):
-        echo_devnet = "3"
+        network = "255"
         payload = self.rpc_call("net_version", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(echo_devnet))
+        require_that("'result'", response["result"], equal_to(network))
 
     @lcc.test("Check method 'net_listening'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")

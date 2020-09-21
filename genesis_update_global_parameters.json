@@ -390,6 +390,7 @@
         },
         "maintenance_interval": 50,
         "maintenance_duration_seconds": 10,
+        "balance_unfreezing_time": 7,
         "committee_proposal_review_period": 5,
         "maximum_transaction_size": 2097152,
         "maximum_block_size": 5242880,
@@ -404,7 +405,7 @@
         "block_producer_reward_ratio": 0,
         "frozen_balances_multipliers": [
             [
-                90,
+                1,
                 13000
             ],
             [

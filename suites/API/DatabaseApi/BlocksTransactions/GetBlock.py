@@ -58,13 +58,13 @@ class GetBlock(BaseTest):
         check_that_in(
             block_header,
             "previous",
-            is_str("0000000000000000000000000000000000000000"),
+            is_str(),
             "round",
             is_integer(),
             "attempt",
             is_integer(),
             "transaction_merkle_root",
-            is_str("0000000000000000000000000000000000000000"),
+            is_str(),
             "vm_root",
             is_list(),
             "prev_signatures",
@@ -97,12 +97,12 @@ class GetBlock(BaseTest):
                 is_integer(),
                 "_fallback",
                 is_integer(),
-                quiet=False
+                quiet=True
             )
-        if not self.type_validator.is_digit(certificate["_leader"]):
-            lcc.log_error("Wrong format of '_leader', got: {}".format(certificate["_leader"]))
-        else:
-            lcc.log_info("'_leader' has correct format: int")
+            if not self.type_validator.is_digit(certificate["_leader"]):
+                lcc.log_error("Wrong format of '_leader', got: {}".format(certificate["_leader"]))
+            else:
+                lcc.log_info("'_leader' has correct format: int")
 
 
 @lcc.prop("positive", "type")
