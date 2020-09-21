@@ -84,14 +84,14 @@ class RequestBalanceUnfreeze(BaseTest):
             self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier
         )
         get_objects_results = self.get_response(response_id)["result"][0]
-        check_that("freezed balance amount", get_objects_results, not_equal_to(None), quiet=False)
+        check_that("frozen balance object", get_objects_results, not_equal_to(None), quiet=False)
 
         self.set_timeout_wait(10)
         lcc.log_info("Balance has been unfrozen")
         self.produce_block(self.__database_api_identifier)
-        lcc.set_step("Get account frozen balance")
+        lcc.set_step("Get frozen balance object")
         response_id = self.send_request(
             self.get_request("get_objects", [[objects_to_unfreeze]]), self.__database_api_identifier
         )
         get_objects_results = self.get_response(response_id)["result"][0]
-        check_that("freezed balance amount", get_objects_results, equal_to(None), quiet=False)
+        check_that("frozen balance object", get_objects_results, equal_to(None), quiet=False)
