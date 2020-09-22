@@ -21,6 +21,7 @@ class AssetUpdate(BaseTest):
         self.__registration_api_identifier = None
         self.echo_acc0 = None
         self.echo_acc1 = None
+        self.max_supply = "9999999999999"
 
     def setup_suite(self):
         super().setup_suite()
@@ -48,7 +49,6 @@ class AssetUpdate(BaseTest):
     @lcc.test("Simple work of method 'asset_update'")
     def method_main_check(self, get_random_valid_asset_name):
         new_asset_name = get_random_valid_asset_name
-        max_supply = "9999999999999"
 
         lcc.set_step("Create a new asset and get new asset_id")
         new_asset_id = self.utils.get_asset_id(self, new_asset_name, self.__database_api_identifier)
@@ -60,7 +60,7 @@ class AssetUpdate(BaseTest):
             issuer=self.echo_acc0,
             new_issuer=self.echo_acc1,
             asset_to_update=new_asset_id,
-            max_supply=max_supply,
+            max_supply=self.max_supply,
             new_options=True
         )
         collected_operation = self.collect_operations(asset_update_operation, self.__database_api_identifier)
@@ -75,4 +75,4 @@ class AssetUpdate(BaseTest):
         response_issuer = result["issuer"]
         response_max_supply = result["options"]["max_supply"]
         check_that("'Updated new asset issuer'", response_issuer, equal_to(self.echo_acc1))
-        check_that("'Updated new asset max_supply'", response_max_supply, equal_to(max_supply))
+        check_that("'Updated new asset max_supply'", response_max_supply, equal_to(self.max_supply))
