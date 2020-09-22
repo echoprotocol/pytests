@@ -248,8 +248,8 @@ class PositiveTesting(BaseTest):
         # stop = 1
         # start = operation_count
         # lcc.set_step("Get account history. Stop: '{}', limit: '{}' and start: '{}'".format(stop, limit, start))
-        # response = self.call_get_relative_account_history(self.echo_acc0, stop, limit, start)
-        #
+        # response = self.get_relative_account_history(self.echo_acc0, stop, limit, start)
+
         # lcc.set_step("Check account history to see operations from the selected ids interval")
         # for i in range(limit):
         #     lcc.log_info("Check operation #{}:".format(i))

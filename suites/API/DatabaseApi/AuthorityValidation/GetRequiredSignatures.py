@@ -11,7 +11,6 @@ SUITE = {
 
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
-@lcc.tags("Bug ECHO-1029, ECHO-1031")
 @lcc.tags("api", "database_api", "database_api_authority_validation", "get_required_signatures")
 @lcc.suite("Check work of method 'get_required_signatures'", rank=1)
 class GetRequiredSignatures(BaseTest):

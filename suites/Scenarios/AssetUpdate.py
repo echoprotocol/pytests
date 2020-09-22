@@ -42,7 +42,6 @@ class UpdateAsset(BaseTest):
     def update_asset(self, get_random_valid_account_name, get_random_valid_asset_name):
         new_account = get_random_valid_account_name
         new_asset_name = get_random_valid_asset_name
-        operation_count = 1
 
         lcc.set_step("Create and get new account. Add balance to pay for asset_create_operation fee")
         new_account = self.get_account_id(
@@ -51,9 +50,7 @@ class UpdateAsset(BaseTest):
         asset_create_operation = self.echo_ops.get_asset_create_operation(
             echo=self.echo, issuer=new_account, symbol=new_asset_name
         )
-        self.utils.add_balance_for_operations(
-            self, new_account, asset_create_operation, self.__database_api_identifier, operation_count=operation_count
-        )
+        self.utils.add_balance_for_operations(self, new_account, asset_create_operation, self.__database_api_identifier)
         lcc.log_info("New Echo account created, account_id='{}, balance added".format(new_account))
 
         lcc.set_step("Perform asset create operation using a new account")
@@ -77,9 +74,7 @@ class UpdateAsset(BaseTest):
             asset_to_update=new_asset_id,
             new_options=False
         )
-        self.utils.add_balance_for_operations(
-            self, new_account, asset_create_operation, self.__database_api_identifier, operation_count=operation_count
-        )
+        self.utils.add_balance_for_operations(self, new_account, asset_create_operation, self.__database_api_identifier)
         collected_operation = self.collect_operations(asset_update_operation, self.__database_api_identifier)
         broadcast_result = \
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
@@ -100,9 +95,7 @@ class UpdateAsset(BaseTest):
             max_supply="9999999999999",
             new_options=True
         )
-        self.utils.add_balance_for_operations(
-            self, new_account, asset_create_operation, self.__database_api_identifier, operation_count=operation_count
-        )
+        self.utils.add_balance_for_operations(self, new_account, asset_create_operation, self.__database_api_identifier)
         collected_operation = self.collect_operations(asset_update_operation, self.__database_api_identifier)
         broadcast_result = \
             self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)

@@ -107,6 +107,8 @@ class Receiver(object):
 
     def get_notice(self, id_response, object_id, operation_id, print_log):
         response = json.loads(self.web_socket.recv())
+        if id_response is None:
+            return response["params"]
         if response.get("params")[0] != id_response:
             lcc.log_error(
                 "Wrong 'subscription_id' expected '{}', but received:\n{}".format(

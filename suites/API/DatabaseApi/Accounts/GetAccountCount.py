@@ -38,8 +38,8 @@ class GetAccountCount(BaseTest):
         check_that("'account count'", response["result"], is_integer(), quiet=True)
 
 
-@lcc.prop("suite_run_option_2", "positive")
-@lcc.tags("database_api", "get_account_count")
+@lcc.prop("positive", "type")
+@lcc.tags("api", "database_api", "database_api_accounts", "get_account_count")
 @lcc.suite("Positive testing of method 'get_account_count'", rank=2)
 class PositiveTesting(BaseTest):
 
@@ -91,8 +91,8 @@ class PositiveTesting(BaseTest):
         )
 
 
-@lcc.prop("suite_run_option_3", "negative")
-@lcc.tags("database_api", "get_account_count")
+@lcc.prop("negative", "type")
+@lcc.tags("api", "database_api", "database_api_accounts", "get_account_count")
 @lcc.suite("Negative testing of method 'get_account_count'", rank=3)
 class NegativeTesting(BaseTest):
 
