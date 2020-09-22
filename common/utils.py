@@ -318,12 +318,17 @@ class Utils(object):
         if account_1 != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
             temp_operation[1]["from_account_id"] = base_test.echo_acc0
-            broadcast_result = self.add_balance_for_operations(base_test, account_1, temp_operation, database_api_id,
-                                                               transfer_amount=transfer_amount,
-                                                               operation_count=operation_count,
-                                                               get_only_fee=get_only_fee,
-                                                               fee_asset_id=fee_asset_id,
-                                                               log_broadcast=log_broadcast)
+            broadcast_result = self.add_balance_for_operations(
+                base_test,
+                account_1,
+                temp_operation,
+                database_api_id,
+                transfer_amount=transfer_amount,
+                operation_count=operation_count,
+                get_only_fee=get_only_fee,
+                fee_asset_id=fee_asset_id,
+                log_broadcast=log_broadcast
+            )
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
         collected_operation = base_test.collect_operations(operation, database_api_id, fee_asset_id=fee_asset_id)
@@ -503,8 +508,9 @@ class Utils(object):
         )
         if registrar != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
-            broadcast_result = base_test.utils.add_balance_for_operations(base_test, registrar, temp_operation,
-                                                                    database_api_id, log_broadcast=log_broadcast)
+            broadcast_result = base_test.utils.add_balance_for_operations(
+                base_test, registrar, temp_operation, database_api_id, log_broadcast=log_broadcast
+            )
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
         collected_operation = base_test.collect_operations(operation, database_api_id)
@@ -530,8 +536,9 @@ class Utils(object):
         )
         if registrar != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
-            broadcast_result = base_test.utils.add_balance_for_operations(base_test, registrar, temp_operation,
-                                                                          database_api_id,log_broadcast=log_broadcast)
+            broadcast_result = base_test.utils.add_balance_for_operations(
+                base_test, registrar, temp_operation, database_api_id, log_broadcast=log_broadcast
+            )
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
         collected_operation = base_test.collect_operations(operation, database_api_id)
@@ -1048,8 +1055,9 @@ class Utils(object):
         )
         if account != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
-            broadcast_result = self.add_balance_for_operations(base_test, account, temp_operation, database_api_id,
-                                                               log_broadcast=log_broadcast)
+            broadcast_result = self.add_balance_for_operations(
+                base_test, account, temp_operation, database_api_id, log_broadcast=log_broadcast
+            )
             if not base_test.is_operation_completed(broadcast_result, expected_static_variant=0):
                 raise Exception("Error: can't add balance to new account, response:\n{}".format(broadcast_result))
         collected_operation = base_test.collect_operations(operation, database_api_id)
