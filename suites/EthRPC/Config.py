@@ -111,10 +111,9 @@ class Config(BaseTest):
     @lcc.test("Check method 'net_version'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def net_version(self):
-        net = "255"
         payload = self.rpc_call("net_version", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(net))
+        require_that("'result'", response["result"], equal_to("255"))
 
     @lcc.test("Check method 'net_listening'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
@@ -126,18 +125,16 @@ class Config(BaseTest):
     @lcc.test("Check method 'net_peerCount'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def net_peer_count(self):
-        p2p_quantity = "0x00"
         payload = self.rpc_call("net_peerCount", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(p2p_quantity))
+        require_that("'result'", response["result"], equal_to("0x00"))
 
     @lcc.test("Check method 'eth_protocolVersion'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_protocol_version(self):
-        eth_version = "0x3f"
         payload = self.rpc_call("eth_protocolVersion", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(eth_version))
+        require_that("'result'", response["result"], equal_to("0x3f"))
 
     @lcc.test("Check method 'eth_syncing'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
@@ -156,10 +153,9 @@ class Config(BaseTest):
     @lcc.test("Check method 'eth_gasPrice'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def eth_gas_price(self):
-        gas_price = "0x01"
         payload = self.rpc_call("eth_gasPrice", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(gas_price))
+        require_that("'result'", response["result"], equal_to("0x01"))
 
     @lcc.test("Check method 'eth_block_number'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
