@@ -237,8 +237,8 @@ class Transaction(BaseTest):
         block_hash = self.get_ethrpc_response(self.rpc_call("eth_getBlockByNumber", [block_id, True]))["result"]["hash"]
         check_that("blockHash", receipt["blockHash"], equal_to(block_hash))
         check_that("blockNumber", receipt["blockNumber"], equal_to(block_id))
-        check_that("from", receipt["from"], equal_to("0x000000000000000000000000000000000000000c"))
-        check_that("to", receipt["to"], equal_to("0x000000000000000000000000000000000000000d"))
+        check_that("from", receipt["from"], equal_to("0x000000000000000000000000000000000000000d"))
+        check_that("to", receipt["to"], equal_to("0x000000000000000000000000000000000000000e"))
         check_that("cumulativeGasUsed", receipt["cumulativeGasUsed"], equal_to("0x14"))
         check_that("gasUsed", receipt["gasUsed"], equal_to("0x14"))
         check_that("contractAddress", receipt["contractAddress"], is_none())

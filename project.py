@@ -99,6 +99,11 @@ if "INIT4_PK" not in os.environ:
 else:
     INIT4_PK = os.environ["INIT4_PK"]
 
+if "INIT5_PK" not in os.environ:
+    INIT5_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["INIT5_PK"]
+else:
+    INIT5_PK = os.environ["INIT5_PK"]
+
 ECHO_OPERATIONS = json.load(open(os.path.join(RESOURCES_DIR, "echo_operations.json")))
 ECHO_CONTRACTS = json.load(open(os.path.join(RESOURCES_DIR, "echo_contracts.json")))
 WALLETS = os.path.join(RESOURCES_DIR, "wallets.json")

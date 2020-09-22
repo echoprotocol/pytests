@@ -582,6 +582,11 @@
             "name": "nathan",
             "active_key": "ECHO9GUY5DUWy5bHZWPwhdmV1oi8QdvBcwxKF73WESeHDoWQ",
             "echorand_key": "ECHO9GUY5DUWy5bHZWPwhdmV1oi8QdvBcwxKF73WESeHDoWQ"
+        },
+        {
+            "name": "init5",
+            "active_key": "ECHOHiweN8UGL8KgVaM956pFq98Dc5EAbYrMNdNE6CYob84J",
+            "echorand_key": "ECHOHiweN8UGL8KgVaM956pFq98Dc5EAbYrMNdNE6CYob84J"
         }
     ],
     "initial_assets": [
@@ -630,7 +635,7 @@
         {
             "owner": "ECHO9GUY5DUWy5bHZWPwhdmV1oi8QdvBcwxKF73WESeHDoWQ",
             "asset_symbol": "ECHO",
-            "amount": "999999999999850"
+            "amount": "999999999999789"
         },
         {
             "owner": "ECHOHCm2TxVGHWD73VYGo2uXTt6SfJKAbgUpYK89Qn7SBWrk",
@@ -656,6 +661,11 @@
             "owner": "ECHOCh3WGJCMKkBJHFJpzaC378cwwYisNbNKpD6oYhcuA6nR",
             "asset_symbol": "ECHO",
             "amount": "50"
+        },
+        {
+            "owner": "ECHOHiweN8UGL8KgVaM956pFq98Dc5EAbYrMNdNE6CYob84J",
+            "asset_symbol": "ECHO",
+            "amount": "61"
         }
     ],
     "initial_vesting_balances": [],
