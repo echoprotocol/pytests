@@ -24,11 +24,7 @@ class GetCommitteeFrozenBalance(WalletBaseTest, BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "Database API identifiers are: '{}'".format(
-                self.__database_api_identifier
-            )
-        )
+        lcc.log_info("Database API identifiers are: '{}'".format(self.__database_api_identifier))
         self.committee_members_info = self.get_active_committee_members_info(self.__database_api_identifier)
         self.init0 = self.committee_members_info[0]["account_id"]
 

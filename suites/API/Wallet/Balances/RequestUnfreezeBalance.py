@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT5_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import WALLET_PASSWORD, INIT5_PK
 
 SUITE = {
     "description": "Method 'request_unfreeze_balance'"
@@ -58,13 +58,19 @@ class FreezeBalance(WalletBaseTest, BaseTest):
         lcc.log_info("Key imported")
 
         lcc.set_step("Freeze balance")
-        self.init5 = self.get_account_id(
-            'init5', self.__database_api_identifier, self.__registration_api_identifier
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        self.send_wallet_request(
+            "freeze_balance", [self.init5, value_amount, self.echo_asset, 90, True], log_response=False
         )
-        self.send_wallet_request("freeze_balance", [self.init5, value_amount, self.echo_asset, 90, True], log_response=False)
         self.produce_block(self.__database_api_identifier)
-        frozen_balance_id = self.send_wallet_request("list_frozen_balances", [self.init5], log_response=False)["result"][-1]['id']
-        request = self.send_wallet_request("request_unfreeze_balance", [self.init5, [frozen_balance_id], True], log_response=False)
+        lcc.log_info('{} assets added to frozen balance'.format(value_amount))
+        frozen_balance_id = self.send_wallet_request(
+            "list_frozen_balances", [self.init5], log_response=False
+        )["result"][-1]['id']
+        lcc.set_step("Request unfreeze balance")
+        request = self.send_wallet_request(
+            "request_unfreeze_balance", [self.init5, [frozen_balance_id], True], log_response=False
+        )
         # request_unfreeze_balance created bug https://jira.pixelplex.by/browse/ECHO-2404
         lcc.log_info("{}".format(request))
         response_id = self.send_request(

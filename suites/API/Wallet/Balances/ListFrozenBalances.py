@@ -52,6 +52,7 @@ class ListFrozenBalances(WalletBaseTest, BaseTest):
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         self.produce_block(self.__database_api_identifier)
+        lcc.set_step("Check list frozen balance method")
         result = self.send_wallet_request("list_frozen_balances", [self.echo_acc0], log_response=False)["result"][-1]
         check_that("frozen_balance", result['balance']['amount'], equal_to(value_amount))
         if self.type_validator.is_frozen_balance_id(result['id']):

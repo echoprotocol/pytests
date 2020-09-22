@@ -43,6 +43,7 @@ class ListIdBalances(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_list_id_balances'")
     def method_main_check(self):
+        lcc.set_step("Check list id balances method")
         result = self.send_wallet_request("list_id_balances", [self.echo_acc0], log_response=False)['result'][0]
         if self.type_validator.is_digit(result['amount']):
             lcc.log_info("Balance has correct format digit")

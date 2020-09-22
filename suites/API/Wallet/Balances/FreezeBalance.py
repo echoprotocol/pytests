@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT5_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import WALLET_PASSWORD, INIT5_PK
 
 SUITE = {
     "description": "Method 'freeze_balance'"
@@ -53,14 +53,14 @@ class FreezeBalance(WalletBaseTest, BaseTest):
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Freeze balance")
-        self.init5 = self.get_account_id(
-            'init5', self.__database_api_identifier, self.__registration_api_identifier
+        lcc.set_step("Check freeze balance method")
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        self.send_wallet_request(
+            "freeze_balance", [self.init5, value_amount, self.echo_asset, 90, True], log_response=False
         )
-        self.send_wallet_request("freeze_balance", [self.init5, value_amount, self.echo_asset, 90, True], log_response=False)
         self.produce_block(self.__database_api_identifier)
         result = self.send_wallet_request("list_frozen_balances", [self.init5], log_response=False)["result"][-1]
-        check_that("frozen_balance", int(result['balance']['amount']), equal_to(value_amount * 10**8))
+        check_that("frozen_balance", int(result['balance']['amount']), equal_to(value_amount * 10 ** 8))
         if self.type_validator.is_frozen_balance_id(result['id']):
             lcc.log_info("Correct format of frozen_balance_id")
         else:

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT4_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import WALLET_PASSWORD, INIT4_PK
 
 SUITE = {
     "description": "Method 'committee_freeze_balance'"
@@ -54,12 +54,17 @@ class CommitteeFreezeBalance(WalletBaseTest, BaseTest):
         lcc.log_info("Key imported")
 
         lcc.set_step("Freeze committee balance")
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
-        current_frozen_balance_amount = self.send_wallet_request("get_committee_frozen_balance", [self.init4], log_response=False)['result']['amount']
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        current_frozen_balance_amount = self.send_wallet_request(
+            "get_committee_frozen_balance", [self.init4], log_response=False
+        )['result']['amount']
         self.send_wallet_request("committee_freeze_balance", [self.init4, value_amount, True], log_response=False)
         self.produce_block(self.__database_api_identifier)
-        new_frozen_balance_amount = self.send_wallet_request("get_committee_frozen_balance", [self.init4], log_response=False)['result']['amount']
+        new_frozen_balance_amount = self.send_wallet_request(
+            "get_committee_frozen_balance", [self.init4], log_response=False
+        )['result']['amount']
 
-        check_that("committee frozen balance", int(current_frozen_balance_amount + value_amount), equal_to(new_frozen_balance_amount))
+        check_that(
+            "committee frozen balance", int(current_frozen_balance_amount + value_amount),
+            equal_to(new_frozen_balance_amount)
+        )

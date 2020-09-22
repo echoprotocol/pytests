@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT4_PK, INIT5_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import WALLET_PASSWORD, INIT4_PK, INIT5_PK
 
 SUITE = {
     "description": "Method 'import_balance'"
@@ -53,9 +53,10 @@ class ImportBalance(WalletBaseTest, BaseTest):
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Check method import_balance")
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        lcc.set_step("Check method import balance")
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
-        check_that("imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'], equal_to(61))
+        check_that(
+            "imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'],
+            equal_to(61)
+        )
