@@ -292,9 +292,7 @@ class NegativeTesting(BaseTest):
         params = ['init0']
 
         lcc.set_step("Get account id by name")
-        response_id = self.send_request(
-            self.get_request("get_account_by_name", params), self.__database_api_identifier
-        )
+        response_id = self.send_request(self.get_request("get_account_by_name", params), self.__database_api_identifier)
         account_id = self.get_response(response_id)["result"]["id"]
         lcc.log_info("Got account id: {}".format(account_id))
 
