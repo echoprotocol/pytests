@@ -14,7 +14,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("api", "wallet_api", "wallet_balances", "wallet_request_unfreeze_balance")
 @lcc.suite("Check work of method 'request_unfreeze_balance'", rank=1)
-class FreezeBalance(WalletBaseTest, BaseTest):
+class RequestUnfreezeBalance(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)

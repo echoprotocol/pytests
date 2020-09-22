@@ -13,7 +13,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("api", "wallet_api", "wallet_balances", "wallet_withdraw_vesting")
 @lcc.suite("Check work of method 'withdraw_vesting'", rank=1)
-class CommitteeFreezeBalance(WalletBaseTest, BaseTest):
+class WithdrawVesting(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
