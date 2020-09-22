@@ -56,8 +56,8 @@ class DeploySolidityContract(BaseTest):
             echo=self.echo, list_operations=collected_operation, log_broadcast=True
         )
         contract_id = \
-            self.get_contract_result(broadcast_result, self.__database_api_identifier, mode="evm")["result"][1][
-                "contract_id"]
+            self.get_contract_result(broadcast_result, self.__database_api_identifier, mode="evm")
+        contract_id = contract_id["result"][1]["contract_id"]
         lcc.log_info("Created contract id: {}".format(contract_id))
 
         # todo: Added contract method call

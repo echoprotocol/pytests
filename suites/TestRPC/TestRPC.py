@@ -6,8 +6,8 @@ from project import TESTRPC_URL
 import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import (
-    check_that, equal_to, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to, require_that,
-    require_that_in
+    check_that, equal_to, greater_than, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to,
+    require_that, require_that_in
 )
 
 SUITE = {
@@ -201,6 +201,9 @@ class TestRPC(BaseTest):
         self.SHA3_trx_hash = "0x68656c6c6f20776f726c64"
         self.value = "0xffff"
         self.contract = self.get_byte_code("code_contract_Callee", "code")
+        self.initial_account = "0x000000000000000000000000000000000000000b"
+        self.invalid_hex_encoded_signature = \
+            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 
     def teardown_suite(self):
         pass
@@ -332,12 +335,9 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_sign'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_sign(self):
-        unvalid_hex_encoded_signutrare = \
-            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-        initial_account = "0x000000000000000000000000000000000000000b"
-        payload = self.rpc_call("eth_sign", [initial_account, "0xdeadbaaf"])
+        payload = self.rpc_call("eth_sign", [self.initial_account, "0xdeadbaaf"])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], not_equal_to(unvalid_hex_encoded_signutrare))
+        require_that("'result'", response["result"], not_equal_to(self.invalid_hex_encoded_signature))
         if not self.type_validator.is_hex(response["result"]):
             lcc.log_error("Wrong format of 'result', got: '{}'".format(response["result"]))
         else:
@@ -364,10 +364,13 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.22.1-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(result))
+        client_version_parts = response["result"].split("/")
+        require_that("'first part of web3 client version", client_version_parts[0], equal_to("ECHO"))
+        echo_version_parts = client_version_parts[1].split(".")
+        require_that("'version of echo splitted by dot have length", len(echo_version_parts), greater_than(2))
+        require_that("'third part of web3 client version", client_version_parts[2], equal_to("Linux.64-bit"))
 
     @lcc.test("Check method 'web3_sha3'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -382,10 +385,9 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'net_version'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def net_version(self):
-        network = "255"
         payload = self.rpc_call("net_version", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(network))
+        require_that("'result'", response["result"], equal_to("255"))
 
     @lcc.test("Check method 'net_listening'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -397,18 +399,16 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'net_peerCount'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def net_peer_count(self):
-        p2p_quantity = "0x00"
         payload = self.rpc_call("net_peerCount", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(p2p_quantity))
+        require_that("'result'", response["result"], equal_to("0x00"))
 
     @lcc.test("Check method 'eth_protocolVersion'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_protocol_version(self):
-        eth_version = "0x3f"
         payload = self.rpc_call("eth_protocolVersion", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(eth_version))
+        require_that("'result'", response["result"], equal_to("0x3f"))
 
     @lcc.test("Check method 'eth_syncing'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -427,10 +427,9 @@ class TestRPC(BaseTest):
     @lcc.test("Check method 'eth_gasPrice'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
     def eth_gas_price(self):
-        gas_price = "0x01"
         payload = self.rpc_call("eth_gasPrice", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(gas_price))
+        require_that("'result'", response["result"], equal_to("0x01"))
 
     @lcc.test("Check method 'eth_block_number'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
@@ -507,7 +506,6 @@ class TestRPC(BaseTest):
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.personal_new_account")
     def eth_call(self):
         self.create_contract()
-        data = "0x"
         payload = self.rpc_call(
             "eth_call", [{
                 "from": self.new_account_address,
@@ -515,7 +513,7 @@ class TestRPC(BaseTest):
             }, "latest"]
         )
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(data))
+        require_that("'result'", response["result"], equal_to("0x"))
 
     @lcc.test("Check method 'eth_estimateGas'")
     @lcc.depends_on("TestRPC.TestRPC.TestRPC.main_check")
