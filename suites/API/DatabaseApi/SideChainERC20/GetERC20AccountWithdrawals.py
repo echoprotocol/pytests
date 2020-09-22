@@ -178,7 +178,7 @@ class GetERC20AccountWithdrawals(BaseTest):
         erc20_withdrawal_amounts.append(str(self.get_random_amount(_to=in_echo_erc20_balance)))
         bd_result = \
             self.utils.perform_sidechain_erc20_withdraw_token_operation(
-                self,
+                base_test=self,
                 account=new_account_id,
                 to=self.eth_account.address,
                 erc20_token=erc20_token_id,

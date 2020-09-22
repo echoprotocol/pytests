@@ -60,7 +60,8 @@ class PositiveTesting(BaseTest):
         super().teardown_suite()
 
     # todo: uncomment. Manual testing.
-    # @lcc.test("Check that 'cancel_all_subscriptions' cancels method 'set_subscribe_callback'")
+    @lcc.disabled()
+    @lcc.test("Check that 'cancel_all_subscriptions' cancels method 'set_subscribe_callback'")
     def cancel_set_block_applied_callback(self, get_random_integer):
         lcc.set_step("Set block applied callback")
         subscription_callback_id = get_random_integer

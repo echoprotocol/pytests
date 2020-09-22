@@ -218,7 +218,6 @@ class ERC20(BaseTest):
             "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start)
         )
 
-        lcc.tags("Bug ECHO-1423")
         lcc.set_step("Check ERC20 tokens of 'sidechain_erc20_issue_operation'")
         deposits.reverse()
         for i, history_operation in enumerate(history_operations):
@@ -370,7 +369,6 @@ class ERC20(BaseTest):
             "start='{}' parameters".format(self.new_account, operation_id, stop, limit, start)
         )
 
-        lcc.tags("Bug ECHO-1423")
         lcc.set_step("Check ERC20 tokens of 'sidechain_erc20_burn_operation'")
         withdrawals.reverse()
         for i, history_operation in enumerate(history_operations):

@@ -11,14 +11,13 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("methods", "global_api", "get_git_revision")
-@lcc.suite("Check work of method 'get_git_revision_'", rank=1)
+@lcc.tags("api", "database_api", "database_api_globals", "get_git_revision")
+@lcc.suite("Check work of method 'get_git_revision'", rank=1)
 class GeGitRevision(BaseTest):
 
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
-        self.__registration_api_identifier = None
         self.__did_api_identifier = None
         self.echo_acc0 = None
 
@@ -27,12 +26,7 @@ class GeGitRevision(BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        self.__registration_api_identifier = self.get_identifier("registration")
-        lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(
-                self.__database_api_identifier, self.__registration_api_identifier
-            )
-        )
+        lcc.log_info("API identifiers are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()

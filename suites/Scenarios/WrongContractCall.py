@@ -22,6 +22,9 @@ class WrongContractCall(BaseTest):
         self.echo_acc0 = None
         self.contract = self.get_byte_code("wrong_contract", "code")
         self.value_amount = 10
+        self.wrong_bytecodes = ['get_balance(\"1.2.10\", \"1.3.0\"', 'greet(\"1.2.10\", \"1.3.0\"']
+        self.correct_bytecodes = ['get_balance(\"1.2.10\", \"1.3.0\")', 'greet(\"1.2.10\", \"1.3.0\")']
+        self.error_message = "incorrect_parameters"
 
     def setup_suite(self):
         super().setup_suite()
@@ -45,10 +48,6 @@ class WrongContractCall(BaseTest):
 
     @lcc.test("The scenario describes behavior of wrong contact call.")
     def wrong_contract_call(self):
-        wrong_bytecodes = ['get_balance(\"1.2.10\", \"1.3.0\"', 'greet(\"1.2.10\", \"1.3.0\"']
-        correct_bytecodes = ['get_balance(\"1.2.10\", \"1.3.0\")', 'greet(\"1.2.10\", \"1.3.0\")']
-        error_massage = "incorrect_parameters"
-
         lcc.set_step("Create 'Wrong call' contract in the Echo network")
         operation = self.echo_ops.get_contract_create_operation(
             echo=self.echo,
@@ -65,7 +64,7 @@ class WrongContractCall(BaseTest):
         lcc.log_info("Created contract id: {}".format(contract_id))
 
         lcc.set_step("Call method of 'Wrong call' contract with wrong bytecode")
-        for bytecode in wrong_bytecodes:
+        for bytecode in self.wrong_bytecodes:
             operation = self.echo_ops.get_contract_call_operation(
                 echo=self.echo, registrar=self.echo_acc0, bytecode=bytecode, callee=contract_id
             )
@@ -74,10 +73,10 @@ class WrongContractCall(BaseTest):
             call_result = self.get_contract_result(
                 broadcast_result, self.__database_api_identifier, mode="x86"
             )["result"][1]["result"]["error"]
-            require_that("'wrong contract call error'", call_result, is_(error_massage))
+            require_that("'wrong contract call error'", call_result, is_(self.error_message))
 
         lcc.set_step("Call method of 'Wrong call' contract with correct bytecode")
-        for bytecode in correct_bytecodes:
+        for bytecode in self.correct_bytecodes:
             operation = self.echo_ops.get_contract_call_operation(
                 echo=self.echo, registrar=self.echo_acc0, bytecode=bytecode, callee=contract_id
             )

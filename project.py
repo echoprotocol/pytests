@@ -119,7 +119,6 @@ for i, initial_committee_candidate in enumerate(INITIAL_COMMITTEE_CANDIDATES):
 ACCOUNT_PREFIX = "account"
 DEFAULT_ACCOUNTS_COUNT = 1000
 MAIN_TEST_ACCOUNT_COUNT = 1
-# todo: delete. Block_interval = 5
 BLOCK_RELEASE_INTERVAL = 5
 BLOCKS_NUM_TO_WAIT = 10
 REQUIRED_DEPOSIT_AMOUNT = GENESIS["initial_parameters"]["committee_frozen_balance_to_activate"]

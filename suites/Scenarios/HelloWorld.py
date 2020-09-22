@@ -62,8 +62,6 @@ class HelloWorld(BaseTest):
     def hello_world_scenario(self):
         expected_string = "Hello World!!!"
 
-        # todo: delete after resolve of Assert Exception: itr->get_balance() >= -delta: Insufficient Balance:
-        # account88's balance of 0.00000001 ECHO is less than required 0.00000010 ECHO
         self.utils.perform_transfer_operations(
             self, self.echo_acc0, self.account_id, self.__database_api_identifier, transfer_amount=self.value_amount
         )
