@@ -59,7 +59,7 @@ class CommitteeWithdrawBalance(WalletBaseTest, BaseTest):
         )['result']['amount']
         if int(current_frozen_balance_amount) < 1010:
             lcc.log_info("Committee frozen balance less then required amount")
-            self.send_wallet_request("committee_freeze_balance", [self.init4, 10, True], log_response=False)
+            self.send_wallet_request("committee_freeze_balance", [self.init4, 1010, True], log_response=False)
             lcc.log_info("10 assets added to committee frozen balance")
             self.produce_block(self.__database_api_identifier)
             current_frozen_balance_amount = self.send_wallet_request(
