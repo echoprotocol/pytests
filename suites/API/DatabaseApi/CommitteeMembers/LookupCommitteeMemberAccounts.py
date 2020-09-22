@@ -270,7 +270,6 @@ class NegativeTesting(BaseTest):
     def __init__(self):
         super().__init__()
         self.__database_api_identifier = None
-        self.init0 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -278,8 +277,6 @@ class NegativeTesting(BaseTest):
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
         lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
-        self.init0 = "1.2.6"
-        # todo: replace hardcode
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -292,8 +289,17 @@ class NegativeTesting(BaseTest):
     def check_negative_int_value_in_lookup_committee_member_accounts(self):
         error_message = "Assert Exception: result >= 0: Invalid cast from negative number to unsigned"
         limit = -1
-        params = [self.init0, limit]
+        params = ['init0']
+
+        lcc.set_step("Get account id by name")
+        response_id = self.send_request(
+            self.get_request("get_account_by_name", params), self.__database_api_identifier
+        )
+        account_id = self.get_response(response_id)["result"]["id"]
+        lcc.log_info("Got account id: {}".format(account_id))
+
         lcc.set_step("Get 'lookup_committee_member_accounts' with negative limit")
+        params = [account_id, limit]
         response_id = self.send_request(
             self.get_request("lookup_committee_member_accounts", params), self.__database_api_identifier
         )
