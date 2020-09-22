@@ -41,6 +41,7 @@ class RequestBalanceUnfreeze(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    # todo: enable in github
     # this test required smaller frozen_balances_multipliers and maintenance_interval
     # to run this test you should update genesis
     @lcc.disabled()
@@ -72,7 +73,6 @@ class RequestBalanceUnfreeze(BaseTest):
         get_objects_results = self.get_response(response_id)["result"][0]
         check_that("freezed balance amount", get_objects_results, not_equal_to(None), quiet=False)
 
-        # self.produce_block(self.__database_api_identifier)
         lcc.set_step("Unfreeze balance")
         operation = self.echo_ops.get_request_balance_unfreeze_operation(
             echo=self.echo, account=self.echo_acc0, objects_to_unfreeze=[objects_to_unfreeze]
