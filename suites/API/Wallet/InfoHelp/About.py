@@ -2,7 +2,9 @@
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, has_entry, has_length, is_not_none, require_that, greater_than
+from lemoncheesecake.matching import (
+    check_that, equal_to, greater_than, has_entry, has_length, is_not_none, require_that
+)
 
 SUITE = {
     "description": "Method 'about'"

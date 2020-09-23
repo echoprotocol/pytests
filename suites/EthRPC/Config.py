@@ -6,8 +6,8 @@ import lemoncheesecake.api as lcc
 import requests
 from echopy import Echo
 from lemoncheesecake.matching import (
-    check_that, equal_to, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to, require_that,
-    require_that_in, greater_than
+    check_that, equal_to, greater_than, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to,
+    require_that, require_that_in
 )
 
 SUITE = {
