@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT4_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'sign_transaction'"
@@ -33,30 +35,48 @@ class SignTransaction(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.echo_acc0 = self.get_account_id(
-            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        self.echo_acc1 = self.get_account_id(
-            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.init4, self.init5))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # TODO: fix when import key (ECHO-2355)
-    @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_sign_transaction'")
     def method_main_check(self):
+        lcc.set_step("Unlock wallet")
+        response = self.send_wallet_request("is_new", [], log_response=False)
+        if response['result']:
+            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
+        response = self.send_wallet_request("is_locked", [], log_response=False)
+        if response['result']:
+            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
+        lcc.log_info("Wallet unlocked")
+        lcc.set_step("Import key")
+        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
+        lcc.log_info("Key imported")
 
         lcc.set_step("Collect and sign transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(
-            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
+            echo=self.echo, from_account_id=self.init4, to_account_id=self.init5, amount=1, signer=INIT4_PK
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         signed_trx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
+
+        params = [self.init5, [self.echo_asset]]
+        response_id = self.send_request(
+            self.get_request("get_account_balances", params), self.__database_api_identifier
+        )
+        amount = self.get_response(response_id)['result'][0]['amount']
+
         del signed_trx['signatures']
-        lcc.log_info("Signed transaction: {}".format(signed_trx))
         response = self.send_wallet_request("sign_transaction", [signed_trx.json(), True], log_response=False)
-        lcc.log_info("{}".format(response))
+        self.produce_block(self.__database_api_identifier)
+        params = [self.init5, [self.echo_asset]]
+        response_id = self.send_request(
+            self.get_request("get_account_balances", params), self.__database_api_identifier
+        )
+        amount_after_transfer = self.get_response(response_id)['result'][0]['amount']
+        check_that('account balance', int(amount) + 1, equal_to(int(amount_after_transfer)))
+        lcc.log_info("Transaction signed successfully")
