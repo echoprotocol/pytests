@@ -2,7 +2,7 @@
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, has_entry, has_length, is_not_none, require_that
+from lemoncheesecake.matching import check_that, equal_to, has_entry, has_length, is_not_none, require_that, greater_than
 
 SUITE = {
     "description": "Method 'about'"
@@ -28,7 +28,8 @@ class About(WalletBaseTest):
         result = response["result"]
         if require_that("result", result, has_length(10)):
             check_that("blockchain_name", result["blockchain_name"], equal_to("ECHO"))
-            check_that("client_version", result["client_version"], equal_to("0.22.1-rc.0"))
+            client_version_parts = result["client_version"].split(".")
+            check_that("client_version splitted by dot have length", len(client_version_parts), greater_than(2))
             if not self.type_validator.is_hex(result["echo_revision"]):
                 lcc.log_error("Wrong format of 'echo_revision', got: {}".format(result["echo_revision"]))
             else:
@@ -45,7 +46,7 @@ class About(WalletBaseTest):
                 lcc.log_error("Wrong format of 'fc_revision_age', got: {}".format(result["fc_revision_age"]))
             else:
                 lcc.log_info("'fc_revision_age' has correct format: age time")
-            check_that("compile_date", result["compile_date"], equal_to("compiled on Sep 14 2020 at 15:41:40"))
+            check_that("compile_date", result["compile_date"], equal_to("compiled on Sep 22 2020 at 19:04:18"))
             check_that("boost_version", result["boost_version"], equal_to("1.70"))
             check_that("openssl_version", result["openssl_version"], equal_to("OpenSSL 1.0.2g  1 Mar 2016"))
             check_that("build", result["build"], equal_to("linux 64-bit"))
