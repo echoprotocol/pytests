@@ -4,6 +4,7 @@ from common.wallet_base_test import WalletBaseTest
 from project import INIT5_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to, not_equal_to
 
 SUITE = {
     "description": "Method 'withdraw_vesting'"
@@ -46,13 +47,10 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'wallet_withdraw_vesting'")
-    @lcc.disabled()
-    # TODO: fix after ECHO-2405
     def method_main_check(self, get_random_integer):
-        value_amount = get_random_integer
         lcc.set_step("Perform vesting balance create operation")
         broadcast_result = self.utils.perform_vesting_balance_create_operation(
-            self, self.echo_acc0, self.init5, value_amount, self.__database_api_identifier
+            self, self.echo_acc0, self.init5, 100000000, self.__database_api_identifier
         )
         vesting_balance_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Vesting balance object '{}' created".format(vesting_balance_id))
@@ -72,12 +70,12 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
 
         lcc.set_step("Check get_vesting_balances method")
         get_vesting_balances_result = self.send_wallet_request("get_vesting_balances", [self.init5], log_response=False)
-        lcc.log_info("{}".format(get_vesting_balances_result))
+        check_that("vesting_balances", get_vesting_balances_result['result'][-1]['balance']['amount'], not_equal_to(0))
 
         get_vesting_balances_result = self.send_wallet_request(
-            "withdraw_vesting", [vesting_balance_id, value_amount, self.echo_asset, True], log_response=False
+            "withdraw_vesting", [vesting_balance_id, 1, self.echo_asset, True], log_response=False
         )
+        lcc.log_info("withdraw vesting balance: {}".format(vesting_balance_id))
         self.produce_block(self.__database_api_identifier)
-        lcc.log_info("{}".format(get_vesting_balances_result))
         get_vesting_balances_result = self.send_wallet_request("get_vesting_balances", [self.init5], log_response=False)
-        lcc.log_info("{}".format(get_vesting_balances_result))
+        check_that("vesting_balances", get_vesting_balances_result['result'][-1]['balance']['amount'], equal_to(0))
