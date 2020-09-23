@@ -183,8 +183,6 @@ class NegativeTesting(BaseTest):
         error_message = self.get_error_message(response_id)
         check_that("message", error_message, equal_to(expected_message))
 
-    # todo: Bug ECHO-2400
-    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction_synchronous' with wrong expiration time")
     @lcc.depends_on(

@@ -60,8 +60,6 @@ class CommitteeMemberActivate(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # todo: Bug ECHO-2400
-    @lcc.disabled()
     @lcc.test("Simple work of operation 'committee_member_activate'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
         new_account = get_random_valid_account_name

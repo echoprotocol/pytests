@@ -99,8 +99,6 @@ class ChangeActiveCommitteeMember(BaseTest):
             self._disconnect_to_echopy_lib()
             super().teardown_suite()
 
-    # todo: Bug ECHO-2400
-    @lcc.disabled()
     @lcc.test("The scenario describes the mechanism of updating the list of active committee members")
     def change_active_committee_member(
         self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key
