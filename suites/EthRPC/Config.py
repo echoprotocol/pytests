@@ -6,8 +6,8 @@ import lemoncheesecake.api as lcc
 import requests
 from echopy import Echo
 from lemoncheesecake.matching import (
-    check_that, equal_to, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to, require_that,
-    require_that_in
+    check_that, equal_to, greater_than, has_length, is_false, is_integer, is_list, is_none, is_true, not_equal_to,
+    require_that, require_that_in
 )
 
 SUITE = {
@@ -85,10 +85,13 @@ class Config(BaseTest):
     @lcc.test("Check method 'web3_clientVersion'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
     def web3_client_version(self):
-        result = "ECHO/0.22.1-rc.0/Linux.64-bit"
         payload = self.rpc_call("web3_clientVersion", [])
         response = self.get_response(payload)
-        require_that("'result'", response["result"], equal_to(result))
+        client_version_parts = response["result"].split("/")
+        require_that("'first part of web3 client version", client_version_parts[0], equal_to("ECHO"))
+        echo_version_parts = client_version_parts[1].split(".")
+        require_that("'version of echo splitted by dot have length", len(echo_version_parts), greater_than(2))
+        require_that("'third part of web3 client version", client_version_parts[2], equal_to("Linux.64-bit"))
 
     @lcc.test("Check method 'eth_chain_id'")
     @lcc.depends_on("EthRPC.Config.Config.main_check")
