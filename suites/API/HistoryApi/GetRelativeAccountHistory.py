@@ -2,7 +2,9 @@
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, has_length, is_, is_list, require_that
+from lemoncheesecake.matching import (
+    check_that, equal_to, has_length, is_, is_list, is_str, require_that, require_that_in
+)
 
 SUITE = {
     "description": "Method 'get_relative_account_history'"
@@ -184,7 +186,6 @@ class PositiveTesting(BaseTest):
         check_that("'number of history results'", response["result"], has_length(max_limit))
 
     @lcc.test("Check stop and start IDs of the operations in account history")
-    @lcc.tags("Bug: 'ECHO-699'")
     @lcc.depends_on("API.HistoryApi.GetRelativeAccountHistory.GetRelativeAccountHistory.method_main_check")
     def stop_and_start_operations(self, get_random_integer, get_random_integer_up_to_hundred):
         transfer_amount_1 = get_random_integer
@@ -195,21 +196,18 @@ class PositiveTesting(BaseTest):
         operation_ids = []
 
         lcc.set_step("Perform one operation")
-        operation_count = 1
         broadcast_result = self.utils.perform_transfer_operations(
             self,
             self.echo_acc0,
             self.echo_acc1,
             self.__database_api_identifier,
             transfer_amount=transfer_amount_1,
-            operation_count=operation_count,
             only_in_history=True
         )
-        lcc.log_info("Fill account history with '{}' number of transfer operations".format(operation_count))
-
         operations.append(broadcast_result["trx"]["operations"][0])
+        lcc.log_info("Fill account history with '{}' number of transfer operations".format(len(operations)))
 
-        limit = operation_count
+        limit = len(operations)
         lcc.set_step("Get account history. Limit: '{}'".format(limit))
         response = self.get_relative_account_history(self.echo_acc0, stop, limit, start)
 
@@ -217,22 +215,18 @@ class PositiveTesting(BaseTest):
         require_that("'account history'", response["result"][0]["op"], is_list(operations[0]))
 
         lcc.set_step("Perform another operations")
-        operation_count = 1
         broadcast_result = self.utils.perform_transfer_operations(
             self,
             self.echo_acc0,
             self.echo_acc1,
             self.__database_api_identifier,
             transfer_amount=transfer_amount_2,
-            operation_count=operation_count,
             only_in_history=True
         )
-        lcc.log_info("Fill account history with '{}' number of transfer operations".format(operation_count))
+        operations.append(broadcast_result["trx"]["operations"][0])
+        lcc.log_info("Fill account history with '{}' number of transfer operations".format(len(operations)))
 
-        for i in range(operation_count):
-            operations.append(broadcast_result["trx"]["operations"][i])
-
-        limit = operation_count
+        limit = len(operations)
         stop = 1
         lcc.set_step("Get account history. Stop: '{}', limit: '{}'".format(stop, limit))
         response = self.get_relative_account_history(self.echo_acc0, stop, limit, start)
@@ -243,21 +237,15 @@ class PositiveTesting(BaseTest):
             require_that("'account history'", response["result"][i]["op"], is_list(operations[i]))
             operation_ids.append(response["result"][i]["id"])
 
-        # todo: don't work start param. Bug: "ECHO-699"
-        # limit = operation_count + 1
-        # stop = 1
-        # start = operation_count
-        # lcc.set_step("Get account history. Stop: '{}', limit: '{}' and start: '{}'".format(stop, limit, start))
-        # response = self.get_relative_account_history(self.echo_acc0, stop, limit, start)
+        start = 10000
+        stop = 0
+        lcc.set_step("Get account history. Stop: '{}', limit: '{}' and start: '{}'".format(stop, limit, start))
+        response = self.get_relative_account_history(self.echo_acc0, stop, limit, start)
 
-        # lcc.set_step("Check account history to see operations from the selected ids interval")
-        # for i in range(limit):
-        #     lcc.log_info("Check operation #{}:".format(i))
-        #     require_that_in(
-        #         response["result"][i],
-        #         ["id"], is_str(operation_ids[i]),
-        #         ["op"], is_list(operations[i])
-        #     )
+        lcc.set_step("Check account history to see operations from the selected ids interval")
+        for i in range(limit):
+            lcc.log_info("Check operation #{}:".format(i))
+            require_that_in(response["result"][i], ["id"], is_str(operation_ids[i]), ["op"], is_list(operations[i]))
 
 
 @lcc.prop("negative", "type")
