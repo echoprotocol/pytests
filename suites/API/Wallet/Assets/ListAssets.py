@@ -10,7 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_list_assets")
+@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_list_assets")
 @lcc.suite("Check work of method 'list_assets'", rank=1)
 class ListAssets(WalletBaseTest, BaseTest):
 
