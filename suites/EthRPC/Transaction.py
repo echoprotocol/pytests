@@ -132,10 +132,12 @@ class Transaction(BaseTest):
     @lcc.test("Check method 'eth_getTransactionCount'")
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_get_transaction_count(self):
+        account_id = "1.2.6"
+        account_statistics_id = self.echo.api.database.get_objects([account_id])[0]["statistics"]
+        account_ops_count = self.echo.api.database.get_objects([account_statistics_id])[0]["total_ops"]
         payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
         response = self.get_ethrpc_response(payload)
-        account_ops = self.echo.api.history.get_account_history("1.2.60")
-        require_that('account balance', int(response["result"], 16), equal_to(len(account_ops)))
+        require_that('account ops count', int(response["result"], 16), equal_to(account_ops_count))
 
     @lcc.test("Check method 'eth_getBlockTransactionCountByNumber'")
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
