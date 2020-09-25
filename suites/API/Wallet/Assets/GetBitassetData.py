@@ -7,14 +7,14 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'update_asset_feed_producers'"
+    "description": "Method 'get_bitasset_data'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_update_asset_feed_producers")
-@lcc.suite("Check work of method 'update_asset_feed_producers'", rank=1)
-class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_get_bitasset_data")
+@lcc.suite("Check work of method 'get_bitasset_data'", rank=1)
+class GetBitassetData(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -38,7 +38,7 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_update_asset_feed_producers'")
+    @lcc.test("Simple work of method 'wallet_get_bitasset_data'")
     def method_main_check(self, get_random_valid_asset_name):
         lcc.set_step("Unlock wallet")
         response = self.send_wallet_request("is_new", [], log_response=False)
@@ -56,10 +56,11 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Check method update_asset_feed_producers")
+        lcc.set_step("Check method get_bitasset_data")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         asset_name = get_random_valid_asset_name
+
         lcc.log_info("Create {} asset".format(asset_name))
         asset_create_operation = self.echo_ops.get_asset_create_operation(
             echo=self.echo,
@@ -69,7 +70,6 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
             minimum_feeds=1,
             short_backing_asset=self.echo_asset
         )[1]
-
         asset_options = asset_create_operation['common_options']
         bitasset_options = asset_create_operation['bitasset_opts']
         self.send_wallet_request(
@@ -77,9 +77,7 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
         )
         self.produce_block(self.__database_api_identifier)
 
-        asset_feed_producers = self.send_wallet_request(
-            "update_asset_feed_producers", [asset_name, [self.init4, self.init5], True], log_response=False
-        )['result']['operations'][0][1]["new_feed_producers"]
-        self.produce_block(self.__database_api_identifier)
-
-        check_that("asset name", asset_feed_producers, equal_to([self.init4, self.init5]))
+        bitasset_id = self.send_wallet_request("list_assets", [asset_name, 1], log_response=False)['result'][0]['bitasset_data_id']
+        bitasset_object = self.send_wallet_request("get_object", [bitasset_id], log_response=False)['result']
+        bitasset_data = self.send_wallet_request("get_bitasset_data", [asset_name], log_response=False)['result']
+        check_that("bitasset_data", bitasset_data, equal_to(bitasset_object[0]), quiet=True)

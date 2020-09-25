@@ -56,13 +56,14 @@ class CreateAsset(WalletBaseTest, BaseTest):
         lcc.set_step("Check method create_asset")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         asset_name = get_random_valid_asset_name
+        lcc.log_info("Create {} asset".format(asset_name))
         asset_options = self.echo_ops.get_asset_create_operation(
             echo=self.echo, issuer=self.init4, symbol=asset_name
         )[1]['common_options']
-
         self.send_wallet_request(
             "create_asset", [self.init4, asset_name, 10, asset_options, None, True], log_response=False
         )
         self.produce_block(self.__database_api_identifier)
+
         result = self.send_wallet_request("list_assets", [asset_name, 10], log_response=False)['result']
         check_that("asset name", asset_name, equal_to(result[0]['symbol']))

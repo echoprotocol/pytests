@@ -7,14 +7,14 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'update_asset_feed_producers'"
+    "description": "Method 'fund_asset_fee_pool'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_update_asset_feed_producers")
-@lcc.suite("Check work of method 'update_asset_feed_producers'", rank=1)
-class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_fund_asset_fee_pool")
+@lcc.suite("Check work of method 'fund_asset_fee_pool'", rank=1)
+class FundAssetFeePool(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -38,8 +38,8 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_update_asset_feed_producers'")
-    def method_main_check(self, get_random_valid_asset_name):
+    @lcc.test("Simple work of method 'wallet_fund_asset_fee_pool'")
+    def method_main_check(self, get_random_valid_asset_name, get_random_integer_up_to_ten):
         lcc.set_step("Unlock wallet")
         response = self.send_wallet_request("is_new", [], log_response=False)
         if response['result']:
@@ -56,10 +56,12 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Check method update_asset_feed_producers")
+        lcc.set_step("Check method fund_asset_fee_pool")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         asset_name = get_random_valid_asset_name
+        fee_pool_amount = get_random_integer_up_to_ten
+
         lcc.log_info("Create {} asset".format(asset_name))
         asset_create_operation = self.echo_ops.get_asset_create_operation(
             echo=self.echo,
@@ -77,9 +79,10 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
         )
         self.produce_block(self.__database_api_identifier)
 
-        asset_feed_producers = self.send_wallet_request(
-            "update_asset_feed_producers", [asset_name, [self.init4, self.init5], True], log_response=False
-        )['result']['operations'][0][1]["new_feed_producers"]
+        lcc.log_info("Get bitasset fee pool")
+        dynamic_asset_data_id = self.send_wallet_request("list_assets", [asset_name, 1], log_response=False)['result'][0]['dynamic_asset_data_id']
+        bitasset_fee_pool = self.send_wallet_request("get_object", [dynamic_asset_data_id], log_response=False)['result'][0]['fee_pool']
+        self.send_wallet_request("fund_asset_fee_pool", [self.init4, asset_name, fee_pool_amount, True], log_response=False)['result']
         self.produce_block(self.__database_api_identifier)
-
-        check_that("asset name", asset_feed_producers, equal_to([self.init4, self.init5]))
+        bitasset_new_fee_pool = self.send_wallet_request("get_object", [dynamic_asset_data_id], log_response=False)['result']
+        check_that("bitasset_fee_pool", bitasset_new_fee_pool[0]['fee_pool'], equal_to(bitasset_fee_pool + fee_pool_amount * 10 ** 8), quiet=True)
