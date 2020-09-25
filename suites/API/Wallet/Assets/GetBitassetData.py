@@ -77,7 +77,9 @@ class GetBitassetData(WalletBaseTest, BaseTest):
         )
         self.produce_block(self.__database_api_identifier)
 
-        bitasset_id = self.send_wallet_request("list_assets", [asset_name, 1], log_response=False)['result'][0]['bitasset_data_id']
+        bitasset_id = self.send_wallet_request(
+            "list_assets", [asset_name, 1], log_response=False
+        )['result'][0]['bitasset_data_id']
         bitasset_object = self.send_wallet_request("get_object", [bitasset_id], log_response=False)['result']
         bitasset_data = self.send_wallet_request("get_bitasset_data", [asset_name], log_response=False)['result']
         check_that("bitasset_data", bitasset_data, equal_to(bitasset_object[0]), quiet=True)

@@ -82,7 +82,11 @@ class PublishAssetFeed(WalletBaseTest, BaseTest):
 
         new_feed_producers = [self.init4, self.init5]
         asset_update_feed_producers_operation = self.echo_ops.get_asset_update_feed_producers_operation(
-            echo=self.echo, issuer=self.init4, asset_to_update=new_asset_id, new_feed_producers=new_feed_producers, signer=INIT4_PK
+            echo=self.echo,
+            issuer=self.init4,
+            asset_to_update=new_asset_id,
+            new_feed_producers=new_feed_producers,
+            signer=INIT4_PK
         )
 
         collected_operation = self.collect_operations(
@@ -98,11 +102,14 @@ class PublishAssetFeed(WalletBaseTest, BaseTest):
         core_exchange_rate['quote']['amount'] = 1
         lcc.log_info("{}".format(core_exchange_rate))
         asset_feed_producers = self.send_wallet_request(
-            "publish_asset_feed",
-            [self.init4, asset_name, core_exchange_rate, True],
-            log_response=False)
+            "publish_asset_feed", [self.init4, asset_name, core_exchange_rate, True], log_response=False
+        )
         lcc.log_info("{}".format(asset_feed_producers))
         self.produce_block(self.__database_api_identifier)
-        bitasset_data_id = self.send_wallet_request("get_object", [new_asset_id], log_response=False)['result'][0]["bitasset_data_id"]
-        bitasset_core_exchange_rate = self.send_wallet_request("get_object", [bitasset_data_id], log_response=False)['result'][0]['core_exchange_rate']
+        bitasset_data_id = self.send_wallet_request(
+            "get_object", [new_asset_id], log_response=False
+        )['result'][0]["bitasset_data_id"]
+        bitasset_core_exchange_rate = self.send_wallet_request(
+            "get_object", [bitasset_data_id], log_response=False
+        )['result'][0]['core_exchange_rate']
         check_that('core_exchange_rate', core_exchange_rate, equal_to(bitasset_core_exchange_rate))

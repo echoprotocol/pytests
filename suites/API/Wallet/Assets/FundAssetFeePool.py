@@ -80,9 +80,22 @@ class FundAssetFeePool(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
 
         lcc.log_info("Get bitasset fee pool")
-        dynamic_asset_data_id = self.send_wallet_request("list_assets", [asset_name, 1], log_response=False)['result'][0]['dynamic_asset_data_id']
-        bitasset_fee_pool = self.send_wallet_request("get_object", [dynamic_asset_data_id], log_response=False)['result'][0]['fee_pool']
-        self.send_wallet_request("fund_asset_fee_pool", [self.init4, asset_name, fee_pool_amount, True], log_response=False)['result']
+        dynamic_asset_data_id = self.send_wallet_request(
+            "list_assets", [asset_name, 1], log_response=False
+        )['result'][0]['dynamic_asset_data_id']
+        bitasset_fee_pool = self.send_wallet_request(
+            "get_object", [dynamic_asset_data_id], log_response=False
+        )['result'][0]['fee_pool']
+        self.send_wallet_request(
+            "fund_asset_fee_pool", [self.init4, asset_name, fee_pool_amount, True], log_response=False
+        )['result']
         self.produce_block(self.__database_api_identifier)
-        bitasset_new_fee_pool = self.send_wallet_request("get_object", [dynamic_asset_data_id], log_response=False)['result']
-        check_that("bitasset_fee_pool", bitasset_new_fee_pool[0]['fee_pool'], equal_to(bitasset_fee_pool + fee_pool_amount * 10 ** 8), quiet=True)
+        bitasset_new_fee_pool = self.send_wallet_request(
+            "get_object", [dynamic_asset_data_id], log_response=False
+        )['result']
+        check_that(
+            "bitasset_fee_pool",
+            bitasset_new_fee_pool[0]['fee_pool'],
+            equal_to(bitasset_fee_pool + fee_pool_amount * 10 ** 8),
+            quiet=True
+        )
