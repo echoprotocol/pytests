@@ -39,8 +39,6 @@ class CommitteeFrozenBalanceWithdraw(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # todo: Bug ECHO-2400
-    @lcc.disabled()
     @lcc.test("Simple work of operation 'committee_frozen_balance_withdraw'")
     def method_main_check(self):
         amount_to_freeze = REQUIRED_DEPOSIT_AMOUNT * 2

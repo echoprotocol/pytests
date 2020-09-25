@@ -169,8 +169,6 @@ class NegativeTesting(BaseTest):
         except Exception as e:
             check_that("message", str(e), equal_to(expected_message))
 
-    # todo: Bug ECHO-2400
-    @lcc.disabled()
     @lcc.prop("type", "method")
     @lcc.test("Negative test 'broadcast_transaction' with wrong expiration time")
     @lcc.depends_on("API.NetworkBroadcastApi.BroadcastTransaction.BroadcastTransaction.method_main_check")

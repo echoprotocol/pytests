@@ -2,14 +2,13 @@
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_
 
 SUITE = {
     "description": "Testing solidity 0.6 contract call"
 }
 
 
-# todo: Undisabled when ECHO-1750 will be done
-@lcc.disabled()
 @lcc.prop("main", "type")
 @lcc.tags("scenarios", "deploy_solidity_contract")
 @lcc.suite("Check scenario 'deploy_solidity_contract'")
@@ -21,8 +20,8 @@ class DeploySolidityContract(BaseTest):
         self.__registration_api_identifier = None
         self.echo_acc0 = None
         self.contract = self.get_byte_code("solidity_contract", "code")
-        self.method = self.get_byte_code("solidity_contract", "code")
-        self.value_amount = 10
+        self.method = self.get_byte_code("solidity_contract", "helloWorld()")
+        self.expected_string = 'Hello, World!'
 
     def setup_suite(self):
         super().setup_suite()
@@ -55,9 +54,21 @@ class DeploySolidityContract(BaseTest):
         broadcast_result = self.echo_ops.broadcast(
             echo=self.echo, list_operations=collected_operation, log_broadcast=True
         )
-        contract_id = \
+        contract_result = \
             self.get_contract_result(broadcast_result, self.__database_api_identifier, mode="evm")
-        contract_id = contract_id["result"][1]["contract_id"]
+        contract_id = "1.11.{}".format(int(contract_result["result"][1]["exec_res"]["new_address"][2:], 16))
         lcc.log_info("Created contract id: {}".format(contract_id))
 
-        # todo: Added contract method call
+        operation = self.echo_ops.get_contract_call_operation(
+            echo=self.echo, registrar=self.echo_acc0, bytecode=self.method, callee=contract_id
+        )
+        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        lcc.log_info("Hello world method of contract called successfully")
+
+        lcc.set_step("Check that 'Hello World!!!' string in contract output")
+        contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)
+        contract_output = self.get_contract_output(
+            contract_result, output_type=str, len_output_string=len(self.expected_string)
+        )
+        check_that("return of method 'Hello Wolrd'", contract_output, is_(self.expected_string))
