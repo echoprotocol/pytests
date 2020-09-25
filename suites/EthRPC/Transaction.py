@@ -132,7 +132,7 @@ class Transaction(BaseTest):
     @lcc.test("Check method 'eth_getTransactionCount'")
     @lcc.depends_on("EthRPC.Transaction.Transaction.main_check")
     def eth_get_transaction_count(self):
-        account_id = "1.2.6"
+        account_id = "1.2.60"
         account_statistics_id = self.echo.api.database.get_objects([account_id])[0]["statistics"]
         account_ops_count = self.echo.api.database.get_objects([account_statistics_id])[0]["total_ops"]
         payload = self.rpc_call("eth_getTransactionCount", [self.account_address, "latest"])
