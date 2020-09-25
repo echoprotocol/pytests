@@ -69,6 +69,11 @@ if "TESTRPC_URL" not in os.environ:
 else:
     TESTRPC_URL = os.environ["TESTRPC_URL"]
 
+if "SECOND_NODE_IP" not in os.environ:
+    SECOND_NODE_IP = json.load(open(os.path.join(RESOURCES_DIR, "urls.json")))["SECOND_NODE_IP"]
+else:
+    SECOND_NODE_IP = os.environ["SECOND_NODE_IP"]
+
 if "NATHAN_PK" not in os.environ:
     NATHAN_PK = json.load(open(os.path.join(RESOURCES_DIR, "private_keys.json")))["NATHAN_PK"]
 else:

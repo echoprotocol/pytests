@@ -29,7 +29,6 @@ services:
     volumes:
       - testrpc:/ganache_data
 
-
   migrate:
     image: echoprotocol/sidechain-smartcontracts:0.19.1
     command: /bin/sh -c "sleep 5; npm run migrate -- --network docker;"
@@ -37,7 +36,6 @@ services:
       - ganache
     volumes:
       - ./genesis.json:/app/genesis.json
-
 
   pytests:
     environment:
@@ -48,6 +46,7 @@ services:
       - ETHRPC_URL=http://echo:8092
       - TESTRPC_URL=http://testrpc:19999
       - WALLET_URL=ws://wallet:1998/ws
+      - SECOND_NODE_IP=echo-second:6311
       - NATHAN_PK=5JkYKpRDWeY3DN4qjZRKpEfxCqmTX17fsBJhupE9DJVVmJoGh6C
       - INIT0_PK=5J6azg8iUcQEbxEaLAFrJbcdBjgKqewLF81A63NE4T2aeHCsKiE
       - INIT1_PK=5KaTLGtpGyCbod6hM2A9RETYcNn8CMR7e7LRKLi6DPDvnF1qxEm
@@ -63,8 +62,7 @@ services:
       - testrpc
       - wallet
 
-
-  echo:
+  echo: &echo-base
     image: echoprotocol/echo:0.22.2-rc.0
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
@@ -108,6 +106,15 @@ services:
       - ganache
       - bitcoin
 
+  echo-second:
+    <<: *echo-base
+    container_name: '631.echo_second.node.${ENV}'
+    command: '--data-dir=/echo/datadir/
+      --genesis-json=/echo/genesis.json
+      --rpc-endpoint=0.0.0.0:6311
+      --api-access=/echo/access.json'
+    ports:
+      - 56457:6311
 
   testrpc:
     image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.22.2-rc.0
