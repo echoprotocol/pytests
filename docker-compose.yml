@@ -25,7 +25,7 @@ services:
       - --verbose
       - '10000000'
     ports:
-      - '56452:8545'
+      - '56458:8545'
     volumes:
       - testrpc:/ganache_data
 
