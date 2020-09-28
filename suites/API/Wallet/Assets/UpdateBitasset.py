@@ -56,7 +56,6 @@ class UpdateBitasset(WalletBaseTest, BaseTest):
 
         lcc.set_step("Check method update_bitasset")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         asset_name = get_random_valid_asset_name
         lcc.log_info("Create {} asset".format(asset_name))
         asset_create_operation = self.echo_ops.get_asset_create_operation(

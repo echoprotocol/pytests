@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK, WALLET_PASSWORD
+from project import INIT4_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -52,13 +52,9 @@ class GetAssetId(WalletBaseTest, BaseTest):
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         lcc.log_info("Key imported")
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
 
         lcc.set_step("Check method get_asset_id")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         asset_name = get_random_valid_asset_name
 
         lcc.log_info("Create {} asset".format(asset_name))

@@ -51,8 +51,6 @@ class UpdateAsset(WalletBaseTest, BaseTest):
 
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
-        lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
         lcc.log_info("Key imported")
 
