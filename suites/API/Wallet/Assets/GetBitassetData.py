@@ -68,6 +68,7 @@ class GetBitassetData(WalletBaseTest, BaseTest):
         )[1]
         asset_options = asset_create_operation['common_options']
         bitasset_options = asset_create_operation['bitasset_opts']
+
         self.send_wallet_request(
             "create_asset", [self.init4, asset_name, 10, asset_options, bitasset_options, True], log_response=False
         )
