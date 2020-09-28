@@ -1,6 +1,6 @@
 {
     "BASE_URL": "ws://127.0.0.1:56451/ws",
-    "ETHEREUM_URL": "http://127.0.0.1:56458",
+    "ETHEREUM_URL": "http://127.0.0.1:56452",
     "BITCOIN_URL": "http://127.0.0.1:18443",
     "ETHRPC_URL": "http://127.0.0.1:56454",
     "TESTRPC_URL": "http://127.0.0.1:56453",
