@@ -41,6 +41,7 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
 
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+        self.one_echo = 100000000
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -50,7 +51,7 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_integer):
         lcc.set_step("Perform vesting balance create operation")
         broadcast_result = self.utils.perform_vesting_balance_create_operation(
-            self, self.echo_acc0, self.init5, 100000000, self.__database_api_identifier
+            self, self.echo_acc0, self.init5, self.one_echo, self.__database_api_identifier
         )
         vesting_balance_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Vesting balance object '{}' created".format(vesting_balance_id))

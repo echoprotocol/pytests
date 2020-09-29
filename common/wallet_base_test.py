@@ -78,3 +78,24 @@ class WalletBaseTest:
             )
             raise Exception("Wrong 'id'")
         return self.get_positive_result(response, log_response)
+
+    def get_notice(self, id_response):
+        response = json.loads(self.wallet_ws.ws.recv())
+        if id_response is None:
+            return response["params"]
+        if response.get("params")[0] != id_response:
+            lcc.log_error(
+                "Wrong 'subscription_id' expected '{}', but received:\n{}".format(
+                    id_response, json.dumps(response, indent=4)
+                )
+            )
+            raise Exception("Wrong 'subscription_id'")
+        if response.get("method") != "notice":
+            lcc.log_error(
+                "Wrong response, expected ''method': 'notice'', but received:\n{}".format(
+                    json.dumps(response, indent=4)
+                )
+            )
+            raise Exception("Wrong response")
+
+        return response["params"]
