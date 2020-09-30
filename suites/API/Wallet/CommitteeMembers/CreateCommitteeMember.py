@@ -4,7 +4,7 @@ from common.wallet_base_test import WalletBaseTest
 from project import INIT5_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, not_equal_to, equal_to
+from lemoncheesecake.matching import check_that, equal_to, not_equal_to
 
 SUITE = {
     "description": "Method 'create_committee_member'"

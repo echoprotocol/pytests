@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, INIT5_PK, WALLET_PASSWORD
-import time
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, not_equal_to
 
@@ -69,8 +71,10 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self.init3 = self.get_account_id('init3', self.__database_api_identifier, self.__registration_api_identifier)
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        lcc.log_info("Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}',".format(
-            self.init0, self.init1, self.init2, self.init3, self.init4, self.init5)
+        lcc.log_info(
+            "Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}',".format(
+                self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
+            )
         )
         lcc.set_step("Get active committee members list")
         active_committee_members = self.get_active_committee_members()
@@ -85,7 +89,8 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         lcc.set_step("Create activate committee member proposal")
         expiration_time = self.get_expiration_time(seconds=15)
         proposal = self.send_wallet_request(
-            "create_activate_committee_member_proposal", [self.init4, init5_committee_member_id, expiration_time], log_response=False
+            "create_activate_committee_member_proposal", [self.init4, init5_committee_member_id, expiration_time],
+            log_response=False
         )
         self.produce_block(self.__database_api_identifier)
 
@@ -145,4 +150,7 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
         updated_active_committee_members = self.get_active_committee_members()
         updated_active_committee_members_ids = updated_active_committee_members["ids"]
-        check_that('active committee members list', active_committee_members_ids, not_equal_to(updated_active_committee_members_ids))
+        check_that(
+            'active committee members list', active_committee_members_ids,
+            not_equal_to(updated_active_committee_members_ids)
+        )
