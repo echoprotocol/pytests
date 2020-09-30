@@ -79,7 +79,7 @@ class WalletBaseTest:
             raise Exception("Wrong 'id'")
         return self.get_positive_result(response, log_response)
 
-    def get_notice(self, id_response):
+    def get_wallet_notice(self, id_response):
         response = json.loads(self.wallet_ws.ws.recv())
         if id_response is None:
             return response["params"]
