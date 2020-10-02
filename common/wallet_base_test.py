@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import time
 import json
+import time
 
 from common.object_validation import ObjectValidator
 from common.type_validation import TypeValidator

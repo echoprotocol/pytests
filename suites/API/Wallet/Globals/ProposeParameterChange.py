@@ -70,11 +70,17 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         global_properties = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
         _time_net_1mb = global_properties["parameters"]["echorand_config"]["_time_net_1mb"]
         _time_net_1mb += 3
-        params_to_update = {"echorand_config": {"_time_net_1mb": _time_net_1mb}}
+        params_to_update = {
+            "echorand_config": {
+                "_time_net_1mb": _time_net_1mb
+            }
+        }
 
         lcc.set_step('Check propose_parameter_change method')
         expiration_time = self.get_expiration_time(seconds=30)
-        proposal = self.send_wallet_request("propose_parameter_change", [self.init4, expiration_time, params_to_update], log_response=False)
+        proposal = self.send_wallet_request(
+            "propose_parameter_change", [self.init4, expiration_time, params_to_update], log_response=False
+        )
         lcc.log_info("{}".format(proposal))
         lcc.log_info("Search for a block with parameter change proposal")
         block = int(proposal['result']['ref_block_num'])
@@ -108,5 +114,7 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Timer expired")
 
-        get_global_properties_result = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
+        get_global_properties_result = self.send_wallet_request(
+            "get_global_properties", [], log_response=False
+        )['result']
         lcc.log_info("{}".format(get_global_properties_result))

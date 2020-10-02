@@ -68,11 +68,15 @@ class ProposeFeeChange(WalletBaseTest, BaseTest):
             )
         )
 
-        params_to_update = {"scale": 1000}
+        params_to_update = {
+            "scale": 1000
+        }
 
         lcc.set_step('Check propose_fee_change method')
         expiration_time = self.get_expiration_time(seconds=30)
-        proposal = self.send_wallet_request("propose_fee_change", [self.init4, expiration_time, params_to_update], log_response=False)
+        proposal = self.send_wallet_request(
+            "propose_fee_change", [self.init4, expiration_time, params_to_update], log_response=False
+        )
         lcc.log_info("{}".format(proposal))
         lcc.log_info("Search for a block with fee change proposal")
         block = int(proposal['result']['ref_block_num'])
@@ -106,5 +110,7 @@ class ProposeFeeChange(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Timer expired")
 
-        get_global_properties_result = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
+        get_global_properties_result = self.send_wallet_request(
+            "get_global_properties", [], log_response=False
+        )['result']
         lcc.log_info("{}".format(get_global_properties_result))

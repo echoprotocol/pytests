@@ -30,7 +30,9 @@ class WalletGetDynamicGlobalProperties(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_dynamic_global_properties'")
     def method_main_check(self):
         lcc.set_step('Check get_dynamic_global_properties method')
-        get_dynamic_global_properties_result = self.send_wallet_request("get_dynamic_global_properties", [], log_response=False)['result']
+        get_dynamic_global_properties_result = self.send_wallet_request(
+            "get_dynamic_global_properties", [], log_response=False
+        )['result']
 
         lcc.set_step("Check main fields")
         self.object_validator.validate_dynamic_global_property_object(self, get_dynamic_global_properties_result)

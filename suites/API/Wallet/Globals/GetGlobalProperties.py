@@ -37,7 +37,9 @@ class GetGlobalProperties(BaseTest, WalletBaseTest):
     @lcc.test("Simple work of method 'wallet_get_global_properties'")
     def method_main_check(self):
         lcc.set_step('Check get_global_properties method')
-        get_global_properties_result = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
+        get_global_properties_result = self.send_wallet_request(
+            "get_global_properties", [], log_response=False
+        )['result']
 
         lcc.set_step("Check main fields")
         self.object_validator.validate_global_properties_object(self, get_global_properties_result)

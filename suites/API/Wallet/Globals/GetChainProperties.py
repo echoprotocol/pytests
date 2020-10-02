@@ -30,7 +30,9 @@ class GetChainProperties(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_chain_properties'")
     def method_main_check(self):
         lcc.set_step('Check wallet_get_chain_properties method')
-        get_chain_properties_results = self.send_wallet_request("get_chain_properties", [], log_response=False)['result']
+        get_chain_properties_results = self.send_wallet_request(
+            "get_chain_properties", [], log_response=False
+        )['result']
 
         lcc.set_step("Check main fields")
         self.object_validator.validate_chain_properties_object(self, get_chain_properties_results)

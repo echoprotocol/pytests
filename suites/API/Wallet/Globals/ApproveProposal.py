@@ -68,24 +68,30 @@ class ApproveProposal(WalletBaseTest, BaseTest):
             )
         )
 
-        params_to_update = {"scale": 1000}
+        params_to_update = {
+            "scale": 1000
+        }
 
         lcc.set_step('Check propose_fee_change method')
         expiration_time = self.get_expiration_time(seconds=30)
-        proposal = self.send_wallet_request("propose_fee_change", [self.init4, expiration_time, params_to_update], log_response=False)
+        proposal = self.send_wallet_request(
+            "propose_fee_change", [self.init4, expiration_time, params_to_update], log_response=False
+        )
         lcc.log_info("{}".format(proposal))
         lcc.log_info("Search for a block with fee change proposal")
         block = int(proposal['result']['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
         lcc.log_info("Block found, proposal id in block: '{}'".format(proposal_id))
         proposal_params = {
-            "active_approvals_to_add": ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"],
+            "active_approvals_to_add": [],
             "active_approvals_to_remove": [],
             "key_approvals_to_add": [],
             "key_approvals_to_remove": []
         }
-        proposal_params['active_approvals_to_add'].extend(["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"])
-        proposal = self.send_wallet_request("approve_proposal", [self.init0, proposal_id, proposal_params, True], log_response=False)
+        proposal_params['active_approvals_to_add'].extend([self.init0, self.init1, self.init2, self.init3, self.init4])
+        proposal = self.send_wallet_request(
+            "approve_proposal", [self.init0, proposal_id, proposal_params, True], log_response=False
+        )
 
         lcc.set_step("Set timer for proposal expiration")
         time.sleep(15)
@@ -97,5 +103,7 @@ class ApproveProposal(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Timer expired")
 
-        get_global_properties_result = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
+        get_global_properties_result = self.send_wallet_request(
+            "get_global_properties", [], log_response=False
+        )['result']
         lcc.log_info("{}".format(get_global_properties_result))
