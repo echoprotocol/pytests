@@ -4,7 +4,7 @@ from common.wallet_base_test import WalletBaseTest
 from project import INIT5_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, not_equal_to
+from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
 
 SUITE = {
     "description": "Method 'create_committee_member'"
@@ -61,7 +61,7 @@ class CreateCommitteeMember(WalletBaseTest, BaseTest):
             self.get_request("get_committee_member_by_account", [self.init5]), self.__database_api_identifier
         )
         committee_member = self.get_response(response_id)["result"]
-        check_that("commitee member object", committee_member, equal_to(None))
+        require_that("commitee member object", committee_member, equal_to(None))
 
         lcc.log_info('Create committee member')
         eth_address = get_random_eth_address

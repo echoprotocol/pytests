@@ -64,8 +64,8 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-
         lcc.log_info("Key imported")
+
         lcc.set_step("Get initial account ids")
         self.init0 = self.get_account_id('init0', self.__database_api_identifier, self.__registration_api_identifier)
         self.init1 = self.get_account_id('init1', self.__database_api_identifier, self.__registration_api_identifier)
@@ -74,7 +74,7 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info(
-            "Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}',".format(
+            "Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}'".format(
                 self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
             )
         )
@@ -99,29 +99,8 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
 
         lcc.log_info("Search for a block with deactivate committee member proposal")
-        next_block = int(proposal['result']['ref_block_num'])
-        stop = False
-        no_result_exeption = 0
-        while not stop:
-            next_block += 1
-            result = self.send_wallet_request("get_block", [next_block], log_response=False)['result']
-            if no_result_exeption >= 3:
-                stop = True
-                lcc.log_error("No transaction not found in blocks")
-                continue
-            if result is None:
-                no_result_exeption += 1
-                time.sleep(2)
-                next_block -= 1
-                continue
-            elif result['transactions'] != []:
-                for transaction in result['transactions']:
-                    if self.type_validator.is_proposal_id(transaction['operation_results'][0][1]):
-                        proposal_id = transaction['operation_results'][0][1]
-                        stop = True
-                        break
-            else:
-                continue
+        block = int(proposal['result']['ref_block_num'])
+        proposal_id = self.get_proposal_id_from_next_blocks(block)
         lcc.log_info("Block found, proposal id in block: '{}'".format(proposal_id))
 
         lcc.set_step("Update proposal with committee deactivate")

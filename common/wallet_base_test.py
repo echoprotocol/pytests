@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import json
 
 from common.object_validation import ObjectValidator
@@ -99,3 +100,32 @@ class WalletBaseTest:
             raise Exception("Wrong response")
 
         return response["params"]
+
+    def get_proposal_id_from_next_blocks(self, block):
+        proposal_id = None
+        stop = False
+        no_result_exeption = 0
+        while not stop:
+            block += 1
+            result = self.send_wallet_request("get_block", [block], log_response=False)['result']
+            if no_result_exeption >= 5:
+                stop = True
+                lcc.log_error("No transaction not found in blocks")
+                continue
+            if result is None:
+                no_result_exeption += 1
+                time.sleep(5)
+                block -= 1
+                continue
+            elif result['transactions'] != []:
+                for transaction in result['transactions']:
+                    if self.type_validator.is_proposal_id(transaction['operation_results'][0][1]):
+                        proposal_id = transaction['operation_results'][0][1]
+                        stop = True
+                        break
+            else:
+                continue
+        if proposal_id:
+            return proposal_id
+        else:
+            raise Exception("Wrong response")
