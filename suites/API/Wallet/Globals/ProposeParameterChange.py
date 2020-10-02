@@ -39,7 +39,7 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # @lcc.disabled()
+    @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_propose_parameter_change'")
     def method_main_check(self):
         lcc.set_step("Unlock wallet")
