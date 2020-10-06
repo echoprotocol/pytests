@@ -41,13 +41,13 @@ class WhitelistContractPool(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         self.echo_acc6 = self.get_account_id(
             self.accounts[6], self.__database_api_identifier, self.__registration_api_identifier
         )
-        lcc.log_info("Echo accounts are: #1 = '{}', #2 = '{}', #3 = '{}'".format(self.echo_acc0, self.init4, self.echo_acc6))
+        lcc.log_info(
+            "Echo accounts are: #1 = '{}', #2 = '{}', #3 = '{}'".format(self.echo_acc0, self.init4, self.echo_acc6)
+        )
         self.valid_contract_id = self.utils.get_contract_id(
             self, self.init4, self.contract, self.__database_api_identifier, signer=INIT4_PK
         )
@@ -64,7 +64,10 @@ class WhitelistContractPool(WalletBaseTest, BaseTest):
         lcc.log_info("Key imported")
 
         lcc.set_step("Сheck whitelist_contract_pool method")
-        response = self.send_wallet_request("whitelist_contract_pool", [self.init4, self.valid_contract_id, [self.echo_acc6], [], [], [], True], log_response=False)['result']
+        response = self.send_wallet_request(
+            "whitelist_contract_pool", [self.init4, self.valid_contract_id, [self.echo_acc6], [], [], [], True],
+            log_response=False
+        )['result']
         check_that('contract', response['operations'][0][1]['contract'], equal_to(self.valid_contract_id))
         check_that('add_to_whitelist', response['operations'][0][1]['add_to_whitelist'], equal_to([self.echo_acc6]))
         check_that('remove_from_whitelist', response['operations'][0][1]['remove_from_whitelist'], equal_to([]))

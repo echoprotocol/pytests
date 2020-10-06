@@ -83,5 +83,7 @@ class GetContractPoolWhitelist(WalletBaseTest, BaseTest):
         lcc.log_info("'{}' accounts added to '{}' contract whitelist".format(full_whitelist, self.valid_contract_id))
 
         lcc.set_step("Сheck get_contract_pool_whitelist method")
-        response = self.send_wallet_request("get_contract_pool_whitelist", [self.valid_contract_id], log_response=False)['result']
+        response = self.send_wallet_request(
+            "get_contract_pool_whitelist", [self.valid_contract_id], log_response=False
+        )['result']
         check_that("contract whitelist account", response['whitelist'], equal_to(whitelist))

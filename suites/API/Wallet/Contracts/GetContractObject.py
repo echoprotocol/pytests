@@ -49,5 +49,7 @@ class GetContractObject(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_contract_object'")
     def method_main_check(self):
         lcc.set_step("Сheck get_contract_object method")
-        contract_obj = self.send_wallet_request("get_contract_object", [self.valid_contract_id], log_response=False)['result']
+        contract_obj = self.send_wallet_request(
+            "get_contract_object", [self.valid_contract_id], log_response=False
+        )['result']
         self.object_validator.validate_contract_object(self, contract_obj)

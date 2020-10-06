@@ -56,9 +56,9 @@ class CallContract(WalletBaseTest, BaseTest):
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.set_step("Сheck call_contract method")
-        response = self.send_wallet_request("call_contract", [self.init4, self.valid_contract_id, self.greet, 1, self.echo_asset], log_response=False)['result']
+        response = self.send_wallet_request(
+            "call_contract", [self.init4, self.valid_contract_id, self.greet, 1, self.echo_asset], log_response=False
+        )['result']
         check_that("code", response['operations'][0][1]['code'], equal_to(self.greet))

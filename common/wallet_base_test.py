@@ -4,7 +4,7 @@ import json
 
 from common.object_validation import ObjectValidator
 from common.type_validation import TypeValidator
-from project import WALLET_URL, WALLET_PASSWORD
+from project import WALLET_PASSWORD, WALLET_URL
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket

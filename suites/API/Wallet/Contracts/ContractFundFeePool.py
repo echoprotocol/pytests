@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import WALLET_PASSWORD, INIT4_PK
+from project import INIT4_PK, WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -39,9 +39,7 @@ class ContractFundFeePool(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         self.valid_contract_id = self.utils.get_contract_id(
             self, self.init4, self.contract, self.__database_api_identifier, signer=INIT4_PK
         )
@@ -68,5 +66,7 @@ class ContractFundFeePool(WalletBaseTest, BaseTest):
         lcc.log_info("Key imported")
 
         lcc.set_step("Сheck contract_fund_fee_pool method")
-        result = self.send_wallet_request("contract_fund_fee_pool", [self.init4, self.valid_contract_id, fee_pool_balance, True], log_response=False)['result']
+        result = self.send_wallet_request(
+            "contract_fund_fee_pool", [self.init4, self.valid_contract_id, fee_pool_balance, True], log_response=False
+        )['result']
         check_that('amount', result['operations'][0][1]["value"]["amount"], equal_to(fee_pool_balance))

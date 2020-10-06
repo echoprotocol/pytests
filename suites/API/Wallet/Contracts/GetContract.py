@@ -3,7 +3,7 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_, check_that, is_list
+from lemoncheesecake.matching import check_that, is_, is_list, require_that
 
 SUITE = {
     "description": "Method 'get_contract'"

@@ -52,7 +52,9 @@ class GetContractPoolBalance(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_integer_up_to_hundred):
         start_fee_pool_balance = get_random_integer_up_to_hundred
         lcc.set_step("Сheck get_contract_pool_balance method")
-        response = self.send_wallet_request("get_contract_pool_balance", [self.valid_contract_id], log_response=False)['result']
+        response = self.send_wallet_request(
+            "get_contract_pool_balance", [self.valid_contract_id], log_response=False
+        )['result']
         check_that("pool amount", response['amount'], equal_to(0))
         check_that("pool asset_id", response['asset_id'], equal_to(self.echo_asset))
         lcc.set_step("Add fee pool to contract")
@@ -65,6 +67,8 @@ class GetContractPoolBalance(WalletBaseTest, BaseTest):
             )
         )
         lcc.set_step("Сheck that contract pool balance updated")
-        response = self.send_wallet_request("get_contract_pool_balance", [self.valid_contract_id], log_response=False)['result']
+        response = self.send_wallet_request(
+            "get_contract_pool_balance", [self.valid_contract_id], log_response=False
+        )['result']
         check_that("pool amount", response['amount'], equal_to(start_fee_pool_balance))
         check_that("pool asset_id", response['asset_id'], equal_to(self.echo_asset))

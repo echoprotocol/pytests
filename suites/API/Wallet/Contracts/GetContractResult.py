@@ -76,5 +76,7 @@ class GetContractResult(WalletBaseTest, BaseTest):
         lcc.set_step("Check get_contract_result output")
         contract_result = self.get_contract_result(broadcast_result, self.__database_api_identifier)['result'][1]
         contract_result_id = self.get_operation_results_ids(broadcast_result)
-        contract_result_obj = self.send_wallet_request("get_contract_result", [contract_result_id], log_response=False)['result']
+        contract_result_obj = self.send_wallet_request(
+            "get_contract_result", [contract_result_id], log_response=False
+        )['result']
         check_that("contract result", contract_result_obj, equal_to(contract_result), quiet=True)

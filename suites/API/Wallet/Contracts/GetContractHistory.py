@@ -50,6 +50,8 @@ class GetContractHistory(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_contract_history'")
     def method_main_check(self):
         lcc.set_step("Сheck get_contract_history method")
-        response = self.send_wallet_request("get_contract_history", [self.valid_contract_id, 1], log_response=False)['result']
+        response = self.send_wallet_request(
+            "get_contract_history", [self.valid_contract_id, 1], log_response=False
+        )['result']
         check_that("description", response[0]['description'], is_str())
         self.object_validator.validate_operation_history_object(self, response[0]['op'])

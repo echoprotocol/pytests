@@ -3,8 +3,8 @@ from common.type_validation import TypeValidator
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import (
-    check_that, check_that_in, equal_to, greater_than, greater_than_or_equal_to, has_length, is_, is_bool, is_dict,
-    is_in, is_integer, is_list, is_str, require_that, any_of
+    any_of, check_that, check_that_in, equal_to, greater_than, greater_than_or_equal_to, has_length, is_, is_bool,
+    is_dict, is_in, is_integer, is_list, is_str, require_that
 )
 
 

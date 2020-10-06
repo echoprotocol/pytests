@@ -38,9 +38,7 @@ class CreateContract(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo accounts are: #1 = '{}', #2 = '{}'".format(self.echo_acc0, self.init4))
 
     def teardown_suite(self):
@@ -55,7 +53,9 @@ class CreateContract(WalletBaseTest, BaseTest):
         lcc.log_info("Key imported")
 
         lcc.set_step("Сheck create_contract method")
-        response = self.send_wallet_request("create_contract", [self.init4, self.contract, 1, self.echo_asset, "", True], log_response=False)['result']
+        response = self.send_wallet_request(
+            "create_contract", [self.init4, self.contract, 1, self.echo_asset, "", True], log_response=False
+        )['result']
         check_that("contract code", response['operations'][0][1]['code'], equal_to(self.contract), quiet=True)
 
         lcc.set_step("Create 'Piggy' contract in the Echo network")
@@ -70,4 +70,9 @@ class CreateContract(WalletBaseTest, BaseTest):
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Contract created successfully")
         lcc.set_step("Check that field of contract create operation are equal")
-        check_that('create_contract result fields', list(response['operations'][0][1].keys()), equal_to(list(broadcast_result['trx']['operations'][0][1].keys())), quiet=True)
+        check_that(
+            'create_contract result fields',
+            list(response['operations'][0][1].keys()),
+            equal_to(list(broadcast_result['trx']['operations'][0][1].keys())),
+            quiet=True
+        )
