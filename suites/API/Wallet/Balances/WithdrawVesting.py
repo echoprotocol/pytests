@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK, WALLET_PASSWORD
+from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to
@@ -56,14 +56,7 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
         vesting_balance_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Vesting balance object '{}' created".format(vesting_balance_id))
 
-        lcc.set_step("Unlock wallet")
-        response = self.send_wallet_request("is_new", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
-        response = self.send_wallet_request("is_locked", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
-        lcc.log_info("Wallet unlocked")
+        self.unlock_wallet()
 
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)

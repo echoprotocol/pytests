@@ -11,9 +11,9 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_get_contract")
+@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_get_contract")
 @lcc.suite("Check work of method 'get_contract'", rank=1)
-class GetContractObject(WalletBaseTest, BaseTest):
+class GetContract(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -49,7 +49,7 @@ class GetContractObject(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_get_contract'")
     def method_main_check(self):
-        lcc.set_step("Сheck get_contract_object method")
+        lcc.set_step("Сheck get_contract method")
         response = self.send_wallet_request("get_contract", [self.valid_contract_id], log_response=False)
         contract_type = response["result"][0]
         require_that("contract index", contract_type, is_(0))

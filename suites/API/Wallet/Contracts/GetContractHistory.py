@@ -3,16 +3,17 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, is_str
 
 SUITE = {
-    "description": "Method 'get_contract_object'"
+    "description": "Method 'get_contract_history'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_get_contract_object")
-@lcc.suite("Check work of method 'get_contract_object'", rank=1)
-class GetContractObject(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_get_contract_history")
+@lcc.suite("Check work of method 'get_contract_history'", rank=1)
+class GetContractHistory(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -46,8 +47,9 @@ class GetContractObject(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_get_contract_object'")
+    @lcc.test("Simple work of method 'wallet_get_contract_history'")
     def method_main_check(self):
-        lcc.set_step("Сheck get_contract_object method")
-        contract_obj = self.send_wallet_request("get_contract_object", [self.valid_contract_id], log_response=False)['result']
-        self.object_validator.validate_contract_object(self, contract_obj)
+        lcc.set_step("Сheck get_contract_history method")
+        response = self.send_wallet_request("get_contract_history", [self.valid_contract_id, 1], log_response=False)['result']
+        check_that("description", response[0]['description'], is_str())
+        self.object_validator.validate_operation_history_object(self, response[0]['op'])

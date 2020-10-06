@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import WALLET_PASSWORD
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -35,14 +34,7 @@ class GetRegisterAccountWithApi(WalletBaseTest, BaseTest):
         evm_address = get_random_eth_address
         public_key = self.store_new_account(new_account)
 
-        lcc.set_step("Unlock wallet to register account")
-        response = self.send_wallet_request("is_new", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
-        response = self.send_wallet_request("is_locked", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
-        lcc.log_info("Wallet unlocked")
+        self.unlock_wallet()
         lcc.set_step("Check that new account registrated")
         response = self.send_wallet_request(
             "register_account_with_api", [new_account, public_key, public_key, evm_address], log_response=False

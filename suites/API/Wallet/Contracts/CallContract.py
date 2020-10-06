@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
+from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'get_contract_object'"
+    "description": "Method 'call_contract'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_get_contract_object")
-@lcc.suite("Check work of method 'get_contract_object'", rank=1)
-class GetContractObject(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_call_contract")
+@lcc.suite("Check work of method 'call_contract'", rank=1)
+class CallContract(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -21,6 +23,7 @@ class GetContractObject(WalletBaseTest, BaseTest):
         self.__registration_api_identifier = None
         self.echo_acc0 = None
         self.contract = self.get_byte_code("piggy", "code")
+        self.greet = self.get_byte_code("piggy", "greet()")
         self.valid_contract_id = None
 
     def setup_suite(self):
@@ -46,8 +49,16 @@ class GetContractObject(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_get_contract_object'")
+    @lcc.test("Simple work of method 'wallet_call_contract'")
     def method_main_check(self):
-        lcc.set_step("Сheck get_contract_object method")
-        contract_obj = self.send_wallet_request("get_contract_object", [self.valid_contract_id], log_response=False)['result']
-        self.object_validator.validate_contract_object(self, contract_obj)
+        self.unlock_wallet()
+        lcc.set_step("Import key")
+        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
+        lcc.log_info("Key imported")
+
+        self.init4 = self.get_account_id(
+            'init4', self.__database_api_identifier, self.__registration_api_identifier
+        )
+        lcc.set_step("Сheck call_contract method")
+        response = self.send_wallet_request("call_contract", [self.init4, self.valid_contract_id, self.greet, 1, self.echo_asset], log_response=False)['result']
+        check_that("code", response['operations'][0][1]['code'], equal_to(self.greet))

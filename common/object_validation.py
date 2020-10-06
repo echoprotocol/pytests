@@ -396,7 +396,6 @@ class ObjectValidator(object):
                 quiet=True
             )
 
-
     def validate_contract_result_object(self, base_test, contract_result_object):
         if check_that("contract result", contract_result_object, has_length(5), quiet=True):
             if not base_test.type_validator.is_contract_result_id(contract_result_object["id"]):
