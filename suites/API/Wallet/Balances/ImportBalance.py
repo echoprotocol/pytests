@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK, WALLET_PASSWORD
+from project import INIT4_PK, INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -40,14 +40,7 @@ class ImportBalance(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_import_balance'")
     def method_main_check(self):
-        lcc.set_step("Unlock wallet")
-        response = self.send_wallet_request("is_new", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
-        response = self.send_wallet_request("is_locked", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
-        lcc.log_info("Wallet unlocked")
+        self.unlock_wallet()
 
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, has_item
 
 SUITE = {
-    "description": "Method 'list_my_accounts'"
+    "description": "Method 'get_contract_object'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_list_my_accounts")
-@lcc.suite("Check work of method 'list_my_accounts'", rank=1)
-class GetListMyAccounts(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_get_contract_object")
+@lcc.suite("Check work of method 'get_contract_object'", rank=1)
+class GetContractObject(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -22,6 +20,8 @@ class GetListMyAccounts(WalletBaseTest, BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
+        self.contract = self.get_byte_code("piggy", "code")
+        self.valid_contract_id = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -34,22 +34,22 @@ class GetListMyAccounts(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        lcc.log_info("Echo account are: #1='{}'".format(self.echo_acc0))
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        lcc.log_info("Echo account are: '{}'".format(self.echo_acc0))
+        self.valid_contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.contract, self.__database_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_list_my_accounts'")
+    @lcc.test("Simple work of method 'wallet_get_contract_object'")
     def method_main_check(self):
-        self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        lcc.set_step("Get list my accounts")
-        response = self.send_wallet_request("list_my_accounts")
-        account_ids = [_id['id'] for _id in response['result']]
-        check_that('list_my_account result', account_ids, has_item(self.init4))
+        lcc.set_step("Сheck get_contract_object method")
+        contract_obj = self.send_wallet_request(
+            "get_contract_object", [self.valid_contract_id], log_response=False
+        )['result']
+        self.object_validator.validate_contract_object(self, contract_obj)

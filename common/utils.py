@@ -143,7 +143,8 @@ class Utils(object):
         get_only_fee=False,
         mode="evm",
         need_broadcast_result=False,
-        log_broadcast=False
+        log_broadcast=False,
+        signer=None
     ):
         operation = base_test.echo_ops.get_contract_create_operation(
             echo=base_test.echo,
@@ -152,7 +153,8 @@ class Utils(object):
             value_amount=value_amount,
             value_asset_id=value_asset_id,
             supported_asset_id=supported_asset_id,
-            eth_accuracy=eth_accuracy
+            eth_accuracy=eth_accuracy,
+            signer=signer
         )
         if registrar != base_test.echo_acc0:
             temp_operation = deepcopy(operation)

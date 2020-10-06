@@ -3,8 +3,8 @@ from common.type_validation import TypeValidator
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import (
-    check_that, check_that_in, equal_to, greater_than, greater_than_or_equal_to, has_length, is_, is_bool, is_dict,
-    is_in, is_integer, is_list, is_str, require_that
+    any_of, check_that, check_that_in, equal_to, greater_than, greater_than_or_equal_to, has_length, is_, is_bool,
+    is_dict, is_in, is_integer, is_list, is_str, require_that
 )
 
 
@@ -363,7 +363,7 @@ class ObjectValidator(object):
                     lcc.log_info("'unfreeze_balance_time' has correct format")
 
     def validate_contract_object(self, base_test, contract_object):
-        if check_that("contract", contract_object, has_length(8), quiet=True):
+        if check_that("contract", contract_object, any_of(has_length(8), has_length(7)), quiet=True):
             if not base_test.type_validator.is_contract_id(contract_object["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(contract_object["id"]))
             else:
@@ -372,12 +372,13 @@ class ObjectValidator(object):
                 lcc.log_error("Wrong format of 'statistics', got: {}".format(contract_object["statistics"]))
             else:
                 lcc.log_info("'statistics' has correct format: contract_statistics_object_type")
-            if not base_test.type_validator.is_asset_id(contract_object["supported_asset_id"]):
-                lcc.log_error(
-                    "Wrong format of 'supported_asset_id', got {}".format(contract_object["supported_asset_id"])
-                )
-            else:
-                lcc.log_info("'supported_asset_id' has correct format")
+            if "supported_asset_id" in contract_object:
+                if not base_test.type_validator.is_asset_id(contract_object["supported_asset_id"]):
+                    lcc.log_error(
+                        "Wrong format of 'supported_asset_id', got {}".format(contract_object["supported_asset_id"])
+                    )
+                else:
+                    lcc.log_info("'supported_asset_id' has correct format")
             if not base_test.type_validator.is_account_id(contract_object["owner"]):
                 lcc.log_error("Wrong format of 'owner', got {}".format(contract_object["owner"]))
             else:

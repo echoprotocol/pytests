@@ -45,6 +45,7 @@ class WhitelistAccount(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_whitelist_account'")
     def method_main_check(self):
+        self.unlock_wallet()
         lcc.set_step("Import private key to wallet")
         self.send_wallet_request('import_key', ['init4', INIT4_PK], log_response=False)
         lcc.log_info("key imported")
