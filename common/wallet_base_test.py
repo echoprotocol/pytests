@@ -5,7 +5,7 @@ import time
 
 from common.object_validation import ObjectValidator
 from common.type_validation import TypeValidator
-from project import WALLET_URL
+from project import WALLET_PASSWORD, WALLET_URL
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket
@@ -129,3 +129,13 @@ class WalletBaseTest:
             return proposal_id
         else:
             raise Exception("Wrong response")
+
+    def unlock_wallet(self):
+        lcc.set_step("Unlock wallet to register account")
+        response = self.send_wallet_request("is_new", [], log_response=False)
+        if response['result']:
+            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
+        response = self.send_wallet_request("is_locked", [], log_response=False)
+        if response['result']:
+            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
+        lcc.log_info("Wallet unlocked")

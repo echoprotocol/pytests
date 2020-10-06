@@ -7,20 +7,24 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'get_asset_id'"
+    "description": "Method 'call_contract'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_get_asset_id")
-@lcc.suite("Check work of method 'get_asset_id'", rank=1)
-class GetAssetId(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_call_contract")
+@lcc.suite("Check work of method 'call_contract'", rank=1)
+class CallContract(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
         BaseTest.__init__(self)
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.echo_acc0 = None
+        self.contract = self.get_byte_code("piggy", "code")
+        self.greet = self.get_byte_code("piggy", "greet()")
+        self.valid_contract_id = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -33,32 +37,28 @@ class GetAssetId(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        lcc.log_info("Echo account are: '{}'".format(self.echo_acc0))
+        self.valid_contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.contract, self.__database_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_get_asset_id'")
-    def method_main_check(self, get_random_valid_asset_name):
+    @lcc.test("Simple work of method 'wallet_call_contract'")
+    def method_main_check(self):
         self.unlock_wallet()
-
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Check method get_asset_id")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        asset_name = get_random_valid_asset_name
-
-        lcc.log_info("Create {} asset".format(asset_name))
-        asset_options = self.echo_ops.get_asset_create_operation(
-            echo=self.echo, issuer=self.init4, symbol=asset_name
-        )[1]['common_options']
-        self.send_wallet_request(
-            "create_asset", [self.init4, asset_name, 10, asset_options, None, True], log_response=False
-        )
-        self.produce_block(self.__database_api_identifier)
-
-        asset_id = self.send_wallet_request("get_asset_id", [asset_name], log_response=False)['result']
-        asset = self.send_wallet_request("get_asset", [asset_name], log_response=False)['result']
-        check_that("asset id", asset['id'], equal_to(asset_id), quiet=True)
+        lcc.set_step("Сheck call_contract method")
+        response = self.send_wallet_request(
+            "call_contract", [self.init4, self.valid_contract_id, self.greet, 1, self.echo_asset], log_response=False
+        )['result']
+        check_that("code", response['operations'][0][1]['code'], equal_to(self.greet))

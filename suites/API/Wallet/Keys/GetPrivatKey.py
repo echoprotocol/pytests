@@ -31,6 +31,7 @@ class GetPrivateKey(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_generate_account_address'")
     def method_main_check(self):
+        self.unlock_wallet()
         lcc.set_step("Get private key")
         request_result = self.send_wallet_request('import_key', ['init4', INIT4_PK], log_response=False)['result']
         check_that("import key status", request_result, equal_to(True), quiet=True)
