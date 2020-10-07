@@ -2,15 +2,14 @@
 from __future__ import print_function
 
 import json
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import BITCOIN_URL, INIT1_PK, INIT5_PK, BTC_FEE, BTC_WITHDRAWAL_MIN
-
-
-import time
-import requests
+from project import BITCOIN_URL, BTC_FEE, BTC_WITHDRAWAL_MIN, INIT1_PK, INIT5_PK
 
 import lemoncheesecake.api as lcc
+import requests
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
@@ -48,9 +47,7 @@ class GetAccountWithdrawals(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.init5 = self.get_account_id(
-            'init5', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )

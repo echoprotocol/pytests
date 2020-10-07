@@ -2,15 +2,14 @@
 from __future__ import print_function
 
 import json
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import BITCOIN_URL, INIT5_PK
 
-
-import time
-import requests
-
 import lemoncheesecake.api as lcc
+import requests
 from lemoncheesecake.matching import check_that, equal_to, require_that
 
 SUITE = {
@@ -47,9 +46,7 @@ class GetAccountDeposits(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.init5 = self.get_account_id(
-            'init5', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.init5))
 
         search_pattern = '://'
