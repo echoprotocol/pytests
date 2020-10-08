@@ -18,7 +18,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_sidechain", "asd", "wallet_get_account_withdrawals")
+@lcc.tags("api", "wallet_api", "wallet_sidechain", "wallet_get_account_withdrawals")
 @lcc.suite("Check work of method 'get_account_withdrawals'", rank=1)
 class GetAccountWithdrawals(WalletBaseTest, BaseTest):
 

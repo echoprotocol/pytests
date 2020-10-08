@@ -20,7 +20,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("scenarios", "sidechain", "sidechain_bitcoin", "asd", "scenarios_bitcoin")
+@lcc.tags("scenarios", "sidechain", "sidechain_bitcoin", "scenarios_bitcoin")
 @lcc.suite("Check scenario 'BtcToEcho and EchoToBtc'")
 class Bitcoin(BaseTest):
 

@@ -18,7 +18,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_sidechain", "asd", "wallet_get_account_deposits")
+@lcc.tags("api", "wallet_api", "wallet_sidechain", "wallet_get_account_deposits")
 @lcc.suite("Check work of method 'get_account_deposits'", rank=1)
 class GetAccountDeposits(WalletBaseTest, BaseTest):
 
