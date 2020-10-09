@@ -50,8 +50,7 @@ class ImportKey(WalletBaseTest, BaseTest):
         lcc.log_info("Key imported")
 
         result = self.send_wallet_request('create_eth_address', [self.init5, True], log_response=False)['result']
-        eth_address_object = self.utils.get_eth_address(self, self.init5,
-                                                        self.__database_api_identifier)["result"]
+        eth_address_object = self.utils.get_eth_address(self, self.init5, self.__database_api_identifier)["result"]
 
         lcc.set_step("Check get_eth_address method")
         result = self.send_wallet_request('get_eth_address', [self.init5], log_response=False)['result']

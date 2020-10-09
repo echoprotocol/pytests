@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-# from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
+
+# from project import INIT4_PK
 
 SUITE = {
     "description": "Method 'get_eth_address'"

@@ -37,7 +37,9 @@ class WithdrawEth(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.echo_acc0 = self.get_account_id(self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier)
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.init5))
 
@@ -73,7 +75,9 @@ class WithdrawEth(WalletBaseTest, BaseTest):
                                                         self.__database_api_identifier)["result"]['eth_addr']
         lcc.log_info("{}".format(eth_address_object))
         lcc.set_step("Check get_eth_address method")
-        eth_account_address = self.send_wallet_request('get_eth_address', [self.init5], log_response=False)['result']['eth_addr']
+        eth_account_address = self.send_wallet_request(
+            'get_eth_address', [self.init5], log_response=False
+        )['result']['eth_addr']
 
         eth_amount = self.get_random_amount(amount_type=float)
         lcc.set_step("Send eth to ethereum address of created account")
@@ -100,6 +104,8 @@ class WithdrawEth(WalletBaseTest, BaseTest):
         lcc.log_info(
             "Transfer operation performed, transfer amount: '{}' '{}' assets".format(transfer_amount, self.eth_asset)
         )
-        result = self.send_wallet_request("withdraw_eth", [self.init5, eth_account_address, transfer_amount, True], log_response=False)['result']
+        result = self.send_wallet_request(
+            "withdraw_eth", [self.init5, eth_account_address, transfer_amount, True], log_response=False
+        )['result']
         check_that("withdraw eth amount", int(result['operations'][0][1]["value"]), equal_to(int(transfer_amount)))
         check_that("eth address", result['operations'][0][1]['eth_addr'], equal_to(eth_account_address))
