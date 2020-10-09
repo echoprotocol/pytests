@@ -249,7 +249,8 @@ class Utils(object):
         amount_asset_id="1.3.0",
         get_only_fee=False,
         log_broadcast=False,
-        broadcast_with_callback=False
+        broadcast_with_callback=False,
+        signer=None
     ):
         add_balance_operation = 1
         operation = base_test.echo_ops.get_transfer_operation(
@@ -257,7 +258,8 @@ class Utils(object):
             from_account_id=account_1,
             to_account_id=account_2,
             amount=transfer_amount,
-            amount_asset_id=amount_asset_id
+            amount_asset_id=amount_asset_id,
+            signer=signer
         )
         if account_1 != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
