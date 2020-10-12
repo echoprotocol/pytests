@@ -3,7 +3,7 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import require_that, is_true
+from lemoncheesecake.matching import is_true, require_that
 
 SUITE = {
     "description": "Method 'check_erc20_token'"
@@ -81,7 +81,5 @@ class CheckErc20Token(WalletBaseTest, BaseTest):
         erc20_contract_id = self.get_response(response_id)["result"]["contract"]
 
         lcc.set_step("Check method check_erc20_token")
-        erc20 = self.send_wallet_request(
-            "check_erc20_token", [erc20_contract_id], log_response=False
-        )['result']
+        erc20 = self.send_wallet_request("check_erc20_token", [erc20_contract_id], log_response=False)['result']
         require_that("'erc20_token'", erc20, is_true(), quiet=True)

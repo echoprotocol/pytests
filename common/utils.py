@@ -504,7 +504,9 @@ class Utils(object):
         return broadcast_result
 
     @staticmethod
-    def perform_sidechain_eth_create_address_operation(base_test, registrar, database_api_id, log_broadcast=True, signer=None):
+    def perform_sidechain_eth_create_address_operation(
+        base_test, registrar, database_api_id, log_broadcast=True, signer=None
+    ):
         operation = base_test.echo_ops.get_sidechain_eth_create_address_operation(
             echo=base_test.echo, account=registrar, signer=signer
         )
@@ -1025,12 +1027,27 @@ class Utils(object):
         return broadcast_result
 
     def perform_sidechain_erc20_register_token_operation(
-        self, base_test, account, eth_addr, name, symbol, database_api_id, decimals=0, log_broadcast=False, signer=None
+        self,
+        base_test,
+        account,
+        eth_addr,
+        name,
+        symbol,
+        database_api_id,
+        decimals=0,
+        log_broadcast=False,
+        signer=None
     ):
         if eth_addr[:2] == "0x":
             eth_addr = eth_addr[2:]
         operation = base_test.echo_ops.get_sidechain_erc20_register_token_operation(
-            echo=base_test.echo, account=account, eth_addr=eth_addr, name=name, symbol=symbol, decimals=decimals, signer=signer
+            echo=base_test.echo,
+            account=account,
+            eth_addr=eth_addr,
+            name=name,
+            symbol=symbol,
+            decimals=decimals,
+            signer=signer
         )
         if account != base_test.echo_acc0:
             temp_operation = deepcopy(operation)

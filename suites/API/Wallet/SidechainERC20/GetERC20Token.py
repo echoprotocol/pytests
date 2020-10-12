@@ -76,7 +76,5 @@ class CheckErc20Token(WalletBaseTest, BaseTest):
         lcc.log_info("Registration of ERC20 token completed successfully")
 
         lcc.set_step("Check method get_erc20_token")
-        erc20 = self.send_wallet_request(
-            "get_erc20_token", [erc20_contract.address[2:]], log_response=False
-        )['result']
+        erc20 = self.send_wallet_request("get_erc20_token", [erc20_contract.address[2:]], log_response=False)['result']
         self.object_validator.validate_erc20_token_object(self, erc20)

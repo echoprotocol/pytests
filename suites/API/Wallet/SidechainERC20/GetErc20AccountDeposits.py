@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 

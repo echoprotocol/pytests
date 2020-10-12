@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import random
 import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import INIT4_PK
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that_in, equal_to, greater_than, is_true, require_that
 
@@ -35,9 +37,7 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
             return self.get_random_amount(_to=_to, _from=_from)
         return amount
 
-    def check_erc20_account_withdrawals(
-        self, withdrawals, account_id, erc20_withdrawal_amounts
-    ):
+    def check_erc20_account_withdrawals(self, withdrawals, account_id, erc20_withdrawal_amounts):
         for i, erc20_account_withdraw in enumerate(withdrawals):
             lcc.set_step("Check work of method 'get_erc20_account_withdrawals', withdrawal #'{}'".format(i))
             self.object_validator.validate_erc20_withdraw_object(self, erc20_account_withdraw)
@@ -68,9 +68,7 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.echo_acc0))
         self.eth_account = self.get_default_ethereum_account()
         lcc.log_info("Ethereum address in the ethereum network: '{}'".format(self.eth_account.address))
@@ -93,7 +91,9 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
             lcc.log_info("Ethereum address of '{}' account is '{}'".format(self.init4, eth_account_address))
         except Exception:
             lcc.set_step("Generate ethereum address for new account")
-            self.utils.perform_sidechain_eth_create_address_operation(self, self.init4, self.__database_api_identifier, signer=INIT4_PK)
+            self.utils.perform_sidechain_eth_create_address_operation(
+                self, self.init4, self.__database_api_identifier, signer=INIT4_PK
+            )
             lcc.log_info("Ethereum address generated successfully")
             eth_account_address = self.utils.get_eth_address(self, self.init4,
                                                              self.__database_api_identifier)["result"]["eth_addr"]
@@ -173,17 +173,13 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
         erc20_withdrawal_amounts = str(self.get_random_amount(_to=in_echo_erc20_balance))
 
         withdraw_erc20_token = self.send_wallet_request(
-            "withdraw_erc20_token", [self.init4, self.eth_account.address, erc20_token_id, erc20_withdrawal_amounts, True], log_response=False
+            "withdraw_erc20_token",
+            [self.init4, self.eth_account.address, erc20_token_id, erc20_withdrawal_amounts, True],
+            log_response=False
         )['result']
         check_that_in(
-            withdraw_erc20_token['operations'][0][1],
-            "account",
-            equal_to(self.init4),
-            'to',
-            equal_to(self.eth_account.address[2:]),
-            'erc20_token',
-            equal_to(erc20_token_id),
-            'value',
+            withdraw_erc20_token['operations'][0][1], "account", equal_to(self.init4), 'to',
+            equal_to(self.eth_account.address[2:]), 'erc20_token', equal_to(erc20_token_id), 'value',
             equal_to(erc20_withdrawal_amounts)
         )
         lcc.set_step("Check result of withdraw_erc20_token")
@@ -191,6 +187,4 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
         account_withdrawals = self.send_wallet_request(
             "get_erc20_account_withdrawals", [self.init4], log_response=False
         )['result']
-        self.check_erc20_account_withdrawals(
-            [account_withdrawals[-1]], self.init4, erc20_withdrawal_amounts
-        )
+        self.check_erc20_account_withdrawals([account_withdrawals[-1]], self.init4, erc20_withdrawal_amounts)

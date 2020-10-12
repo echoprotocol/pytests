@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import INIT4_PK
@@ -99,7 +100,9 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
             lcc.log_info("Ethereum address of '{}' account is '{}'".format(self.init4, eth_account_address))
         except Exception:
             lcc.set_step("Generate ethereum address for new account")
-            self.utils.perform_sidechain_eth_create_address_operation(self, self.init4, self.__database_api_identifier, signer=INIT4_PK)
+            self.utils.perform_sidechain_eth_create_address_operation(
+                self, self.init4, self.__database_api_identifier, signer=INIT4_PK
+            )
             lcc.log_info("Ethereum address generated successfully")
             eth_account_address = self.utils.get_eth_address(self, self.init4,
                                                              self.__database_api_identifier)["result"]["eth_addr"]
@@ -121,7 +124,8 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
         lcc.set_step("Check that new erc20 token register")
         lcc.log_info("register erc20 token")
         self.send_wallet_request(
-            "register_erc20_token", [self.init4, erc20_contract.address, token_name, erc20_symbol, 2, True], log_response=False
+            "register_erc20_token", [self.init4, erc20_contract.address, token_name, erc20_symbol, 2, True],
+            log_response=False
         )['result']
         time.sleep(5)
         lcc.log_info("Get new erc20 token")
