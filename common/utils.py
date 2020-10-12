@@ -504,9 +504,9 @@ class Utils(object):
         return broadcast_result
 
     @staticmethod
-    def perform_sidechain_eth_create_address_operation(base_test, registrar, database_api_id, log_broadcast=True):
+    def perform_sidechain_eth_create_address_operation(base_test, registrar, database_api_id, log_broadcast=True, signer=None):
         operation = base_test.echo_ops.get_sidechain_eth_create_address_operation(
-            echo=base_test.echo, account=registrar
+            echo=base_test.echo, account=registrar, signer=signer
         )
         if registrar != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
@@ -1025,12 +1025,12 @@ class Utils(object):
         return broadcast_result
 
     def perform_sidechain_erc20_register_token_operation(
-        self, base_test, account, eth_addr, name, symbol, database_api_id, decimals=0, log_broadcast=False
+        self, base_test, account, eth_addr, name, symbol, database_api_id, decimals=0, log_broadcast=False, signer=None
     ):
         if eth_addr[:2] == "0x":
             eth_addr = eth_addr[2:]
         operation = base_test.echo_ops.get_sidechain_erc20_register_token_operation(
-            echo=base_test.echo, account=account, eth_addr=eth_addr, name=name, symbol=symbol, decimals=decimals
+            echo=base_test.echo, account=account, eth_addr=eth_addr, name=name, symbol=symbol, decimals=decimals, signer=signer
         )
         if account != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
@@ -1048,12 +1048,12 @@ class Utils(object):
         return broadcast_result
 
     def perform_sidechain_erc20_withdraw_token_operation(
-        self, base_test, account, to, erc20_token, value, database_api_id, log_broadcast=False
+        self, base_test, account, to, erc20_token, value, database_api_id, log_broadcast=False, signer=None
     ):
         if to[:2] == "0x":
             to = to[2:]
         operation = base_test.echo_ops.get_sidechain_erc20_withdraw_token_operation(
-            echo=base_test.echo, account=account, to=to, erc20_token=erc20_token, value=value
+            echo=base_test.echo, account=account, to=to, erc20_token=erc20_token, value=value, signer=signer
         )
         if account != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
@@ -1154,11 +1154,12 @@ class Utils(object):
         database_api_id,
         previous_balance=None,
         wait_time=0,
-        temp_count=0
+        temp_count=0,
+        signer=None
     ):
         argument = base_test.get_byte_code_param(account_id)
         operation = base_test.echo_ops.get_contract_call_operation(
-            base_test.echo, account_id, bytecode=balance_of_method + argument, callee=contract_id
+            base_test.echo, account_id, bytecode=balance_of_method + argument, callee=contract_id, signer=signer
         )
         if account_id != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
@@ -1192,7 +1193,8 @@ class Utils(object):
                 database_api_id,
                 previous_balance=previous_balance,
                 wait_time=wait_time,
-                temp_count=temp_count
+                temp_count=temp_count,
+                signer=signer
             )
         raise Exception(
             "ERC20 balance of '{}' account not updated. Waiting time result='{}'".format(account_id, wait_time)
