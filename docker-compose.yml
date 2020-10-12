@@ -106,9 +106,9 @@ services:
       - ganache
       - bitcoin
 
-  echo-second:
+  echo-peer:
     <<: *echo-base
-    container_name: '631.echo_second.node.${ENV}'
+    container_name: '631.echo.peer_node.${ENV}'
     command: '--data-dir=/echo/datadir/
       --genesis-json=/echo/genesis.json
       --rpc-endpoint=0.0.0.0:6311
