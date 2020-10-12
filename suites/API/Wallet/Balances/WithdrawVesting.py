@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK, WALLET_PASSWORD
+from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to
@@ -41,6 +41,7 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
 
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+        self.one_echo = 100000000
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -50,19 +51,12 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_integer):
         lcc.set_step("Perform vesting balance create operation")
         broadcast_result = self.utils.perform_vesting_balance_create_operation(
-            self, self.echo_acc0, self.init5, 100000000, self.__database_api_identifier
+            self, self.echo_acc0, self.init5, self.one_echo, self.__database_api_identifier
         )
         vesting_balance_id = self.get_operation_results_ids(broadcast_result)
         lcc.log_info("Vesting balance object '{}' created".format(vesting_balance_id))
 
-        lcc.set_step("Unlock wallet")
-        response = self.send_wallet_request("is_new", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
-        response = self.send_wallet_request("is_locked", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
-        lcc.log_info("Wallet unlocked")
+        self.unlock_wallet()
 
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)

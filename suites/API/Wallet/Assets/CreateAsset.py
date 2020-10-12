@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
+from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'freeze_balance'"
+    "description": "Method 'create_asset'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_freeze_balance")
-@lcc.suite("Check work of method 'freeze_balance'", rank=1)
-class FreezeBalance(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_create_asset")
+@lcc.suite("Check work of method 'create_asset'", rank=1)
+class CreateAsset(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -38,23 +38,25 @@ class FreezeBalance(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_freeze_balance'")
-    def method_main_check(self, get_random_integer):
-        value_amount = get_random_integer
+    @lcc.test("Simple work of method 'wallet_create_asset'")
+    def method_main_check(self, get_random_valid_asset_name):
         self.unlock_wallet()
+
         lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
+        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Check freeze balance method")
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.set_step("Check method create_asset")
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        asset_name = get_random_valid_asset_name
+        lcc.log_info("Create {} asset".format(asset_name))
+        asset_options = self.echo_ops.get_asset_create_operation(
+            echo=self.echo, issuer=self.init4, symbol=asset_name
+        )[1]['common_options']
         self.send_wallet_request(
-            "freeze_balance", [self.init5, value_amount, self.echo_asset, 90, True], log_response=False
+            "create_asset", [self.init4, asset_name, 10, asset_options, None, True], log_response=False
         )
         self.produce_block(self.__database_api_identifier)
-        result = self.send_wallet_request("list_frozen_balances", [self.init5], log_response=False)["result"][-1]
-        check_that("frozen_balance", int(result['balance']['amount']), equal_to(value_amount * 10 ** 8))
-        if self.type_validator.is_frozen_balance_id(result['id']):
-            lcc.log_info("Correct format of frozen_balance_id")
-        else:
-            lcc.log_error("Wrong frozen_balance_id format!")
+
+        result = self.send_wallet_request("list_assets", [asset_name, 10], log_response=False)['result']
+        check_that("asset name", asset_name, equal_to(result[0]['symbol']))

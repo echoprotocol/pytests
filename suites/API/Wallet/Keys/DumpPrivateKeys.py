@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, WALLET_PASSWORD
+from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -36,14 +36,7 @@ class DumpPrivateKeys(WalletBaseTest, BaseTest):
         new_account = get_random_valid_account_name
         evm_address = get_random_eth_address
 
-        lcc.set_step("Unlock wallet")
-        response = self.send_wallet_request("is_new", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
-        response = self.send_wallet_request("is_locked", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
-        lcc.log_info("Wallet unlocked")
+        self.unlock_wallet()
 
         lcc.set_step("Add init4 to 'dump_private_keys'")
         response = self.send_wallet_request("dump_private_keys", [], log_response=False)

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'import_balance'"
+    "description": "Method 'list_assets'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_import_balance")
-@lcc.suite("Check work of method 'import_balance'", rank=1)
-class ImportBalance(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_assets", "wallet_list_assets")
+@lcc.suite("Check work of method 'list_assets'", rank=1)
+class ListAssets(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -38,18 +36,15 @@ class ImportBalance(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_import_balance'")
+    @lcc.test("Simple work of method 'wallet_list_assets'")
     def method_main_check(self):
-        self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        lcc.set_step("Check method import balance")
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
-        check_that(
-            "imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'],
-            equal_to(61)
-        )
+        lcc.set_step("Check list_assets method")
+        response = self.send_wallet_request("list_assets", ["", 10], log_response=False)
+        test_successful = True
+        for result in response['result']:
+            if not self.type_validator.is_asset_id(result['id']):
+                test_successful = False
+        if test_successful:
+            lcc.log_info("Method list_assets complited successfully")
+        else:
+            lcc.log_error("Wrong asset id returned")

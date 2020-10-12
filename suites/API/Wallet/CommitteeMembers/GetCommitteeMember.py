@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'import_balance'"
+    "description": "Method 'get_committee_member'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_import_balance")
-@lcc.suite("Check work of method 'import_balance'", rank=1)
-class ImportBalance(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_committee_member", "wallet_get_committee_member")
+@lcc.suite("Check work of method 'get_committee_member'", rank=1)
+class GetCommitteeMember(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -38,18 +37,10 @@ class ImportBalance(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_import_balance'")
+    @lcc.depends_on("API.Wallet.CommitteeMembers.CreateCommitteeMember.CreateCommitteeMember.method_main_check")
+    @lcc.test("Simple work of method 'wallet_get_committee_member'")
     def method_main_check(self):
-        self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        lcc.set_step("Check method import balance")
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
-        check_that(
-            "imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'],
-            equal_to(61)
-        )
+        lcc.set_step("Check get_committee_member method")
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        committee_member = self.send_wallet_request("get_committee_member", ['init5'], log_response=True)['result']
+        check_that('committee member account id', self.init5, equal_to(committee_member['committee_member_account']))

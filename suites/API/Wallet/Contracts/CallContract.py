@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK
+from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'import_balance'"
+    "description": "Method 'call_contract'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_balances", "wallet_import_balance")
-@lcc.suite("Check work of method 'import_balance'", rank=1)
-class ImportBalance(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_contracts", "wallet_call_contract")
+@lcc.suite("Check work of method 'call_contract'", rank=1)
+class CallContract(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
         BaseTest.__init__(self)
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.echo_acc0 = None
+        self.contract = self.get_byte_code("piggy", "code")
+        self.greet = self.get_byte_code("piggy", "greet()")
+        self.valid_contract_id = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -33,23 +37,28 @@ class ImportBalance(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
+        self.echo_acc0 = self.get_account_id(
+            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
+        )
+        lcc.log_info("Echo account are: '{}'".format(self.echo_acc0))
+        self.valid_contract_id = self.utils.get_contract_id(
+            self, self.echo_acc0, self.contract, self.__database_api_identifier
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_import_balance'")
+    @lcc.test("Simple work of method 'wallet_call_contract'")
     def method_main_check(self):
         self.unlock_wallet()
-
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
         lcc.log_info("Key imported")
 
-        lcc.set_step("Check method import balance")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
-        check_that(
-            "imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'],
-            equal_to(61)
-        )
+        lcc.set_step("Сheck call_contract method")
+        response = self.send_wallet_request(
+            "call_contract", [self.init4, self.valid_contract_id, self.greet, 1, self.echo_asset], log_response=False
+        )['result']
+        check_that("code", response['operations'][0][1]['code'], equal_to(self.greet))
