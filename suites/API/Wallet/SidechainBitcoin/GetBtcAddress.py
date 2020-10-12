@@ -45,9 +45,7 @@ class GetBtcAddress(WalletBaseTest, BaseTest):
     def method_main_check(self):
         backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
 
-        result = self.send_wallet_request(
-            "get_btc_address", [self.init4], log_response=False
-        )['result']
+        result = self.send_wallet_request("get_btc_address", [self.init4], log_response=False)['result']
         if result is None:
             lcc.log_error("Account {} has no btc address, method does not checked".format(self.init4))
         else:

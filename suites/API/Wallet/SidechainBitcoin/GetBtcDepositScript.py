@@ -42,9 +42,7 @@ class GetBtcDepositScript(WalletBaseTest, BaseTest):
     @lcc.depends_on("API.Wallet.SidechainBitcoin.CreateBtcAddress.CreateBtcAddress.method_main_check")
     @lcc.test("Simple work of method 'wallet_get_btc_deposit_script'")
     def method_main_check(self):
-        btc_address = self.send_wallet_request(
-            "get_btc_address", [self.init4], log_response=False
-        )['result']
+        btc_address = self.send_wallet_request("get_btc_address", [self.init4], log_response=False)['result']
         if btc_address is None:
             lcc.log_error("Account {} has no btc address, method does not checked".format(self.init4))
         else:

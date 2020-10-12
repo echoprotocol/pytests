@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import INIT4_PK
-import time
-import lemoncheesecake.api as lcc
 
+import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
@@ -57,7 +58,9 @@ class CreateBtcAddress(WalletBaseTest, BaseTest):
             lcc.log_info("Key imported")
 
             lcc.set_step("Get account withdrawals")
-            result = self.send_wallet_request("create_btc_address", [self.init4, backup_address, True], log_response=False)['result']
+            result = self.send_wallet_request(
+                "create_btc_address", [self.init4, backup_address, True], log_response=False
+            )['result']
             time.sleep(10)
             response_id = self.send_request(
                 self.get_request("get_btc_address", [self.init4]), self.__database_api_identifier

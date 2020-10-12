@@ -100,9 +100,7 @@ class WithdrawBtc(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_integer):
         withdrawal_amount = BTC_WITHDRAWAL_MIN * BTC_FEE
 
-        btc_address = self.send_wallet_request(
-            "get_btc_address", [self.init4], log_response=False
-        )['result']
+        btc_address = self.send_wallet_request("get_btc_address", [self.init4], log_response=False)['result']
         if btc_address is None:
             lcc.log_error("Account {} has no btc address, method does not checked".format(self.init4))
         else:
@@ -126,7 +124,8 @@ class WithdrawBtc(WalletBaseTest, BaseTest):
 
             lcc.set_step("Check withdraw_btc method")
             result = self.send_wallet_request(
-                "withdraw_btc", [self.init4, btc_address['deposit_address']['address'], withdrawal_amount, True], log_response=False
+                "withdraw_btc", [self.init4, btc_address['deposit_address']['address'], withdrawal_amount, True],
+                log_response=False
             )['result']
             for i in range(0, 5):
                 time.sleep(3)
