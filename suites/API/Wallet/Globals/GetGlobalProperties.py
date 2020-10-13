@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-import time
+
 import lemoncheesecake.api as lcc
 
 SUITE = {

@@ -187,6 +187,4 @@ class ApproveProposal(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
         response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
         last_active_committee_member = self.get_response(response_id)["result"]["active_committee_members"][-1][1]
-        require_that(
-            "acitve committee member", new_account_id, not_equal_to(last_active_committee_member), quiet=False
-        )
+        require_that("acitve committee member", new_account_id, not_equal_to(last_active_committee_member), quiet=False)

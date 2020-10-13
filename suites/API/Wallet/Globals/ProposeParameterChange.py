@@ -126,4 +126,7 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
                 "get_global_properties", [], log_response=False
             )['result']
 
-        check_that("scale", get_global_properties_result["parameters"]["echorand_config"]["_time_net_1mb"], equal_to(_time_net_1mb))
+        check_that(
+            "scale", get_global_properties_result["parameters"]["echorand_config"]["_time_net_1mb"],
+            equal_to(_time_net_1mb)
+        )
