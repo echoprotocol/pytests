@@ -3,9 +3,10 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, WALLET_PASSWORD
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'propose_parameter_change'"
@@ -13,7 +14,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_propose_parameter_change")
+@lcc.tags("api", "wallet_api", "wallet_globals", "wallet_propose_parameter_change")
 @lcc.suite("Check work of method 'propose_parameter_change'", rank=1)
 class ProposeParameterChange(WalletBaseTest, BaseTest):
 
@@ -40,19 +41,12 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         super().teardown_suite()
 
     @lcc.disabled()
+    # test works, but requires `maintenance_interval` less than 20 seconds
     @lcc.test("Simple work of method 'wallet_propose_parameter_change'")
     def method_main_check(self):
-        lcc.set_step("Unlock wallet")
-        response = self.send_wallet_request("is_new", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("set_password", [WALLET_PASSWORD], log_response=False)
-        response = self.send_wallet_request("is_locked", [], log_response=False)
-        if response['result']:
-            self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
-        lcc.log_info("Wallet unlocked")
+        self.unlock_wallet()
         lcc.set_step("Import key")
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        # self.send_wallet_request("import_key", ['init0', INIT0_PK], log_response=False)
         lcc.log_info("Key imported")
 
         lcc.set_step("Get initial account ids")
@@ -67,6 +61,13 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
                 self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
             )
         )
+
+        account_balances = self.send_wallet_request("list_account_balances", ['1.2.1'], log_response=False)['result']
+        if int(account_balances[0]['amount']) < 100:
+            lcc.set_step('Add balance to 1.2.1 account.')
+            self.send_wallet_request("transfer", [self.init4, '1.2.1', 100, self.echo_asset, True], log_response=False)
+            lcc.log_info("100 ECHO added to 1.2.1 account.")
+
         global_properties = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
         _time_net_1mb = global_properties["parameters"]["echorand_config"]["_time_net_1mb"]
         _time_net_1mb += 3
@@ -81,7 +82,6 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         proposal = self.send_wallet_request(
             "propose_parameter_change", [self.init4, expiration_time, params_to_update], log_response=False
         )
-        lcc.log_info("{}".format(proposal))
         lcc.log_info("Search for a block with parameter change proposal")
         block = int(proposal['result']['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
@@ -105,7 +105,7 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Set timer for proposal expiration")
-        time.sleep(15)
+        time.sleep(30)
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Voting finished.")
 
@@ -117,4 +117,13 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
         get_global_properties_result = self.send_wallet_request(
             "get_global_properties", [], log_response=False
         )['result']
-        lcc.log_info("{}".format(get_global_properties_result))
+
+        if 'pending_parameters' in get_global_properties_result.keys():
+            lcc.log_info("Wait for pending_parameters")
+            time.sleep(20)
+            self.produce_block(self.__database_api_identifier)
+            get_global_properties_result = self.send_wallet_request(
+                "get_global_properties", [], log_response=False
+            )['result']
+
+        check_that("scale", get_global_properties_result["parameters"]["echorand_config"]["_time_net_1mb"], equal_to(_time_net_1mb))

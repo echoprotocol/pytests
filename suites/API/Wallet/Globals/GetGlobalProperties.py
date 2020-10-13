@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-
+import time
 import lemoncheesecake.api as lcc
 
 SUITE = {
@@ -10,7 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_global_properties")
+@lcc.tags("api", "wallet_api", "wallet_globals", "wallet_get_global_properties")
 @lcc.suite("Check work of method 'get_global_properties'", rank=1)
 class GetGlobalProperties(BaseTest, WalletBaseTest):
 
@@ -40,6 +40,11 @@ class GetGlobalProperties(BaseTest, WalletBaseTest):
         get_global_properties_result = self.send_wallet_request(
             "get_global_properties", [], log_response=False
         )['result']
+        if 'pending_parameters' in get_global_properties_result.keys():
+            time.sleep(10)
+            get_global_properties_result = self.send_wallet_request(
+                "get_global_properties", [], log_response=False
+            )['result']
 
         lcc.set_step("Check main fields")
         self.object_validator.validate_global_properties_object(self, get_global_properties_result)

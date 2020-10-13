@@ -11,7 +11,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_git_revision")
+@lcc.tags("api", "wallet_api", "wallet_globals", "wallet_get_git_revision")
 @lcc.suite("Check work of method 'get_git_revision'", rank=1)
 class GetGitRevision(WalletBaseTest, BaseTest):
 
