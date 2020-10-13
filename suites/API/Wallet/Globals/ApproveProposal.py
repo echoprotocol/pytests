@@ -3,7 +3,7 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, INIT5_PK, REQUIRED_DEPOSIT_AMOUNT
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, REQUIRED_DEPOSIT_AMOUNT
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
@@ -51,10 +51,9 @@ class ApproveProposal(WalletBaseTest, BaseTest):
         self.init2 = self.get_account_id('init2', self.__database_api_identifier, self.__registration_api_identifier)
         self.init3 = self.get_account_id('init3', self.__database_api_identifier, self.__registration_api_identifier)
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info(
-            "Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}'".format(
-                self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
+            "Initial account ids: '{}', '{}', '{}', '{}', '{}'".format(
+                self.init0, self.init1, self.init2, self.init3, self.init4
             )
         )
 
@@ -72,7 +71,6 @@ class ApproveProposal(WalletBaseTest, BaseTest):
         self.send_wallet_request("import_key", ['init2', INIT2_PK], log_response=False)
         self.send_wallet_request("import_key", ['init3', INIT3_PK], log_response=False)
         self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
         lcc.log_info("Key imported")
 
         new_account = get_random_valid_account_name
