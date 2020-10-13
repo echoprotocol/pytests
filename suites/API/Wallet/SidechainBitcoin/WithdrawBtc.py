@@ -6,21 +6,21 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import BITCOIN_URL, BTC_FEE, BTC_WITHDRAWAL_MIN, INIT1_PK, INIT5_PK
+from project import BITCOIN_URL, BTC_FEE, BTC_WITHDRAWAL_MIN, INIT4_PK, INIT5_PK
 
 import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'get_account_withdrawals'"
+    "description": "Method 'withdraw_btc'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_sidechain", "wallet_get_account_withdrawals")
-@lcc.suite("Check work of method 'get_account_withdrawals'", rank=1)
-class GetAccountWithdrawals(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_sidechain_bitcoin", "wallet_withdraw_btc")
+@lcc.suite("Check work of method 'withdraw_btc'", rank=1)
+class WithdrawBtc(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -29,7 +29,7 @@ class GetAccountWithdrawals(WalletBaseTest, BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.init5 = None
-        self.echo_acc0 = None
+        self.new_account = None
         self.temp_count = 0
         self._session = None
         self.btc_url = None
@@ -47,9 +47,7 @@ class GetAccountWithdrawals(WalletBaseTest, BaseTest):
             )
         )
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        self.echo_acc0 = self.get_account_id(
-            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account is '{}'".format(self.init5))
 
         search_pattern = '://'
@@ -97,53 +95,42 @@ class GetAccountWithdrawals(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.depends_on("API.Wallet.Sidechain.GetAccountDeposits.GetAccountDeposits.method_main_check")
-    @lcc.test("Simple work of method 'wallet_get_account_withdrawals'")
+    @lcc.depends_on("API.Wallet.SidechainBitcoin.CreateBtcAddress.CreateBtcAddress.method_main_check")
+    @lcc.test("Simple work of method 'wallet_withdraw_btc'")
     def method_main_check(self, get_random_integer):
-        lcc.set_step("Get account withdrawals")
-        result = self.send_wallet_request("get_account_withdrawals", [self.init5, ""], log_response=True)['result']
+        withdrawal_amount = BTC_WITHDRAWAL_MIN * BTC_FEE
 
-        if result == []:
-            lcc.log_info("There no withdrawals of account, performing withdrawal operation")
-            backup_address = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
-            withdrawal_amount = BTC_WITHDRAWAL_MIN * BTC_FEE
+        btc_address = self.send_wallet_request("get_btc_address", [self.init4], log_response=False)['result']
+        if btc_address is None:
+            lcc.log_error("Account {} has no btc address, method does not checked".format(self.init4))
+        else:
+            self.unlock_wallet()
+            lcc.set_step("Import key")
+            self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
+            self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
+            lcc.log_info("Key imported")
 
-            lcc.log_info("Perform sidechain_btc_create_address_operation for '1.2.7' account")
-            operation = self.echo_ops.get_sidechain_btc_create_address_operation(
-                echo=self.echo, account="1.2.7", backup_address=backup_address, signer=INIT1_PK
-            )
-            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-            operation_result = \
-                self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)["trx"]["operation_results"][0][
-                    1]
-            lcc.log_info("Operation result id: {}".format(operation_result))
+            lcc.set_step("Create new address in BTC network")
+            new_address = self.btc_call('getnewaddress')
 
-            lcc.log_info("Get btc address of '1.2.7' account")
-            response_id = self.send_request(
-                self.get_request("get_objects", [[operation_result]]), self.__database_api_identifier
-            )
-            new_btc_address = self.get_response(response_id)["result"][0]["deposit_address"]["address"]
-            lcc.log_info("'1.2.7' account BTC address is '{}'".format(new_btc_address))
+            # generate 101 block by new address
+            self.btc_call('generatetoaddress', 101, new_address)
 
-            lcc.log_info("Perform sidechain_btc_withdraw_operation")
-            operation = self.echo_ops.get_sidechain_btc_withdraw_operation(
-                echo=self.echo,
-                account=self.init5,
-                btc_address=new_btc_address,
-                value=withdrawal_amount,
-                fee_asset_id=self.btc_asset,
-                signer=INIT5_PK
-            )
-            collected_operation = self.collect_operations(
-                operation, self.__database_api_identifier, fee_asset_id=self.btc_asset
-            )
-            self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, log_broadcast=True)
-
-            # generate blocks for aggregation in sidechain
+            # send 10 btc coins to new address
+            self.btc_call('sendtoaddress', btc_address['deposit_address']['address'], 10.00)
             for i in range(0, 5):
                 time.sleep(3)
                 self.btc_call('generate', 1)
 
-            lcc.set_step("Get account withdrawals")
-            result = self.send_wallet_request("get_account_withdrawals", [self.init5, ""], log_response=True)['result']
-        check_that("account id", result[-1]['account'], equal_to(self.init5))
+            lcc.set_step("Check withdraw_btc method")
+            result = self.send_wallet_request(
+                "withdraw_btc", [self.init4, btc_address['deposit_address']['address'], withdrawal_amount, True],
+                log_response=False
+            )['result']
+            for i in range(0, 5):
+                time.sleep(3)
+                self.btc_call('generate', 1)
+            lcc.log_info("Check that account has withdrawals")
+            result = self.send_wallet_request("get_account_withdrawals", [self.init4, ""], log_response=True)['result']
+            check_that("account id", result[-1]['account'], equal_to(self.init4))
+            check_that("btc_addr", result[-1]['btc_addr'], equal_to(btc_address['deposit_address']['address']))
