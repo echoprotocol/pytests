@@ -154,5 +154,4 @@ class WalletBaseTest:
         for init in args:
             if not any(private_keys[init] in sublist for sublist in response['result']):
                 self.send_wallet_request('import_key', [init, private_keys[init]], log_response=False)
-                lcc.log_info("Init4 added to 'dump_private_keys'")
-        lcc.log_info("key imported")
+        lcc.log_info("Key imported")
