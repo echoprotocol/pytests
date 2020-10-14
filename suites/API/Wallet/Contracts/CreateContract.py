@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -22,6 +21,7 @@ class CreateContract(WalletBaseTest, BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
+        self.init4 = None
         self.contract = self.get_byte_code("piggy", "code")
 
     def setup_suite(self):
@@ -48,9 +48,7 @@ class CreateContract(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_create_contract'")
     def method_main_check(self):
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init4')
 
         lcc.set_step("Сheck create_contract method")
         response = self.send_wallet_request(

@@ -85,13 +85,11 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_register_erc20_token'")
     def method_main_check(self, get_random_string, get_random_valid_asset_name):
-        self.unlock_wallet()
         token_name = "erc20" + get_random_string
         erc20_symbol = get_random_valid_asset_name
 
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.unlock_wallet()
+        self.import_key('init4')
 
         try:
             lcc.set_step("Get ethereum address of created account in the ECHO network")

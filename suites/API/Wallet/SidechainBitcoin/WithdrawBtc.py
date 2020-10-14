@@ -6,7 +6,7 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import BITCOIN_URL, BTC_FEE, BTC_WITHDRAWAL_MIN, INIT4_PK, INIT5_PK
+from project import BITCOIN_URL, BTC_FEE, BTC_WITHDRAWAL_MIN
 
 import lemoncheesecake.api as lcc
 import requests
@@ -105,10 +105,7 @@ class WithdrawBtc(WalletBaseTest, BaseTest):
             lcc.log_error("Account {} has no btc address, method does not checked".format(self.init4))
         else:
             self.unlock_wallet()
-            lcc.set_step("Import key")
-            self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-            self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-            lcc.log_info("Key imported")
+            self.import_key('init4', 'init5')
 
             lcc.set_step("Create new address in BTC network")
             new_address = self.btc_call('getnewaddress')

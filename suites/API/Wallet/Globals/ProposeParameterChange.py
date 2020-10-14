@@ -45,9 +45,7 @@ class ProposeParameterChange(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_propose_parameter_change'")
     def method_main_check(self):
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init4')
 
         lcc.set_step("Get initial account ids")
         self.init0 = self.get_account_id('init0', self.__database_api_identifier, self.__registration_api_identifier)

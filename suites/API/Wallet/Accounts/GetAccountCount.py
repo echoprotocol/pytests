@@ -25,7 +25,7 @@ class GetAccountCount(WalletBaseTest, BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info("API identifiers are: database='{}'".format(self.__database_api_identifier))
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -33,7 +33,7 @@ class GetAccountCount(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_get_account_count'")
     def method_main_check(self):
-        lcc.set_step("Get account count")
+        lcc.set_step("Check get_account_count method")
         response_id = self.send_request(self.get_request("get_account_count"), self.__database_api_identifier)
         response = self.get_response(response_id)
         DBApi_response_result = response['result']

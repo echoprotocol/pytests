@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
@@ -34,19 +33,20 @@ class CreateCommitteeMember(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'wallet_create_committee_member'")
     def method_main_check(self, get_random_eth_address, get_random_btc_public_key):
+        eth_address = get_random_eth_address
+        btc_public_key = get_random_btc_public_key
+
         self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        self.import_key('init5')
 
         lcc.set_step("Check method create_committee_member")
         lcc.log_info("Make sure that {} account is not yet a committee member")
@@ -57,8 +57,6 @@ class CreateCommitteeMember(WalletBaseTest, BaseTest):
         require_that("commitee member object", committee_member, equal_to(None))
 
         lcc.log_info('Create committee member')
-        eth_address = get_random_eth_address
-        btc_public_key = get_random_btc_public_key
         self.send_wallet_request(
             "create_committee_member", [self.init5, "", 1000, eth_address, btc_public_key, True], log_response=True
         )

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -37,10 +36,8 @@ class Transfer(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        lcc.log_info("Echo account are: #1='{}'".format(self.echo_acc0))
-
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.init5))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -49,6 +46,7 @@ class Transfer(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_transfer'")
     def method_main_check(self, get_random_integer):
         value_amount = get_random_integer
+
         lcc.set_step("Perform vesting balance create operation")
         broadcast_result = self.utils.perform_vesting_balance_create_operation(
             self, self.echo_acc0, self.init5, value_amount, self.__database_api_identifier
@@ -57,10 +55,7 @@ class Transfer(WalletBaseTest, BaseTest):
         lcc.log_info("Vesting balance object '{}' created".format(vesting_balance_id))
 
         self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init5')
 
         lcc.set_step("Check transfer method")
         lcc.log_info("Get current account balance")

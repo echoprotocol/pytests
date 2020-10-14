@@ -60,6 +60,7 @@ class GetRelativeAccountHistory(WalletBaseTest, BaseTest):
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("Transfered from {} to {} completed!".format(self.echo_acc0, self.echo_acc1))
+
         lcc.set_step("Get current relative account history")
         response_after_transfer = self.send_wallet_request(
             "get_relative_account_history", [self.accounts[0], 0, 2, 0], log_response=False

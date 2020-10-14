@@ -12,7 +12,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.tags("api", "wallet_api", "wallet_globals", "wallet_get_dynamic_global_properties")
 @lcc.suite("Check work of method 'get_dynamic_global_properties'", rank=1)
-class WalletGetDynamicGlobalProperties(WalletBaseTest, BaseTest):
+class GetDynamicGlobalProperties(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)

@@ -23,6 +23,12 @@ class ProposeFeeChange(WalletBaseTest, BaseTest):
         BaseTest.__init__(self)
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.init0 = None
+        self.init1 = None
+        self.init2 = None
+        self.init3 = None
+        self.init4 = None
+        self.init5 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -35,21 +41,6 @@ class ProposeFeeChange(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-
-    def teardown_suite(self):
-        self._disconnect_to_echopy_lib()
-        super().teardown_suite()
-
-    @lcc.disabled()
-    # test works, but requires `maintenance_interval` less than 20 seconds
-    @lcc.test("Simple work of method 'wallet_propose_fee_change'")
-    def method_main_check(self):
-        self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init0', INIT0_PK], log_response=False)
-        lcc.log_info("Key imported")
-
         lcc.set_step("Get initial account ids")
         self.init0 = self.get_account_id('init0', self.__database_api_identifier, self.__registration_api_identifier)
         self.init1 = self.get_account_id('init1', self.__database_api_identifier, self.__registration_api_identifier)
@@ -62,6 +53,18 @@ class ProposeFeeChange(WalletBaseTest, BaseTest):
                 self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
             )
         )
+
+    def teardown_suite(self):
+        self._disconnect_to_echopy_lib()
+        super().teardown_suite()
+
+    @lcc.disabled()
+    # test works, but requires `maintenance_interval` less than 20 seconds
+    @lcc.test("Simple work of method 'wallet_propose_fee_change'")
+    def method_main_check(self):
+        self.unlock_wallet()
+        self.import_key('init0', 'init4')
+
         global_properties = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
         scale = global_properties['parameters']['current_fees']['scale']
 

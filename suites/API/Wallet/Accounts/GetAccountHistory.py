@@ -55,6 +55,8 @@ class GetAccountHistory(WalletBaseTest, BaseTest):
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        lcc.log_info("Transfer broadcasted")
+
         lcc.set_step("Check that transfer operation last of operations in account history")
         response = self.send_wallet_request("get_account_history", [self.accounts[0], 1], log_response=False)
         operation_result = response['result'][0]['op']['op'][1]

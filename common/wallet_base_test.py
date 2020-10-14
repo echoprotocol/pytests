@@ -5,7 +5,7 @@ import time
 
 from common.object_validation import ObjectValidator
 from common.type_validation import TypeValidator
-from project import WALLET_PASSWORD, WALLET_URL
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, INIT5_PK, WALLET_PASSWORD, WALLET_URL
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket
@@ -139,3 +139,20 @@ class WalletBaseTest:
         if response['result']:
             self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
         lcc.log_info("Wallet unlocked")
+
+    def import_key(self, *args):
+        lcc.set_step("Import private key to wallet")
+        private_keys = {
+            'init0': INIT0_PK,
+            'init1': INIT1_PK,
+            'init2': INIT2_PK,
+            'init3': INIT3_PK,
+            'init4': INIT4_PK,
+            'init5': INIT5_PK
+        }
+        response = self.send_wallet_request("dump_private_keys", [], log_response=False)
+        for init in args:
+            if not any(private_keys[init] in sublist for sublist in response['result']):
+                self.send_wallet_request('import_key', [init, private_keys[init]], log_response=False)
+                lcc.log_info("Init4 added to 'dump_private_keys'")
+        lcc.log_info("key imported")

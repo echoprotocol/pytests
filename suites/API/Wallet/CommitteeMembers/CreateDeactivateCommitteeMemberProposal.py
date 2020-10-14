@@ -3,7 +3,7 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, INIT5_PK
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, not_equal_to
@@ -23,6 +23,12 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         BaseTest.__init__(self)
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
+        self.init0 = None
+        self.init1 = None
+        self.init2 = None
+        self.init3 = None
+        self.init4 = None
+        self.init5 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -33,6 +39,19 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         lcc.log_info(
             "API identifiers are: database='{}', registration='{}'".format(
                 self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
+
+        lcc.set_step("Get initial account ids")
+        self.init0 = self.get_account_id('init0', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init1 = self.get_account_id('init1', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init2 = self.get_account_id('init2', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init3 = self.get_account_id('init3', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info(
+            "Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}'".format(
+                self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
             )
         )
 
@@ -51,26 +70,10 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         "API.Wallet.CommitteeMembers.CreateActivateCommitteeMemberProposal.CreateActivateCommitteeMemberProposal.method_main_check"
     )
     @lcc.test("Simple work of method 'wallet_create_deactivate_committee_member_proposal'")
-    def method_main_check(self, get_random_eth_address, get_random_btc_public_key):
+    def method_main_check(self):
         self.unlock_wallet()
+        self.import_key('init4', 'init5')
 
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        lcc.set_step("Get initial account ids")
-        self.init0 = self.get_account_id('init0', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init1 = self.get_account_id('init1', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init2 = self.get_account_id('init2', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init3 = self.get_account_id('init3', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        lcc.log_info(
-            "Initial account ids: '{}', '{}', '{}', '{}', '{}', '{}'".format(
-                self.init0, self.init1, self.init2, self.init3, self.init4, self.init5
-            )
-        )
         lcc.set_step("Get active committee members list")
         active_committee_members = self.get_active_committee_members()
         active_committee_members_ids = active_committee_members["ids"]

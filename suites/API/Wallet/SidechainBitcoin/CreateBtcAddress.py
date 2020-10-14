@@ -3,7 +3,6 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -53,9 +52,7 @@ class CreateBtcAddress(WalletBaseTest, BaseTest):
         btc_address = self.get_response(response_id)["result"]
         if btc_address is None:
             self.unlock_wallet()
-            lcc.set_step("Import key")
-            self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-            lcc.log_info("Key imported")
+            self.import_key('init4')
 
             lcc.set_step("Get account withdrawals")
             result = self.send_wallet_request(

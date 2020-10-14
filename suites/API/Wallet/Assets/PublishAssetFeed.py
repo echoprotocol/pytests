@@ -34,22 +34,22 @@ class PublishAssetFeed(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.init4, self.init5))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'wallet_publish_asset_feed'")
     def method_main_check(self, get_random_valid_asset_name):
-        self.unlock_wallet()
+        asset_name = get_random_valid_asset_name
 
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.unlock_wallet()
+        self.import_key('init4')
 
         lcc.set_step("Check method publish_asset_feed")
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        asset_name = get_random_valid_asset_name
         lcc.log_info("Create {} asset".format(asset_name))
         asset_create_operation = self.echo_ops.get_asset_create_operation(
             echo=self.echo,
@@ -85,19 +85,16 @@ class PublishAssetFeed(WalletBaseTest, BaseTest):
         collected_operation = self.collect_operations(
             asset_update_feed_producers_operation, self.__database_api_identifier
         )
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+        self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("'feed_producers' updated")
-        lcc.log_info("{}".format(broadcast_result))
 
         core_exchange_rate['base']['asset_id'] = new_asset_id
         core_exchange_rate['base']['amount'] = 5
         core_exchange_rate['quote']['asset_id'] = self.echo_asset
         core_exchange_rate['quote']['amount'] = 1
-        lcc.log_info("{}".format(core_exchange_rate))
-        asset_feed_producers = self.send_wallet_request(
+        self.send_wallet_request(
             "publish_asset_feed", [self.init4, asset_name, core_exchange_rate, True], log_response=False
         )
-        lcc.log_info("{}".format(asset_feed_producers))
         self.produce_block(self.__database_api_identifier)
         bitasset_data_id = self.send_wallet_request(
             "get_object", [new_asset_id], log_response=False

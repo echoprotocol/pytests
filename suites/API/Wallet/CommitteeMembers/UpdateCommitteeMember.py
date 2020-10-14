@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, not_equal_to
@@ -34,6 +33,9 @@ class UpdateCommitteeMember(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -41,18 +43,13 @@ class UpdateCommitteeMember(WalletBaseTest, BaseTest):
     @lcc.depends_on("API.Wallet.CommitteeMembers.CreateCommitteeMember.CreateCommitteeMember.method_main_check")
     @lcc.test("Simple work of method 'wallet_update_committee_member'")
     def method_main_check(self, get_random_eth_address, get_random_btc_public_key):
-        self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-
         eth_address = get_random_eth_address
         btc_public_key = get_random_btc_public_key
-        lcc.set_step("Check method update_committee_member")
 
+        self.unlock_wallet()
+        self.import_key('init5')
+
+        lcc.set_step("Check method update_committee_member")
         response_id = self.send_request(
             self.get_request("get_committee_member_by_account", [self.init5]), self.__database_api_identifier
         )

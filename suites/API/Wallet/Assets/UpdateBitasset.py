@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -33,6 +32,9 @@ class UpdateBitasset(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
+
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init4))
         self.feed_lifetime_sec = 82800
 
     def teardown_suite(self):
@@ -41,16 +43,12 @@ class UpdateBitasset(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_update_bitasset'")
     def method_main_check(self, get_random_valid_asset_name):
-        self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
-
-        lcc.set_step("Check method update_bitasset")
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         asset_name = get_random_valid_asset_name
-        lcc.log_info("Create {} asset".format(asset_name))
+
+        self.unlock_wallet()
+        self.import_key('init4')
+
+        lcc.set_step("Create {} asset".format(asset_name))
         asset_create_operation = self.echo_ops.get_asset_create_operation(
             echo=self.echo,
             issuer=self.init4,
@@ -59,20 +57,23 @@ class UpdateBitasset(WalletBaseTest, BaseTest):
             minimum_feeds=1,
             short_backing_asset=self.echo_asset
         )[1]
-
         asset_options = asset_create_operation['common_options']
         bitasset_options = asset_create_operation['bitasset_opts']
         self.send_wallet_request(
             "create_asset", [self.init4, asset_name, 10, asset_options, bitasset_options, True], log_response=False
         )
+
         self.produce_block(self.__database_api_identifier)
+        lcc.set_step("Update bitasset")
         result = self.send_wallet_request("list_assets", [asset_name, 1], log_response=False)['result']
 
         bitasset_options['feed_lifetime_sec'] = self.feed_lifetime_sec
 
         self.send_wallet_request("update_bitasset", [asset_name, bitasset_options, True], log_response=False)
-        self.produce_block(self.__database_api_identifier)
+        lcc.log_info("'feed_lifetime_sec' updated")
 
+        self.produce_block(self.__database_api_identifier)
+        lcc.set_step("Check method update_bitasset")
         result = self.send_wallet_request("list_assets", [asset_name, 1], log_response=False)['result']
         check_that("asset name", asset_name, equal_to(result[0]['symbol']))
         bitasset_id = result[0]['bitasset_data_id']

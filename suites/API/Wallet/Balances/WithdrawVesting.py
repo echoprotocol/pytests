@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to, not_equal_to
@@ -37,10 +36,8 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        lcc.log_info("Echo account are: #1='{}'".format(self.echo_acc0))
-
         self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.init5))
         self.one_echo = 100000000
 
     def teardown_suite(self):
@@ -57,10 +54,7 @@ class WithdrawVesting(WalletBaseTest, BaseTest):
         lcc.log_info("Vesting balance object '{}' created".format(vesting_balance_id))
 
         self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init5')
 
         lcc.set_step("Check get_vesting_balances method")
         get_vesting_balances_result = self.send_wallet_request("get_vesting_balances", [self.init5], log_response=False)
