@@ -33,6 +33,9 @@ class GetCommitteeMember(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -41,6 +44,5 @@ class GetCommitteeMember(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_committee_member'")
     def method_main_check(self):
         lcc.set_step("Check get_committee_member method")
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         committee_member = self.send_wallet_request("get_committee_member", ['init5'], log_response=True)['result']
         check_that('committee member account id', self.init5, equal_to(committee_member['committee_member_account']))

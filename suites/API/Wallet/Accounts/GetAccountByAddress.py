@@ -50,7 +50,6 @@ class GetAccountByAddress(WalletBaseTest, BaseTest):
             self, self.echo_acc0, label, self.__database_api_identifier
         )
         account_address_object = self.get_operation_results_ids(broadcast_result)
-        lcc.log_info("{}".format(account_address_object))
         response = self.send_wallet_request("get_object", [account_address_object], log_response=False)
         address = response['result'][0]['address']
         lcc.log_info("Account address create operation for new account performed, new address: {}".format(address))

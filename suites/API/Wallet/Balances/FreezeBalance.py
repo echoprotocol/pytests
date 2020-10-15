@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -34,6 +33,9 @@ class FreezeBalance(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init5))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -42,12 +44,9 @@ class FreezeBalance(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_integer):
         value_amount = get_random_integer
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init5')
 
         lcc.set_step("Check freeze balance method")
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
         self.send_wallet_request(
             "freeze_balance", [self.init5, value_amount, self.echo_asset, 90, True], log_response=False
         )

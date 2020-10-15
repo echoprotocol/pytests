@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK
+from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -34,6 +34,9 @@ class ImportBalance(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init4))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
@@ -42,12 +45,9 @@ class ImportBalance(WalletBaseTest, BaseTest):
     def method_main_check(self):
         self.unlock_wallet()
 
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init4')
 
         lcc.set_step("Check method import balance")
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
         check_that(
             "imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'],

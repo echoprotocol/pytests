@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, has_item
@@ -41,18 +40,15 @@ class GenerateAccountAddress(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_generate_account_address'")
     def method_main_check(self, get_random_string):
         label = get_random_string
+
         self.unlock_wallet()
-        lcc.set_step("Import private key to wallet")
-        self.send_wallet_request('import_key', ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("key imported")
+        self.import_key('init5')
 
         lcc.set_step("Create a transaction to generate account address")
-        self.init4_id = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
 
-        response = self.send_wallet_request(
-            "generate_account_address", [self.init4_id, label, True], log_response=False
-        )
+        response = self.send_wallet_request("generate_account_address", [self.init4, label, True], log_response=False)
         self.produce_block(self.__database_api_identifier)
-        response = self.send_wallet_request("get_account_addresses", [self.init4_id, 0, 50], log_response=True)
+        response = self.send_wallet_request("get_account_addresses", [self.init4, 0, 50], log_response=True)
         result_labels = [result['label'] for result in response['result']]
         check_that("label of new address", result_labels, has_item(label), quiet=False)

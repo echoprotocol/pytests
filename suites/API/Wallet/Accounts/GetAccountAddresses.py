@@ -52,7 +52,6 @@ class GetAccountAddresses(WalletBaseTest, BaseTest):
         lcc.log_info("Account address create operation for new account performed")
         lcc.set_step("Check that get_account_addresses returns more addresses than there were")
         response = self.send_wallet_request("get_account_addresses", [self.echo_acc0, 0, 100], log_response=False)
-        lcc.log_info("{}".format(response))
         currnt_account_addresses_len = len(response['result'])
         check_that(
             'addicted addresses to {} account'.format(self.echo_acc0), currnt_account_addresses_len,

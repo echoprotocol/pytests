@@ -46,9 +46,7 @@ class SignTransaction(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_sign_transaction'")
     def method_main_check(self):
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init4')
 
         lcc.set_step("Collect and sign transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(

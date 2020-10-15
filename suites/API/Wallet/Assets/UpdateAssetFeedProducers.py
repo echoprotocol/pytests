@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK, INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -34,23 +33,22 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
             )
         )
 
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.init4, self.init5))
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'wallet_update_asset_feed_producers'")
     def method_main_check(self, get_random_valid_asset_name):
-        self.unlock_wallet()
+        asset_name = get_random_valid_asset_name
 
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.unlock_wallet()
+        self.import_key('init4', 'init5')
 
         lcc.set_step("Check method update_asset_feed_producers")
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
-        asset_name = get_random_valid_asset_name
         lcc.log_info("Create {} asset".format(asset_name))
         asset_create_operation = self.echo_ops.get_asset_create_operation(
             echo=self.echo,

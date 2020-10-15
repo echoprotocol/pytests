@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT4_PK
 
 import lemoncheesecake.api as lcc
 
@@ -21,6 +20,7 @@ class CallContractNoChangingState(WalletBaseTest, BaseTest):
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
         self.echo_acc0 = None
+        self.init4 = None
         self.contract = self.get_byte_code("piggy", "code")
         self.greet = self.get_byte_code("piggy", "greet()")
         self.valid_contract_id = None
@@ -39,7 +39,8 @@ class CallContractNoChangingState(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        lcc.log_info("Echo account are: '{}'".format(self.echo_acc0))
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.init4))
         self.valid_contract_id = self.utils.get_contract_id(
             self, self.echo_acc0, self.contract, self.__database_api_identifier
         )
@@ -51,11 +52,8 @@ class CallContractNoChangingState(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_call_contract_no_changing_state'")
     def method_main_check(self):
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init4')
 
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.set_step("Сheck call_contract_no_changing_state method")
         response = self.send_wallet_request(
             "call_contract_no_changing_state", [self.valid_contract_id, self.init4, 0, self.echo_asset, self.greet],

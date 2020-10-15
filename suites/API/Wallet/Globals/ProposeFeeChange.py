@@ -6,17 +6,17 @@ from common.wallet_base_test import WalletBaseTest
 from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, not_equal_to
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'create_activate_committee_member_proposal'"
+    "description": "Method 'propose_fee_change'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_committee_member", "wallet_create_activate_committee_member_proposal")
-@lcc.suite("Check work of method 'create_activate_committee_member_proposal'", rank=1)
-class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_globals", "wallet_propose_fee_change")
+@lcc.suite("Check work of method 'propose_fee_change'", rank=1)
+class ProposeFeeChange(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -58,43 +58,36 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    def get_active_committee_members(self):
-        return {
-            "ids": [
-                ids["committee_id"] for ids in self.get_active_committee_members_info(self.__database_api_identifier)
-            ]
-        }
-
-    @lcc.depends_on("API.Wallet.CommitteeMembers.CreateCommitteeMember.CreateCommitteeMember.method_main_check")
-    @lcc.test("Simple work of method 'wallet_create_activate_committee_member_proposal'")
-    def method_main_check(self, get_random_eth_address, get_random_btc_public_key):
+    @lcc.disabled()
+    # test works, but requires `maintenance_interval` less than 20 seconds
+    @lcc.test("Simple work of method 'wallet_propose_fee_change'")
+    def method_main_check(self):
         self.unlock_wallet()
-        self.import_key('init4', 'init5')
+        self.import_key('init0', 'init4')
 
-        lcc.set_step("Get active committee members list")
-        active_committee_members = self.get_active_committee_members()
-        active_committee_members_ids = active_committee_members["ids"]
-        lcc.log_info("Active committee members are {}".format(active_committee_members_ids))
-        lcc.set_step("Get '{}' committee id".format(self.init5))
-        response_id = self.send_request(
-            self.get_request("get_committee_member_by_account", [self.init5]), self.__database_api_identifier
-        )
-        init5_committee_member_id = self.get_response(response_id)["result"]['id']
-        lcc.log_info("Account committee id: {}".format(init5_committee_member_id))
-        lcc.set_step("Create activate committee member proposal")
-        expiration_time = self.get_expiration_time(seconds=15)
+        global_properties = self.send_wallet_request("get_global_properties", [], log_response=False)['result']
+        scale = global_properties['parameters']['current_fees']['scale']
+
+        scale += 3
+        params_to_update = {
+            "scale": scale
+        }
+        account_balances = self.send_wallet_request("list_account_balances", ['1.2.1'], log_response=False)['result']
+        if int(account_balances[0]['amount']) < 100:
+            lcc.set_step('Add balance to 1.2.1 account.')
+            self.send_wallet_request("transfer", [self.init4, '1.2.1', 100, self.echo_asset, True], log_response=False)
+            lcc.log_info("100 ECHO added to 1.2.1 account.")
+        lcc.set_step('Check propose_fee_change method')
+        expiration_time = self.get_expiration_time(seconds=20)
         proposal = self.send_wallet_request(
-            "create_activate_committee_member_proposal", [self.init4, init5_committee_member_id, expiration_time],
-            log_response=False
+            "propose_fee_change", [self.init4, expiration_time, params_to_update], log_response=False
         )
-        self.produce_block(self.__database_api_identifier)
-
-        lcc.log_info("Search for a block with activate committee member proposal id")
+        lcc.log_info("Search for a block with fee change proposal")
         block = int(proposal['result']['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
+        lcc.log_info("Block found, proposal id in block: '{}'".format(proposal_id))
 
-        lcc.log_info("Block found, proposal id: '{}'".format(proposal_id))
-        lcc.set_step("Update proposal to acctivate committee account")
+        lcc.set_step("Update proposal with committee deactivate")
         operation = self.echo_ops.get_proposal_update_operation(
             echo=self.echo,
             fee_paying_account=self.init0,
@@ -112,7 +105,7 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         lcc.log_info("All committee member has voted")
 
         lcc.set_step("Set timer for proposal expiration")
-        time.sleep(15)
+        time.sleep(25)
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Voting finished.")
 
@@ -121,10 +114,13 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Timer expired")
 
-        lcc.set_step("Get updated active committee members ids, ethereum addresses and store")
-        updated_active_committee_members = self.get_active_committee_members()
-        updated_active_committee_members_ids = updated_active_committee_members["ids"]
-        check_that(
-            'active committee members list', active_committee_members_ids,
-            not_equal_to(updated_active_committee_members_ids)
-        )
+        get_global_properties_result = self.send_wallet_request(
+            "get_global_properties", [], log_response=False
+        )['result']
+        if 'pending_parameters' in get_global_properties_result.keys():
+            time.sleep(20)
+            self.produce_block(self.__database_api_identifier)
+            get_global_properties_result = self.send_wallet_request(
+                "get_global_properties", [], log_response=False
+            )['result']
+        check_that("scale", get_global_properties_result['parameters']['current_fees']['scale'], equal_to(scale))
