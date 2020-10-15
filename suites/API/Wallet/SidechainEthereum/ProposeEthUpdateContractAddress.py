@@ -5,6 +5,7 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
+
 # from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
 
 SUITE = {
@@ -61,6 +62,7 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
+    # todo: Bug https://jira.pixelplex.by/browse/ECHO-2444
     @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_propose_eth_update_contract_address'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
@@ -68,16 +70,16 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         self.import_key('init0', 'init1', 'init2', 'init3', 'init4', 'init5')
         lcc.log_info("{}".format(self.get_expiration_time(15)))
         proposal = self.send_wallet_request(
-            "propose_eth_update_contract_address", [self.init0, self.get_expiration_time(15), "0e7057518879d5DE1F842b77e8F6F3e22931a1be"], log_response=True
+            "propose_eth_update_contract_address",
+            [self.init0, self.get_expiration_time(15), "0e7057518879d5DE1F842b77e8F6F3e22931a1be"],
+            log_response=True
         )
         lcc.log_info("Search for a block with parameter change proposal")
         block = int(proposal['result']['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
         lcc.log_info("Block found, proposal id in block: '{}'".format(proposal_id))
 
-        proposal = self.send_wallet_request(
-            "get_object", [proposal_id], log_response=True
-        )
+        proposal = self.send_wallet_request("get_object", [proposal_id], log_response=True)
         lcc.log_info("{}".format(proposal))
 
         proposal_params = {
@@ -90,9 +92,7 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         self.send_wallet_request(
             "approve_proposal", [self.init0, proposal_id, proposal_params, True], log_response=False
         )
-        proposal = self.send_wallet_request(
-            "get_object", [proposal_id], log_response=True
-        )
+        proposal = self.send_wallet_request("get_object", [proposal_id], log_response=True)
         lcc.log_info("{}".format('asdsad'))
 
         lcc.set_step(
@@ -109,4 +109,5 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         # import_key "1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"
         # transfer 1.2.10 1.2.1 10 ECHO true
         # propose_eth_update_contract_address 1.2.6 "2020-10-13T14:02:44" "0e7057518879d5DE1F842b77e8F6F3e22931a1be"
-        # approve_proposal 1.2.6 1.5.0 {"active_approvals_to_add": ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"],"active_approvals_to_remove": [],"key_approvals_to_add": [],"key_approvals_to_remove": []} true 
+        # approve_proposal 1.2.6 1.5.0 {"active_approvals_to_add": ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"],
+        # "active_approvals_to_remove": [],"key_approvals_to_add": [],"key_approvals_to_remove": []} true
