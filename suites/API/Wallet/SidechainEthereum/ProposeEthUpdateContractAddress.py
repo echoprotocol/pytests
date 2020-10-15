@@ -3,10 +3,9 @@ import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, INIT5_PK, REQUIRED_DEPOSIT_AMOUNT
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
+# from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
 
 SUITE = {
     "description": "Method 'propose_eth_update_contract_address'"
@@ -14,7 +13,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_globals", "wallet_propose_eth_update_contract_address")
+@lcc.tags("api", "wallet_api", "wallet_sidechain_ethereum", "wallet_propose_eth_update_contract_address")
 @lcc.suite("Check work of method 'propose_eth_update_contract_address'", rank=1)
 class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
 
@@ -66,14 +65,7 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_propose_eth_update_contract_address'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init0', INIT0_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init1', INIT1_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init2', INIT2_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init3', INIT3_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init0', 'init1', 'init2', 'init3', 'init4', 'init5')
         lcc.log_info("{}".format(self.get_expiration_time(15)))
         proposal = self.send_wallet_request(
             "propose_eth_update_contract_address", [self.init0, self.get_expiration_time(15), "0e7057518879d5DE1F842b77e8F6F3e22931a1be"], log_response=True

@@ -65,10 +65,7 @@ class WithdrawEth(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_withdraw_eth'")
     def method_main_check(self):
         self.unlock_wallet()
-
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init5')
 
         result = self.send_wallet_request('create_eth_address', [self.init5, True], log_response=False)['result']
         eth_address_object = self.utils.get_eth_address(self, self.init5,

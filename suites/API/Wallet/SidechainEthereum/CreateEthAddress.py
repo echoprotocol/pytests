@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT5_PK
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -45,9 +44,7 @@ class ImportKey(WalletBaseTest, BaseTest):
     def method_main_check(self):
         self.unlock_wallet()
 
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init5', INIT5_PK], log_response=False)
-        lcc.log_info("Key imported")
+        self.import_key('init5')
 
         result = self.send_wallet_request('create_eth_address', [self.init5, True], log_response=False)['result']
         eth_address_object = self.utils.get_eth_address(self, self.init5, self.__database_api_identifier)["result"]
