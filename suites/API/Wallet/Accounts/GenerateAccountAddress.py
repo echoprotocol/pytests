@@ -42,7 +42,7 @@ class GenerateAccountAddress(WalletBaseTest, BaseTest):
         label = get_random_string
 
         self.unlock_wallet()
-        self.import_key('init5')
+        self.import_key('init4')
 
         lcc.set_step("Create a transaction to generate account address")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
