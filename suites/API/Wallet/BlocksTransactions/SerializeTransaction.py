@@ -48,7 +48,6 @@ class SerializeTransaction(WalletBaseTest, BaseTest):
 
     @lcc.test("Simple work of method 'wallet_serialize_transaction'")
     def method_main_check(self):
-
         lcc.set_step("Collect and sign transfer operation")
         transfer_operation = self.echo_ops.get_transfer_operation(
             echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1

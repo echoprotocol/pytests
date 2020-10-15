@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import json
+import time
 
 from common.object_validation import ObjectValidator
 from common.type_validation import TypeValidator
-from project import WALLET_PASSWORD, WALLET_URL
+from project import INIT0_PK, INIT1_PK, INIT2_PK, INIT3_PK, INIT4_PK, INIT5_PK, WALLET_PASSWORD, WALLET_URL
 
 import lemoncheesecake.api as lcc
 from echopy.echoapi.ws.simplewebsocket import SimpleWebsocket
@@ -100,6 +101,35 @@ class WalletBaseTest:
 
         return response["params"]
 
+    def get_proposal_id_from_next_blocks(self, block):
+        proposal_id = None
+        stop = False
+        no_result_exeption = 0
+        while not stop:
+            block += 1
+            result = self.send_wallet_request("get_block", [block], log_response=False)['result']
+            if no_result_exeption >= 5:
+                stop = True
+                lcc.log_error("No transaction not found in blocks")
+                continue
+            if result is None:
+                no_result_exeption += 1
+                time.sleep(5)
+                block -= 1
+                continue
+            elif result['transactions'] != []:
+                for transaction in result['transactions']:
+                    if self.type_validator.is_proposal_id(transaction['operation_results'][0][1]):
+                        proposal_id = transaction['operation_results'][0][1]
+                        stop = True
+                        break
+            else:
+                continue
+        if proposal_id:
+            return proposal_id
+        else:
+            raise Exception("Wrong response")
+
     def unlock_wallet(self):
         lcc.set_step("Unlock wallet to register account")
         response = self.send_wallet_request("is_new", [], log_response=False)
@@ -109,3 +139,19 @@ class WalletBaseTest:
         if response['result']:
             self.send_wallet_request("unlock", [WALLET_PASSWORD], log_response=False)
         lcc.log_info("Wallet unlocked")
+
+    def import_key(self, *args):
+        lcc.set_step("Import private key to wallet")
+        private_keys = {
+            'init0': INIT0_PK,
+            'init1': INIT1_PK,
+            'init2': INIT2_PK,
+            'init3': INIT3_PK,
+            'init4': INIT4_PK,
+            'init5': INIT5_PK
+        }
+        response = self.send_wallet_request("dump_private_keys", [], log_response=False)
+        for init in args:
+            if not any(private_keys[init] in sublist for sublist in response['result']):
+                self.send_wallet_request('import_key', [init, private_keys[init]], log_response=False)
+        lcc.log_info("Key imported")
