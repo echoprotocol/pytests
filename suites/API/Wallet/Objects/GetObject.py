@@ -12,7 +12,7 @@ SUITE = {
 @lcc.prop("main", "type")
 @lcc.prop("positive", "type")
 @lcc.prop("negative", "type")
-@lcc.tags("api", "wallet_api", "wallet_objects" "wallet_get_object")
+@lcc.tags("api", "wallet_api", "wallet_objects", "wallet_get_object")
 @lcc.suite("Check work of method 'get_object'", rank=1)
 class GetObject(WalletBaseTest):
 

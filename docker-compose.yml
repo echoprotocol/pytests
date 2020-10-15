@@ -29,7 +29,6 @@ services:
     volumes:
       - testrpc:/ganache_data
 
-
   migrate:
     image: echoprotocol/sidechain-smartcontracts:0.19.1
     command: /bin/sh -c "sleep 5; npm run migrate -- --network docker;"
@@ -37,7 +36,6 @@ services:
       - ganache
     volumes:
       - ./genesis.json:/app/genesis.json
-
 
   pytests:
     environment:
@@ -62,7 +60,6 @@ services:
       - echo
       - testrpc
       - wallet
-
 
   echo:
     image: echoprotocol/echo:0.22.2-rc.0
@@ -107,7 +104,6 @@ services:
     depends_on:
       - ganache
       - bitcoin
-
 
   testrpc:
     image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.22.2-rc.0
