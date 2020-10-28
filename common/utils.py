@@ -309,7 +309,8 @@ class Utils(object):
         amount_asset_id="1.3.0",
         operation_count=1,
         get_only_fee=False,
-        log_broadcast=False
+        log_broadcast=False,
+        signer=None
     ):
         operation = base_test.echo_ops.get_transfer_to_address_operation(
             echo=base_test.echo,
@@ -317,7 +318,8 @@ class Utils(object):
             to_address=to_address,
             amount=transfer_amount,
             amount_asset_id=amount_asset_id,
-            fee_asset_id=fee_asset_id
+            fee_asset_id=fee_asset_id,
+            signer=signer
         )
         if account_1 != base_test.echo_acc0:
             temp_operation = deepcopy(operation)

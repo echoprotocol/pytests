@@ -53,6 +53,7 @@ class TypeValidator(object):
     account_address_id_regex = re.compile(r"^2\.14\.(0|[1-9]\d*)$")
     contract_pool_id_regex = re.compile(r"^2\.15\.(0|[1-9]\d*)$")
     malicious_committeemen_id_regex = re.compile(r"^2\.16\.(0|[1-9]\d*)$")
+    incentives_pool_id_regex = re.compile(r"^2\.17\.(0|[1-9]\d*)$")
     hex_regex = re.compile("^[0-9a-fA-F]+")
     bytecode_regex = re.compile(r"^[\da-fA-F]{8}([\da-fA-F]{64})*$")
     vote_id_type_regex = re.compile(r"^[0-3]:[0-9]+")
@@ -279,6 +280,10 @@ class TypeValidator(object):
     def is_malicious_committeemen_id(self, value):
         if self.is_string(value):
             return bool(self.malicious_committeemen_id_regex.match(value))
+
+    def is_incentives_pool_id(self, value):
+        if self.is_string(value):
+            return bool(self.incentives_pool_id_regex.match(value))
 
     def is_vote_id(self, value):
         if self.is_string(value):

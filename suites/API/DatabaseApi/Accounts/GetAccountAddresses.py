@@ -203,7 +203,7 @@ class PositiveTesting(BaseTest):
     ):
         new_account = get_random_valid_account_name
         total_addresses_count = get_random_integer_up_to_hundred
-        label = get_random_string
+        label = get_random_string[:-1] + 'a'
 
         lcc.set_step("Create and get new account")
         new_account = self.get_account_id(
