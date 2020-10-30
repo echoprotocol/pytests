@@ -447,6 +447,7 @@ class Utils(object):
             )
             asset_id = base_test.get_operation_results_ids(broadcast_result)
             if need_operation:
+                collected_operation[0][1]['common_options']['core_exchange_rate']['base']['asset_id'] = asset_id
                 return asset_id, collected_operation
             return asset_id
         return response["result"][0]["id"]
