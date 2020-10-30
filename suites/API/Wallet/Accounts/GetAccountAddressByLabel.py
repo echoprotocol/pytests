@@ -50,7 +50,11 @@ class GetAccountAddressesByLabel(WalletBaseTest, BaseTest):
         self.send_wallet_request("generate_account_address", [self.init4, label, True], log_response=False)
         self.produce_block(self.__database_api_identifier)
 
-        account_address_by_label = self.send_wallet_request("get_account_address_by_label", [self.init4, label], log_response=False)['result']
+        account_address_by_label = self.send_wallet_request(
+            "get_account_address_by_label", [self.init4, label], log_response=False
+        )['result']
 
-        account_address = self.send_wallet_request("get_account_addresses", [self.init4, 0, 100], log_response=False)['result'][-1]['address']
+        account_address = self.send_wallet_request(
+            "get_account_addresses", [self.init4, 0, 100], log_response=False
+        )['result'][-1]['address']
         check_that('account address', account_address_by_label, equal_to(account_address))

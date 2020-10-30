@@ -42,15 +42,23 @@ class GetIncentivesInfo(BaseTest):
     def method_main_check(self):
         lcc.set_step("Get incentives info")
         head_block_number = self.get_head_block_number()
-        response_id = self.send_request(self.get_request("get_incentives_info", [head_block_number - 1, head_block_number]), self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_incentives_info", [head_block_number - 1, head_block_number]),
+            self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_incentives_info'")
         lcc.set_step("Check incentives_info format")
-        check_that("block number", response['result'][0]['incentives_pool']['block_number'], equal_to(head_block_number - 1))
+        check_that(
+            "block number", response['result'][0]['incentives_pool']['block_number'], equal_to(head_block_number - 1)
+        )
         if self.type_validator.is_incentives_pool_id(response['result'][0]['incentives_pool']['id']):
-            lcc.log_info("Correct format of incentives id, got {}".format(response['result'][0]['incentives_pool']['id']))
+            lcc.log_info(
+                "Correct format of incentives id, got {}".format(response['result'][0]['incentives_pool']['id'])
+            )
         else:
             lcc.log_info("Wrong format of incentives id, got {}".format(response['result'][0]['incentives_pool']['id']))
+
 
 # todo: Bug https://jira.pixelplex.by/browse/ECHO-2467
 # @lcc.prop("positive", "type")

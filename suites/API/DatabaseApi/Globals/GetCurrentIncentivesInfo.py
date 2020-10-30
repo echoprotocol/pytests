@@ -42,7 +42,9 @@ class GetCurrentIncentivesInfo(BaseTest):
     @lcc.test("Simple work of method 'get_current_incentives_info'")
     def method_main_check(self):
         lcc.set_step("Get current incentives info")
-        response_id = self.send_request(self.get_request("get_current_incentives_info", []), self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_current_incentives_info", []), self.__database_api_identifier
+        )
         incentives_info = self.get_response(response_id)['result']
         lcc.log_info("Call method 'get_current_incentives_info'")
         self.check_incentives_info(incentives_info['incentives_pool'], 'incentives_pool')

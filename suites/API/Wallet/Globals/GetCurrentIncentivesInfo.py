@@ -24,11 +24,7 @@ class GetCurrentIncentivesInfo(WalletBaseTest, BaseTest):
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        lcc.log_info(
-            "API identifier are: database='{}'".format(
-                self.__database_api_identifier
-            )
-        )
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()

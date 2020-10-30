@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
-import time
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
@@ -53,18 +54,24 @@ class CreateVestingCddPolicy(WalletBaseTest, BaseTest):
 
         lcc.set_step("Check get_vesting_balances method")
         get_vesting_balances_result = self.send_wallet_request(
-            "create_vesting_cdd_policy", [self.init5, self.init5, 1, self.echo_asset, start_claim, 20, True], log_response=False
+            "create_vesting_cdd_policy", [self.init5, self.init5, 1, self.echo_asset, start_claim, 20, True],
+            log_response=False
         )
         time.sleep(9)
         self.produce_block(self.__database_api_identifier)
         get_vesting_balances_result = self.send_wallet_request(
             "get_vesting_balances", [self.init5], log_response=False
         )['result']
-        check_that("allowed to withdraw balance", get_vesting_balances_result[-1]['allowed_withdraw']['amount'], equal_to(0))
+        check_that(
+            "allowed to withdraw balance", get_vesting_balances_result[-1]['allowed_withdraw']['amount'], equal_to(0)
+        )
 
         time.sleep(11)
         self.produce_block(self.__database_api_identifier)
         get_vesting_balances_result = self.send_wallet_request(
             "get_vesting_balances", [self.init5], log_response=False
         )['result']
-        check_that("allowed to withdraw balance", get_vesting_balances_result[-1]['allowed_withdraw']['amount'], equal_to(10**8))
+        check_that(
+            "allowed to withdraw balance", get_vesting_balances_result[-1]['allowed_withdraw']['amount'],
+            equal_to(10 ** 8)
+        )

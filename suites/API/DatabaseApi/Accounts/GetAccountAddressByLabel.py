@@ -2,9 +2,7 @@
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import (
-    check_that, equal_to, require_that
-)
+from lemoncheesecake.matching import check_that, equal_to, require_that
 
 SUITE = {
     "description": "Methods: 'get_account_address_by_label'"
@@ -12,9 +10,7 @@ SUITE = {
 
 
 @lcc.prop("main", "type")
-@lcc.tags(
-    "api", "database_api", "database_api_accounts", "get_account_address_by_label"
-)
+@lcc.tags("api", "database_api", "database_api_accounts", "get_account_address_by_label")
 @lcc.suite("Check work of methods: 'get_account_address_by_label'", rank=1)
 class GetAccountAddressByLabel(BaseTest):
 

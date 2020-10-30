@@ -53,9 +53,7 @@ class TransferToAddress(WalletBaseTest, BaseTest):
         self.import_key('init5')
 
         lcc.set_step("Create account address for new account")
-        self.utils.perform_account_address_create_operation(
-            self, self.echo_acc0, label, self.__database_api_identifier
-        )
+        self.utils.perform_account_address_create_operation(self, self.echo_acc0, label, self.__database_api_identifier)
 
         lcc.set_step("Get account address")
         params = [self.echo_acc0, label]
@@ -65,7 +63,14 @@ class TransferToAddress(WalletBaseTest, BaseTest):
         address = self.get_response(response_id)["result"]
         lcc.log_info("new account address: '{}'".format(address))
 
-        self.send_wallet_request("transfer_to_address", [self.init5, address, transfer_amount, self.echo_asset, True], log_response=False)
-        result = self.send_wallet_request("get_account_address_history", [address, start, stop, 1], log_response=False)['result']
+        self.send_wallet_request(
+            "transfer_to_address", [self.init5, address, transfer_amount, self.echo_asset, True], log_response=False
+        )
+        result = self.send_wallet_request(
+            "get_account_address_history", [address, start, stop, 1], log_response=False
+        )['result']
         transfer = result[0]['op'][1]
-        check_that('amount of transfer operation in address history', transfer['amount']['amount'], equal_to(transfer_amount * 10**8))
+        check_that(
+            'amount of transfer operation in address history', transfer['amount']['amount'],
+            equal_to(transfer_amount * 10 ** 8)
+        )

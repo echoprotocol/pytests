@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from common.base_test import BaseTest
+from project import INIT4_PK
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import INIT4_PK
+
 SUITE = {
     "description": "Method 'get_account_address_history'"
 }
@@ -36,9 +38,7 @@ class GetAccountAddressHistory(BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account are: #1='{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -53,9 +53,7 @@ class GetAccountAddressHistory(BaseTest):
         operation_history_obj = "{}0".format(self.get_object_type(self.echo.config.object_types.OPERATION_HISTORY))
         start = stop = operation_history_obj
         lcc.set_step("Create account address for new account")
-        self.utils.perform_account_address_create_operation(
-            self, self.echo_acc0, label, self.__database_api_identifier
-        )
+        self.utils.perform_account_address_create_operation(self, self.echo_acc0, label, self.__database_api_identifier)
 
         lcc.set_step("Get account address")
         params = [self.echo_acc0, label]
@@ -82,8 +80,12 @@ class GetAccountAddressHistory(BaseTest):
         self.produce_block(self.__database_api_identifier)
 
         params = [address, start, stop, limit]
-        response_id = self.send_request(self.get_request("get_account_address_history", params), self.__history_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_account_address_history", params), self.__history_api_identifier
+        )
         result = self.get_response(response_id)['result']
 
         transfer = result[0]['op'][1]
-        check_that('amount of transfer operation in address history', transfer['amount']['amount'], equal_to(transfer_amount))
+        check_that(
+            'amount of transfer operation in address history', transfer['amount']['amount'], equal_to(transfer_amount)
+        )

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-import time
+from project import INIT4_PK
+
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
-from project import INIT4_PK
+
 SUITE = {
     "description": "Method 'get_account_address_history'"
 }
@@ -36,9 +39,7 @@ class GetAccountAddressHistory(WalletBaseTest, BaseTest):
         self.echo_acc0 = self.get_account_id(
             self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
         )
-        self.init4 = self.get_account_id(
-            'init4', self.__database_api_identifier, self.__registration_api_identifier
-        )
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
         lcc.log_info("Echo account are: #1='{}'".format(self.echo_acc0))
 
     def teardown_suite(self):
@@ -76,6 +77,10 @@ class GetAccountAddressHistory(WalletBaseTest, BaseTest):
         lcc.set_step("Get account balance after transfer and store")
         time.sleep(10)
         self.produce_block(self.__database_api_identifier)
-        result = self.send_wallet_request("get_account_address_history", [address, start, stop, 1], log_response=False)['result']
+        result = self.send_wallet_request(
+            "get_account_address_history", [address, start, stop, 1], log_response=False
+        )['result']
         transfer = result[0]['op'][1]
-        check_that('amount of transfer operation in address history', transfer['amount']['amount'], equal_to(transfer_amount))
+        check_that(
+            'amount of transfer operation in address history', transfer['amount']['amount'], equal_to(transfer_amount)
+        )

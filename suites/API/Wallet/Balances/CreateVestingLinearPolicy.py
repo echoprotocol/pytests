@@ -3,7 +3,6 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'create_vesting_linear_policy'"
@@ -51,11 +50,10 @@ class CreateVestingLinearPolicy(WalletBaseTest, BaseTest):
 
         lcc.set_step("Check get_vesting_balances method")
         get_vesting_balances_result = self.send_wallet_request(
-            "create_vesting_linear_policy", [self.init5, self.init5, 10, self.echo_asset, 20, 20, True], log_response=False
+            "create_vesting_linear_policy", [self.init5, self.init5, 10, self.echo_asset, 20, 20, True],
+            log_response=False
         )
         lcc.log_info("{}".format(get_vesting_balances_result))
 
-        get_vesting_balances_result = self.send_wallet_request(
-            "get_vesting_balances", [self.init5], log_response=False
-        )
+        get_vesting_balances_result = self.send_wallet_request("get_vesting_balances", [self.init5], log_response=False)
         lcc.log_info("{}".format(get_vesting_balances_result))

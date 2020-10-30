@@ -48,7 +48,9 @@ class GetIncentivesInfo(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_incentives_info'")
     def method_main_check(self):
         head_block_num = self.get_head_block_number()
-        incentives_info = self.send_wallet_request("get_incentives_info", [head_block_num - 1, head_block_num], log_response=False)['result'][-1]
+        incentives_info = self.send_wallet_request(
+            "get_incentives_info", [head_block_num - 1, head_block_num], log_response=False
+        )['result'][-1]
         check_that("block number", incentives_info['incentives_pool']['block_number'], equal_to(head_block_num))
         if self.type_validator.is_incentives_pool_id(incentives_info['incentives_pool']['id']):
             lcc.log_info("Correct format of incentives_pool id")
