@@ -45,7 +45,7 @@ class GetAccountAddressByLabel(BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of methods: 'get_account_address_by_label'")
-    # @lcc.depends_on("API.DatabaseApi.Accounts.GetAccountAddresses.GetAccountAddresses.method_main_check")
+    @lcc.depends_on("API.DatabaseApi.Accounts.GetAccountAddresses.GetAccountAddresses.method_main_check")
     def method_main_check(self, get_random_valid_account_name, get_random_string):
         new_account = get_random_valid_account_name
         label = get_random_string
