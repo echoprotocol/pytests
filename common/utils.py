@@ -824,7 +824,15 @@ class Utils(object):
         )
 
     def perform_contract_fund_pool_operation(
-        self, base_test, sender, contract, value_amount, database_api_id, value_asset_id="1.3.0", log_broadcast=False, signer=None
+        self,
+        base_test,
+        sender,
+        contract,
+        value_amount,
+        database_api_id,
+        value_asset_id="1.3.0",
+        log_broadcast=False,
+        signer=None
     ):
         operation = base_test.echo_ops.get_contract_fund_pool_operation(
             echo=base_test.echo,

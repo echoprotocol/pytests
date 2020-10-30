@@ -50,7 +50,8 @@ class GetRegisterAccount(WalletBaseTest, BaseTest):
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
 
         response = self.send_wallet_request(
-            "register_account", [new_account, public_key, public_key, self.init4, evm_address, True], log_response=False
+            "register_account", [new_account, public_key, public_key, self.init4, evm_address, True],
+            log_response=False
         )
 
         check_that(
