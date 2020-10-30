@@ -57,7 +57,7 @@ class CreateVestingCddPolicy(WalletBaseTest, BaseTest):
             "create_vesting_cdd_policy", [self.init5, self.init5, 1, self.echo_asset, start_claim, 20, True],
             log_response=False
         )
-        time.sleep(9)
+        time.sleep(8)
         self.produce_block(self.__database_api_identifier)
         get_vesting_balances_result = self.send_wallet_request(
             "get_vesting_balances", [self.init5], log_response=False
@@ -66,7 +66,7 @@ class CreateVestingCddPolicy(WalletBaseTest, BaseTest):
             "allowed to withdraw balance", get_vesting_balances_result[-1]['allowed_withdraw']['amount'], equal_to(0)
         )
 
-        time.sleep(11)
+        time.sleep(12)
         self.produce_block(self.__database_api_identifier)
         get_vesting_balances_result = self.send_wallet_request(
             "get_vesting_balances", [self.init5], log_response=False

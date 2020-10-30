@@ -57,13 +57,17 @@ class WhitelistContractPool(WalletBaseTest, BaseTest):
         super().teardown_suite()
 
     @lcc.test("Simple work of method 'wallet_whitelist_contract_pool'")
-    def method_main_check(self):
+    def method_main_check(self, get_random_integer_up_to_ten):
+        value_to_pool = get_random_integer_up_to_ten
         self.unlock_wallet()
-        lcc.set_step("Import key")
-        self.send_wallet_request("import_key", ['init4', INIT4_PK], log_response=False)
-        lcc.log_info("Key imported")
-
+        self.import_key('init4')
+        lcc.log_info("{}".format(self.valid_contract_id))
         lcc.set_step("Сheck whitelist_contract_pool method")
+
+        self.utils.perform_contract_fund_pool_operation(
+            self, self.init4, self.valid_contract_id, value_to_pool, self.__database_api_identifier, signer=INIT4_PK
+        )
+
         response = self.send_wallet_request(
             "whitelist_contract_pool", [self.init4, self.valid_contract_id, [self.echo_acc6], [], [], [], True],
             log_response=False

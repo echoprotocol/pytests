@@ -18,11 +18,20 @@ class GetRegisterAccount(WalletBaseTest, BaseTest):
     def __init__(self):
         WalletBaseTest.__init__(self)
         BaseTest.__init__(self)
+        self.__database_api_identifier = None
+        self.__registration_api_identifier = None
 
     def setup_suite(self):
         super().setup_suite()
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
+        self.__database_api_identifier = self.get_identifier("database")
+        self.__registration_api_identifier = self.get_identifier("registration")
+        lcc.log_info(
+            "API identifiers are: database='{}', registration='{}'".format(
+                self.__database_api_identifier, self.__registration_api_identifier
+            )
+        )
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -33,10 +42,15 @@ class GetRegisterAccount(WalletBaseTest, BaseTest):
         new_account = get_random_valid_account_name
         evm_address = get_random_eth_address
         public_key = self.store_new_account(new_account)
+
         self.unlock_wallet()
+        self.import_key('init4')
+
+        lcc.set_step("Create a transaction to generate account address")
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
 
         response = self.send_wallet_request(
-            "register_account", [new_account, public_key, public_key, "nathan", evm_address, True], log_response=False
+            "register_account", [new_account, public_key, public_key, self.init4, evm_address, True], log_response=False
         )
 
         check_that(
