@@ -47,14 +47,16 @@ class WithdrawEth(WalletBaseTest, BaseTest):
         lcc.log_info("Ethereum address in the ethereum network: '{}'".format(self.eth_address))
 
     @staticmethod
-    def get_random_amount(_from=None, _to=None, amount_type=None):
+    def get_random_amount(_from=MIN_ETH_WITHDRAW, _to=None, amount_type=None):
         if amount_type == float:
             if (_from and _to) is None:
-                _from, _to = MIN_ETH_WITHDRAW, MIN_ETH_WITHDRAW + 0.1
+                _from, _to = 0.01, 0.2
             return random.uniform(_from, _to)
         if amount_type == int:
+            if _to == MIN_ETH_WITHDRAW:
+                return MIN_ETH_WITHDRAW
             if _from is None:
-                _from = 1
+                _from = MIN_ETH_WITHDRAW
             return random.randrange(_from, _to)
         return random.randrange(_from, _to)
 
@@ -76,7 +78,26 @@ class WithdrawEth(WalletBaseTest, BaseTest):
             'get_eth_address', [self.init3], log_response=False
         )['result']['eth_addr']
 
+        min_eth_amount = 10000
         eth_amount = self.get_random_amount(amount_type=float)
+
+        lcc.set_step("Get unpaid fee for ethereum address creation")
+        unpaid_fee_in_ethereum = self.eth_trx.get_unpaid_fee(self, self.web3, self.init3)
+        lcc.log_info(
+            "Unpaid fee for creation ethereum address for '{}' account: '{}'".format(
+                self.init3, unpaid_fee_in_ethereum
+            )
+        )
+
+        lcc.set_step("First send eth to ethereum address of created account")
+        transaction = self.eth_trx.get_transfer_transaction(
+            web3=self.web3,
+            _from=self.eth_address,
+            _to=eth_account_address,
+            value=min_eth_amount + unpaid_fee_in_ethereum
+        )
+        self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
+
         lcc.set_step("Send eth to ethereum address of created account")
         transaction = self.eth_trx.get_transfer_transaction(
             web3=self.web3, _from=self.eth_address, _to=eth_account_address, value=eth_amount
