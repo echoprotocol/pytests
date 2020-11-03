@@ -3,7 +3,7 @@ import random
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-from project import INIT3_PK, MIN_ETH_WITHDRAW
+from project import MIN_ETH_WITHDRAW
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -48,8 +48,7 @@ class WithdrawEth(WalletBaseTest, BaseTest):
 
     @staticmethod
     def get_random_amount(_from=None, _to=None, amount_type=None):
-        print(_from)
-        print(_to)
+
         if amount_type == float:
             if (_from and _to) is None:
                 _from, _to = 0.01, 0.2
@@ -59,11 +58,7 @@ class WithdrawEth(WalletBaseTest, BaseTest):
                 return MIN_ETH_WITHDRAW
             if _from is None:
                 _from = MIN_ETH_WITHDRAW
-            print(_from)
-            print(_to)
             return random.randrange(_from, _to)
-        print(_from)
-        print(_to)
         return random.randrange(_from, _to)
 
     def teardown_suite(self):
@@ -75,14 +70,16 @@ class WithdrawEth(WalletBaseTest, BaseTest):
         self.unlock_wallet()
         self.import_key('init3')
 
-        result = self.send_wallet_request('create_eth_address', [self.init3, True], log_response=False)['result']
-        eth_address_object = self.utils.get_eth_address(self, self.init3,
-                                                        self.__database_api_identifier)["result"]['eth_addr']
-        lcc.log_info("{}".format(eth_address_object))
-        lcc.set_step("Check get_eth_address method")
-        eth_account_address = self.send_wallet_request(
-            'get_eth_address', [self.init3], log_response=False
-        )['result']['eth_addr']
+        eth_account_address = self.send_wallet_request('get_eth_address', [self.init3], log_response=False)['result']
+        if eth_account_address is None:
+            result = self.send_wallet_request('create_eth_address', [self.init3, True], log_response=False)['result']
+            eth_account_address = self.utils.get_eth_address(self, self.init3,
+                                                             self.__database_api_identifier)["result"]['eth_addr']
+            eth_account_address = self.send_wallet_request(
+                'get_eth_address', [self.init3], log_response=False
+            )['result']['eth_addr']
+        else:
+            eth_account_address = eth_account_address['eth_addr']
 
         min_eth_amount = 10000
         eth_amount = self.get_random_amount(amount_type=float)
