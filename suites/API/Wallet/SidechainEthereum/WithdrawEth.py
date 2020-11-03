@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
+import time
 
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import MIN_ETH_WITHDRAW
-import time
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
