@@ -47,7 +47,9 @@ class WithdrawEth(WalletBaseTest, BaseTest):
         lcc.log_info("Ethereum address in the ethereum network: '{}'".format(self.eth_address))
 
     @staticmethod
-    def get_random_amount(_from=MIN_ETH_WITHDRAW, _to=None, amount_type=None):
+    def get_random_amount(_from=None, _to=None, amount_type=None):
+        print(_from)
+        print(_to)
         if amount_type == float:
             if (_from and _to) is None:
                 _from, _to = 0.01, 0.2
@@ -57,7 +59,11 @@ class WithdrawEth(WalletBaseTest, BaseTest):
                 return MIN_ETH_WITHDRAW
             if _from is None:
                 _from = MIN_ETH_WITHDRAW
+            print(_from)
+            print(_to)
             return random.randrange(_from, _to)
+        print(_from)
+        print(_to)
         return random.randrange(_from, _to)
 
     def teardown_suite(self):
@@ -108,20 +114,8 @@ class WithdrawEth(WalletBaseTest, BaseTest):
         ethereum_balance = self.utils.get_eth_balance(self, self.init3, self.__database_api_identifier)
         lcc.log_info("Account '{}' balance in ethereum is '{}'".format(self.init3, ethereum_balance))
 
-        lcc.set_step("Transfer eth from account to recipient")
+        lcc.set_step("Withdraw ETH")
         transfer_amount = self.get_random_amount(_from=MIN_ETH_WITHDRAW, _to=int(ethereum_balance), amount_type=int)
-        self.utils.perform_transfer_operations(
-            self,
-            self.init3,
-            self.echo_acc0,
-            self.__database_api_identifier,
-            transfer_amount=transfer_amount,
-            amount_asset_id=self.eth_asset,
-            signer=INIT3_PK
-        )
-        lcc.log_info(
-            "Transfer operation performed, transfer amount: '{}' '{}' assets".format(transfer_amount, self.eth_asset)
-        )
         result = self.send_wallet_request(
             "withdraw_eth", [self.init3, eth_account_address, transfer_amount, True], log_response=False
         )['result']
