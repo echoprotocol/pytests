@@ -48,17 +48,17 @@ class WithdrawEth(WalletBaseTest, BaseTest):
 
     @staticmethod
     def get_random_amount(_from=None, _to=None, amount_type=None):
-
         if amount_type == float:
             if (_from and _to) is None:
                 _from, _to = 0.01, 0.2
             return random.uniform(_from, _to)
-        if amount_type == int:
-            if _to == MIN_ETH_WITHDRAW:
-                return MIN_ETH_WITHDRAW
-            if _from is None:
-                _from = MIN_ETH_WITHDRAW
-            return random.randrange(_from, _to)
+
+        if _to == MIN_ETH_WITHDRAW:
+            return MIN_ETH_WITHDRAW
+        if _from is None:
+            _from = MIN_ETH_WITHDRAW
+        if _from > _to:
+            return MIN_ETH_WITHDRAW
         return random.randrange(_from, _to)
 
     def teardown_suite(self):
