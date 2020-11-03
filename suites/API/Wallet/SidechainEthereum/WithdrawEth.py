@@ -4,6 +4,7 @@ import random
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 from project import MIN_ETH_WITHDRAW
+import time
 
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
@@ -106,7 +107,8 @@ class WithdrawEth(WalletBaseTest, BaseTest):
             web3=self.web3, _from=self.eth_address, _to=eth_account_address, value=eth_amount
         )
         self.eth_trx.broadcast(web3=self.web3, transaction=transaction)
-
+        time.sleep(5)
+        self.produce_block(self.__database_api_identifier)
         lcc.set_step("Get account balance in ethereum")
         ethereum_balance = self.utils.get_eth_balance(self, self.init3, self.__database_api_identifier)
         lcc.log_info("Account '{}' balance in ethereum is '{}'".format(self.init3, ethereum_balance))
