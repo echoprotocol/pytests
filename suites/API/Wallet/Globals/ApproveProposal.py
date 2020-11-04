@@ -61,7 +61,6 @@ class ApproveProposal(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_approve_proposal'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
         self.unlock_wallet()

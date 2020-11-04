@@ -100,7 +100,6 @@ class PositiveTesting(BaseTest):
         )
         response = self.get_response(response_id)
         lcc.log_info("Call method 'get_incentives_info'")
-        lcc.log_info("{}".format(response))
         check_that(
             "block number", response['result'][0]['incentives_pool']['block_number'], equal_to(head_block_number)
         )

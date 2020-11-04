@@ -3,7 +3,7 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to
+from lemoncheesecake.matching import check_that, is_bool
 
 SUITE = {
     "description": "Method 'is_new'"
@@ -28,9 +28,8 @@ class IsNew(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_is_new'")
     def method_main_check(self):
         lcc.set_step("Get is_new wallet status")
         response = self.send_wallet_request("is_new", [], log_response=False)['result']
-        check_that("get wallet is_new status", response, equal_to(True))
+        check_that("get wallet is_new status", response, is_bool())

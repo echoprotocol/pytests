@@ -42,7 +42,6 @@ class RequestUnfreezeBalance(WalletBaseTest, BaseTest):
 
     # this test required smaller frozen_balances_multipliers and maintenance_interval
     # to run this test you should update genesis
-    # TODO check after bug fixed ECHO-2404
     @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_request_unfreeze_balance'")
     def method_main_check(self, get_random_integer):
@@ -60,11 +59,9 @@ class RequestUnfreezeBalance(WalletBaseTest, BaseTest):
             "list_frozen_balances", [self.init5], log_response=False
         )["result"][-1]['id']
         lcc.set_step("Request unfreeze balance")
-        request = self.send_wallet_request(
+        self.send_wallet_request(
             "request_unfreeze_balance", [self.init5, [frozen_balance_id], True], log_response=False
         )
-        # request_unfreeze_balance created bug https://jira.pixelplex.by/browse/ECHO-2404
-        lcc.log_info("{}".format(request))
         response_id = self.send_request(
             self.get_request("get_objects", [[frozen_balance_id]]), self.__database_api_identifier
         )
