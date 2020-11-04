@@ -1056,7 +1056,7 @@ class ObjectValidator(object):
             "head_block_number", "committee_budget", "dynamic_flags", "last_irreversible_block_num",
             "last_block_of_previous_interval", "last_processed_btc_block"
         ]
-        dynamic_global_properties_time = ["time", "next_maintenance_time", "last_budget_time"]
+        dynamic_global_properties_time = ["time", "next_maintenance_time", "last_maintenance_time"]
         if check_that("dynamic global properties", dynamic_global_property_object, has_length(12), quiet=True):
             if not base_test.type_validator.is_dynamic_global_object_id(dynamic_global_property_object["id"]):
                 lcc.log_error(

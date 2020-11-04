@@ -63,7 +63,7 @@ class UpdateAsset(WalletBaseTest, BaseTest):
         new_amount = 2
         asset_options['core_exchange_rate']['base']['amount'] = new_amount
         asset_options['core_exchange_rate']['quote']['amount'] = new_amount
-        asset_options['core_exchange_rate']['quote']['asset_id'] = new_asset_id
+        asset_options['core_exchange_rate']['base']['asset_id'] = new_asset_id
 
         self.send_wallet_request("update_asset", [asset_name, self.init5, asset_options, True], log_response=False)
         self.produce_block(self.__database_api_identifier)

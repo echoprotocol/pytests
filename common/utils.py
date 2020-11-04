@@ -309,7 +309,8 @@ class Utils(object):
         amount_asset_id="1.3.0",
         operation_count=1,
         get_only_fee=False,
-        log_broadcast=False
+        log_broadcast=False,
+        signer=None
     ):
         operation = base_test.echo_ops.get_transfer_to_address_operation(
             echo=base_test.echo,
@@ -317,7 +318,8 @@ class Utils(object):
             to_address=to_address,
             amount=transfer_amount,
             amount_asset_id=amount_asset_id,
-            fee_asset_id=fee_asset_id
+            fee_asset_id=fee_asset_id,
+            signer=signer
         )
         if account_1 != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
@@ -445,6 +447,7 @@ class Utils(object):
             )
             asset_id = base_test.get_operation_results_ids(broadcast_result)
             if need_operation:
+                collected_operation[0][1]['common_options']['core_exchange_rate']['base']['asset_id'] = asset_id
                 return asset_id, collected_operation
             return asset_id
         return response["result"][0]["id"]
@@ -821,14 +824,23 @@ class Utils(object):
         )
 
     def perform_contract_fund_pool_operation(
-        self, base_test, sender, contract, value_amount, database_api_id, value_asset_id="1.3.0", log_broadcast=False
+        self,
+        base_test,
+        sender,
+        contract,
+        value_amount,
+        database_api_id,
+        value_asset_id="1.3.0",
+        log_broadcast=False,
+        signer=None
     ):
         operation = base_test.echo_ops.get_contract_fund_pool_operation(
             echo=base_test.echo,
             sender=sender,
             contract=contract,
             value_amount=value_amount,
-            value_asset_id=value_asset_id
+            value_asset_id=value_asset_id,
+            signer=signer
         )
         if sender != base_test.echo_acc0:
             temp_operation = deepcopy(operation)
