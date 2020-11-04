@@ -51,6 +51,7 @@ class WhitelistContractPool(WalletBaseTest, BaseTest):
         self.valid_contract_id = self.utils.get_contract_id(
             self, self.init4, self.contract, self.__database_api_identifier, signer=INIT4_PK
         )
+        lcc.log_info("Valid contract id: {}".format(self.valid_contract_id))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -61,9 +62,8 @@ class WhitelistContractPool(WalletBaseTest, BaseTest):
         value_to_pool = get_random_integer_up_to_ten
         self.unlock_wallet()
         self.import_key('init4')
-        lcc.log_info("{}".format(self.valid_contract_id))
-        lcc.set_step("Сheck whitelist_contract_pool method")
 
+        lcc.set_step("Сheck whitelist_contract_pool method")
         self.utils.perform_contract_fund_pool_operation(
             self, self.init4, self.valid_contract_id, value_to_pool, self.__database_api_identifier, signer=INIT4_PK
         )

@@ -43,6 +43,7 @@ class CreateVestingLinearPolicy(WalletBaseTest, BaseTest):
         super().teardown_suite()
 
     # todo: Bug https://jira.pixelplex.by/browse/ECHO-2470
+    @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_create_vesting_linear_policy'")
     def method_main_check(self):
         self.unlock_wallet()
