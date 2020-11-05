@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import time
-from project import ETHEREUM_URL
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-import requests
+from project import ETHEREUM_URL
+
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import (
-    check_that, equal_to, not_equal_to
-)
+import requests
+from lemoncheesecake.matching import check_that, equal_to, not_equal_to
+
 # from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
 
 SUITE = {
@@ -90,9 +91,7 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         new_eth_contract_address = get_random_eth_address
 
         lcc.set_step("Transfer assets to fee payer account")
-        self.send_wallet_request(
-            "transfer", [self.init5, '1.2.1', 10, self.echo_asset, True], log_response=False
-        )
+        self.send_wallet_request("transfer", [self.init5, '1.2.1', 10, self.echo_asset, True], log_response=False)
         self.produce_block(self.__database_api_identifier)
         lcc.log_info("Assets transfered")
 
@@ -133,6 +132,8 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         )
         response = requests.post(ETHEREUM_URL, json=payload).json()
         address_of_new_implementation = response['result']
-        check_that('eth contract address', address_of_new_implementation, not_equal_to(address_of_current_implementation))
+        check_that(
+            'eth contract address', address_of_new_implementation, not_equal_to(address_of_current_implementation)
+        )
         expected_address = "{}{}".format('0x000000000000000000000000', new_eth_contract_address)
         check_that('new eth contract address', address_of_new_implementation, equal_to(expected_address))
