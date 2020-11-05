@@ -6,14 +6,14 @@ import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'register_account'"
+    "description": "Method 'get_account_address_by_label'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_register_account")
-@lcc.suite("Check work of method 'register_account'", rank=1)
-class GetRegisterAccount(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_accounts", "wallet_get_account_address_by_label")
+@lcc.suite("Check work of method 'get_account_address_by_label'", rank=1)
+class GetAccountAddressesByLabel(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -37,11 +37,9 @@ class GetRegisterAccount(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_register_account'")
-    def method_main_check(self, get_random_valid_account_name, get_random_eth_address):
-        new_account = get_random_valid_account_name
-        evm_address = get_random_eth_address
-        public_key = self.store_new_account(new_account)
+    @lcc.test("Simple work of method 'wallet_get_account_address_by_label'")
+    def method_main_check(self, get_random_string):
+        label = get_random_string
 
         self.unlock_wallet()
         self.import_key('init4')
@@ -49,14 +47,14 @@ class GetRegisterAccount(WalletBaseTest, BaseTest):
         lcc.set_step("Create a transaction to generate account address")
         self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
 
-        response = self.send_wallet_request(
-            "register_account", [new_account, public_key, public_key, self.init4, evm_address, True],
-            log_response=False
-        )
+        self.send_wallet_request("generate_account_address", [self.init4, label, True], log_response=False)
+        self.produce_block(self.__database_api_identifier)
 
-        check_that(
-            "registrated account name",
-            response['result']['operations'][0][1]['name'],
-            equal_to(new_account),
-            quiet=True
-        )
+        account_address_by_label = self.send_wallet_request(
+            "get_account_address_by_label", [self.init4, label], log_response=False
+        )['result']
+
+        account_address = self.send_wallet_request(
+            "get_account_addresses", [self.init4, 0, 100], log_response=False
+        )['result'][-1]['address']
+        check_that('account address', account_address_by_label, equal_to(account_address))
