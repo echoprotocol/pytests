@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import time
-
+from project import ETHEREUM_URL
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
-
+import requests
 import lemoncheesecake.api as lcc
-
+from lemoncheesecake.matching import (
+    check_that, equal_to, not_equal_to
+)
 # from lemoncheesecake.matching import check_that, equal_to, not_equal_to, require_that
 
 SUITE = {
@@ -58,29 +60,52 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
             )
         )
 
+    def rpc_call(self, method, params):
+        payload = {
+            "method": method,
+            "params": params,
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        return payload
+
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # todo: Bug https://jira.pixelplex.by/browse/ECHO-2444
     @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_propose_eth_update_contract_address'")
-    def method_main_check(self, get_random_valid_account_name, get_random_eth_address, get_random_btc_public_key):
+    def method_main_check(self, get_random_eth_address):
         self.unlock_wallet()
         self.import_key('init0', 'init1', 'init2', 'init3', 'init4', 'init5')
-        lcc.log_info("{}".format(self.get_expiration_time(15)))
+        payload = self.rpc_call(
+            "eth_call", [{
+                "to": "0xF663f3e27B5c5beaf7A0b4A7355BF69DfC5671E8",
+                "data": "0x5c60da1b"
+            }, "latest"]
+        )
+        response = requests.post(ETHEREUM_URL, json=payload).json()
+        address_of_current_implementation = response['result']
+
+        new_eth_contract_address = get_random_eth_address
+
+        lcc.set_step("Transfer assets to fee payer account")
+        self.send_wallet_request(
+            "transfer", [self.init5, '1.2.1', 10, self.echo_asset, True], log_response=False
+        )
+        self.produce_block(self.__database_api_identifier)
+        lcc.log_info("Assets transfered")
+
         proposal = self.send_wallet_request(
             "propose_eth_update_contract_address",
-            [self.init0, self.get_expiration_time(15), "0e7057518879d5DE1F842b77e8F6F3e22931a1be"],
+            [self.init0, self.get_expiration_time(30), new_eth_contract_address],
             log_response=True
         )
-        lcc.log_info("Search for a block with parameter change proposal")
+
+        lcc.log_info("Search for a block with proposal_id")
         block = int(proposal['result']['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
         lcc.log_info("Block found, proposal id in block: '{}'".format(proposal_id))
-
-        proposal = self.send_wallet_request("get_object", [proposal_id], log_response=True)
-        lcc.log_info("{}".format(proposal))
 
         proposal_params = {
             "active_approvals_to_add": [],
@@ -92,22 +117,22 @@ class ProposeEthUpdateContractAddress(WalletBaseTest, BaseTest):
         self.send_wallet_request(
             "approve_proposal", [self.init0, proposal_id, proposal_params, True], log_response=False
         )
-        proposal = self.send_wallet_request("get_object", [proposal_id], log_response=True)
-        lcc.log_info("{}".format('asdsad'))
 
         lcc.set_step(
-            "Waiting for maintenance and release of two blocks and check that new committee member were activated"
+            "Waiting for maintenance and release of few blocks and check that new eth contract address implemented"
         )
-        time.sleep(15)
-        self.produce_block(self.__database_api_identifier)
-        response_id = self.send_request(self.get_request("get_global_properties"), self.__database_api_identifier)
-        get_global_properties = self.get_response(response_id)["result"]
-        lcc.log_info("{}".format(get_global_properties))
 
-        # set_password
-        # unlock
-        # import_key "1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"
-        # transfer 1.2.10 1.2.1 10 ECHO true
-        # propose_eth_update_contract_address 1.2.6 "2020-10-13T14:02:44" "0e7057518879d5DE1F842b77e8F6F3e22931a1be"
-        # approve_proposal 1.2.6 1.5.0 {"active_approvals_to_add": ["1.2.6", "1.2.7", "1.2.8", "1.2.9", "1.2.10"],
-        # "active_approvals_to_remove": [],"key_approvals_to_add": [],"key_approvals_to_remove": []} true
+        self.produce_block(self.__database_api_identifier)
+        time.sleep(40)
+        self.produce_block(self.__database_api_identifier)
+        payload = self.rpc_call(
+            "eth_call", [{
+                "to": "0xF663f3e27B5c5beaf7A0b4A7355BF69DfC5671E8",
+                "data": "0x5c60da1b"
+            }, "latest"]
+        )
+        response = requests.post(ETHEREUM_URL, json=payload).json()
+        address_of_new_implementation = response['result']
+        check_that('eth contract address', address_of_new_implementation, not_equal_to(address_of_current_implementation))
+        expected_address = "{}{}".format('0x000000000000000000000000', new_eth_contract_address)
+        check_that('new eth contract address', address_of_new_implementation, equal_to(expected_address))
