@@ -80,7 +80,6 @@ class BroadcastTransaction(BaseTest):
             lcc.log_info("Call method 'broadcast_transaction' return transaction_id_type")
         else:
             lcc.log_info("Error, call method 'broadcast_transaction' returns uncorrect type")
-        # check_that("'broadcast_transaction' result", result, is_none(), quiet=True)
 
         lcc.set_step("Get account balance after transfer transaction broadcast")
         self.produce_block(self.__database_api_identifier)
