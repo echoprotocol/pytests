@@ -4,7 +4,7 @@ import json
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_none
+from lemoncheesecake.matching import check_that, check_that_in, equal_to
 
 SUITE = {
     "description": "Method 'broadcast_transaction_with_callback'"
