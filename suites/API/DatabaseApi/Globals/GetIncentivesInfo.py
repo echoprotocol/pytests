@@ -46,21 +46,33 @@ class GetIncentivesInfo(BaseTest):
             self.get_request("get_incentives_info", [head_block_number - 1, head_block_number]),
             self.__database_api_identifier
         )
-        response = self.get_response(response_id)
+        incentives_info = self.get_response(response_id)['result'][0]
         lcc.log_info("Call method 'get_incentives_info'")
         lcc.set_step("Check incentives_info format")
         check_that(
-            "block number", response['result'][0]['incentives_pool']['block_number'], equal_to(head_block_number - 1)
+            "block number", incentives_info['block_number'], equal_to(head_block_number - 1)
         )
-        if self.type_validator.is_incentives_pool_id(response['result'][0]['incentives_pool']['id']):
+        if self.type_validator.is_incentives_pool_id(incentives_info['id']):
             lcc.log_info(
-                "Correct format of incentives id, got {}".format(response['result'][0]['incentives_pool']['id'])
+                "Correct format of incentives id, got {}".format(incentives_info['id'])
             )
         else:
-            lcc.log_info("Wrong format of incentives id, got {}".format(response['result'][0]['incentives_pool']['id']))
+            lcc.log_info("Wrong format of incentives id, got {}".format(incentives_info['id']))
+        
+        if self.type_validator.is_asset_id(incentives_info['pool'][0][0]):
+            lcc.log_info("Correct format of {} asset id".format("pool"))
+        else:
+            lcc.log_info("Wrong format of {} asset id".format("pool"))
+        if isinstance(incentives_info['pool'][0][1], int):
+            lcc.log_info("Correct type of {} amount".format("pool"))
+        else:
+            lcc.log_info("Wrong {} amount type".format("pool"))
+        if isinstance(incentives_info['incentives'][0][0], int) and isinstance(incentives_info['incentives'][0][1], int):
+            lcc.log_info("Correct format of incentives")
+        else:
+            lcc.log_info("Wrong format of incentives")
 
 
-# todo: Bug https://jira.pixelplex.by/browse/ECHO-2467
 @lcc.prop("positive", "type")
 @lcc.tags("api", "database_api", "database_api_globals", "get_incentives_info")
 @lcc.suite("Positive testing of method 'get_incentives_info'", rank=2)
@@ -90,7 +102,6 @@ class PositiveTesting(BaseTest):
         return head_block_number
 
     @lcc.test("Simple work of method 'get_incentives_info'")
-    @lcc.disabled()
     def method_main_check(self):
         head_block_number = self.get_head_block_number()
         lcc.set_step("Get incentives info")
@@ -99,8 +110,9 @@ class PositiveTesting(BaseTest):
             self.__database_api_identifier
         )
         response = self.get_response(response_id)
+        lcc.log_info(str(response))
         lcc.log_info("Call method 'get_incentives_info'")
         check_that(
-            "block number", response['result'][0]['incentives_pool']['block_number'], equal_to(head_block_number)
+            "block number", response['result'][0]['block_number'], equal_to(head_block_number)
         )
-        check_that('one block info returned', len(response['result'][0], equal_to(1)))
+        check_that('one block info returned', len(response['result']), equal_to(1))

@@ -117,6 +117,6 @@ class WithdrawEth(WalletBaseTest, BaseTest):
         transfer_amount = self.get_random_amount(_from=MIN_ETH_WITHDRAW, _to=int(ethereum_balance), amount_type=int)
         result = self.send_wallet_request(
             "withdraw_eth", [self.init3, eth_account_address, transfer_amount, True], log_response=False
-        )['result']
+        )['result'][0]
         check_that("withdraw eth amount", int(result['operations'][0][1]["value"]), equal_to(int(transfer_amount)))
         check_that("eth address", result['operations'][0][1]['eth_addr'], equal_to(eth_account_address))

@@ -90,7 +90,7 @@ class CreateActivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
 
         lcc.log_info("Search for a block with activate committee member proposal id")
-        block = int(proposal['result']['ref_block_num'])
+        block = int(proposal['result'][0]['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
 
         lcc.log_info("Block found, proposal id: '{}'".format(proposal_id))

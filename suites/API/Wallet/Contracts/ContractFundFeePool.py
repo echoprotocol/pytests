@@ -61,4 +61,4 @@ class ContractFundFeePool(WalletBaseTest, BaseTest):
         result = self.send_wallet_request(
             "contract_fund_fee_pool", [self.init4, self.valid_contract_id, fee_pool_balance, True], log_response=False
         )['result']
-        check_that('amount', result['operations'][0][1]["value"]["amount"], equal_to(fee_pool_balance))
+        check_that('amount', result[0]['operations'][0][1]["value"]["amount"], equal_to(fee_pool_balance))

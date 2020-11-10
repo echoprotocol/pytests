@@ -54,7 +54,7 @@ class CreateContract(WalletBaseTest, BaseTest):
         response = self.send_wallet_request(
             "create_contract", [self.init4, self.contract, 1, self.echo_asset, "", True], log_response=False
         )['result']
-        check_that("contract code", response['operations'][0][1]['code'], equal_to(self.contract), quiet=True)
+        check_that("contract code", response[0]['operations'][0][1]['code'], equal_to(self.contract), quiet=True)
 
         lcc.set_step("Create 'Piggy' contract in the Echo network")
         operation = self.echo_ops.get_contract_create_operation(
@@ -70,7 +70,7 @@ class CreateContract(WalletBaseTest, BaseTest):
         lcc.set_step("Check that field of contract create operation are equal")
         check_that(
             'create_contract result fields',
-            list(response['operations'][0][1].keys()),
+            list(response[0]['operations'][0][1].keys()),
             equal_to(list(broadcast_result['trx']['operations'][0][1].keys())),
             quiet=True
         )

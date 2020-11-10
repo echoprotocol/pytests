@@ -3,17 +3,17 @@ from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import is_not_none, require_that
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
-    "description": "Method 'get_transaction_id'"
+    "description": "Method 'get_transaction'"
 }
 
 
 @lcc.prop("main", "type")
-@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_get_transaction_id")
-@lcc.suite("Check work of method 'get_transaction_id'", rank=1)
-class GetTransactionId(WalletBaseTest, BaseTest):
+@lcc.tags("api", "wallet_api", "wallet_blocks_transactions", "wallet_get_transaction")
+@lcc.suite("Check work of method 'get_transaction'", rank=1)
+class GetTransaction(WalletBaseTest, BaseTest):
 
     def __init__(self):
         WalletBaseTest.__init__(self)
@@ -54,11 +54,20 @@ class GetTransactionId(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_get_transaction_id'")
-    def method_main_check(self):
+    def get_head_block_number(self):
+        self.produce_block(self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_dynamic_global_properties"), self.__database_api_identifier
+        )
+        head_block_number = self.get_response(response_id)["result"]["head_block_number"]
+        return head_block_number
 
-        lcc.set_step("Call wallet method 'get_transaction_id'")
+    @lcc.test("Simple work of method 'wallet_get_transaction'")
+    def method_main_check(self):
+        self.produce_block(self.__database_api_identifier)
+        head_block_num = self.get_head_block_number()
+        lcc.set_step("Call method 'get_transaction'")
         json_transaction = self.json_transaction()
         lcc.log_debug(str(json_transaction))
-        response = self.send_wallet_request("get_transaction_id", [json_transaction], log_response=True)
-        require_that("'result'", response["result"], is_not_none(), quiet=True)
+        response = self.send_wallet_request("get_transaction", [head_block_num, 0], log_response=True)
+        check_that("transfer operation in transaction", response['result']['operations'][0][0], equal_to(0))

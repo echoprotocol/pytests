@@ -49,7 +49,8 @@ class ImportBalance(WalletBaseTest, BaseTest):
 
         lcc.set_step("Check method import balance")
         response = self.send_wallet_request("import_balance", [self.init4, True, [INIT5_PK]], log_response=False)
+        lcc.log_info(str(response))
         check_that(
-            "imported balance amount", response['result'][0]['operations'][0][1]['total_claimed']['amount'],
+            "imported balance amount", response['result'][0][0]['operations'][0][1]['total_claimed']['amount'],
             equal_to(61)
         )

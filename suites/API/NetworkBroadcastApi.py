@@ -59,8 +59,12 @@ class NetworkBroadcastApi(object):
         )
         response_id = base.send_request(base.get_request("broadcast_transaction", [transaction_object]), api_identifier)
         response = base.get_response(response_id)
-
-        check_that("'call method 'broadcast_transaction''", response["result"], is_none(), quiet=True)
+        lcc.log_info("trx {}".format(response))
+        if base.type_validator.is_transaction_id_type(response["result"]):
+            lcc.log_info("Call method 'broadcast_transaction' return transaction_id_type")
+        else:
+            lcc.log_info("Error, call method 'broadcast_transaction' returns uncorrect type")
+        # check_that("'call method 'broadcast_transaction''", response["result"], is_none(), quiet=True)
 
         lcc.set_step("Check that Network Broadcast api identifier is unique")
         response_id = base.send_request(

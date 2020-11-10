@@ -59,4 +59,4 @@ class CallContract(WalletBaseTest, BaseTest):
         response = self.send_wallet_request(
             "call_contract", [self.init4, self.valid_contract_id, self.greet, 1, self.echo_asset], log_response=False
         )['result']
-        check_that("code", response['operations'][0][1]['code'], equal_to(self.greet))
+        check_that("code", response[0]['operations'][0][1]['code'], equal_to(self.greet))

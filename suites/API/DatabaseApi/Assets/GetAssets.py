@@ -63,7 +63,6 @@ class GetAssets(BaseTest):
         require_that("'list of received objects'", get_objects_results, has_length(len(params)), quiet=True)
         for i, asset_dynamic_data in enumerate(get_objects_results):
             lcc.set_step("Checking dynamic asset data object #{} - '{}'".format(i, params[i]))
-            lcc.log_info("{}".format(asset_dynamic_data))
             self.object_validator.validate_asset_dynamic_data_object(self, asset_dynamic_data)
 
 
