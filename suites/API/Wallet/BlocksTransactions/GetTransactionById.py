@@ -20,16 +20,7 @@ class GetTransactionById(WalletBaseTest, BaseTest):
         BaseTest.__init__(self)
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.echo_acc0 = None
-        self.echo_acc1 = None
-
-    def json_transaction(self):
-        transfer_operation = self.echo_ops.get_transfer_operation(
-            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
-        )
-        collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
-        return signed_tx.json()
+        self.init4 = None
 
     def setup_suite(self):
         super().setup_suite()
@@ -42,25 +33,13 @@ class GetTransactionById(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.echo_acc0 = self.get_account_id(
-            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        self.echo_acc1 = self.get_account_id(
-            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
+
+        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account are: #1='{}'".format(self.init4))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
-
-    def get_head_block_number(self):
-        self.produce_block(self.__database_api_identifier)
-        response_id = self.send_request(
-            self.get_request("get_dynamic_global_properties"), self.__database_api_identifier
-        )
-        head_block_number = self.get_response(response_id)["result"]["head_block_number"]
-        return head_block_number
 
     @lcc.test("Simple work of method 'wallet_get_transaction_by_id'")
     def method_main_check(self, get_random_valid_account_name, get_random_eth_address):
@@ -83,10 +62,15 @@ class GetTransactionById(WalletBaseTest, BaseTest):
         transaction = self.send_wallet_request("get_transaction_by_id", [tx_id], log_response=False)['result']
         check_that_in(
             transaction,
-            "ref_block_num", equal_to(signed_transaction['ref_block_num']),
-            "ref_block_prefix", equal_to(signed_transaction['ref_block_prefix']),
-            "expiration", equal_to(signed_transaction['expiration']),
-            "operations", equal_to(signed_transaction['operations']),
-            "signatures", equal_to(signed_transaction['signatures']),
+            "ref_block_num",
+            equal_to(signed_transaction['ref_block_num']),
+            "ref_block_prefix",
+            equal_to(signed_transaction['ref_block_prefix']),
+            "expiration",
+            equal_to(signed_transaction['expiration']),
+            "operations",
+            equal_to(signed_transaction['operations']),
+            "signatures",
+            equal_to(signed_transaction['signatures']),
             quiet=True
         )

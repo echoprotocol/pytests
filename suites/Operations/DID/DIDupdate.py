@@ -68,7 +68,6 @@ class DIDUpdate(BaseTest):
             pub_keys_to_add=[update_public_key]
         )
         collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        lcc.log_info(str(collected_operation))
         self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
         lcc.log_info("'DID update' operation broadcasted successfully")
 

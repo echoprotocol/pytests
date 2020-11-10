@@ -73,6 +73,8 @@ class GetTransactionById(BaseTest):
             echo=self.echo, list_operations=collected_operation, log_broadcast=False
         )
 
-        response_id = self.send_request(self.get_request("get_transaction_by_id", [broadcast_result['id']]), self.__database_api_identifier)
+        response_id = self.send_request(
+            self.get_request("get_transaction_by_id", [broadcast_result['id']]), self.__database_api_identifier
+        )
         response = self.get_response(response_id)
         check_that("transaction", response['result'], equal_to(broadcast_result['trx']))

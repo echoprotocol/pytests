@@ -19,36 +19,13 @@ class GetTransaction(WalletBaseTest, BaseTest):
         WalletBaseTest.__init__(self)
         BaseTest.__init__(self)
         self.__database_api_identifier = None
-        self.__registration_api_identifier = None
-        self.echo_acc0 = None
-        self.echo_acc1 = None
-
-    def json_transaction(self):
-        transfer_operation = self.echo_ops.get_transfer_operation(
-            echo=self.echo, from_account_id=self.echo_acc0, to_account_id=self.echo_acc1, amount=1
-        )
-        collected_operation = self.collect_operations(transfer_operation, self.__database_api_identifier)
-        signed_tx = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation, ethrpc_broadcast=True)
-        return signed_tx.json()
 
     def setup_suite(self):
         super().setup_suite()
         self._connect_to_echopy_lib()
         lcc.set_step("Setup for {}".format(self.__class__.__name__))
         self.__database_api_identifier = self.get_identifier("database")
-        self.__registration_api_identifier = self.get_identifier("registration")
-        lcc.log_info(
-            "API identifiers are: database='{}', registration='{}'".format(
-                self.__database_api_identifier, self.__registration_api_identifier
-            )
-        )
-        self.echo_acc0 = self.get_account_id(
-            self.accounts[0], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        self.echo_acc1 = self.get_account_id(
-            self.accounts[1], self.__database_api_identifier, self.__registration_api_identifier
-        )
-        lcc.log_info("Echo accounts are: #1='{}', #2='{}'".format(self.echo_acc0, self.echo_acc1))
+        lcc.log_info("API identifier are: database='{}'".format(self.__database_api_identifier))
 
     def teardown_suite(self):
         self._disconnect_to_echopy_lib()
@@ -67,7 +44,5 @@ class GetTransaction(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
         head_block_num = self.get_head_block_number()
         lcc.set_step("Call method 'get_transaction'")
-        json_transaction = self.json_transaction()
-        lcc.log_debug(str(json_transaction))
         response = self.send_wallet_request("get_transaction", [head_block_num, 0], log_response=True)
         check_that("transfer operation in transaction", response['result']['operations'][0][0], equal_to(0))

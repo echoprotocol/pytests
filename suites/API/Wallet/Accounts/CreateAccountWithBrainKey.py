@@ -54,7 +54,6 @@ class CreateAccountWithBrainKey(WalletBaseTest, BaseTest):
             "create_account_with_brain_key", [keys[2], new_account, self.init4, evm_address, True, True],
             log_response=False
         )
-        lcc.log_info(str(response))
         check_that(
             "registrated account name",
             response['result'][0]['operations'][0][1]['name'],

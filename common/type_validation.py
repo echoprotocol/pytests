@@ -97,7 +97,7 @@ class TypeValidator(object):
                 return True
         except ValueError:
             "Value is not integer"
-    
+
     def is_transaction_id_type(self, value):
         return self.is_hex(value) and len(value) == 40
 

@@ -58,7 +58,8 @@ class GetCurrentIncentivesInfo(BaseTest):
             lcc.log_info("Correct type of {} amount".format("pool"))
         else:
             lcc.log_info("Wrong {} amount type".format("pool"))
-        if isinstance(incentives_info['incentives'][0][0], int) and isinstance(incentives_info['incentives'][0][1], int):
+        if isinstance(incentives_info['incentives'][0][0], int) and isinstance(incentives_info['incentives'][0][1],
+                                                                               int):
             lcc.log_info("Correct format of incentives")
         else:
             lcc.log_info("Wrong format of incentives")

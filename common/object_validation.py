@@ -823,9 +823,13 @@ class ObjectValidator(object):
                 lcc.log_info("'id' has correct format: global_property_object_type")
             check_that_in(
                 global_properties_object,
-                "parameters", is_dict(),
-                "active_committee_members", is_list(),
-                "consensus_assets_prices", is_list(), quiet=True
+                "parameters",
+                is_dict(),
+                "active_committee_members",
+                is_list(),
+                "consensus_assets_prices",
+                is_list(),
+                quiet=True
             )
 
         lcc.set_step("Check global parameters: 'current_fees' field")
