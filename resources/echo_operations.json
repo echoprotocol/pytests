@@ -764,8 +764,56 @@
             "extensions": []
         }
     ],
-    "evm_address_register_operation": [
+    "sidechain_stake_eth_update_operation":[
+        65,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "committee_member_id": "1.2.1",
+            "asset_id_type": "1.3.10",
+            "current_balance": "1000000",
+            "account": "1.2.26",
+            "transaction_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "extensions": [ ]
+        }
+    ],
+    "sidechain_stake_btc_create_script_operation": [
         66,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "account": "1.2.26",
+            "pubkey_hash": "6334edf1175678f7905763e6b24361ab998aa232",
+            "extensions": []
+        }
+    ],
+    "sidechain_stake_btc_update_operation": [
+        67,
+        {
+            "fee": {
+                "amount": 0,
+                "asset_id": "1.3.0"
+            },
+            "committee_member_id": "1.2.17",
+            "owner": "1.2.26",
+            "btc_tx_info": {
+                "block_number": 0,
+                "out": {
+                    "tx_id": "0000000000000000000000000000000000000000000000000000000000000000",
+                    "index": 0,
+                    "amount": 0
+                }
+            },
+            "is_vin": false,
+            "extensions": [ ]
+        }
+    ],
+    "evm_address_register_operation": [
+        69,
         {
             "fee": {
                 "amount": 0,
@@ -777,7 +825,7 @@
         }
     ],
     "did_create_operation": [
-        67,
+        70,
         {
             "fee": {
                 "amount": 0,
@@ -789,7 +837,7 @@
         }
     ],
     "did_update_operation": [
-        68,
+        71,
         {
             "fee": {
                 "amount": 0,
@@ -802,7 +850,7 @@
         }
     ],
     "did_delete_operation": [
-        69,
+        72,
         {
             "fee": {
                 "amount": 0,

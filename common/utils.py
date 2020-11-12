@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
+import hashlib
 import math
 import random
 import time
+from binascii import unhexlify
 from copy import deepcopy
 
 from fixtures.base_fixtures import get_random_valid_asset_name
@@ -1320,3 +1322,16 @@ class Utils(object):
                 rewards[acc_id] = 0
         lcc.log_info("'{}' account got '{}' reward".format(account_id, rewards[account_id]))
         return rewards[account_id]
+
+    def ripemd160(self, s):
+        ripemd160 = hashlib.new("ripemd160")
+        ripemd160.update(unhexlify(s))
+        return ripemd160.hexdigest()
+
+    def SHA256(self, s):
+        sha256 = hashlib.sha256()
+        sha256.update(unhexlify(s))
+        return sha256.hexdigest()
+
+    def get_public_hash(self, btc_public_key):
+        return self.ripemd160(self.SHA256(btc_public_key))

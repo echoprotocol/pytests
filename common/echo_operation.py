@@ -1420,6 +1420,126 @@ class EchoOperations(object):
             return [operation_id, generate_eth_address_props, account]
         return [operation_id, generate_eth_address_props, signer]
 
+    def get_sidechain_stake_eth_update_operation(
+        self,
+        echo,
+        committee_member_id,
+        asset_id,
+        current_balance,
+        account,
+        transaction_hash,
+        fee_amount=0,
+        fee_asset_id="1.3.0",
+        extensions=None,
+        signer=None,
+        debug_mode=False
+    ):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.SIDECHAIN_STAKE_ETH_UPDATE
+        sidechain_stake_eth_update_props = self.get_operation_json("sidechain_stake_eth_update_operation")
+        sidechain_stake_eth_update_props["fee"].update({
+            "amount": fee_amount,
+            "asset_id": fee_asset_id
+        })
+        sidechain_stake_eth_update_props.update({
+            "committee_member_id": committee_member_id,
+            "asset_id": asset_id,
+            "current_balance": current_balance,
+            "account": account,
+            "transaction_hash": transaction_hash,
+            "extensions": extensions
+        })
+        if debug_mode:
+            lcc.log_debug(
+                "Sidechain stake eth update operation: \n{}".format(
+                    json.dumps(sidechain_stake_eth_update_props, indent=4)
+                )
+            )
+        if signer is None:
+            return [operation_id, sidechain_stake_eth_update_props, committee_member_id]
+        return [operation_id, sidechain_stake_eth_update_props, signer]
+
+    def get_sidechain_stake_btc_create_script_operation(
+        self,
+        echo,
+        account,
+        pubkey_hash,
+        fee_amount=0,
+        fee_asset_id="1.3.0",
+        extensions=None,
+        signer=None,
+        debug_mode=False
+    ):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.SIDECHAIN_STAKE_BTC_CREATE_SCRIPT
+        sidechain_stake_btc_create_script_props = self.get_operation_json("sidechain_stake_btc_create_script_operation")
+        sidechain_stake_btc_create_script_props["fee"].update({
+            "amount": fee_amount,
+            "asset_id": fee_asset_id
+        })
+        sidechain_stake_btc_create_script_props.update({
+            "account": account,
+            "pubkey_hash": pubkey_hash,
+            "extensions": extensions
+        })
+        if debug_mode:
+            lcc.log_debug(
+                "Sidechain btc create stake script operation: \n{}".format(
+                    json.dumps(sidechain_stake_btc_create_script_props, indent=4)
+                )
+            )
+        if signer is None:
+            return [operation_id, sidechain_stake_btc_create_script_props, account]
+        return [operation_id, sidechain_stake_btc_create_script_props, signer]
+
+    def get_sidechain_stake_btc_update_operation(
+        self,
+        echo,
+        committee_member_id,
+        owner,
+        block_number,
+        tx_id,
+        index=0,
+        amount=0,
+        is_vin=False,
+        fee_amount=0,
+        fee_asset_id="1.3.0",
+        extensions=None,
+        signer=None,
+        debug_mode=False
+    ):
+        if extensions is None:
+            extensions = []
+        operation_id = echo.config.operation_ids.SIDECHAIN_STAKE_BTC_CREATE_SCRIPT
+        sidechain_stake_btc_update_props = self.get_operation_json("sidechain_stake_btc_update_operation")
+        sidechain_stake_btc_update_props["fee"].update({
+            "amount": fee_amount,
+            "asset_id": fee_asset_id
+        })
+        sidechain_stake_btc_update_props.update({
+            "committee_member_id": committee_member_id,
+            "owner": owner,
+            "is_vin": is_vin,
+            "extensions": extensions
+        })
+        sidechain_stake_btc_update_props['btc_tx_info'].update({"block_number": block_number})
+        sidechain_stake_btc_update_props['btc_tx_info']['out'].update({
+            "tx_id": tx_id,
+            "index": index,
+            "amount": amount
+        })
+        if debug_mode:
+            lcc.log_debug(
+                "Sidechain btc create stake script operation: \n{}".format(
+                    json.dumps(sidechain_stake_btc_update_props, indent=4)
+                )
+            )
+        if signer is None:
+            return [operation_id, sidechain_stake_btc_update_props, committee_member_id]
+        return [operation_id, sidechain_stake_btc_update_props, signer]
+
     def get_evm_address_register_operation(
         self,
         echo,
