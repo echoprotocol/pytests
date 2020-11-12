@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM jfloff/alpine-python:3.7-slim
 
 WORKDIR /home/
 
