@@ -36,6 +36,7 @@ class TypeValidator(object):
     btc_aggregating_id_regex = re.compile(r"^1\.23\.(0|[1-9]\d*)$")
     evm_address_id_regex = re.compile(r"^1\.24\.(0|[1-9]\d*)$")
     did_object_id_regex = re.compile(r"^1\.25\.(0|[1-9]\d*)$")
+    btc_stake_address_id_regex = re.compile(r"^1\.26\.(0|[1-9]\d*)$")
     global_object_id_regex = re.compile(r"^2.0.0$")
     dynamic_global_object_id_regex = re.compile(r"^2.1.0$")
     dynamic_asset_data_id_regex = re.compile(r"^2\.2\.(0|[1-9]\d*)$")
@@ -97,6 +98,9 @@ class TypeValidator(object):
                 return True
         except ValueError:
             "Value is not integer"
+
+    def is_transaction_id_type(self, value):
+        return self.is_hex(value) and len(value) == 40
 
     def is_hex(self, value):
         if self.is_string(value):
@@ -212,6 +216,10 @@ class TypeValidator(object):
     def is_did_object_id(self, value):
         if self.is_string(value):
             return bool(self.did_object_id_regex.match(value))
+
+    def is_btc_stake_address_id(self, value):
+        if self.is_string(value):
+            return bool(self.btc_stake_address_id_regex.match(value))
 
     def is_global_object_id(self, value):
         if self.is_string(value):

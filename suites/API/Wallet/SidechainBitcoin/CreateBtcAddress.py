@@ -63,7 +63,6 @@ class CreateBtcAddress(WalletBaseTest, BaseTest):
                 self.get_request("get_btc_address", [self.init4]), self.__database_api_identifier
             )
             result = self.get_response(response_id)["result"]
-            lcc.log_info("{}".format(result))
             if self.type_validator.is_btc_address_id(result['id']):
                 lcc.log_info("Id has correct format: '{}'".format(result['id']))
             else:

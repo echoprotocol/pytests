@@ -95,7 +95,7 @@ class CreateDeactivateCommitteeMemberProposal(WalletBaseTest, BaseTest):
         self.produce_block(self.__database_api_identifier)
 
         lcc.log_info("Search for a block with deactivate committee member proposal")
-        block = int(proposal['result']['ref_block_num'])
+        block = int(proposal['result'][0]['ref_block_num'])
         proposal_id = self.get_proposal_id_from_next_blocks(block)
         lcc.log_info("Block found, proposal id in block: '{}'".format(proposal_id))
 

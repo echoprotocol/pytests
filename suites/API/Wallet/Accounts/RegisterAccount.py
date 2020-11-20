@@ -56,7 +56,7 @@ class GetRegisterAccount(WalletBaseTest, BaseTest):
 
         check_that(
             "registrated account name",
-            response['result']['operations'][0][1]['name'],
+            response['result'][0]['operations'][0][1]['name'],
             equal_to(new_account),
             quiet=True
         )

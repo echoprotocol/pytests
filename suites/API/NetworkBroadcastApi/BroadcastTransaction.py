@@ -2,7 +2,7 @@
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, equal_to, is_none
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'broadcast_transaction'"
@@ -76,7 +76,10 @@ class BroadcastTransaction(BaseTest):
             self.get_request("broadcast_transaction", [signed_tx]), self.__network_broadcast_identifier
         )
         result = self.get_response(response_id)["result"]
-        check_that("'broadcast_transaction' result", result, is_none(), quiet=True)
+        if self.type_validator.is_transaction_id_type(result):
+            lcc.log_info("Call method 'broadcast_transaction' return transaction_id_type")
+        else:
+            lcc.log_info("Error, call method 'broadcast_transaction' returns uncorrect type")
 
         lcc.set_step("Get account balance after transfer transaction broadcast")
         self.produce_block(self.__database_api_identifier)

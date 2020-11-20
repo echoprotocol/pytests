@@ -68,7 +68,7 @@ class UpdateAssetFeedProducers(WalletBaseTest, BaseTest):
 
         asset_feed_producers = self.send_wallet_request(
             "update_asset_feed_producers", [asset_name, [self.init4, self.init5], True], log_response=False
-        )['result']['operations'][0][1]["new_feed_producers"]
+        )['result'][0]['operations'][0][1]["new_feed_producers"]
         self.produce_block(self.__database_api_identifier)
 
         check_that("asset name", asset_feed_producers, equal_to([self.init4, self.init5]))

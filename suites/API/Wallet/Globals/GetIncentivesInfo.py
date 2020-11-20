@@ -51,10 +51,18 @@ class GetIncentivesInfo(WalletBaseTest, BaseTest):
         incentives_info = self.send_wallet_request(
             "get_incentives_info", [head_block_num - 1, head_block_num], log_response=False
         )['result'][-1]
-        check_that("block number", incentives_info['incentives_pool']['block_number'], equal_to(head_block_num))
-        if self.type_validator.is_incentives_pool_id(incentives_info['incentives_pool']['id']):
+        check_that("block number", incentives_info['block_number'], equal_to(head_block_num))
+        if self.type_validator.is_incentives_pool_id(incentives_info['id']):
             lcc.log_info("Correct format of incentives_pool id")
         else:
             lcc.log_error("Wrong format of incentives_pool id, got {}".format(incentives_info['incentives_pool']['id']))
-        check_that("incentives asset", incentives_info['incentives'][0][0], equal_to(self.echo_asset))
-        check_that("incentives amount", incentives_info['incentives'][0][1], equal_to(0))
+        check_that("incentives asset", incentives_info['pool'][0][0], equal_to(self.echo_asset))
+        if isinstance(incentives_info['pool'][0][1], int):
+            lcc.log_info("Correct format of pool amount")
+        else:
+            lcc.log_info("Wrong format of pool amount")
+        if isinstance(incentives_info['incentives'][0][0], int) and isinstance(incentives_info['incentives'][0][1],
+                                                                               int):
+            lcc.log_info("Correct format of incentives")
+        else:
+            lcc.log_info("Wrong format of incentives")

@@ -4,7 +4,7 @@ from common.receiver import Receiver
 from project import BASE_URL
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, has_entry, is_integer, is_none
+from lemoncheesecake.matching import check_that, has_entry, is_integer
 
 SUITE = {
     "description": "Network Broadcast Api"
@@ -59,8 +59,10 @@ class NetworkBroadcastApi(object):
         )
         response_id = base.send_request(base.get_request("broadcast_transaction", [transaction_object]), api_identifier)
         response = base.get_response(response_id)
-
-        check_that("'call method 'broadcast_transaction''", response["result"], is_none(), quiet=True)
+        if base.type_validator.is_transaction_id_type(response["result"]):
+            lcc.log_info("Call method 'broadcast_transaction' return transaction_id_type")
+        else:
+            lcc.log_info("Error, call method 'broadcast_transaction' returns uncorrect type")
 
         lcc.set_step("Check that Network Broadcast api identifier is unique")
         response_id = base.send_request(

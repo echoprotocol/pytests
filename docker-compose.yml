@@ -62,7 +62,7 @@ services:
       - wallet
 
   echo:
-    image: echoprotocol/echo:0.22.3-rc.1
+    image: echoprotocol/echo:0.23.0-rc.3
     container_name: '631.echo.node.${ENV}'
     hostname: 'echo'
     command: '--data-dir=/echo/datadir/
@@ -106,7 +106,7 @@ services:
       - bitcoin
 
   testrpc:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.22.3-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/testrpc:0.23.0-rc.3
     command:
       '--rpc-endpoint=0.0.0.0:19999
       --accounts 2'
@@ -114,10 +114,10 @@ services:
       - 56453:19999
 
   wallet:
-    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.22.3-rc.1
+    image: registry-gitlab.pixelplex.by/631_echo/echo/wallet:0.23.0-rc.3
     command:
       '-s ws://echo:6311/ws
-        --chain-id c5a2e93ff26f0aa4b46fec5f610490d8a657dd6ce2ef8fefa0b9bc282337aab0
+        --chain-id a48b03a7ca9346e8530cc67fea0613dfe0faecb863719c38ededf07ceaa568fd
         --rpc-endpoint=0.0.0.0:1998
       '
     ports:

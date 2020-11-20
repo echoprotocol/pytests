@@ -4,7 +4,7 @@ import json
 from common.base_test import BaseTest
 
 import lemoncheesecake.api as lcc
-from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_none
+from lemoncheesecake.matching import check_that, check_that_in, equal_to
 
 SUITE = {
     "description": "Method 'broadcast_transaction_with_callback'"
@@ -90,7 +90,10 @@ class BroadcastTransactionWithCallback(BaseTest):
             self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
         )
         response = self.get_response(response_id)
-        check_that("'broadcast_transaction_with_callback' result", response["result"], is_none(), quiet=True)
+        if self.type_validator.is_transaction_id_type(response['result']):
+            lcc.log_info("Call method 'broadcast_transaction' return transaction_id_type")
+        else:
+            lcc.log_info("Error, call method 'broadcast_transaction' returns uncorrect type")
 
         lcc.set_step("Get account balance after transfer transaction broadcast")
         self.produce_block(self.__database_api_identifier)
@@ -247,6 +250,10 @@ class NegativeTesting(BaseTest):
             self.get_request("broadcast_transaction_with_callback", params), self.__network_broadcast_identifier
         )
         null_response, error_notice = self.get_error_message_callback(response_id, False, False)
-        check_that_in(null_response, "id", equal_to(response_id), "result", is_none(), quiet=False)
+        check_that_in(null_response, "id", equal_to(response_id), quiet=False)
+        if self.type_validator.is_transaction_id_type(null_response["result"]):
+            lcc.log_info("Call method 'broadcast_transaction' return transaction_id_type")
+        else:
+            lcc.log_info("Error, call method 'broadcast_transaction' returns uncorrect type")
         error_string = "{}: {}".format(error_notice[1][0]['message'], error_notice[1][0]['stack'][0]['format'])
         check_that("broadcast with callback error notice format", error_string, equal_to(expected_message), quiet=False)

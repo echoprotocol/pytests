@@ -178,7 +178,7 @@ class GetErc20AccountDeposits(WalletBaseTest, BaseTest):
             "withdraw_erc20_token",
             [self.init4, self.eth_account.address, erc20_token_id, erc20_withdrawal_amounts, True],
             log_response=False
-        )['result']
+        )['result'][0]
         check_that_in(
             withdraw_erc20_token['operations'][0][1], "account", equal_to(self.init4), 'to',
             equal_to(self.eth_account.address[2:]), 'erc20_token', equal_to(erc20_token_id), 'value',

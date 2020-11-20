@@ -57,7 +57,7 @@ class GetTransactionId(WalletBaseTest, BaseTest):
     @lcc.test("Simple work of method 'wallet_get_transaction_id'")
     def method_main_check(self):
 
-        lcc.set_step("Call method 'wallet_get_transaction_id'")
+        lcc.set_step("Call wallet method 'get_transaction_id'")
         json_transaction = self.json_transaction()
         lcc.log_debug(str(json_transaction))
         response = self.send_wallet_request("get_transaction_id", [json_transaction], log_response=True)

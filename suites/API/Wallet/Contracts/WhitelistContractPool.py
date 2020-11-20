@@ -71,7 +71,7 @@ class WhitelistContractPool(WalletBaseTest, BaseTest):
         response = self.send_wallet_request(
             "whitelist_contract_pool", [self.init4, self.valid_contract_id, [self.echo_acc6], [], [], [], True],
             log_response=False
-        )['result']
+        )['result'][0]
         check_that('contract', response['operations'][0][1]['contract'], equal_to(self.valid_contract_id))
         check_that('add_to_whitelist', response['operations'][0][1]['add_to_whitelist'], equal_to([self.echo_acc6]))
         check_that('remove_from_whitelist', response['operations'][0][1]['remove_from_whitelist'], equal_to([]))

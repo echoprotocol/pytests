@@ -816,19 +816,25 @@ class ObjectValidator(object):
         account_create_fee_operations = ["account_create"]
         asset_create_fee_operations = ["asset_create"]
         pool_fee_operations = ["sidechain_erc20_register_token"]
-
-        if check_that("global properties", global_properties_object, has_length(3), quiet=True):
+        if check_that("global properties", global_properties_object, has_length(4), quiet=True):
             if not base_test.type_validator.is_global_object_id(global_properties_object["id"]):
                 lcc.log_error("Wrong format of 'id', got: {}".format(global_properties_object["id"]))
             else:
                 lcc.log_info("'id' has correct format: global_property_object_type")
             check_that_in(
-                global_properties_object, "parameters", is_dict(), "active_committee_members", is_list(), quiet=True
+                global_properties_object,
+                "parameters",
+                is_dict(),
+                "active_committee_members",
+                is_list(),
+                "consensus_assets_prices",
+                is_list(),
+                quiet=True
             )
 
         lcc.set_step("Check global parameters: 'current_fees' field")
         parameters = global_properties_object["parameters"]
-        if check_that("parameters", parameters, has_length(25), quiet=True):
+        if check_that("parameters", parameters, has_length(27), quiet=True):
             check_that_in(
                 parameters,
                 "current_fees",
@@ -863,14 +869,22 @@ class ObjectValidator(object):
                 is_integer(),
                 "committee_balance_unfreeze_duration_seconds",
                 is_integer(),
+                "x86_64_maximum_contract_size",
+                is_integer(),
                 "echorand_config",
                 is_dict(),
                 "sidechain_config",
                 is_dict(),
                 "erc20_config",
                 is_dict(),
+                "stake_sidechain_config",
+                is_dict(),
                 "gas_price",
                 is_dict(),
+                "consensus_assets",
+                is_list(),
+                "valid_fee_asset",
+                is_list(),
                 "extensions",
                 is_list(),
                 quiet=True
@@ -1054,10 +1068,10 @@ class ObjectValidator(object):
     def validate_dynamic_global_property_object(self, base_test, dynamic_global_property_object):
         dynamic_global_properties = [
             "head_block_number", "committee_budget", "dynamic_flags", "last_irreversible_block_num",
-            "last_block_of_previous_interval", "last_processed_btc_block"
+            "last_block_of_previous_interval", "last_processed_btc_block", "payed_blocks_in_interval"
         ]
         dynamic_global_properties_time = ["time", "next_maintenance_time", "last_maintenance_time"]
-        if check_that("dynamic global properties", dynamic_global_property_object, has_length(12), quiet=True):
+        if check_that("dynamic global properties", dynamic_global_property_object, has_length(13), quiet=True):
             if not base_test.type_validator.is_dynamic_global_object_id(dynamic_global_property_object["id"]):
                 lcc.log_error(
                     "Wrong format of 'dynamic_global_object_id', got: {}".format(dynamic_global_property_object)

@@ -210,10 +210,8 @@ class PositiveTesting(BaseTest):
             self.object_validator.validate_committee_frozen_balance_object(self, committee_frozen_balance_info)
 
             if get_object_result is None:
-                lcc.log_info("{}".format(get_object_result))
                 get_object_result = committee_frozen_balance_info["balance"]
             else:
-                lcc.log_info("{}".format(get_object_result))
                 get_object_result["amount"] += committee_frozen_balance_info["balance"]["amount"]
         lcc.set_step("Get 'committee_frozen_balance'")
         response_id = self.send_request(
