@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.base_test import BaseTest
 from common.wallet_base_test import WalletBaseTest
 
 import lemoncheesecake.api as lcc
+from lemoncheesecake.matching import check_that, equal_to
 
 SUITE = {
     "description": "Method 'create_vesting_linear_policy'"
@@ -42,19 +45,31 @@ class CreateVestingLinearPolicy(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    # todo: Bug https://jira.pixelplex.by/browse/ECHO-2470
-    @lcc.disabled()
     @lcc.test("Simple work of method 'wallet_create_vesting_linear_policy'")
     def method_main_check(self):
         self.unlock_wallet()
         self.import_key('init5')
-
-        lcc.set_step("Check get_vesting_balances method")
+        begin_timestamp = self.get_expiration_time(5)
+        lcc.set_step("Create vesting linear policy")
         get_vesting_balances_result = self.send_wallet_request(
-            "create_vesting_linear_policy", [self.init5, self.init5, 10, self.echo_asset, 20, 20, True],
+            "create_vesting_linear_policy", [self.init5, self.init5, 1, self.echo_asset, begin_timestamp, 10, 20, True],
             log_response=False
         )
-        lcc.log_info("{}".format(get_vesting_balances_result))
-
-        get_vesting_balances_result = self.send_wallet_request("get_vesting_balances", [self.init5], log_response=False)
-        lcc.log_info("{}".format(get_vesting_balances_result))
+        lcc.log_info("Vesting linear policy created")
+        lcc.set_step("Check vesting linear policy")
+        get_vesting_balances_result = self.send_wallet_request(
+            "get_vesting_balances", [self.init5], log_response=False
+        )['result'][-1]
+        check_that("amount", get_vesting_balances_result['allowed_withdraw']['amount'], equal_to(0))
+        time.sleep(5)
+        self.produce_block(self.__database_api_identifier)
+        get_vesting_balances_result = self.send_wallet_request(
+            "get_vesting_balances", [self.init5], log_response=False
+        )['result'][-1]
+        check_that("amount", get_vesting_balances_result['allowed_withdraw']['amount'], equal_to(0))
+        time.sleep(20)
+        self.produce_block(self.__database_api_identifier)
+        get_vesting_balances_result = self.send_wallet_request(
+            "get_vesting_balances", [self.init5], log_response=False
+        )['result'][-1]
+        check_that("amount", get_vesting_balances_result['allowed_withdraw']['amount'], equal_to(100000000))
