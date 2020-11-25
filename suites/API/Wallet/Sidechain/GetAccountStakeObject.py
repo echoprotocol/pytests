@@ -113,8 +113,12 @@ class GetAccountStakeObjects(WalletBaseTest, BaseTest):
         lcc.log_info("Btc stake address: '{}'".format(new_address))
         self.produce_block(self.__database_api_identifier)
         # generate 101 block by new address
-        self.btc_call('generatetoaddress', 1, new_address)
+        self.btc_call('generatetoaddress', 101, new_address)
         time.sleep(3)
+         # generate blocks for aggregation in sidechain
+        for i in range(0, 5):
+            time.sleep(3)
+            self.btc_call('generate', 1)
 
         result = self.send_wallet_request(
             "get_account_stake_objects", [self.init4, "sbtc"], log_response=False
