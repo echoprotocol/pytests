@@ -9,6 +9,8 @@ import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_bool, is_dict, is_integer, is_list
 
+from project import INIT4_PK
+
 SUITE = {
     "description": "Method 'get_account_stake_objects'"
 }
@@ -89,20 +91,14 @@ class GetAccountStakeObjects(BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    @lcc.test("Simple work of method 'wallet_get_account_stake_objects'")
+    @lcc.test("Simple work of method 'get_account_stake_objects'")
     def method_main_check(self, get_random_btc_public_key, get_random_valid_account_name):
-        new_account_name = get_random_valid_account_name
         btc_public_key = get_random_btc_public_key
         pubkey_hash = self.utils.get_public_hash(btc_public_key)
-        lcc.set_step("Create and get new account")
-        new_account_id = self.get_account_id(
-            new_account_name, self.__database_api_identifier, self.__registration_api_identifier
-        )
-        lcc.log_info("New Echo account created, account_id='{}'".format(new_account_id))
 
         lcc.set_step("Perform sidechain_stake_btc_create_script")
         operation = self.echo_ops.get_sidechain_stake_btc_create_script_operation(
-            echo=self.echo, account=new_account_id, pubkey_hash=pubkey_hash
+            echo=self.echo, account=self.init4, pubkey_hash=pubkey_hash, signer=INIT4_PK
         )
         collected_operation = self.collect_operations(operation, self.__database_api_identifier)
         broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
@@ -112,7 +108,7 @@ class GetAccountStakeObjects(BaseTest):
             lcc.log_info("'sidechain_stake_btc_create_script' broadcasted successfully.")
         lcc.set_step("Call 'get_btc_stake_address' method and check its result")
         response_id = self.send_request(
-            self.get_request("get_btc_stake_address", [new_account_id]), self.__database_api_identifier
+            self.get_request("get_btc_stake_address", [self.init4]), self.__database_api_identifier
         )
         result = self.get_response(response_id)["result"]
 
@@ -120,8 +116,12 @@ class GetAccountStakeObjects(BaseTest):
         lcc.log_info("Btc stake address: '{}'".format(new_address))
         self.produce_block(self.__database_api_identifier)
         # generate 101 block by new address
-        self.btc_call('generatetoaddress', 1, new_address)
+        self.btc_call('generatetoaddress', 101, new_address)
         time.sleep(3)
+        # generate blocks for aggregation in sidechain
+        for i in range(0, 5):
+            time.sleep(3)
+            self.btc_call('generate', 1)
 
         response_id = self.send_request(
             self.get_request("get_account_stake_objects", [self.init4, "sbtc"]), self.__database_api_identifier
