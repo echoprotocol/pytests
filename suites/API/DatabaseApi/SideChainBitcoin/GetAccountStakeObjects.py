@@ -3,13 +3,11 @@ import json
 import time
 
 from common.base_test import BaseTest
-from project import BITCOIN_URL
+from project import BITCOIN_URL, INIT4_PK
 
 import lemoncheesecake.api as lcc
 import requests
 from lemoncheesecake.matching import check_that, check_that_in, equal_to, is_bool, is_dict, is_integer, is_list
-
-from project import INIT4_PK
 
 SUITE = {
     "description": "Method 'get_account_stake_objects'"
