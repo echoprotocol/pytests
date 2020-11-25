@@ -96,21 +96,26 @@ class GetAccountStakeObjects(BaseTest):
         btc_public_key = get_random_btc_public_key
         pubkey_hash = self.utils.get_public_hash(btc_public_key)
 
-        lcc.set_step("Perform sidechain_stake_btc_create_script")
-        operation = self.echo_ops.get_sidechain_stake_btc_create_script_operation(
-            echo=self.echo, account=self.init4, pubkey_hash=pubkey_hash, signer=INIT4_PK
-        )
-        collected_operation = self.collect_operations(operation, self.__database_api_identifier)
-        broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
-        if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
-            lcc.log_error("'sidechain_stake_btc_create_script' fallen while broadcast")
-        else:
-            lcc.log_info("'sidechain_stake_btc_create_script' broadcasted successfully.")
-        lcc.set_step("Call 'get_btc_stake_address' method and check its result")
         response_id = self.send_request(
             self.get_request("get_btc_stake_address", [self.init4]), self.__database_api_identifier
         )
         result = self.get_response(response_id)["result"]
+        if not result:
+            lcc.set_step("Perform sidechain_stake_btc_create_script")
+            operation = self.echo_ops.get_sidechain_stake_btc_create_script_operation(
+                echo=self.echo, account=self.init4, pubkey_hash=pubkey_hash, signer=INIT4_PK
+            )
+            collected_operation = self.collect_operations(operation, self.__database_api_identifier)
+            broadcast_result = self.echo_ops.broadcast(echo=self.echo, list_operations=collected_operation)
+            if not self.is_operation_completed(broadcast_result, expected_static_variant=1):
+                lcc.log_error("'sidechain_stake_btc_create_script' fallen while broadcast")
+            else:
+                lcc.log_info("'sidechain_stake_btc_create_script' broadcasted successfully.")
+            lcc.set_step("Call 'get_btc_stake_address' method and check its result")
+            response_id = self.send_request(
+                self.get_request("get_btc_stake_address", [self.init4]), self.__database_api_identifier
+            )
+            result = self.get_response(response_id)["result"]
 
         new_address = result['address']
         lcc.log_info("Btc stake address: '{}'".format(new_address))
