@@ -26,7 +26,7 @@ class GetAccountStakeObjects(WalletBaseTest, BaseTest):
         super().__init__()
         self.__database_api_identifier = None
         self.__registration_api_identifier = None
-        self.init4 = None
+        self.init5 = None
         self._session = None
         self.btc_url = None
         self._headers = None
@@ -42,8 +42,8 @@ class GetAccountStakeObjects(WalletBaseTest, BaseTest):
                 self.__database_api_identifier, self.__registration_api_identifier
             )
         )
-        self.init4 = self.get_account_id('init4', self.__database_api_identifier, self.__registration_api_identifier)
-        lcc.log_info("Echo account is '{}'".format(self.init4))
+        self.init5 = self.get_account_id('init5', self.__database_api_identifier, self.__registration_api_identifier)
+        lcc.log_info("Echo account is '{}'".format(self.init5))
         search_pattern = '://'
         split_index = BITCOIN_URL.find(search_pattern) + len(search_pattern)
         rpc_user = 'test'
@@ -93,16 +93,16 @@ class GetAccountStakeObjects(WalletBaseTest, BaseTest):
     def method_main_check(self, get_random_btc_public_key):
 
         self.unlock_wallet()
-        self.import_key('init4')
+        self.import_key('init5')
         lcc.set_step("Get btc stake address")
-        result = self.send_wallet_request("get_btc_stake_address", [self.init4], log_response=False)['result']
+        result = self.send_wallet_request("get_btc_stake_address", [self.init5], log_response=False)['result']
         if result is None:
             btc_public_key = get_random_btc_public_key
             result = self.send_wallet_request(
-                "create_btc_stake_address", [self.init4, btc_public_key, True], log_response=False
+                "create_btc_stake_address", [self.init5, btc_public_key, True], log_response=False
             )['result']
 
-            result = self.send_wallet_request("get_btc_stake_address", [self.init4], log_response=False)['result']
+            result = self.send_wallet_request("get_btc_stake_address", [self.init5], log_response=False)['result']
 
             if self.type_validator.is_btc_address(result['address']):
                 lcc.log_info("New btc_stake_address created!")
@@ -121,7 +121,7 @@ class GetAccountStakeObjects(WalletBaseTest, BaseTest):
             self.btc_call('generate', 1)
 
         result = self.send_wallet_request(
-            "get_account_stake_objects", [self.init4, "sbtc"], log_response=False
+            "get_account_stake_objects", [self.init5, "sbtc"], log_response=False
         )['result'][-1]
 
         if self.type_validator.is_account_stake_objects_id(result['id']):
@@ -129,7 +129,7 @@ class GetAccountStakeObjects(WalletBaseTest, BaseTest):
         else:
             lcc.log_info("Wrong format of `account_stake_object_id`, got: {}".format(result['id']))
 
-        check_that("account", result['account'], equal_to(self.init4))
+        check_that("account", result['account'], equal_to(self.init5))
 
         check_that("out", result['out'], is_dict())
 
