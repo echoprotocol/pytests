@@ -30,19 +30,10 @@ class GetCurrentIncentivesInfo(WalletBaseTest, BaseTest):
         self._disconnect_to_echopy_lib()
         super().teardown_suite()
 
-    def check_incentives_info(self, info, name):
-        if self.type_validator.is_asset_id(info[0][0]):
-            lcc.log_info("Correct format of {} asset id".format(name))
-        else:
-            lcc.log_info("Wrong format of {} asset id".format(name))
-        if isinstance(info[0][1], int):
-            lcc.log_info("Correct type of {} pool amount".format(name))
-        else:
-            lcc.log_info("Wrong {} pool amount type".format(name))
-
     @lcc.test("Simple work of method 'wallet_get_current_incentives_info'")
     def method_main_check(self):
         incentives_info = self.send_wallet_request("get_current_incentives_info", [], log_response=False)['result']
+        lcc.log_info("{}".format(incentives_info))
         if self.type_validator.is_incentives_pool_id(incentives_info['id']):
             lcc.log_info("Correct format of incentives pool id, got: {}".format(incentives_info['id']))
         else:
@@ -55,11 +46,14 @@ class GetCurrentIncentivesInfo(WalletBaseTest, BaseTest):
             lcc.log_info("Correct type of {} amount".format("pool"))
         else:
             lcc.log_info("Wrong {} amount type".format("pool"))
-        if isinstance(incentives_info['incentives'][0][0], int) and isinstance(incentives_info['incentives'][0][1],
-                                                                               int):
-            lcc.log_info("Correct format of incentives")
+        if self.type_validator.is_asset_id(incentives_info['incentives'][0][0]):
+            lcc.log_info("Correct format of {} asset id".format("incentives"))
         else:
-            lcc.log_info("Wrong format of incentives")
+            lcc.log_info("Wrong format of {} asset id".format("incentives"))
+        if isinstance(incentives_info['incentives'][0][1], int):
+            lcc.log_info("Correct type of {} amount".format("incentives"))
+        else:
+            lcc.log_info("Wrong {} amount type".format("incentives"))
         if isinstance(incentives_info['block_number'], int):
             lcc.log_info("Correct type of block_number, got {}".format(incentives_info['block_number']))
         else:

@@ -55,6 +55,7 @@ class CreateVestingLinearPolicy(WalletBaseTest, BaseTest):
             "create_vesting_linear_policy", [self.init5, self.init5, 1, self.echo_asset, begin_timestamp, 10, 20, True],
             log_response=False
         )
+        lcc.log_info("asdasd {}".format(get_vesting_balances_result))
         lcc.log_info("Vesting linear policy created")
         lcc.set_step("Check vesting linear policy")
         get_vesting_balances_result = self.send_wallet_request(
